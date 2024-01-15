@@ -1,5 +1,7 @@
+version: '3.7'
 services:
   web:
+    container_name: web
     build:
       context: ./django/
     volumes:
@@ -10,7 +12,9 @@ services:
       - 8000
     env_file:
       - ./.env/dev.env
+    restart: always
   nginx:
+    container_name: nginx
     build:
       context: ./nginx
     ports:
@@ -18,5 +22,8 @@ services:
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
       - static:/home/app/static/
+    depends_on:
+      - web
+    restart: always
 volumes:
   static:
