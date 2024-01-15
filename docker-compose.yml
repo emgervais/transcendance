@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  postgres:
+    build:
+      context: postgres/
+    container_name: postgres
+    # environment:
+    #   - POSTGRES_PASSWORD=your_database_password
+    #   - POSTGRES_DB=main_db
+    #   - POSTGRES_USER=your_database_user
+    env_file:
+      - ./postgres/env/.env
+      - ./postgres/env/postgres.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/postgres_data:/var/lib/postgresql/data
+
+  web:
+    container_name: web
+    build:
+      context: ./django/
+    volumes:
+      - static:/usr/src/app/static/
+    # command: gunicorn transcande.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - 8000
+    env_file:
+      - ./.env/dev.env
+    environment:
+      - SECRET_KEY='django-insecure-7)jmw&zr1+dmmvkcgpw+&fnus2-uypx3%iipodw^d4stdthfr!'
+      - DEBUG=1
+      - ALLOWED_HOSTS="172.105.98.43 localhost 127.0.0.1"
+    depends_on:
+      - postgres
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx/
+    ports:
+      - 443:443
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - static:/home/app/static/
+    depends_on:
+      - web
+
+volumes:
+  static:
