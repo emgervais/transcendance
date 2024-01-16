@@ -1,5 +1,5 @@
 run:
-	python3 transcande/manage.py runserver
+	python3 django/manage.py runserver
 
 get:
 	pip3 install -r requirements.txt --disable-pip-version-check
