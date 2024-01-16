@@ -9,8 +9,9 @@ RUN apt-get update && apt-get install -y procps \
     netcat
 RUN pip install --upgrade pip
 
-# COPY . .
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 CMD ["./entrypoint.sh"]
+# # CMD ["bash"]
+# CMD ["tail", "-f", "/dev/null"]
