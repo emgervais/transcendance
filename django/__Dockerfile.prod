@@ -8,8 +8,9 @@ ENV PYTHONUNBUFFERED 1
 RUN apt-get update && apt-get install -y procps
 RUN pip install --upgrade pip
 
-# COPY . .
-COPY requirements.txt .
+COPY . .
 RUN pip install -r requirements.txt
 
-CMD ["./entrypoint.sh"]
+# RUN python manage.py migrate
+CMD ["gunicorn", "transcande.wsgi:application", "--bind", "0.0.0.0:8000"]
+

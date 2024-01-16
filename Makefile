@@ -1,8 +1,7 @@
-run:
-	python3 django/manage.py runserver
+stop:
+	docker compose down
+	yes | docker container prune
 
-get:
-	pip3 install -r requirements.txt --disable-pip-version-check
-
-reqs:
-	pip3 freeze > requirements.txt --disable-pip-version-check
+freeze:
+	python -m pip install -r django/requirements.txt
+	python -m pip freeze > django/requirements.txt
