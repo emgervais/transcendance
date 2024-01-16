@@ -5,7 +5,8 @@ WORKDIR /usr/src/app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update && apt-get install -y procps
+RUN apt-get update && apt-get install -y procps \
+    netcat
 RUN pip install --upgrade pip
 
 # COPY . .

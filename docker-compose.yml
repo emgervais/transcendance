@@ -6,15 +6,12 @@ services:
       context: ./postgres/
     container_name: postgres
     env_file:
-      - ./postgres/env/.env
       - ./postgres/env/postgres.env
     expose:
       - 5432
-    # ports:
-    #   - 5432:5432
     volumes:
       - ./postgres/postgres_data:/var/lib/postgresql/data
-
+    # restart: always
   web:
     container_name: web
     build:
@@ -22,15 +19,13 @@ services:
     volumes:
       - static:/usr/src/app/static/
       - ./django/:/usr/src/app/
-    # ports: 
-    #   - 8000:8000
     expose:
       - 8000
     env_file:
       - ./django/env/dev.env
     depends_on:
       - postgres
-
+    # restart: always
   nginx:
     container_name: nginx
     build:
@@ -41,6 +36,6 @@ services:
       - static:/home/app/static/
     depends_on:
       - web
-
+    # restart: always
 volumes:
   static:
