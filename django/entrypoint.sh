@@ -1,5 +1,7 @@
-#!/bin/bash
-set -e
+#!/bin/sh
+
+# exit shell if a process fails
+set -e 
 
 # wait for postgres to start
 while ! nc -z postgres 5432; do
