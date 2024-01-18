@@ -12,4 +12,5 @@ while ! nc -z postgres $POSTGRES_PORT; do   # wait for postgres to start
 done
 
 python manage.py migrate
+python manage.py collectstatic --noinput
 python manage.py runserver 0.0.0.0:$DJANGO_PORT
