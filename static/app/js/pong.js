@@ -1,9 +1,6 @@
-const ws = new WebSocket("wss://localhost/ws/pong/");
+wss = new WebSocket("wss://" + window.location.host + "/ws/pong/");
 
-ws.addEventListener("open", () => {
-  ws.send("Hello Server!");
-});
-
-ws.addEventListener("message", (event) => {
-	console.log(event.data);
-});
+wss.onmessage = function (event) {
+    var data = JSON.parse(event.data);
+    console.log(data);
+}

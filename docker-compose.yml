@@ -2,21 +2,25 @@ version: '3.9'
 
 services:
   postgres:
-    build:
-      context: ./postgres/
-    container_name: postgres
+    env_file:
+      - .env
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    env_file:
-      - ./.env
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    build:
+      context: ./postgres/
+    container_name: postgres
     expose:
       - ${POSTGRES_PORT}
     volumes:
       - db:/var/lib/postgresql/data
 
   web:
+    env_file:
+      - .env
     container_name: web
     build:
       context: ./django/
