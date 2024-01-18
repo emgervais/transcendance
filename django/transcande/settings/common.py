@@ -29,14 +29,15 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(" ")
 # Application definition
 
 INSTALLED_APPS = [
-	'daphne',
+    'daphne',
+    'channels',
+    'app.apps.AppConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +67,12 @@ TEMPLATES = [
         },
     },
 ]
+
+CHANNEL_LAYERS = {
+	"default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 ASGI_APPLICATION = 'transcande.asgi.application'
 

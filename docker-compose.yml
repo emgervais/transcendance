@@ -2,17 +2,19 @@ version: '3.9'
 
 services:
   postgres:
+    env_file:
+      - .env
     build:
       context: ./postgres/
     container_name: postgres
-    env_file:
-      - .env
     expose:
       - ${POSTGRES_PORT}
     volumes:
       - db:/var/lib/postgresql/data
 
   web:
+    env_file:
+      - .env
     container_name: web
     build:
       context: ./django/
@@ -21,8 +23,6 @@ services:
       - ./django/:/usr/src/app/
     expose:
       - ${DJANGO_PORT}
-    env_file:
-      - .env
     depends_on:
       - postgres
 
