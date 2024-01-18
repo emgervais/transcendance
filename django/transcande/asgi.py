@@ -17,7 +17,7 @@ from django.urls import path
 
 from app.consumers import PongConsumer
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transcande.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transcande.settings.common')
 
 application = ProtocolTypeRouter({
 	"http": get_asgi_application(),

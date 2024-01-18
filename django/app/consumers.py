@@ -12,6 +12,7 @@ class PongConsumer(WebsocketConsumer):
 	players = {}
 
 	def connect(self):
+		print('connected')
 		self.player_id = str(uuid.uuid4())
 		self.accept()
 
@@ -33,4 +34,5 @@ class PongConsumer(WebsocketConsumer):
 
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
+		print(text_data_json)
 
