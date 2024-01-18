@@ -23,10 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get("DJANGO_DEBUG", default=0))
-
-# ALLOWED_HOSTS = ['172.105.98.43', 'localhost', '127.0.0.1']
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
@@ -77,11 +73,11 @@ ASGI_APPLICATION = 'transcande.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'main_db',							# choose a name for the database
-        'USER': 'your_database_user',				# an existing PostgreSQL with necessary priviledges
-        'PASSWORD': 'your_database_password',
-        'HOST': 'postgres',						# where PostgreSQL is running
-        'PORT': '5432',		
+        'NAME': os.environ.get("POSTGRES_DB"),
+        'USER': os.environ.get("POSTGRES_USER"),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
+        'HOST': os.environ.get("POSTGRES_HOST"),
+        'PORT': os.environ.get("POSTGRES_PORT"),		
     }
 }
 
