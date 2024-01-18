@@ -8,7 +8,7 @@ services:
     env_file:
       - .env
     expose:
-      - 5432
+      - ${POSTGRES_PORT}
     volumes:
       - db:/var/lib/postgresql/data
 
@@ -20,7 +20,7 @@ services:
       - static:/usr/src/app/static/
       - ./django/:/usr/src/app/
     expose:
-      - 8000
+      - ${DJANGO_PORT}
     env_file:
       - .env
     depends_on:

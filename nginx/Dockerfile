@@ -1,4 +1,5 @@
-FROM nginx:latest
+FROM nginx:1.25.3
+
 RUN apt-get update && apt-get install -y procps \
     openssl
 RUN mkdir /etc/nginx/ssl

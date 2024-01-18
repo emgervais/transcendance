@@ -9,3 +9,6 @@ stop:
 freeze:
 	python -m pip install -r django/requirements.txt
 	python -m pip freeze > django/requirements.txt
+
+web:
+	docker exec -it web sh

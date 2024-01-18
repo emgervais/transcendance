@@ -1,13 +1,15 @@
 #!/bin/sh
 
-# exit shell if a process fails
-set -e 
+set -e                                      # exit shell if any process fails
 
-# wait for postgres to start
-while ! nc -z postgres 5432; do
-    sleep 0.1
+if [ "$APP_ENV" != "production" ]; then
+    export PYTHONDONTWRITEBYTECODE=1        # Don't compile Python
+    export PYTHONUNBUFFERED=1               # Don't buffer stdout/err
+fi
+
+while ! nc -z postgres $POSTGRES_PORT; do   # wait for postgres to start
+    sleep 1
 done
 
 python manage.py migrate
-
-python manage.py runserver 0.0.0.0:8000
+python manage.py runserver 0.0.0.0:$DJANGO_PORT

@@ -1,11 +1,6 @@
-FROM python:alpine3.18
+FROM python:3.9.18-alpine3.19
 
 WORKDIR /usr/src/app
-
-# Don't compile Python (bad for prod, ok for development)
-ENV PYTHONDONTWRITEBYTECODE 1
-# Don't buffer stdout/err (bad for prod, ok for development)
-ENV PYTHONUNBUFFERED 1
 
 RUN apk update && apk add netcat-openbsd
 RUN pip install --upgrade pip
