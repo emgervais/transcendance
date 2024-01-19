@@ -1,6 +1,0 @@
-pongbackend.cpp
-setup.py
-pongbackend.egg-info/PKG-INFO
-pongbackend.egg-info/SOURCES.txt
-pongbackend.egg-info/dependency_links.txt
-pongbackend.egg-info/top_level.txt
