@@ -6,8 +6,6 @@ services:
     container_name: postgres
     env_file:
       - .env
-    build:
-      context: ./postgres/
     volumes:
       - db:/var/lib/postgresql/data
     expose:
