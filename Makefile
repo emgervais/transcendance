@@ -1,8 +1,9 @@
 start:
-	docker-compose up --build
+	docker-compose up --build -d
 
 stop:
 	docker compose down
+	yes | docker image prune
 
 freeze:
 	python -m pip install -r django/requirements.txt

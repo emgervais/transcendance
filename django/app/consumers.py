@@ -5,6 +5,8 @@ from channels.generic.websocket import WebsocketConsumer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
+import pongbackend
+
 # import pongbackend
 
 class PongConsumer(WebsocketConsumer):
@@ -13,7 +15,9 @@ class PongConsumer(WebsocketConsumer):
 
 	def connect(self):
 		print('connect')
-		self.player_id = str(uuid.uuid4())
+		pongbackend.pong()
+		self.player_id = uuid.uuid1()
+		self.player_sid = str(self.player_id)
 		self.accept()
 
 		async_to_sync(self.channel_layer.group_add)(
@@ -23,7 +27,7 @@ class PongConsumer(WebsocketConsumer):
 
 		self.send(text_data=json.dumps({
 			'type': 'player_id',
-			'player_id': self.player_id
+			'player_id': self.player_sid
 		}))
 
 	def disconnect(self, close_code):
