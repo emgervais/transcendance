@@ -7,10 +7,5 @@ if [ "$APP_ENV" != "production" ]; then
     export PYTHONUNBUFFERED=1               # Don't buffer stdout/err
 fi
 
-while ! nc -z postgres $POSTGRES_PORT; do   # wait for postgres to start
-    sleep 1
-done
-sleep 10
-
 python manage.py migrate
 python manage.py runserver 0.0.0.0:$DJANGO_PORT
