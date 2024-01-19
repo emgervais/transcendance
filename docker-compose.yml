@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   postgres:
+    image: postgres:12.17-alpine3.19
     container_name: postgres
     env_file:
       - .env

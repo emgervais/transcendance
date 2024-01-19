@@ -7,6 +7,5 @@ if [ "$APP_ENV" != "production" ]; then
     export PYTHONUNBUFFERED=1               # Don't buffer stdout/err
 fi
 
-
 python manage.py migrate
 python manage.py runserver 0.0.0.0:$DJANGO_PORT
