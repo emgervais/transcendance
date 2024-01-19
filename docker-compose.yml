@@ -2,20 +2,26 @@ version: '3.9'
 
 services:
   postgres:
+    image: postgres:12.17-alpine3.19
+    container_name: postgres
     env_file:
       - .env
     build:
       context: ./postgres/
-    container_name: postgres
-    expose:
-      - ${POSTGRES_PORT}
     volumes:
       - db:/var/lib/postgresql/data
+    expose:
+      - ${POSTGRES_PORT}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
   web:
+    container_name: web
     env_file:
       - .env
-    container_name: web
     build:
       context: ./django/
     volumes:
@@ -23,8 +29,9 @@ services:
     expose:
       - ${DJANGO_PORT}
     depends_on:
-      - postgres
-
+      postgres:
+        condition: service_healthy
+      
   nginx:
     container_name: nginx
     build:
