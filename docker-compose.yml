@@ -2,27 +2,35 @@ version: '3.9'
 
 services:
   postgres:
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
     build:
       context: ./postgres/
     container_name: postgres
-    env_file:
-      - .env
     expose:
       - ${POSTGRES_PORT}
     volumes:
       - db:/var/lib/postgresql/data
 
   web:
+    env_file:
+      - .env
     container_name: web
     build:
       context: ./django/
     volumes:
-      - static:/usr/src/app/static/
+      - ./static:/usr/src/app/static/
       - ./django/:/usr/src/app/
+    env_file:
+      - ./.env
     expose:
       - ${DJANGO_PORT}
-    env_file:
-      - .env
     depends_on:
       - postgres
 
@@ -33,10 +41,9 @@ services:
     ports:
       - 443:443
     volumes:
-      - static:/home/app/static/
+      - ./static:/home/app/static/
     depends_on:
       - web
 
 volumes:
-  static:
   db:

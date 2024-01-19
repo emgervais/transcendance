@@ -30,12 +30,10 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(" ")
 
 INSTALLED_APPS = [
 	'daphne',
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'app',
 ]
 
@@ -67,8 +65,19 @@ TEMPLATES = [
     },
 ]
 
+CHANNEL_LAYERS = {
+	"default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
 ASGI_APPLICATION = 'transcande.asgi.application'
 
+CHANNEL_LAYERS = {
+	"default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 DATABASES = {
     'default': {
@@ -115,12 +124,12 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-STATICFILES_DIRS=[
-	os.path.join(BASE_DIR, "app", "static")
-]
+# STATICFILES_DIRS=[
+# 	os.path.join(BASE_DIR, "app", "static")
+# ]
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATIC_URL = 'static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
