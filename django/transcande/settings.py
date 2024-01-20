@@ -49,6 +49,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'transcande.urls'
 
+CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(" ")
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -73,12 +75,6 @@ CHANNEL_LAYERS = {
 
 ASGI_APPLICATION = 'transcande.asgi.application'
 
-CHANNEL_LAYERS = {
-	"default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -89,7 +85,6 @@ DATABASES = {
         'PORT': os.environ.get("POSTGRES_PORT"),		
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

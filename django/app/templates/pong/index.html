@@ -1,13 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<title>Pong</title>
-		<link rel="shortcut icon" href="static/app/img/eboyce_portrait.png" type="image/x-icon">
-	</head>
-	<body>
-		<h1>Poong</h1>
-		<canvas id="pong-canvas" width="800" height="600"></canvas>
-		<script src="static/app/js/pong.js"></script>
-	</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+	<h1>Pong</h1>
+	<canvas id="pong-canvas" width="800" height="600"></canvas>
+	<script src="static/app/js/pong.js"></script>
+{% endblock %}

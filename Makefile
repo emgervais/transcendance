@@ -1,5 +1,5 @@
 start:
-	docker-compose up --build -d
+	docker-compose up --build
 
 stop:
 	docker compose down
@@ -14,3 +14,9 @@ prune:
 
 web:
 	docker exec -it web sh
+
+nginx:
+	docker exec -it nginx sh
+
+db:
+	docker exec -it postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
