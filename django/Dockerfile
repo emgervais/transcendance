@@ -9,7 +9,5 @@ RUN pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-RUN cd app/pongbackend && python3 setup.py install
-
 COPY ./entrypoint.sh .
 CMD ["./entrypoint.sh"]
