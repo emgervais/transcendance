@@ -12,5 +12,5 @@ admin/
 
 **/pongbackend/build/
 **/pongbackend/dist/
-**/pongbackend/pongbackend.egg-info/
+**/pongbackend/pong.egg-info/
 **/pongbackend/include/

@@ -12,32 +12,17 @@ ws.onmessage = function (event) {
     console.log(event);
     e = JSON.parse(event.data);
     switch(e.type) {
-        case "player_id":
-            playerid = e.player_id;
+        case "log":
+            console.log(e.message);
             break;
         default:
             console.log("Unknown message type: " + e.type);
     }
 }
 
-let i = 0;
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.font = "30px Arial";
-    ctx.strokeText(playerid.toString(), 10, 50);
-    ctx.beginPath();
-    ctx.arc(100 + i, 75, 50, 0, 2 * Math.PI);
-    ctx.stroke();
-    i++;
+function ping() {
+    ws.send(JSON.stringify({
+        type: "ping",
+        message: "ping"
+    }));
 }
-
-function waitforplayerid() {
-    if (playerid == 0) {
-        setTimeout(waitforplayerid, 1);
-    }
-}
-
-waitforplayerid();
-
-setInterval(draw, 10);
