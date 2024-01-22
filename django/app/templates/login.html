@@ -1,28 +1,36 @@
 {% extends "base.html" %}
+
 {% block content %}
 <h1>Login</h1>
-<p class="text-muted">Don't have an account? <a href="/register">Register</a></p>
-{% if form.errors %}
-    <div class="alert alert-danger" role="alert">
-        <ul>
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
+
+<div id="login-form">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
             {% endfor %}
-        </ul>
-    </div>
-{% endif %}
-<hr>
-<form method="POST" action="/login">
+        {% endfor %}
+    {% endif %}
+</div>
+<form hx-post="{% url 'login' %}" hx-target="#login-form">
     {% csrf_token %}
     <div class="form-group">
-        <label for="email">Email address</label>
-        <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+        <label for="id_username">Username</label>
+        <input type="text" name="username" id="id_username" class="form-control" placeholder="Username" required autofocus>
     </div>
     <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" name="password" class="form-control" id="password" placeholder="Enter password">
+        <label for="id_password">Password</label>
+        <input type="password" name="password" id="id_password" class="form-control" placeholder="Password" required>
     </div>
-    <button type="submit" class="btn btn-primary">Login</button>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+</form>
 {% endblock %}

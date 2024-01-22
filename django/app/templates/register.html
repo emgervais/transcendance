@@ -1,35 +1,45 @@
 {% extends "base.html" %}
+
 {% block content %}
 <h1>Register</h1>
-<p class="text-muted">Already have an account? <a href="/login">Login</a></p>
-<hr>
-{% if form.errors %}
-    <div class="alert alert-danger" role="alert">
-        <ul>
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            {% endfor %}
-        </ul>
-    </div>
-{% endif %}
-<form method="POST" action="/register">
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="InputName">Name</label>
-        <input type="text" class="form-control" id="InputName" placeholder="Enter name" name="name">
-    </div>
-    <div class="form-group">
-        <label for="InputEmail">Email address</label>
-        <input type="email" class="form-control" id="InputEmail" aria-describedby="emailHelp" placeholder="Enter email" name="email">
-    </div>
-    <div class="form-group">
-        <label for="InputPassword">Password</label>
-        <input type="password" class="form-control" id="InputPassword" placeholder="Password" aria-describedby="passwordHelp" name="password">
-        <small id="passwordHelp" class="form-text text-muted">Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.</small>
-    </div>
 
-    <button type="submit" class="btn btn-primary">Submit</button>
+<div id="Register-form">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+</div>
+<form hx-post="/register/" hx-headers="{'X-CSRFToken': '{{ csrf_token }}'}" hx-target="#Register-form">
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input class="form-control" type="text" name="username" id="username"  placeholder="Username" required>
+    </div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input class="form-control" type="email" name="email" id="email" placeholder="Email" required>
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input class="form-control" type="password" name="password" id="password" placeholder="Password" required>
+    </div>
+    <div class="form-group">
+        <label for="password2">Confirm Password</label>
+        <input class="form-control" type="password" name="password2" id="password2" placeholder="Confirm Password" required>
+    </div>
+    <div class="form-group">
+        <input class="btn btn-primary" type="submit" value="Register">
+    </div>
 </form>
 {% endblock %}

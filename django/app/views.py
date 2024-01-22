@@ -1,35 +1,40 @@
-from django.shortcuts import render
+from __future__ import annotations
 
-from .models import User
-from .forms import RegisterForm, LoginForm
+import time
+from dataclasses import dataclass
 
-def pong(request):
-    return render(request, 'pong/index.html')
+from django.http import HttpRequest
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_GET, require_POST
+from django_htmx.middleware import HtmxDetails
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login, views as auth_views
 
-def register(request):
-    if request.method == "POST":
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = User(name=form.cleaned_data['name'], email=form.cleaned_data['email'], password=form.cleaned_data['password'])
-            user.save()
-            return render(request, 'index.html')
-        else:
-            return render(request, 'register.html', {'form': form})
-    else:
-        form = RegisterForm()
-        return render(request, 'register.html', {'form': form})
+class HtmxHttpRequest(HttpRequest):
+    htmx: HtmxDetails
 
-def login(request):
-    if request.method == "POST":
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            request.session['user_id'] = form.get_user().id
-            return render(request, 'index.html')
-        else:
-            return render(request, 'login.html', {'form': form})
-    else:
-        form = LoginForm()
-        return render(request, 'login.html', {'form': form})
+@require_GET
+def index(request: HtmxHttpRequest):
+    return render(request, "index.html")
 
-def index(request):
-    return render(request, 'index.html')
+@require_GET
+def register(request: HtmxHttpRequest):
+    form = UserCreationForm()
+    return render(request, "register.html", {"form": form})
+
+@require_POST
+def register_post(request: HtmxHttpRequest):
+    form = UserCreationForm(request.POST)
+    if form.is_valid():
+        user = form.save()
+        login(request, user)  # Automatically log in the user after registration
+        return redirect("index")  # Redirect to the index or another page
+    return render(request, "register.html", {"form": form})
+
+@require_GET
+def login(request: HtmxHttpRequest):
+    return auth_views.LoginView.as_view(template_name="login.html")(request)
+
+@require_POST
+def login_post(request: HtmxHttpRequest):
+    return auth_views.LoginView.as_view(template_name="login.html")(request)
