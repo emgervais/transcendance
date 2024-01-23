@@ -1,6 +1,5 @@
 #include "pongbackend.hpp"
 
-#define PYSPECS
 #include "pong.hpp"
 #include "player.hpp"
 
@@ -14,6 +13,7 @@ static PyObject* Pong_init(PyObject* self, PyObject* args) {
 
 static PyMethodDef PongBackendMethods[] = {
 	{"init", Pong_init, METH_VARARGS, "Initialize the pong backend"},
+	{"new_player", PongGame::pynewPlayer, METH_NOARGS, "Create a new player"},
 	{NULL, NULL, 0, NULL}
 };
 
@@ -27,15 +27,15 @@ static PyModuleDef PongBackendModule = {
 
 PyMODINIT_FUNC PyInit_pong(void) {
 	PyObject* module =  PyModule_Create(&PongBackendModule);
-	PyObject* pongclass = PyType_FromSpec(&PongGameSpec);
-	PyObject* playerclass = PyType_FromSpec(&PlayerSpec);
-	if(!module || !pongclass || !playerclass
-		|| PyModule_AddObject(module, "PongGame", pongclass)
-		|| PyModule_AddObject(module, "Player", playerclass))
+	PongObjectType = PyType_FromSpec(&PongGameSpec);
+	PlayerObjectType = PyType_FromSpec(&PlayerSpec);
+	if(!module || !PongObjectType || !PlayerObjectType
+		|| PyModule_AddObject(module, "PongGame", PongObjectType)
+		|| PyModule_AddObject(module, "Player", PlayerObjectType))
 	{
-		Py_XDECREF(playerclass);
-		Py_XDECREF(pongclass);
 		Py_XDECREF(module);
+		Py_XDECREF(PongObjectType);
+		Py_XDECREF(PlayerObjectType);
 		return NULL;
 	}
 

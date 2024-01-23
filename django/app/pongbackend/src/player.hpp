@@ -6,32 +6,50 @@
 class Player
 {
 public:
-	Player() noexcept;
+	Player();
 	~Player();
 
-	static PyObject* pynew(PyTypeObject* type, PyObject* args, PyObject* kwds);
-	static int pyinit(Player* self, PyObject* args, PyObject* kwds);
-	static void pydealloc(Player* self);
+	i32 y() const { return _y; }
 
 private:
 	i32 _y;
 };
 
-#ifdef PYSPECS
+struct PlayerObject
+{
+	PyObject_HEAD
+	u64 id;
 
-static PyType_Slot PlayerSlots[] = {
-	{Py_tp_new, (void*)Player::pynew},
-	{Py_tp_init, (void*)Player::pyinit},
-	{Py_tp_dealloc, (void*)Player::pydealloc},
+	static PyObject* pyremove(PyObject* self, PyObject* args);
+
+	static PyObject* pynew(PyTypeObject* type, PyObject* args, PyObject* kwds);
+	static int pyinit(PlayerObject* self, PyObject* args, PyObject* kwds);
+	static void pydealloc(PlayerObject* self);
+};
+
+inline PyMethodDef PlayerMethods[] = {
+	{"remove", PlayerObject::pyremove, METH_NOARGS, "Remove player"},
+	{NULL, NULL, 0, NULL}
+};
+
+inline PyMemberDef PlayerMembers[] = {
+	{"id", T_ULONGLONG, offsetof(PlayerObject, id), READONLY, "Player id"},
+	{NULL}
+};
+
+inline PyType_Slot PlayerSlots[] = {
+	{Py_tp_new, (void*)PlayerObject::pynew},
+	{Py_tp_init, (void*)PlayerObject::pyinit},
+	{Py_tp_dealloc, (void*)PlayerObject::pydealloc},
+	{Py_tp_methods, PlayerMethods},
+	{Py_tp_members, PlayerMembers},
 	{0, NULL}
 };
 
-static PyType_Spec PlayerSpec = {
+inline PyType_Spec PlayerSpec = {
 	"pong.Player",
-	sizeof(Player),
+	sizeof(PlayerObject),
 	0,
 	Py_TPFLAGS_DEFAULT,
 	PlayerSlots
 };
-
-#endif

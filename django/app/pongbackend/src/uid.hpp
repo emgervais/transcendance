@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <unordered_map>
 
 //#define UIDUSE128
 
@@ -41,7 +42,7 @@ class UID64
 {
 public:
 	UID64() = default;
-	UID64(u16 embededvalue) { _id16[0] = embededvalue; _id16[1] = (u16)rand(); _id32[1] = (u32)time(0); }
+	UID64(u16 embededvalue) { _id16[3] = embededvalue; _id16[2] = (u16)rand(); _id32[0] = (u32)time(0); }
 
 	bool operator==(const UID64& other) const { return _id64 == other._id64; }
 	bool operator!=(const UID64& other) const { return _id64 != other._id64; }
@@ -51,9 +52,9 @@ public:
 	bool operator<=(const UID64& other) const { return _id64 <= other._id64; }
 	bool operator>=(const UID64& other) const { return _id64 >= other._id64; }
 
-	operator u64() const { return _id64; }
+	bool operator!() const { return !_id64; }
 
-	static UID64 from64(u64 id) { UID64 uid; uid._id64 = id; return uid; }
+	operator u64() const { return _id64; }
 
 private:
 	union

@@ -1,45 +1,39 @@
 #include "player.hpp"
 
-Player::Player() noexcept {
-}
+#include "pong.hpp"
+#include "uid.hpp"
 
-Player::~Player() {
+Player::Player()
+{
+	printf("Player constructed\n");
+	_y = 0;
+}
+Player::~Player()
+{
+	printf("Player destructed\n");
 }
 
 ///////////////////////
 // Python interface
 ///////////////////////
 
-struct PlayerObject
-{
-	PyObject_HEAD
-	Player* player;
-};
+PyObject* PlayerObject::pyremove(PyObject* self, PyObject* args) {
+	PlayerObject* const o = (PlayerObject*)self;
+	PongGame::removePlayer(o->id);
+	Py_RETURN_NONE;
+}
 
-PyObject* Player::pynew(PyTypeObject* type, PyObject* args, PyObject* kwds) {
+PyObject* PlayerObject::pynew(PyTypeObject* type, PyObject* args, PyObject* kwds) {
 	PlayerObject* self = (PlayerObject*)type->tp_alloc(type, 0);
 	if(self != 0)
-		self->player = 0;
+		self->id = 0;
 	return (PyObject*)self;
 }
 
-int Player::pyinit(Player* self, PyObject* args, PyObject* kwds) {
-	PlayerObject* const o = (PlayerObject*)self;
-	o->player = (Player*)PyObject_Malloc(sizeof(Player));
-	if(!o->player) {
-		PyErr_SetString(PyExc_MemoryError, "Could not allocate memory for Player");
-		return -1;
-	}
-	new(o->player) Player();
+int PlayerObject::pyinit(PlayerObject* self, PyObject* args, PyObject* kwds) {
 	return 0;
 }
 
-void Player::pydealloc(Player* self) {
-	PlayerObject* const o = (PlayerObject*)self;
-	if(o->player) {
-		o->player->~Player();
-		PyObject_Free(o->player);
-		o->player = 0;
-	}
+void PlayerObject::pydealloc(PlayerObject* self) {
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }

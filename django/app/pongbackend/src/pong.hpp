@@ -1,7 +1,8 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <mutex>
+#include <memory>
 
 #include "pongbackend.hpp"
 #include "player.hpp"
@@ -9,7 +10,7 @@
 #include "common.hpp"
 
 struct MLocker
-{
+{ // simple wrapper for locking a mutex and unlocking it when the object goes out of scope
 	std::mutex& mutex;
 	MLocker(std::mutex& mutex) : mutex(mutex) { mutex.lock(); }
 	~MLocker() { mutex.unlock(); }
@@ -20,45 +21,45 @@ class PongGame
 public:
 	~PongGame();
 
-	int init();
+	static int init();
+	static void update();
 
-	UID newPlayer();
-	void removePlayer(UID id);
+	static u64 newPlayer();
+	static void removePlayer(u64 id);
 
 	static PyObject* pynewPlayer(PyObject* self, PyObject* args);
-	static PyObject* pyremovePlayer(PyObject* self, PyObject* args);
+	static PyObject* pyupdate(PyObject* self, PyObject* args);
 
 	static PyObject* pynew(PyTypeObject* type, PyObject* args, PyObject* kwds);
 	static int pyinit(PongGame* self, PyObject* args, PyObject* kwds);
 	static void pydealloc(PongGame* self);
 
 private:
-	std::mutex mutex;
-	std::map<UID, Player*> players;
+	static std::mutex mutex;
+	static std::unordered_map<u64, std::unique_ptr<Player> > players;
 };
 
-#ifdef PYSPECS
+struct PongGameObject
+{
+	PyObject_HEAD
+	PongGame* game;
+};
 
-static PyMethodDef PongGameMethods[] = {
-	{"new_player", PongGame::pynewPlayer, METH_NOARGS, "Create new player and return uid"},
-	{"remove_player", PongGame::pyremovePlayer, METH_VARARGS, "Remove a player with uid"},
+inline PyMethodDef PongGameMethods[] = {
 	{NULL, NULL, 0, NULL}
 };
 
-static PyType_Slot PongGameSlots[] = {
+inline PyType_Slot PongGameSlots[] = {
 	{Py_tp_new, (void*)PongGame::pynew},
 	{Py_tp_init, (void*)PongGame::pyinit},
 	{Py_tp_dealloc, (void*)PongGame::pydealloc},
-	{Py_tp_methods, (void*)PongGameMethods},
 	{0, NULL}
 };
 
-static PyType_Spec PongGameSpec = {
+inline PyType_Spec PongGameSpec = {
 	"pong.PongGame",
-	sizeof(PongGame),
+	sizeof(PongGame) + sizeof(PongGameObject),
 	0,
 	Py_TPFLAGS_DEFAULT,
 	PongGameSlots
 };
-
-#endif
