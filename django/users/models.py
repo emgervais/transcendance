@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
 class User(models.Model):
-    name = models.CharField(max_length=50)
+    username = models.CharField(max_length=150, default='default_username')
     email = models.EmailField()
     password = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -11,7 +11,7 @@ class User(models.Model):
     matches = models.ManyToManyField("self", through="PongMatch", symmetrical=False, related_name="user_matches", through_fields=('p1', 'p2'))
 
     def __str__(self):
-        return self.name
+        return self.username
 
 class PongMatch(models.Model):
     p1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="p1_matches")

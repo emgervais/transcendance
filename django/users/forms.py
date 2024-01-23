@@ -1,19 +1,19 @@
 from django import forms
 from .models import User
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import get_user_model
 
-class RegisterForm(forms.Form):
-    name = forms.CharField(max_length=50)
+class RegisterForm(UserCreationForm):
     email = forms.EmailField()
-    password = forms.CharField(max_length=50)
 
-    def is_valid(self) -> bool:
-        valid = super(RegisterForm, self).is_valid()
-        if not valid:
-            return False
-        if User.objects.filter(email=self.cleaned_data['email']).exists():
-            self.add_error('email', 'Email already exists')
-            return False
-        return True
+    class Meta:
+        model = get_user_model()
+        fields = ['username', 'email', 'password1', 'password2']
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already taken. Please choose a different one.")
+        return email
 
 class LoginForm(forms.Form):
     email = forms.EmailField()

@@ -1,34 +1,13 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
 <h1>Register</h1>
 <p class="text-muted">Already have an account? <a href="/login">Login</a></p>
 <hr>
-{% if form.errors %}
-    <div class="alert alert-danger" role="alert">
-        <ul>
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            {% endfor %}
-        </ul>
-    </div>
-{% endif %}
+
 <form method="POST" action="/register">
     {% csrf_token %}
-    <div class="form-group">
-        <label for="InputName">Name</label>
-        <input type="text" class="form-control" id="InputName" placeholder="Enter name" name="name">
-    </div>
-    <div class="form-group">
-        <label for="InputEmail">Email address</label>
-        <input type="email" class="form-control" id="InputEmail" aria-describedby="emailHelp" placeholder="Enter email" name="email">
-    </div>
-    <div class="form-group">
-        <label for="InputPassword">Password</label>
-        <input type="password" class="form-control" id="InputPassword" placeholder="Password" aria-describedby="passwordHelp" name="password">
-        <small id="passwordHelp" class="form-text text-muted">Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.</small>
-    </div>
+    {{ form|crispy }}
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
