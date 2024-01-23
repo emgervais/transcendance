@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate
 from .models import User
 from .forms import RegisterForm, LoginForm
 from django.http import JsonResponse
@@ -26,15 +27,14 @@ def login(request):
         if form.is_valid():
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
-            user = authenticate(request, username=email, password=password)
+            user = authenticate(request, email=email, password=password)
             if user is not None:
-                return render(request, 'index.html')
+                return render(request, 'login.html', {'form': form, 'logged': request.user.is_authenticated})
         else:
             return render(request, 'login.html', {'form': form})
     else:
         form = LoginForm()
-        form.fields.pop('username')
-        return render(request, 'login.html', {'form': form})
+        return render(request, 'login.html', {'form': form, 'logged': request.user.is_authenticated})
 
 def get_oauth_uri(request):
     redirect_uri = "https://localhost"
