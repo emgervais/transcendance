@@ -18,3 +18,7 @@ class RegisterForm(UserCreationForm):
 class LoginForm(AuthenticationForm):
     email = forms.EmailField()
     field_order = ['email', 'password']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields.pop('username', None)
