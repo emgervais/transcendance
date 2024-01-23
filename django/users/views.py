@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from .models import User
 from .forms import RegisterForm, LoginForm
+from django.http import JsonResponse
 from django.contrib import messages
+from . import oauth42
 
 
 def register(request):
@@ -31,4 +33,10 @@ def login(request):
             return render(request, 'login.html', {'form': form})
     else:
         form = LoginForm()
+        form.fields.pop('username')
         return render(request, 'login.html', {'form': form})
+
+def get_oauth_uri(request):
+    redirect_uri = "https://localhost"
+    url = oauth42.create_oauth_uri(redirect_uri)
+    return JsonResponse(url, safe=False)

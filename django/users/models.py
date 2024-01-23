@@ -5,6 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 class User(models.Model):
     username = models.CharField(max_length=150, default='default_username')
     email = models.EmailField()
+    image = models.ImageField(upload_to='profile_pics', default='default.jpg')
     password = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     oauth = models.BooleanField(default=False)

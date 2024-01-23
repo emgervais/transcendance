@@ -17,14 +17,4 @@ class RegisterForm(UserCreationForm):
 
 class LoginForm(AuthenticationForm):
     email = forms.EmailField()
-
-    class Meta:
-        model = get_user_model()
-        fields = ['email', 'password']
-
-    #def __init__(self, *args, **kwargs):
-    #    super().__init__(*args, **kwargs)
-        
-    #    # Remove the username field
-    #    if 'username' in self.fields:
-    #        self.fields.pop('username')
+    field_order = ['email', 'password']
