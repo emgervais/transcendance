@@ -22,8 +22,11 @@ def login(request):
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
-            request.session['user_id'] = form.get_user().id
-            return render(request, 'index.html')
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=email, password=password)
+            if user is not None:
+                return render(request, 'index.html')
         else:
             return render(request, 'login.html', {'form': form})
     else:
