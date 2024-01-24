@@ -2,5 +2,6 @@
 {% block content %}
 	<h1>Pong</h1>
 	<canvas id="pong-canvas" width="800" height="600"></canvas>
-	<script src="static/app/js/pong.js"></script>
+	{% load static %}
+	<script src="{% static 'js/pong.js' %}"></script>
 {% endblock %}

@@ -1,15 +1,4 @@
 {% extends "base.html" %}
 {% block content %}
-    {% if user is not None %}
-    <p>Hi {{ user.username }}!</p>
-    <p>email: {{ user.email }}</p>
-    <img src="{{ user.image }}" alt="user_image">
-    {% endif %}
-    <h1>Bozo Town</h1>
-    <p class="lead">Welcome to Bozo Town</p>
-    </br>
-    </br>
-    <p><a href="/login" class="btn btn-lg btn-success">Login</a> <a href="/register" class="btn btn-lg btn-primary">Register</a></p>
-    </br>
-    <p><a href="/pong" class="btn btn-lg btn-info">Pong</a></p>
+<h1>Home Page</h1>
 {% endblock %}
