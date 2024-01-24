@@ -1,40 +1,18 @@
-from __future__ import annotations
+from django.shortcuts import render
+from users import oauth42
+from users.models import User
 
-import time
-from dataclasses import dataclass
+def pong(request):
+    return render(request, 'pong.html')
 
-from django.http import HttpRequest
-from django.shortcuts import render, redirect
-from django.views.decorators.http import require_GET, require_POST
-from django_htmx.middleware import HtmxDetails
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login, views as auth_views
-
-class HtmxHttpRequest(HttpRequest):
-    htmx: HtmxDetails
-
-@require_GET
-def index(request: HtmxHttpRequest):
-    return render(request, "index.html")
-
-@require_GET
-def register(request: HtmxHttpRequest):
-    form = UserCreationForm()
-    return render(request, "register.html", {"form": form})
-
-@require_POST
-def register_post(request: HtmxHttpRequest):
-    form = UserCreationForm(request.POST)
-    if form.is_valid():
-        user = form.save()
-        login(request, user)  # Automatically log in the user after registration
-        return redirect("index")  # Redirect to the index or another page
-    return render(request, "register.html", {"form": form})
-
-@require_GET
-def login(request: HtmxHttpRequest):
-    return auth_views.LoginView.as_view(template_name="login.html")(request)
-
-@require_POST
-def login_post(request: HtmxHttpRequest):
-    return auth_views.LoginView.as_view(template_name="login.html")(request)
+def index(request):
+    context = {
+        'user': None,
+    }    
+    code = request.GET.get('code', None)
+    if code is not None:
+        token = oauth42.get_user_token(code, "https://localhost")
+        data = oauth42.get_user_data(token)
+        user = User(username= data['login'], email= data['email'], image= data['image'])
+        context['user'] = user
+    return render(request, 'index.html', context=context)  

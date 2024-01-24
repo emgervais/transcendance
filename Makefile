@@ -15,7 +15,7 @@ prune:
 web:
 	docker exec -it web sh
 
-nginx:
+nginx_:
 	docker exec -it nginx sh
 
 db:
