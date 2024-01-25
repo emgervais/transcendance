@@ -1,15 +1,18 @@
-{% extends "base.html" %}
+{% extends "partial.html" %}
 {% load crispy_forms_tags %}
+
 {% block content %}
-<div class="overlay"></div>
-<div class="content">
-<div class="form-container">
-<h1>Register</h1>
-<p class="text-muted">Already have an account? <a href="/login">Login</a></p>
-<form hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-post="{% url 'register_post' %}">
-    {{ form|crispy }}
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-</div>
-</div>
+  <div class="content">
+    <div class="form-container">
+      <h1>Register</h1>
+      <p class="text-muted">Already have an account? <a href="/login/" hx-get="/login/" hx-target="#dynamic-content" hx-swap="outerHTML">Login</a></p>
+      <form method="post" hx-post="{% url 'register_post' %}" hx-target="#dynamic-content" hx-swap="outerHTML">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
 {% endblock %}

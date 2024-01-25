@@ -5,8 +5,9 @@ from users.forms import RegisterForm, LoginForm
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
 from django_htmx.middleware import HtmxDetails
-from django.contrib import messages
-from django.contrib.auth import authenticate
+from django.contrib.auth import login as auth_login
+from django.urls import reverse
+
 from users import oauth42
 
 class HtmxHttpRequest(HttpRequest):
@@ -28,10 +29,9 @@ def register(request: HtmxHttpRequest) -> HttpResponse:
 def register_post(request: HtmxHttpRequest) -> HttpResponse:
     form = RegisterForm(request.POST)
     if form.is_valid():
-        username=form.cleaned_data.get('username')
         user = form.save()
-        messages.success(request, f'Account created for {username}!')
-        return redirect("index")
+        auth_login(request, user)
+        return redirect(reverse("index"))
     return render(request, "register.html", {"form": form})
 
 @require_GET
@@ -40,14 +40,13 @@ def login(request: HtmxHttpRequest) -> HttpResponse:
 
 @require_POST
 def login_post(request: HtmxHttpRequest) -> HttpResponse:
-    form = LoginForm(request, data=request.POST)
+    form = LoginForm(request, request.POST)
     if form.is_valid():
-        email=form.cleaned_data.get('email')
-        user = authenticate(email=email, password=form.cleaned_data.get('password'))
-        if user is not None:
-            return render(request, 'login.html', {'form': form, 'logged': request.user.is_authenticated})
-    messages.info(request, f'Wrong email or password')
-    return render(request, 'login.html', {'form': form, 'logged': False})
+        user = form.get_user()
+        auth_login(request, user)
+        print("login_post", request.POST)
+        return redirect(reverse("index"))
+    return render(request, "login.html", {"form": form})
 
 @require_GET
 def get_oauth_uri(request: HtmxHttpRequest) -> HttpResponse:
