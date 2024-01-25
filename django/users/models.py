@@ -8,7 +8,6 @@ class User(AbstractUser):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='profile_pics', default='default.jpg')
     matches = models.ManyToManyField("self", through="PongMatch", symmetrical=False, related_name="user_matches", through_fields=('p1', 'p2'))
-    username = models.CharField(max_length=150, unique=True)
     
     # Add unique related_name for groups and user_permissions
     groups = models.ManyToManyField(

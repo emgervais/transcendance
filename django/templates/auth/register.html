@@ -1,0 +1,12 @@
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h1>Register</h1>
+<p class="text-muted">Already have an account? <a href="/auth/login/" hx-get="/auth/login/" hx-target="#dynamic-content" hx-swap="outerHTML" hx-push-url="true">Login</a></p>
+<form hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' method="post" hx-post="{% url 'register_post' %}" hx-target="#dynamic-content" hx-swap="outerHTML" hx-push-url="true">
+  {{ form|crispy }}
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Register</button>
+  </div>
+</form>
+{% endblock %}

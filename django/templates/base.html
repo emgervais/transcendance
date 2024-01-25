@@ -11,6 +11,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="{% static 'htmx.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
     <title>ft_transcendence</title>
   </head>
   <body>
@@ -26,17 +27,17 @@
               <a class="nav-link active" aria-current="page" href="/">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/register/" hx-get="/register/" hx-target="#dynamic-content">Register</a>
+              <a class="nav-link" href="/auth/register/" hx-get="/auth/register/" hx-target="#dynamic-content" hx-push-url="true">Register</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/login/" hx-get="/login/" hx-target="#dynamic-content">Login</a>
+              <a class="nav-link" href="/auth/login/" hx-get="/auth/login/" hx-target="#dynamic-content" hx-push-url="true">Login</a>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Games
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="/pong/" hx-get="/pong/" hx-target="#dynamic-content">Pong</a></li>
+                <li><a class="dropdown-item" href="/pong/" hx-get="/pong/" hx-target="#dynamic-content" hx-push-url="true">Pong</a></li>
                 <li><a class="dropdown-item" href="#">Another Game</a></li>
               </ul>
             </li>

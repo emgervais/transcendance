@@ -15,4 +15,4 @@ def index(request):
         data = oauth42.get_user_data(token)
         user = User(username= data['login'], email= data['email'], image= data['image'])
         context['user'] = user
-    return render(request, 'index.html', context=context)  
+    return render(request, 'index.html', context=context)
