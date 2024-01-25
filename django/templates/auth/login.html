@@ -1,3 +1,6 @@
+
+{% extends request.htmx|yesno:"empty.html,base.html" %}
+
 {% load crispy_forms_tags %}
 {% block content %}
 

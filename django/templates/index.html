@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends request.htmx|yesno:"empty.html,base.html" %}
 
 {% block content %}
 <h1>Home</h1>
