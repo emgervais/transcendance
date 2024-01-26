@@ -1,24 +1,15 @@
-import sys
 from django.shortcuts import render, redirect, reverse
-from users import oauth42
-from users.models import User
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def pong(request):
     return render(request, 'pong.html')
 
+# @login_required
 def index(request):
+    print("_____INDEX")
     context = {
-        'user': None,
+        'user': request.user,
     }    
-    code = request.GET.get('code', None)
-    if code is not None:
-        try:
-            token = oauth42.get_user_token(code, "https://localhost")
-            data = oauth42.get_user_data(token)
-            user = User(username= data['login'], email= data['email'], image= data['image'])
-            context['user'] = user
-        except oauth42.AuthError as e:
-            print(e, file=sys.stderr)
-            login_url = reverse('login')
-            return redirect(login_url)
+    print("user:", request.user)
     return render(request, 'index.html', context=context)

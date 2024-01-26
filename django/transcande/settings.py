@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from django.urls import reverse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,6 +55,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'transcande.urls'
+LOGIN_URL = "login/"
+OAUTH_REDIRECT_URL = "https://localhost/" + "oauth42-redirect/"
 
 CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(" ")
 

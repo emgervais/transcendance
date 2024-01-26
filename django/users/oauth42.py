@@ -23,6 +23,8 @@ def get_token():
 	return token
 
 def get_user_token(code, redirect_uri):
+	if code is None:
+		raise AuthError("No code provided.")
 	params = {
 		'grant_type': 'authorization_code',
 		'client_id': os.getenv("OAUTH_UID", ""),
@@ -66,3 +68,4 @@ def create_oauth_uri(redirect_uri):
     }
     authorization_uri = authorization_endpoint + '?' + urlencode(params)
     return authorization_uri
+
