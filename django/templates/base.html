@@ -27,10 +27,10 @@
               <a class="nav-link active" aria-current="page" href="/">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/auth/register/" hx-get="/auth/register/" hx-target="#dynamic-content" hx-push-url="true">Register</a>
+              <a class="nav-link" href="/register/" hx-get="/register/" hx-target="#dynamic-content" hx-push-url="true">Register</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/auth/login/" hx-get="/auth/login/" hx-target="#dynamic-content" hx-push-url="true">Login</a>
+              <a class="nav-link" href="/login/" hx-get="/login/" hx-target="#dynamic-content" hx-push-url="true">Login</a>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -42,13 +42,16 @@
               </ul>
             </li>
           </ul>
-          <form class="d-flex">
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-          </form>
         </div>
       </div>
-  </nav>    
+  </nav>
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
     <main id="dynamic-content">
       {% block content %}
       {% endblock %}
