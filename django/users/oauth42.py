@@ -5,6 +5,9 @@ from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 from urllib.parse import urljoin, urlencode
 
+class AuthError(Exception):
+	pass
+
 def get_token():
 	uid = os.getenv("OAUTH_UID", "")
 	secret = os.getenv("OAUTH_SECRET", "")
@@ -34,8 +37,7 @@ def get_user_token(code, redirect_uri):
 	}
 	response = requests.post(token_url, data=encoded_params, headers=headers)
 	if response.status_code != 200:
-		print(f"Error: {response.status_code} - {response.text}", file=sys.stderr)
-		return None
+		raise AuthError(f"Error: {response.status_code} - {response.text}")
 	token_data = response.json()
 	return token_data.get('access_token')
 
@@ -46,8 +48,7 @@ def get_user_data(access_token):
 	}
 	response = requests.get(api_url, headers=headers)
 	if response.status_code != 200:
-		print(f"Error: {response.status_code} - {response.text}", file=sys.stderr)
-		return {}
+		raise AuthError(f"Error: {response.status_code} - {response.text}")
 	user_data = response.json()
 	return {
 		'login': user_data.get('login'),

@@ -2,4 +2,9 @@
 
 {% block content %}
 <h1>Home</h1>
+{% if user%}
+<p>Welcome, {{ user.username }}!</p>
+<p> email: {{ user.email }}</p>
+{% else %}
+{% endif %}
 {% endblock %}
