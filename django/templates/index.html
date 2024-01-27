@@ -1,12 +1,11 @@
-{% extends request.htmx|yesno:"empty.html,base.html" %}
+{% extends request.htmx|yesno:"partial.html,base.html" %}
 
 {% block content %}
 <h1>Home</h1>
-{% if user%}
+{% if user.is_authenticated %}
 <p>Welcome, {{ user.username }}!</p>
 <p> email: {{ user.email }}</p>
-<script>
-	
-</script>
+{% else %}
+<p>Not logged in!</p>
 {% endif %}
 {% endblock %}

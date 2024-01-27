@@ -57,7 +57,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'transcande.urls'
 LOGIN_URL = "login/"
 OAUTH_REDIRECT_URL = "https://localhost/" + "oauth42-redirect/"
-
+AUTH_USER_MODEL = "users.User"
 CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(" ")
 
 TEMPLATES = [

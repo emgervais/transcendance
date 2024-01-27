@@ -1,0 +1,11 @@
+{% if messages %}
+{% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">
+    {{ message }}
+  </div>
+{% endfor %}
+{% endif %}
+<main id="dynamic-content">
+    {% block content %}
+    {% endblock %}
+</main>

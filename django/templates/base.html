@@ -26,12 +26,18 @@
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="/">Home</a>
             </li>
+            {% if user.is_anonymous %}
             <li class="nav-item">
-              <a class="nav-link" href="/register/" hx-get="/register/" hx-target="#dynamic-content" hx-push-url="true">Register</a>
+              <a class="nav-link" href="#" hx-get="/register/" hx-target="#dynamic-content" hx-push-url="true">Register</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/login/" hx-get="/login/" hx-target="#dynamic-content" hx-push-url="true">Login</a>
+              <a class="nav-link" href="#" hx-get="/login/" hx-target="#dynamic-content" hx-push-url="true">Login</a>
             </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="#" hx-get="/login/" hx-target="#dynamic-content" hx-push-url="true">Logout</a>
+            </li>
+            {% endif %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Games
@@ -45,13 +51,6 @@
         </div>
       </div>
   </nav>
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }}">
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
     <main id="dynamic-content">
       {% block content %}
       {% endblock %}

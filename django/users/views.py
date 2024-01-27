@@ -8,54 +8,43 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST
 from django_htmx.middleware import HtmxDetails
 from django.contrib.auth import authenticate, login
+from django.contrib.auth import login as auth_login
 from django.contrib import messages
 from django.urls import reverse
 from users import oauth42
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+
 class HtmxHttpRequest(HttpRequest):
     htmx: HtmxDetails
 
 def register(request: HtmxHttpRequest) -> HttpResponse:
-    if request.method == "POST":
+    template = 'auth/register.html'
+    if request.method == 'POST':
         form = RegisterForm(request.POST)
-        print("request.POST", request.POST)
         if form.is_valid():
-            username=form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password1')
-            print("email", email)
-            print("password", password)
             user = form.save()
-            messages.success(request, f'Account created for {username}!')
-            return render(request, 'index.html')
-        else:
-            print("INVALID FORM", form.errors)
-            return render(request, 'auth/register.html', {'form': form})
+            auth_login(request, user)
+            messages.success(request, "Account created successfully")
+            template = 'index.html'
     else:
         form = RegisterForm()
-        return render(request, 'auth/register.html', {'form': form})
+    return render(request, template, {'form': form})
 
 def login(request: HtmxHttpRequest) -> HttpResponse:
-    context = {
-        'logged': False,
-        'form': LoginForm(),
-    }
     template = 'auth/login.html'
-    if request.method == "POST":
-        context['form'] = LoginForm(request, request.POST)
-        if context['form'].is_valid():
-            email = context['form'].cleaned_data.get('email')
-            password = context['form'].cleaned_data.get('password')
-            user = authenticate(request, email=email, password=password)
-            if user is None:
-                context['form'].add_error(None, "Wrong email or password.")
-            else:
-                messages.success(request, f'You are now logged in!')
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+        if form.is_valid():
+            user = authenticate(request, **form.cleaned_data)
+            if user is not None:
+                auth_login(request, user)
+                messages.success(request, "Logged in successfully")
                 template = 'index.html'
-                context['logged'] = request.user.is_authenticated
-    return render(request, template, context)
+    else:
+        form = LoginForm()
+    return render(request, template, {'form': form})
 
 def oauth42_redir(request):
     code = request.GET.get('code', None)
@@ -93,6 +82,7 @@ def oauth42_redir(request):
 @require_POST
 def logout(request: HtmxHttpRequest) -> HttpResponse:
     request.session.flush()
+    messages.success(request, "Logged out successfully")
     return redirect(reverse('index'))
 
 def get_oauth_uri(request):

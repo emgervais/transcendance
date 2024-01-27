@@ -1,16 +1,16 @@
 
-{% extends request.htmx|yesno:"empty.html,base.html" %}
+{% extends request.htmx|yesno:"partial.html,base.html" %}
 
 {% load crispy_forms_tags %}
 {% block content %}
 
-{% if not logged %}
+{% if user.is_anonymous %}
 <div class="overlay"></div>
 <div class="content">
     <div class="form-container">
         <h1>Login</h1>
         <p class="text-muted">Don't have an account? <a href="/register/" hx-get="/register/" hx-target="#dynamic-content" hx-swap="outerHTML" hx-push-url="true">Register</a></p>
-        <form hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-post="/login/" hx-target="#dynamic-content">
+        <form hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-post="/login/" hx-target="#dynamic-content" hx-swap="outerHTML">
             {{ form|crispy }}
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
