@@ -5,10 +5,10 @@ from django.conf import settings
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from users.forms import RegisterForm, LoginForm
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_GET, require_POST
 from django_htmx.middleware import HtmxDetails
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
 from django.contrib import messages
 from django.urls import reverse
 from users import oauth42
@@ -27,7 +27,7 @@ def register(request: HtmxHttpRequest) -> HttpResponse:
             user = form.save()
             auth_login(request, user)
             messages.success(request, "Account created successfully")
-            template = 'index.html'
+            return redirect(reverse('index'))
     else:
         form = RegisterForm()
     return render(request, template, {'form': form})
@@ -41,7 +41,7 @@ def login(request: HtmxHttpRequest) -> HttpResponse:
             if user is not None:
                 auth_login(request, user)
                 messages.success(request, "Logged in successfully")
-                template = 'index.html'
+                return redirect(reverse('index'))
     else:
         form = LoginForm()
     return render(request, template, {'form': form})
@@ -78,12 +78,13 @@ def oauth42_redir(request):
         return redirect(reverse('login'))
     return redirect(reverse('index'))
 
-
-@require_POST
 def logout(request: HtmxHttpRequest) -> HttpResponse:
-    request.session.flush()
-    messages.success(request, "Logged out successfully")
-    return redirect(reverse('index'))
+    if request.method == 'POST':
+        auth_logout(request)
+        messages.success(request, "Logged out successfully")
+        return redirect(reverse('index'))
+    else:
+        return render(request, 'auth/logout.html')
 
 def get_oauth_uri(request):
     redirect_uri = settings.OAUTH_REDIRECT_URL
