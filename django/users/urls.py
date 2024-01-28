@@ -8,5 +8,5 @@ urlpatterns = [
     path("login/", views.login, name="login"),
     path("logout/", views.logout, name="logout"),
     path("get-oauth-uri/", views.get_oauth_uri, name="get_oauth_uri"),
-	path("oauth42-redirect/", views.oauth42_redir, name="oauth42_redir")
+	path("oauth42-redirected/", views.oauth42_redirected, name="oauth42_redirected")
 ]

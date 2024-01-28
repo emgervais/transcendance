@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 def pong(request):
     return render(request, 'pong.html')
 
-# @login_required
+@login_required()
 def index(request):
     print("_____INDEX")
     context = {

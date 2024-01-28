@@ -56,7 +56,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'transcande.urls'
 LOGIN_URL = "login/"
-OAUTH_REDIRECT_URL = "https://localhost/" + "oauth42-redirect/"
+OAUTH_REDIRECT_URL = "https://localhost/" + "oauth42-redirected/"
 AUTH_USER_MODEL = "users.User"
 CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(" ")
 
@@ -113,7 +113,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = ['transcande.backends.EmailBackend', 'django.contrib.auth.backends.ModelBackend']
+AUTHENTICATION_BACKENDS = [
+    'transcande.backends.OAuthBackend',
+    'transcande.backends.EmailBackend', 
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
