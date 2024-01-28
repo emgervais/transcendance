@@ -72,7 +72,7 @@ def logout(request: HtmxHttpRequest) -> HttpResponse:
     if request.method == 'POST':
         auth.logout(request)
         messages.success(request, "Logged out successfully")
-    return render(request, "index.html")
+    return render(request, "fullindex.html")
 
 def get_oauth_uri(request):
     redirect_uri = settings.OAUTH_REDIRECT_URL
