@@ -61,14 +61,12 @@ def oauth42_redirected(request):
         token = oauth42.get_user_token(code, redirect_uri)
         credentials = oauth42.get_user_data(token)
         user = authenticate(request, **credentials, backend='users.auth.OAuthBackend')
-        if user is None:
-            raise oauth42.AuthError("Couldn't authenticate user.")
         auth.login(request, user)
-        return redirect('index')
     except oauth42.AuthError as e:
         form = LoginForm(data=request.POST)
         form.add_error(None, str(e))
         return render(request, 'auth/login.html', {'form': form})        
+    return redirect('index')
 
 def logout(request: HtmxHttpRequest) -> HttpResponse:
     if request.method == 'POST':

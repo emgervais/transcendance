@@ -53,9 +53,11 @@ def get_user_data(access_token):
 		raise AuthError(f"Error: {response.status_code} - {response.text}")
 	user_data = response.json()
 	return {
-		'username': user_data.get('login'),
-		'email': user_data.get('email'),
-		'image': user_data.get('image', {}).get('link'),
+		'username': user_data['login'],
+		'email': user_data['email'],
+		'image': user_data['image']['link'],
+		'first_name': user_data['first_name'],
+		'last_name': user_data['last_name'],
 	}
 
 def create_oauth_uri(redirect_uri):

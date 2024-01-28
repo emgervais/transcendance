@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.backends import ModelBackend, BaseBackend
 from users import oauth42
 from users.models import User
+from users.utils import generate_username
 from django.contrib.auth import get_user_model
 
 class EmailBackend(ModelBackend):
@@ -18,19 +19,24 @@ class EmailBackend(ModelBackend):
             return None
         return user
 
+
 class OAuthBackend(BaseBackend):
     def authenticate(self, request, backend=None, **credentials) -> User:
         if backend != 'users.auth.OAuthBackend':
             return None
         username = credentials['username']
         email = credentials['email']
-        query_set = User.objects.filter(username=username, email=email)
+        query_set = User.objects.filter(email=email)
         if query_set.exists():
             user = query_set.first()
-            return user if user.oauth else None
-        if User.objects.filter(username=username).exists() \
-            or User.objects.filter(email=email).exists():
-            raise oauth42.AuthError("Your username and/or email is used by an existing account.")
+            if user.oauth:
+                return user
+            raise oauth42.AuthError("Your email address is used by an existing account.")
+        if User.objects.filter(username=username).exists():
+            credentials['username'] = generate_username(
+                first_name=credentials['first_name'],
+                last_name=credentials['last_name']
+            )
         user = User.objects.create_user(**credentials, oauth=True)
         return user
 
