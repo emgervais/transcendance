@@ -6,8 +6,6 @@ services:
     container_name: postgres
     env_file:
       - .env
-    build:
-      context: ./postgres/
     volumes:
       - db:/var/lib/postgresql/data
     expose:
@@ -26,6 +24,8 @@ services:
       context: ./django/
     volumes:
       - ./django/:/usr/src/app/
+      # - ./static/:/usr/src/app/static/
+      - static:/usr/src/app/static/
     expose:
       - ${DJANGO_PORT}
     depends_on:
@@ -39,9 +39,11 @@ services:
     ports:
       - 443:443
     volumes:
-      - ./static:/home/app/static/
+      # - ./static/:/home/app/static/
+      - static:/home/app/static/
     depends_on:
       - web
 
 volumes:
+  static:
   db:

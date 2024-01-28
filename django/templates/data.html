@@ -1,0 +1,14 @@
+{% extends request.htmx|yesno:"partial.html,base.html" %}
+{% block content %}
+<h1>User List</h1>
+
+<ul>
+    {% for user in users %}
+        <li>
+            <strong>Username:</strong> {{ user.username }}<br>
+            <strong>Email:</strong> {{ user.email }}<br>
+            <strong>Password:</strong> {{ user.password }}<br>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

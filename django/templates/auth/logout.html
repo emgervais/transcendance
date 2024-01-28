@@ -1,0 +1,21 @@
+{% extends request.htmx|yesno:"partial.html,base.html" %}
+
+{% load crispy_forms_tags %}
+{% block content %}
+
+{% if user.is_authenticated %}
+<div class="overlay"></div>
+<div class="content">
+    <div class="form-container">
+    <h1>Logout</h1>
+    <p class="text-muted">Are you sure you want to logout? 
+        <a href="#" hx-get="/" hx-target="#dynamic-content" hx-push-url="true" class="btn btn-secondary btn-sm">Cancel</a>
+    </p>
+    
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Logout</button>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

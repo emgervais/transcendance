@@ -3,7 +3,6 @@ start:
 
 stop:
 	docker compose down
-	yes | docker container prune
 	yes | docker image prune
 
 freeze:
@@ -15,3 +14,9 @@ prune:
 
 web:
 	docker exec -it web sh
+
+nginx:
+	docker exec -it nginx sh
+
+db:
+	docker exec -it postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
