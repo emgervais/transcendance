@@ -53,7 +53,7 @@ def get_user_data(access_token):
 		raise AuthError(f"Error: {response.status_code} - {response.text}")
 	user_data = response.json()
 	return {
-		'login': user_data.get('login'),
+		'username': user_data.get('login'),
 		'email': user_data.get('email'),
 		'image': user_data.get('image', {}).get('link'),
 	}

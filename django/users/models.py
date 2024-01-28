@@ -1,7 +1,7 @@
+from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import Group, Permission
 from django.utils.translation import gettext_lazy as _
-from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
 class User(AbstractUser):
@@ -50,3 +50,4 @@ class PongMatch(models.Model):
 
     def __str__(self):
         return f"{self.p1} vs {self.p2} ({self.score[0]}-{self.score[1]})"
+    
