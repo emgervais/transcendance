@@ -3,7 +3,6 @@
 <h1>Home</h1>
 {% if user.is_authenticated %}
 <p>Welcome, {{ user.username }}!</p>
-<p> email: {{ user.email }}</p>
 {% else %}
 <p>Not logged in!</p>
 {% endif %}

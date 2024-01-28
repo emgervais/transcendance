@@ -7,7 +7,7 @@
 <div class="content">
     <div class="form-container">
         <h1>Login</h1>
-        <p class="text-muted">Don't have an account? <a href="/register/" hx-get="/register/" hx-target="#dynamic-content" hx-swap="outerHTML" hx-push-url="true">Register</a></p>
+        <p class="text-muted">Don't have an account? <a href="/register/" hx-get="/register/" hx-target="#dynamic-content" hx-push-url="true">Register</a></p>
         <form method="post" action="{% url 'login' %}" class="form">
             {% csrf_token %}
             {{ form|crispy }}

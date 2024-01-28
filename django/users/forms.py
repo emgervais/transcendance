@@ -16,12 +16,9 @@ class RegisterForm(UserCreationForm):
         return email
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(label="Username or Email")
-    class Meta:
-        model = get_user_model()
-        fields = ['username', 'password']
-    def clean_username(self):
-        username = self.cleaned_data['username']
-        if User.objects.filter(email=username).exists():
-            username = User.objects.get(email=username).username
-        return username
+    email = forms.EmailField()
+    field_order = ['email', 'password']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields.pop('username', None)

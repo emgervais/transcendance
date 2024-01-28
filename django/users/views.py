@@ -6,13 +6,15 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from users.forms import RegisterForm, LoginForm
 from django.shortcuts import render, redirect
 from django_htmx.middleware import HtmxDetails
-from django.contrib.auth import authenticate, login
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib import messages
 from django.urls import reverse
 from users import oauth42
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
+from django.core.exceptions import ValidationError
+
+
 User = get_user_model()
 
 
@@ -25,7 +27,7 @@ def register(request: HtmxHttpRequest) -> HttpResponse:
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            auth_login(request, user)
+            auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Account created successfully")
             return redirect(reverse('index'))
     else:
@@ -37,11 +39,18 @@ def login(request: HtmxHttpRequest) -> HttpResponse:
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
         if form.is_valid():
-            user = authenticate(request, **form.cleaned_data)
-            if user is not None:
-                auth_login(request, user)
-                messages.success(request, "Logged in successfully")
-                return redirect(reverse('index'))
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+            try:
+                user = authenticate(request, email=email, password=password)
+                if user is not None:
+                    auth_login(request, user)
+                    messages.success(request, "Logged in successfully")
+                    return redirect(reverse('index'))
+            except ValidationError as e:
+                form = LoginForm(data=request.POST)
+                form.add_error(None, str(e))
+                return render(request, template, {'form': form})
     else:
         form = LoginForm()
     return render(request, template, {'form': form})
@@ -52,27 +61,34 @@ def oauth42_redir(request):
         redirect_uri = settings.OAUTH_REDIRECT_URL
         token = oauth42.get_user_token(code, redirect_uri)
         user_data = oauth42.get_user_data(token)
-        
         email = user_data['email']
-        username = user_data['login']
-        print(f"email: {email}\n"
-              f"username: {username}\n" + 
-              f"image: {user_data['image']}\n" +  
-              "if exists: use\n" + 
-              "else: create\n" + 
-              "login\n"
-              )
+        image = user_data['image']
         def _find_or_create():
-            user = User.objects.filter(email=email).first() \
-                or User.objects.filter(username=username).first()
+            user = User.objects.get(email=email, oauth=True)
+            print("user______", user)
             if not user:
-                user = User.objects.create_user(username=username, email=email)
-            user = authenticate(request, username=username, email=email)
+                def _generate_username():
+                    name = 'emile'
+                    family = 'gervais'
+                    for i in range(1, len(name) + 1):
+                        username = (name[:i] + family)[:8]
+                        if not User.objects.filter(username=username).exists():
+                            break
+                    number = 1
+                    while True:    
+                        if not User.objects.filter(username=username).exists():
+                            break
+                        username = name[0] + family[:8] + number
+                        number +=1
+                    return username
+                username = _generate_username()
+                print("user_______", username)
+                user = User.objects.create_user(username=username, email=email, oauth=True, image=image)
             return user
         user = _find_or_create()
         if user is None:
             raise oauth42.AuthError("_____ Couldn't authenticate user.")
-        login(request, user)
+        auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     except oauth42.AuthError as e:
         print(f"Error: {e}", file=sys.stderr)
         return redirect(reverse('login'))
@@ -82,9 +98,7 @@ def logout(request: HtmxHttpRequest) -> HttpResponse:
     if request.method == 'POST':
         auth_logout(request)
         messages.success(request, "Logged out successfully")
-        return redirect(reverse('index'))
-    else:
-        return render(request, 'auth/logout.html')
+    return render(request, "index.html")
 
 def get_oauth_uri(request):
     redirect_uri = settings.OAUTH_REDIRECT_URL
