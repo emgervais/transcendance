@@ -1,7 +1,7 @@
 from __future__ import annotations
 import sys
 
-from django.conf import settings
+import django.conf
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from users.forms import RegisterForm, LoginForm, ChangeInfoForm
 from django.shortcuts import render, redirect
@@ -57,7 +57,7 @@ def login(request: HtmxHttpRequest) -> HttpResponse:
 def oauth42_redirected(request):
     code = request.GET.get('code', None)
     try:
-        redirect_uri = settings.OAUTH_REDIRECT_URL
+        redirect_uri = django.conf.settings.OAUTH_REDIRECT_URL
         token = oauth42.get_user_token(code, redirect_uri)
         credentials = oauth42.get_user_data(token)
         user = authenticate(request, **credentials, backend='users.auth.OAuthBackend')
@@ -75,7 +75,7 @@ def logout(request: HtmxHttpRequest) -> HttpResponse:
     return render(request, "fullindex.html")
 
 def get_oauth_uri(request):
-    redirect_uri = settings.OAUTH_REDIRECT_URL
+    redirect_uri = django.conf.settings.OAUTH_REDIRECT_URL
     url = oauth42.create_oauth_uri(redirect_uri)
     return JsonResponse(url, safe=False)
 
