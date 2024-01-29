@@ -1,0 +1,39 @@
+{% extends request.htmx|yesno:"partial.html,base.html" %}
+{% block content %}
+
+<div class="container-fluid">
+<div class="row h-100">
+  <nav class="col-md-3 col-lg-2 d-md-block bg-dark sidebar vh-100" style="width:20%;">
+    <div class="sidebar-sticky d-flex justify-content-center align-items-center">
+        <ul class="nav flex-column text-center align-items-center setting-list">
+            <img class="img-fluid rounded-circle w-50 border-light border border-2 m-2" src="{{ user.image }}">
+            <a href="#"><i class="fa-solid fa-arrows-rotate" style="color:white;"></i></a>
+            <hr style="color:white; width:100%;">
+            <li class="nav-item" >
+                <a class="nav-link text-white" href="#" hx-push-url="true" hx-get="/settings/" hx-vals='{ "content_type": "stats" }' hx-target="#dynamic-section">
+                    <i style="padding-right: 10px;"class="fa-solid fa-chart-pie"></i>
+                    Statistics
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="#" hx-push-url="true" hx-get="/settings/" hx-target="#dynamic-section" hx-vals='{ "content_type": "info" }'>
+                    <i style="padding-right: 10px;"class="fa-solid fa-gear"></i>
+                    Update Infos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="#" hx-push-url="true" hx-get="/settings/" hx-target="#dynamic-section" hx-vals='{ "content_type": "friends" }'>
+                    <i style="padding-right: 10px;"class="fa-solid fa-user-group"></i>
+                    Friends
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<section id="dynamic-section" style="width:80%;">
+
+</section> 
+</div>
+</div>
+
+{% endblock %}

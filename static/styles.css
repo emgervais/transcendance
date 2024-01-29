@@ -37,3 +37,7 @@
     display: flex;
     align-items: center;
 }
+
+.setting-list li{
+    display: flex;
+}

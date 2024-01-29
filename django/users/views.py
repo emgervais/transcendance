@@ -3,7 +3,7 @@ import sys
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from users.forms import RegisterForm, LoginForm
+from users.forms import RegisterForm, LoginForm, ChangeInfoForm
 from django.shortcuts import render, redirect
 from django_htmx.middleware import HtmxDetails
 from django.contrib import messages
@@ -78,3 +78,37 @@ def get_oauth_uri(request):
     redirect_uri = settings.OAUTH_REDIRECT_URL
     url = oauth42.create_oauth_uri(redirect_uri)
     return JsonResponse(url, safe=False)
+
+def settings(request):
+    template = "account/account.html"
+    content_type = request.GET.get('content_type')
+
+    if request.method == 'POST':
+        user = request.user
+        form = ChangeInfoForm(request.POST)
+
+        try:
+            if form.is_valid():
+                username = form.cleaned_data['username']
+                email = form.cleaned_data['email']
+                if username:
+                    user.username = username
+                if email:
+                    user.email = email
+                user.save()
+            else:
+                return render(request, "account/fullinfo.html", {'form': form})
+        except ValidationError as e:
+            print("_______error")
+            form.add_error(None, str(e))
+    else:
+        if request.htmx:
+            if content_type == 'stats':
+                template = "account/stats.html"
+            elif content_type == 'info':
+                form = ChangeInfoForm()
+                return render(request, "account/info.html", {'form': form})
+            elif content_type == 'friends':
+                template = "account/friends.html"
+
+    return render(request, template)
