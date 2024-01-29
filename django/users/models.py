@@ -3,10 +3,14 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import Group, Permission
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
+import random
+
+def random_default_image():
+    return random.choice(['/static/media/default/2.png', '/static/media/default/1.jpg'])
 
 class User(AbstractUser):
     oauth = models.BooleanField(default=False)
-    image = models.ImageField(upload_to='profile_pics', default='default.jpg')
+    image = models.ImageField(upload_to='profile_pics', default=random_default_image)
     matches = models.ManyToManyField("self", through="PongMatch", symmetrical=False, related_name="user_matches", through_fields=('p1', 'p2'))
     # Add unique related_name for groups and user_permissions
     groups = models.ManyToManyField(
@@ -31,6 +35,10 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    def delete_old_image(self):
+        default_images = ['/static/media/1.jpg', '/static/media/2.png'] 
+        if self.image.name not in default_images:
+            self.image.storage.delete(self.image.name)
 
 class PongMatch(models.Model):
     p1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="p1_matches")

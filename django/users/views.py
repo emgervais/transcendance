@@ -12,6 +12,7 @@ from users import oauth42
 from django.contrib import auth
 from django.contrib.auth import authenticate, get_user_model
 from django.core.exceptions import ValidationError
+from django.core.files.storage import FileSystemStorage
 
 
 User = get_user_model()
@@ -85,30 +86,40 @@ def settings(request):
 
     if request.method == 'POST':
         user = request.user
-        form = ChangeInfoForm(request.POST)
+        form = ChangeInfoForm(user, request.POST)
 
         try:
             if form.is_valid():
-                username = form.cleaned_data['username']
-                email = form.cleaned_data['email']
+                username = form.cleaned_data.get('username')
+                email = form.cleaned_data.get('email')
+
                 if username:
                     user.username = username
                 if email:
                     user.email = email
+
                 user.save()
             else:
                 return render(request, "account/fullinfo.html", {'form': form})
         except ValidationError as e:
-            print("_______error")
             form.add_error(None, str(e))
-    else:
-        if request.htmx:
-            if content_type == 'stats':
-                template = "account/stats.html"
-            elif content_type == 'info':
-                form = ChangeInfoForm()
-                return render(request, "account/info.html", {'form': form})
-            elif content_type == 'friends':
-                template = "account/friends.html"
+    elif request.htmx:
+        if content_type == 'stats':
+            template = "account/stats.html"
+        elif content_type == 'info':
+            form = ChangeInfoForm(user=request.user)
+            return render(request, "account/info.html", {'form': form})
+        elif content_type == 'friends':
+            template = "account/friends.html"
 
     return render(request, template)
+
+def upload_img(request):
+    if request.method =='POST':
+        uploaded_image = request.FILES.get('photo')
+        fs = FileSystemStorage(location='static/media/')
+        filename = fs.save(uploaded_image.name, uploaded_image)
+        #request.user.delete_old_image()
+        request.user.image = f'/static/media/{filename}'
+        request.user.save()
+    return render(request, "account/account.html")
