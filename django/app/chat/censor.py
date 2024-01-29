@@ -31,7 +31,7 @@ def replace_vowels(word, repl="*"):
     vowels = "aeiouy"
     new_word = ""
     for letter in word:
-        if letter in vowels:
+        if letter.lower() in vowels:
             new_word += repl
         else:
             new_word += letter

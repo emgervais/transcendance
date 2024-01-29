@@ -42,7 +42,6 @@ class PongConsumer(WebsocketConsumer):
 		self.send(text_data=text_data)
 
 
-
 class ChatConsumer(WebsocketConsumer):
 	def connect(self):
 		self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
