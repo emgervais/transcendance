@@ -5,6 +5,7 @@ def generate_username(first_name, last_name):
     def _normalize(name):
         name = name.lower()
         name = unidecode.unidecode(name)
+        name = name.replace(' ', '-')
         return name
     first_name = _normalize(first_name)
     last_name = _normalize(last_name)
