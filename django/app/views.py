@@ -31,3 +31,6 @@ def data(request):
         })
 
     return render(request, 'data.html', {'users': user_data})
+
+def chat(request):
+    return render(request, 'chat.html')
