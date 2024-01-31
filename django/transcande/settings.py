@@ -67,11 +67,11 @@ TEMPLATES = [
 
 ASGI_APPLICATION = 'transcande.asgi.application'
 
-CHANNEL_LAYERS = {
-	"default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
+# CHANNEL_LAYERS = {
+# 	"default": {
+#         "BACKEND": "channels.layers.InMemoryChannelLayer"
+#     }
+# }
 
 DATABASES = {
     'default': {

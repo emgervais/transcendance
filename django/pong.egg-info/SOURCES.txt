@@ -1,4 +1,0 @@
-pong.egg-info/PKG-INFO
-pong.egg-info/SOURCES.txt
-pong.egg-info/dependency_links.txt
-pong.egg-info/top_level.txt

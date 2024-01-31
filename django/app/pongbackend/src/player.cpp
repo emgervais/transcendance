@@ -5,12 +5,12 @@
 
 Player::Player()
 {
-	printf("Player constructed\n");
+	printf("Player constructor\n");
 	_y = 0;
 }
 Player::~Player()
 {
-	printf("Player destructed\n");
+	printf("Player destructor\n");
 }
 
 ///////////////////////
@@ -20,6 +20,15 @@ Player::~Player()
 PyObject* PlayerObject::pyremove(PyObject* self, PyObject* args) {
 	PlayerObject* const o = (PlayerObject*)self;
 	PongGame::removePlayer(o->id);
+	Py_RETURN_NONE;
+}
+
+PyObject* PlayerObject::pyreceive(PyObject* self, PyObject* args) {
+	PlayerObject* const o = (PlayerObject*)self;
+	PyBytesObject* bytes;
+	if(!PyArg_ParseTuple(args, "O!", &PyBytes_Type, &bytes))
+		return NULL;
+	PongGame::receive(PyBytes_AS_STRING(bytes), PyBytes_GET_SIZE(bytes), o->id);
 	Py_RETURN_NONE;
 }
 

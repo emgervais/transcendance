@@ -10,6 +10,5 @@ if [ "$APP_ENV" != "production" ]; then
     export PYTHONFAULTHANDLER=1             # Show Python stacktrace on error
 fi
 
-
 python manage.py migrate
 python manage.py runserver 0.0.0.0:$DJANGO_PORT

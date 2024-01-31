@@ -9,6 +9,8 @@ public:
 	Player();
 	~Player();
 
+	void move(i32 y) { _y = y; }
+
 	i32 y() const { return _y; }
 
 private:
@@ -21,6 +23,7 @@ struct PlayerObject
 	u64 id;
 
 	static PyObject* pyremove(PyObject* self, PyObject* args);
+	static PyObject* pyreceive(PyObject* self, PyObject* args);
 
 	static PyObject* pynew(PyTypeObject* type, PyObject* args, PyObject* kwds);
 	static int pyinit(PlayerObject* self, PyObject* args, PyObject* kwds);
@@ -29,6 +32,7 @@ struct PlayerObject
 
 inline PyMethodDef PlayerMethods[] = {
 	{"remove", PlayerObject::pyremove, METH_NOARGS, "Remove player"},
+	{"receive", PlayerObject::pyreceive, METH_VARARGS, "Receive data"},
 	{NULL, NULL, 0, NULL}
 };
 

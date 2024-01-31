@@ -3,11 +3,17 @@
 #include <unordered_map>
 #include <mutex>
 #include <memory>
+#include <thread>
 
 #include "pongbackend.hpp"
 #include "player.hpp"
 #include "uid.hpp"
 #include "common.hpp"
+
+enum PongMessage : u8
+{
+	PLAYER_MOVE = 1
+};
 
 struct MLocker
 { // simple wrapper for locking a mutex and unlocking it when the object goes out of scope
@@ -19,14 +25,15 @@ struct MLocker
 class PongGame
 {
 public:
-	~PongGame();
-
 	static int init();
 	static void update();
 
 	static u64 newPlayer();
 	static void removePlayer(u64 id);
+	static void receive(const char* data, u64 size, u64 playerid);
 
+	static PyObject* pystartGame(PyObject* self, PyObject* args);
+	static PyObject* pyendGame(PyObject* self, PyObject* args);
 	static PyObject* pynewPlayer(PyObject* self, PyObject* args);
 	static PyObject* pyupdate(PyObject* self, PyObject* args);
 
@@ -35,18 +42,17 @@ public:
 	static void pydealloc(PongGame* self);
 
 private:
+	static u64 playerCount;
+
 	static std::mutex mutex;
 	static std::unordered_map<u64, std::unique_ptr<Player> > players;
+
+	static std::thread gameThread;
 };
 
 struct PongGameObject
 {
 	PyObject_HEAD
-	PongGame* game;
-};
-
-inline PyMethodDef PongGameMethods[] = {
-	{NULL, NULL, 0, NULL}
 };
 
 inline PyType_Slot PongGameSlots[] = {
@@ -58,7 +64,7 @@ inline PyType_Slot PongGameSlots[] = {
 
 inline PyType_Spec PongGameSpec = {
 	"pong.PongGame",
-	sizeof(PongGame) + sizeof(PongGameObject),
+	sizeof(PongGameObject),
 	0,
 	Py_TPFLAGS_DEFAULT,
 	PongGameSlots

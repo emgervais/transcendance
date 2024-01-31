@@ -1,20 +1,17 @@
 #include "pong.hpp"
 
+u64 PongGame::playerCount = 0;
 std::mutex PongGame::mutex;
 std::unordered_map<u64, std::unique_ptr<Player> > PongGame::players;
+std::thread PongGame::gameThread;
 
 int PongGame::init()
 { // non-zero return value: error
+	const MLocker lock(mutex);
 	if(players.size())
 		players.clear();
+	playerCount = 0;
 	return 0;
-}
-
-PongGame::~PongGame()
-{
-	printf("PongGame destructed\n");
-	MLocker lock(mutex);
-	players.clear();
 }
 
 void PongGame::update()
@@ -40,7 +37,7 @@ u64 PongGame::newPlayer()
 {
 	UID id;
 	u16 attempts = 0;
-	MLocker lock(mutex);
+	const MLocker lock(mutex);
 	do
 		id = UID(++attempts);
 	while(players.find(id) != players.end() && attempts < 16);
@@ -49,13 +46,14 @@ u64 PongGame::newPlayer()
 	players[id] = std::unique_ptr<Player>(new Player());
 
 	printf("New player with id %lu\nPlayer Count: %lu\n", (u64)id, players.size());
+	++playerCount;
 
 	return id;
 }
 
 void PongGame::removePlayer(u64 id)
 {
-	MLocker lock(mutex);
+	const MLocker lock(mutex);
 
 	printf("Removing player with id %lu\n", (u64)id);
 
@@ -63,21 +61,36 @@ void PongGame::removePlayer(u64 id)
 	if(player == players.end())
 		return;
 	players.erase(id);
+	--playerCount;
+}
+
+void PongGame::receive(const char* data, u64 size, u64 playerid)
+{
+	const MLocker lock(mutex);
+	auto pi = players.find(playerid);
+	if(pi == players.end())
+		return;
+	Player* player = pi->second.get();
+	switch((PongMessage)data[0])
+	{
+	case PLAYER_MOVE:
+		player->move(*(i32*)(data + 1));
+		break;
+	}
 }
 
 ///////////////////////
 // Python interface
 ///////////////////////
 
+PyObject* PongGame::pystartGame(PyObject* self, PyObject* args)
+{
+	Py_RETURN_NONE;
+}
+
 PyObject* PongGame::pyupdate(PyObject* self, PyObject* args)
 {
-	PongGameObject* const o = (PongGameObject*)self;
-	if(!o->game)
-	{
-		PyErr_SetString(PyExc_RuntimeError, "PongGame not initialized");
-		return NULL;
-	}
-	o->game->update();
+	PongGame::update();
 	// todo return list of changed values in a tuple or send it directly to all players to avoid python
 	Py_RETURN_NONE;
 }
@@ -86,13 +99,7 @@ PyObject* PongGame::pynewPlayer(PyObject* self, PyObject* args)
 { // create a python player handle that has an id to a player in the game
 	// trying desperately to avoid python here by making this handle have a direct route to acting on the game
 	// without needing to parse arguments
-	PongGameObject* const o = (PongGameObject*)self;
-	if(!o->game)
-	{
-		PyErr_SetString(PyExc_RuntimeError, "PongGame not initialized");
-		return NULL;
-	}
-	u64 id = o->game->newPlayer();
+	u64 id = PongGame::newPlayer();
 	if(!id)
 	{
 		PyErr_SetString(PyExc_RuntimeError, "Could not add player");
@@ -102,7 +109,7 @@ PyObject* PongGame::pynewPlayer(PyObject* self, PyObject* args)
 	if(!player)
 	{
 		PyErr_SetString(PyExc_MemoryError, "Could not allocate memory for Player");
-		o->game->removePlayer(id);
+		PongGame::removePlayer(id);
 		return NULL;
 	}
 	// PyObject_Init(player, (PyTypeObject*)PlayerObjectType);
@@ -112,42 +119,21 @@ PyObject* PongGame::pynewPlayer(PyObject* self, PyObject* args)
 }
 
 PyObject* PongGame::pynew(PyTypeObject* type, PyObject* args, PyObject* kwds)
-{ // allocate PongGameObject
-	PongGameObject* self = (PongGameObject*)type->tp_alloc(type, 0);
-	if(self != 0)
-		self->game = 0;
-	return (PyObject*)self;
+{
+	return type->tp_alloc(type, 0);
 }
 
 int PongGame::pyinit(PongGame* self, PyObject* args, PyObject* kwds)
-{ // allocate and construct PongGame inside PongGameObject
-	PongGameObject* const o = (PongGameObject*)self;
-	o->game = (PongGame*)PyObject_Malloc(sizeof(PongGame));
-	if(!o->game)
-	{
-		PyErr_SetString(PyExc_MemoryError, "Could not allocate memory for PongGame");
+{
+	if(!self || PongGame::init())
 		return -1;
-	}
-	new(o->game) PongGame(); // placement new into python allocated memory o->game (basically calling the constructor)
-	if(o->game->init())
-	{
-		PyObject_Free(o->game);
-		PyErr_SetString(PyExc_RuntimeError, "Could not initialize PongGame");
-		o->game = 0;
-		return -1;
-	}
-
 	return 0;
 }
 
 void PongGame::pydealloc(PongGame* self)
-{ // destruct and deallocate PongGame inside PongGameObject
-	PongGameObject* const o = (PongGameObject*)self;
-	if(o->game)
-	{
-		o->game->~PongGame(); // call destructor
-		PyObject_Free(o->game);
-		o->game = 0;
-	}
+{
+	printf("PongGame destructed\n");
+	const MLocker lock(mutex);
+	players.clear();
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
