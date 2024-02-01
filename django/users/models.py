@@ -7,13 +7,15 @@ import random
 
 
 def random_default_image():
+    #return random.choice(['/static/media/default/2.png', '/static/media/default/1.jpg'])
     return '/static/media/default/default.png'
 
 class User(AbstractUser):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='media/', default=random_default_image)
     matches = models.ManyToManyField("self", through="PongMatch", symmetrical=False, related_name="user_matches", through_fields=('p1', 'p2'))
-    # Add unique related_name for groups and user_permissions
+    friends = models.ManyToManyField("User", related_name='user_friends', blank=True)
+
     groups = models.ManyToManyField(
         Group,
         verbose_name=_("groups"),
@@ -40,6 +42,12 @@ class User(AbstractUser):
         default_images = ['/static/media/1.jpg', '/static/media/2.png'] 
         if self.image.name not in default_images:
             self.image.storage.delete(self.image.name)
+
+class Friend_Request(models.Model):
+    from_ser = models.ForeignKey(
+        User, related_name='from_user', on_delete=models.CASCADE)
+    to_user = models.ForeignKey(
+        User, related_name='to_user', on_delete=models.CASCADE)
 
 class PongMatch(models.Model):
     p1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="p1_matches")

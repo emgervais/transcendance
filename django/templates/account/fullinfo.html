@@ -32,10 +32,10 @@
     </div>
 </nav>
 <section id="dynamic-section" style="width:80%;">
-    <form class="" method="post" action="/settings/" enctype="multipart/form-data">
+    <form class="w-25" method="post" action="/settings/" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|crispy }}
-        <button type="submit">apply changes</button>
+        <button type="submit" class="mt-2 btn btn-primary">apply changes</button>
     </form>
 </section> 
 </div>

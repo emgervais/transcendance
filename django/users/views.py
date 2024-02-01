@@ -13,6 +13,7 @@ from django.contrib import auth
 from django.contrib.auth import authenticate, get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
+from .models import Friend_Request
 
 User = get_user_model()
 
@@ -110,7 +111,16 @@ def settings(request):
             form = ChangeInfoForm(user=request.user)
             return render(request, "account/info.html", {'form': form})
         elif content_type == 'friends':
+            all_users = User.objects.all()
+            user_data = []
+            for user in all_users:
+                user_data.append({
+                    'username': user.username,
+                    'email': user.email,
+                    'password': user.password,
+                })
             template = "account/friends.html"
+            return render(request, template, {'users': user_data})
 
     return render(request, template)
 
@@ -123,3 +133,23 @@ def upload_img(request):
         request.user.image = f'/static/media/{filename}'
         request.user.save()
     return render(request, "account/account.html")
+
+def send_friend_request(request, username):
+    from_user = request.user
+    to_user = User.objects.get(username=username)
+    friend_request, created = Friend_Request.objects.get_or_create(
+        from_user=from_user, to_user=to_user)
+    if created:
+        return
+    else:
+        return
+
+def accept_friend_request(request, requestID):
+    friend_request = Friend_Request.objects.get(id=requestID)
+    if friend_request.to_user == request.user:
+        friend_request.to_user.friends.add(friend_request.from_user)
+        friend_request.from_user.friends.add(friend_request.to_user)
+        friend_request.delete()
+        return
+    else:
+        return
