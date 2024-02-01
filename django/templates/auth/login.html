@@ -13,7 +13,7 @@
     <div class="form-container">
         <h1>Login</h1>
         <p class="text-muted">Don't have an account? <a href="#" hx-get="/register/" hx-target="#dynamic-content" hx-push-url="true">Register</a></p>
-        <form hx-headers='{ "X-CSRFToken": "{{ csrf_token }}" }' href="#" hx-post="/login/" hx-target="#dynamic-body">
+        <form hx-headers='{ "X-CSRFToken": "{{ csrf_token }}" }' href="#" hx-post="/login/" hx-target="#dynamic-body" hx-push-url="true">
             {{ form|crispy }}
             <button type="submit" class="btn btn-primary">Login</button>
         </form>

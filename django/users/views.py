@@ -28,6 +28,7 @@ def register(request: HtmxHttpRequest) -> HttpResponse:
             user = form.save()
             auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Account created successfully")
+            template = 'index.html'
     else:
         form = RegisterForm()
         navbar = False
@@ -46,6 +47,7 @@ def login(request: HtmxHttpRequest) -> HttpResponse:
                 if user is not None:
                     auth.login(request, user)
                     messages.success(request, "Logged in successfully")
+                    template = 'index.html'
             except ValidationError as e:
                 form = LoginForm(data=request.POST)
                 form.add_error(None, str(e))

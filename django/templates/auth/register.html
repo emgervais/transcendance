@@ -6,15 +6,18 @@
 {% include 'nav.html' %}
 {% endif %}
 
+{% if user.is_anonymous %}
 <div class="overlay"></div>
 <div class="content">
   <div class="form-container">
     <h1>Register</h1>
     <p class="text-muted">Already have an account? <a href="#" hx-get="/login/" hx-target="#dynamic-content" hx-push-url="true">Login</a></p>
-    <form hx-headers='{ "X-CSRFToken": "{{ csrf_token }}" }' href="#" hx-post="/register/" hx-target="#dynamic-body">
+    <form hx-headers='{ "X-CSRFToken": "{{ csrf_token }}" }' href="#" hx-post="/register/" hx-target="#dynamic-body" hx-push-url="true">
       {{ form|crispy }}
       <button type="submit" class="btn btn-primary">Register</button>
     </form>
   </div>
 </div>
+{% endif %}
+
 {% endblock %}
