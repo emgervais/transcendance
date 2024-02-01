@@ -14,28 +14,28 @@ from django.contrib.auth import authenticate, get_user_model
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 
-
 User = get_user_model()
-
 
 class HtmxHttpRequest(HttpRequest):
     htmx: HtmxDetails
 
 def register(request: HtmxHttpRequest) -> HttpResponse:
     template = 'auth/register.html'
+    navbar = True
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Account created successfully")
-            return redirect(reverse('index'))
     else:
         form = RegisterForm()
-    return render(request, template, {'form': form})
+        navbar = False
+    return render(request, template, {'form': form, 'navbar': navbar})
 
 def login(request: HtmxHttpRequest) -> HttpResponse:
     template = 'auth/login.html'
+    navbar = True
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
         if form.is_valid():
@@ -46,14 +46,13 @@ def login(request: HtmxHttpRequest) -> HttpResponse:
                 if user is not None:
                     auth.login(request, user)
                     messages.success(request, "Logged in successfully")
-                    return redirect(reverse('index'))
             except ValidationError as e:
                 form = LoginForm(data=request.POST)
                 form.add_error(None, str(e))
-                return render(request, template, {'form': form})
     else:
         form = LoginForm()
-    return render(request, template, {'form': form})
+        navbar = False
+    return render(request, template, {'form': form, 'navbar': navbar})
 
 def oauth42_redirected(request):
     code = request.GET.get('code', None)
@@ -70,10 +69,9 @@ def oauth42_redirected(request):
     return redirect('index')
 
 def logout(request: HtmxHttpRequest) -> HttpResponse:
-    if request.method == 'POST':
-        auth.logout(request)
-        messages.success(request, "Logged out successfully")
-    return render(request, "fullindex.html")
+    auth.logout(request)
+    messages.success(request, "Logged out successfully")
+    return render(request, 'auth/login.html', {'form': LoginForm(), 'navbar': True})
 
 def get_oauth_uri(request):
     redirect_uri = django.conf.settings.OAUTH_REDIRECT_URL
