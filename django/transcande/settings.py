@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'django_htmx',
     'users',
     'app',
@@ -136,10 +135,3 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "") != "0"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
-
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = [
-    BASE_DIR / "app/static",
-    BASE_DIR / "users/static",
-]
