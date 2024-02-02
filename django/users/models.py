@@ -44,7 +44,7 @@ class User(AbstractUser):
             self.image.storage.delete(self.image.name)
 
 class Friend_Request(models.Model):
-    from_ser = models.ForeignKey(
+    from_user = models.ForeignKey(
         User, related_name='from_user', on_delete=models.CASCADE)
     to_user = models.ForeignKey(
         User, related_name='to_user', on_delete=models.CASCADE)

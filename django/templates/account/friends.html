@@ -1,16 +1,20 @@
 {% block content %}
 <ul class="">
     {% for user in users %}
-    {% if user not in request.user.friends.all and user != request.user %}
-    <h1>{{user.username}} <a href="/send_friend_request/{{user.username}}/">send friend request</a></h1>
-    {% endif %}
+        {% if user not in request.user.friends.all and user != request.user %}
+            <h1>{{ user.username }} <a href="/send_friend_request/{{ user.id }}/">{{ "send friend request" }}</a></h1>
+        {% endif %}
     {% endfor %}
 </ul>
 <h1>Friend request</h1>
-{% for friend_request in all_friend_request %}
-    <h1>{{friend_request.from_user}}
-            <a href="/accept_friend_request/{{friend_request.id}}/">
-                accept friend request </a>
-    </h1>
+{% for friend_request in friend_requests %}
+    <img src={{friend_request.from_user.image}}>
+    <h1>{{friend_request.from_user.username}}</h1>
+    <a href="/accept_friend_request/{{friend_request.id}}/"> accept friend request </a>
+{% endfor %} 
+<h1>Friends</h2>
+{% for friend in friends %}
+    <img src={{friend.image}}>
+    <h4>{{friend.username}}</h4>
 {% endfor %}
 {% endblock %}

@@ -5,6 +5,7 @@
 <ul>
     {% for user in users %}
         <li>
+            <strong>id:</strong> {{ user.id }}<br>
             <strong>Username:</strong> {{ user.username }}<br>
             <strong>Email:</strong> {{ user.email }}<br>
             <strong>Password:</strong> {{ user.password }}<br>

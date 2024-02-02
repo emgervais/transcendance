@@ -25,6 +25,7 @@ def data(request):
     user_data = []
     for user in all_users:
         user_data.append({
+            'id': user.id,
             'username': user.username,
             'email': user.email,
             'password': user.password,

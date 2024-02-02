@@ -112,15 +112,10 @@ def settings(request):
             return render(request, "account/info.html", {'form': form})
         elif content_type == 'friends':
             all_users = User.objects.all()
-            user_data = []
-            for user in all_users:
-                user_data.append({
-                    'username': user.username,
-                    'email': user.email,
-                    'password': user.password,
-                })
+            all_requests = Friend_Request.objects.all()
+            friends = request.user.friends.all()
             template = "account/friends.html"
-            return render(request, template, {'users': user_data})
+            return render(request, template, {'users': all_users, 'friend_requests': all_requests, 'friends': friends})
 
     return render(request, template)
 
@@ -134,14 +129,19 @@ def upload_img(request):
         request.user.save()
     return render(request, "account/account.html")
 
-def send_friend_request(request, username):
+def send_friend_request(request, userID):
     from_user = request.user
-    to_user = User.objects.get(username=username)
+    to_user = User.objects.get(id=userID)
     friend_request, created = Friend_Request.objects.get_or_create(
         from_user=from_user, to_user=to_user)
     if created:
+        print('send created')
+        return
+    elif friend_request:
+        print('request already sent')
         return
     else:
+        print('failed')
         return
 
 def accept_friend_request(request, requestID):
@@ -150,6 +150,8 @@ def accept_friend_request(request, requestID):
         friend_request.to_user.friends.add(friend_request.from_user)
         friend_request.from_user.friends.add(friend_request.to_user)
         friend_request.delete()
+        print('friend added_____')
         return
     else:
+        print('friend add failed_____')
         return
