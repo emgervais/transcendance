@@ -1,5 +1,4 @@
-{% extends request.htmx|yesno:"partial.html,base.html" %}
-
+{% extends "base.html" %}
 {% block content %}
 {% if navbar %}
 {% include 'nav.html' %}

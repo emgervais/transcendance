@@ -14,29 +14,35 @@
             Games
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="#" hx-get="/pong/" hx-target="#dynamic-content" hx-push-url="true">Pong</a></li>
+            <!-- TODO --><li><a class="dropdown-item" href="#" hx-get="/pong/" hx-target="#dynamic-content" hx-push-url="true">Pong</a></li>
             <li><a class="dropdown-item" href="#">Another Game</a></li>
           </ul>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" hx-get="/chat/" hx-target="#dynamic-content" hx-push-url="true">Chat</a>
+          <!-- TODO --><a class="nav-link" href="#" hx-get="/chat/" hx-target="#dynamic-content" hx-push-url="true">Chat</a>
         </li>
       </ul>
       <ul class="navbar-nav">
         {% if user.is_anonymous %}
         <li class="nav-item">
-          <a class="nav-link" href="#" hx-get="/register/" hx-target="#dynamic-content" hx-push-url="true">Register</a>
+          <!-- TODO --><a class="nav-link" href="#" hx-get="/register/" hx-target="#dynamic-content" hx-push-url="true">Register</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#" hx-get="/login/" hx-target="#dynamic-content" hx-push-url="true">Login</a>
+          
+          
+          
+          <!-- TODO -->
+          <!-- <a class="nav-link" href="#" hx-get="/login/" hx-target="#dynamic-content" hx-push-url="true">Login</a> -->
+          <button class="nav-link" onclick="nav.login()">Login</button>
+
         </li>
         {% else %}
         <h6 class="p-3">{{ user.username }}</h6>
         <li class="nav-item dropdown">
             <img src={{ user.image }} alt="Dropdown Image" class="img-fluid dropdown-toggle rounded-circle" id="imgDropdown" style="height: 50px; width: 50px;" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="imgDropdown">
-              <a class="nav-link" href="#" hx-get="/settings/" hx-target="#dynamic-content" hx-push-url="true">Account</a>
-              <a class="nav-link" href="#" hx-headers='{ "X-CSRFToken": "{{ csrf_token }}" }' hx-post="/logout/" hx-target="#dynamic-body" hx-push-url="true">Logout</a>
+              <!-- TODO --><a class="nav-link" href="#" hx-get="/settings/" hx-target="#dynamic-content" hx-push-url="true">Account</a>
+              <!-- TODO --><a class="nav-link" href="#" hx-headers='{ "X-CSRFToken": "{{ csrf_token }}" }' hx-post="/logout/" hx-target="#dynamic-body" hx-push-url="true">Logout</a>
             </ul>
         </li>
         {% endif %}

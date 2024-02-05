@@ -35,26 +35,35 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django_htmx',
+    'rest_framework', 
     'users',
     'app',
     'crispy_forms',
     'crispy_bootstrap4',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'transcande.urls'
-LOGIN_URL = "login/"
+LOGIN_URL = None
 OAUTH_REDIRECT_URL = "https://localhost/" + "oauth42-redirected/"
 AUTH_USER_MODEL = "users.User"
 CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(" ")
@@ -93,6 +102,9 @@ DATABASES = {
         'PORT': os.environ.get("POSTGRES_PORT"),		
     }
 }
+
+SESSION_COOKIE_NAME = "sessionid"
+print("SESSION_COOKIE_NAME", SESSION_COOKIE_NAME)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

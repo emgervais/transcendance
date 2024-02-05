@@ -5,7 +5,6 @@ import django.conf
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from users.forms import RegisterForm, LoginForm, ChangeInfoForm
 from django.shortcuts import render, redirect
-from django_htmx.middleware import HtmxDetails
 from django.contrib import messages
 from django.urls import reverse
 from users import oauth42
@@ -17,10 +16,7 @@ from .models import Friend_Request
 
 User = get_user_model()
 
-class HtmxHttpRequest(HttpRequest):
-    htmx: HtmxDetails
-
-def register(request: HtmxHttpRequest) -> HttpResponse:
+def register(request) -> HttpResponse:
     template = 'auth/register.html'
     navbar = True
     if request.method == 'POST':
@@ -35,27 +31,26 @@ def register(request: HtmxHttpRequest) -> HttpResponse:
         navbar = False
     return render(request, template, {'form': form, 'navbar': navbar})
 
-def login(request: HtmxHttpRequest) -> HttpResponse:
-    template = 'auth/login.html'
+def login(request) -> HttpResponse:
     navbar = True
-    if request.method == 'POST':
-        form = LoginForm(data=request.POST)
-        if form.is_valid():
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password')
-            try:
-                user = authenticate(request, email=email, password=password)
-                if user is not None:
-                    auth.login(request, user)
-                    messages.success(request, "Logged in successfully")
-                    template = 'index.html'
-            except ValidationError as e:
-                form = LoginForm(data=request.POST)
-                form.add_error(None, str(e))
+    success = False
+    error = None
+    form = LoginForm(data=request.POST)
+    if form.is_valid():
+        email = form.cleaned_data.get('email')
+        password = form.cleaned_data.get('password')
+        try:
+            user = authenticate(request, email=email, password=password)
+            if user is not None:
+                auth.login(request, user)
+                messages.success(request, "Logged in successfully")
+                success = True
+            print(user)
+        except ValidationError as e:
+            error = str(e)
     else:
-        form = LoginForm()
-        navbar = False
-    return render(request, template, {'form': form, 'navbar': navbar})
+        error = "Invalid form"
+    return JsonResponse({'navbar': navbar, 'success': success, 'error': error})
 
 def oauth42_redirected(request):
     code = request.GET.get('code', None)
@@ -71,7 +66,7 @@ def oauth42_redirected(request):
         return render(request, 'auth/login.html', {'form': form})        
     return redirect('index')
 
-def logout(request: HtmxHttpRequest) -> HttpResponse:
+def logout(request) -> HttpResponse:
     auth.logout(request)
     messages.success(request, "Logged out successfully")
     return render(request, 'auth/login.html', {'form': LoginForm(), 'navbar': True})

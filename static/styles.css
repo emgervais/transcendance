@@ -1,4 +1,5 @@
-.content {
+#floating-box {
+    display: none;
     position: fixed;
     top: 20%;
     left: 30%;
@@ -10,7 +11,9 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
     z-index: 1000;
 }
-.overlay {
+
+#overlay {
+    display: none;
     position: fixed;
     top: 0;
     left: 0;

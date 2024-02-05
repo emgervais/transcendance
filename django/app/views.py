@@ -1,18 +1,31 @@
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.decorators import login_required
+from users.forms import RegisterForm, LoginForm, ChangeInfoForm
 from django.contrib.auth import get_user_model
+from functools import wraps
+from django.http import JsonResponse
 
-@login_required
+def api_login_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return view_func(request, *args, **kwargs)
+        else:
+            return JsonResponse({'error': 'Authentication required'}, status=401)
+
+    return _wrapped_view
+
+@api_login_required
 def pong(request):
     return render(request, 'pong.html')
 
-@login_required()
 def index(request):
-    print("_____INDEX")
     context = {
         'user': request.user,
+        'loginForm': LoginForm(),
+        'registerForm': RegisterForm(),
+        'changeInfoForm': ChangeInfoForm(),
     }    
-    print("user:", request.user)
     return render(request, 'index.html', context=context)
 
 def delete(request):

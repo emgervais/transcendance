@@ -1,26 +1,22 @@
-{% extends request.htmx|yesno:"partial.html,base.html" %}
 {% load crispy_forms_tags %}
-
 {% block content %}
-
-{% if navbar %}
-{% include 'nav.html' %}
-{% endif %}
-
 {% if user.is_anonymous %}
-<div class="overlay"></div>
-<div class="content">
+<div id="overlay"></div>
+<div id="floating-box">
     <div class="form-container">
         <h1>Login</h1>
         <p class="text-muted">Don't have an account? <a href="#" hx-get="/register/" hx-target="#dynamic-content" hx-push-url="true">Register</a></p>
-        <form hx-headers='{ "X-CSRFToken": "{{ csrf_token }}" }' href="#" hx-post="/login/" hx-target="#dynamic-body" hx-push-url="true">
-            {{ form|crispy }}
-            <button type="submit" class="btn btn-primary">Login</button>
-        </form>
+
+        <form id="login-form" action="{% url 'login' %}" method="post" hx-headers='{ "X-CSRFToken": "{{ csrf_token }}" }'>
+            {% csrf_token %}
+            {{ loginForm|crispy }}
+            <p id="form-error"></p>
+            <button type="button" id="login-button" class="btn btn-primary" onclick="login.loginButton()">Login</button>
+        </form>        
         <button onclick="authenticate()">Connect with 42</button>
     </div>
 </div>
 {% endif %}
-
+<script src="/static/js/login.js"></script>
 <script src="/static/js/oauth.js"></script>
 {% endblock %}
