@@ -32,40 +32,16 @@ public:
 	static void removePlayer(u64 id);
 	static void receive(const char* data, u64 size, u64 playerid);
 
-	static PyObject* pystartGame(PyObject* self, PyObject* args);
-	static PyObject* pyendGame(PyObject* self, PyObject* args);
-	static PyObject* pynewPlayer(PyObject* self, PyObject* args);
-	static PyObject* pyupdate(PyObject* self, PyObject* args);
+	static u64 playerCount();
 
-	static PyObject* pynew(PyTypeObject* type, PyObject* args, PyObject* kwds);
-	static int pyinit(PongGame* self, PyObject* args, PyObject* kwds);
-	static void pydealloc(PongGame* self);
+	// static PyObject* pystartGame(PyObject* self, PyObject* args);
+	// static PyObject* pyendGame(PyObject* self, PyObject* args);
+	// static PyObject* pynewPlayer(PyObject* self, PyObject* args);
+	// static PyObject* pyupdate(PyObject* self, PyObject* args);
 
 private:
-	static u64 playerCount;
+	static std::mutex _mutex;
+	static std::unordered_map<u64, std::unique_ptr<Player> > _players;
 
-	static std::mutex mutex;
-	static std::unordered_map<u64, std::unique_ptr<Player> > players;
-
-	static std::thread gameThread;
-};
-
-struct PongGameObject
-{
-	PyObject_HEAD
-};
-
-inline PyType_Slot PongGameSlots[] = {
-	{Py_tp_new, (void*)PongGame::pynew},
-	{Py_tp_init, (void*)PongGame::pyinit},
-	{Py_tp_dealloc, (void*)PongGame::pydealloc},
-	{0, NULL}
-};
-
-inline PyType_Spec PongGameSpec = {
-	"pong.PongGame",
-	sizeof(PongGameObject),
-	0,
-	Py_TPFLAGS_DEFAULT,
-	PongGameSlots
+	static std::thread _gameThread;
 };

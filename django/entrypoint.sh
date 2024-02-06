@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e                                      # exit shell if any process fails
+#set -e                                      # exit shell if any process fails
 
 (cd app/pongbackend && python3 setup.py install)
 

@@ -9,5 +9,6 @@ setup(
 			'src/pongbackend.cpp',
 			'src/pong.cpp',
 			'src/player.cpp',
+			'src/pyWrapper.cpp'
 		])],
 )

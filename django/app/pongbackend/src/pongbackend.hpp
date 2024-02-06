@@ -12,6 +12,3 @@
 #include <python3.11/Python.h>
 #include <python3.11/structmember.h>
 #endif
-
-inline PyObject* PongObjectType = NULL;
-inline PyObject* PlayerObjectType = NULL;

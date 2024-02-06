@@ -65,7 +65,8 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = 'transcande.asgi.application'
+# ASGI_APPLICATION = 'transcande.asgi.application'
+ASGI_APPLICATION = "transcande.asgi.app"
 
 # CHANNEL_LAYERS = {
 # 	"default": {
