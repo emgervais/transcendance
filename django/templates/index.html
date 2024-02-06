@@ -1,12 +1,14 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
 {% if navbar %}
 {% include 'nav.html' %}
 {% endif %}
 <h1>Home</h1>
-{% if user.is_authenticated %}
-<p>Welcome, {{ user.username }}!</p>
-{% else %}
-<p>Not logged in!</p>
-{% endif %}
+<div class="overlay" id="shadow"></div>
+<div class="floating-box" id="authentification">
+{% include 'auth/login.html' %}
+{% include 'auth/register.html' %}
+</div>
+</div>
 {% endblock %}

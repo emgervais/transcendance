@@ -69,7 +69,7 @@ def oauth42_redirected(request):
 def logout(request) -> HttpResponse:
     auth.logout(request)
     messages.success(request, "Logged out successfully")
-    return render(request, 'auth/login.html', {'form': LoginForm(), 'navbar': True})
+    return JsonResponse({'navbar': True, 'success': True, 'error': None})
 
 def get_oauth_uri(request):
     redirect_uri = django.conf.settings.OAUTH_REDIRECT_URL

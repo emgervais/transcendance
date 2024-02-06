@@ -20,7 +20,6 @@ const login = {
                 const formError = document.getElementById("form-error");
                 formError.innerHTML = data.error;
             }
-            console.log(data);
         })
         .catch(error => {
             console.error('Error:', error);
