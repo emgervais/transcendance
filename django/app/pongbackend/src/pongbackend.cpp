@@ -78,59 +78,37 @@ static void listmembers(PyTypeObject* to)
 	}
 }
 
-static void coroWait(PyObject* coro)
-{ // wait for a coroutine to finish, there's definitely a better way to do this
-	while(*(((u8*)coro) + Py::Coro::cr_running->offset)); // fetch the value of cr_running by doing occult magic
-	std::this_thread::yield(); // yield to other threads to avoid checking multiple times without letting other threads run
-}
-
 static PyObject* asgiThread(PyObject* self, PyObject* const * args, Py_ssize_t nargs)
 {
 	PyObject* scope = args[0];
-	PyObject* receive = args[1];
-	PyObject* send = args[2];
+	PyObject* receive = PyObject_CallFunctionObjArgs(Py::asyncToSync, args[1], NULL);
+	PyObject* send = PyObject_CallFunctionObjArgs(Py::asyncToSync, args[2], NULL);
 	printf("Started pong websocket thread\n");
 
-	if(!PyCallable_Check(receive) || !PyCallable_Check(send))
+	if(!receive || !send || !PyCallable_Check(receive) || !PyCallable_Check(send))
 	{
 		PyErr_SetString(PyExc_TypeError, "receive and send must be callable");
 		return NULL;
 	}
+	// confirm we connected by sending accept event
+	PyObject* dict = PyDict_New();
+	PyDict_SetItemString(dict, "type", PyUnicode_FromString("websocket.accept"));
+	PyObject* result = PyObject_CallFunctionObjArgs(send, dict, NULL);
+	// print type name of result to check
+	printf("Result type: %s\n", result->ob_type->tp_name);
 	while(true)
 	{
-		PyObject* eventfuture = PyObject_CallNoArgs(receive);
-		if(!eventfuture)
-		{
-			printf("No future\n");
-			PyErr_Print();
-			break;
-		}
-		listmethods((PyTypeObject*)Py_TYPE(eventfuture));
-		listmembers((PyTypeObject*)Py_TYPE(eventfuture));
-		PyObject* frame = (PyObject*)eventfuture + 2;
-		listmethods((PyTypeObject*)Py_TYPE(frame));
-		listmembers((PyTypeObject*)Py_TYPE(frame));
-		PyObject* event = PyObject_CallMethod(eventfuture, "result", NULL);
+		PyObject* event = PyObject_CallFunctionObjArgs(receive, NULL);
 		if(!event)
 		{
-			printf("No event\n");
-			PyErr_Print();
-			break;
-		}
-		listmethods((PyTypeObject*)Py_TYPE(event));
-		listmembers((PyTypeObject*)Py_TYPE(event));
-		PyObject* type = PyDict_GetItemString(event, "type");
-		if(!type)
-		{
-			printf("No type\n");
-			PyErr_SetString(PyExc_KeyError, "event has no type");
+			PyErr_SetString(PyExc_RuntimeError, "Failed to receive event");
 			break;
 		}
 
+		listmethods((PyTypeObject*)event->ob_type);
+		listmembers((PyTypeObject*)event->ob_type);
 
-		Py_DECREF(type);
 		Py_DECREF(event);
-		Py_DECREF(eventfuture);
 		break;
 		// break if type is close
 	}
@@ -156,7 +134,11 @@ static PyObject* checktype(PyObject* self, PyObject* const * args, Py_ssize_t na
 	const char* sp = PyUnicode_AS_DATA(scopetype);
 	printf("Type: %4.4s\n", sp);
 	if(sp[0] == 'h')
+	{
+		Py_DECREF(scopetype);
 		return PyLong_FromLong(1);
+	}
+	Py_DECREF(scopetype);
 	return PyLong_FromLong(0);
 }
 

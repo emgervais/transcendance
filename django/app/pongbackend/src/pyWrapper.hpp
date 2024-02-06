@@ -3,17 +3,7 @@
 namespace Py
 {
 	inline PyObject* djasgiApp = 0;
-
-	namespace Future
-	{
-		inline PyTypeObject* type = 0;
-		inline PyCFunction result = 0;
-	}
-
-	namespace Coro
-	{
-		inline PyMemberDef* cr_running = 0;
-	}
+	inline PyObject* asyncToSync = 0;
 
 	struct Object
 	{

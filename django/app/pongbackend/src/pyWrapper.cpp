@@ -82,18 +82,15 @@ namespace Py
 			return 0;
 		}
 
-		PyObject* asyncio = PyImport_ImportModule("asyncio");
-		Future::type = (PyTypeObject*)PyObject_GetAttrString(asyncio, "Future");
-		Future::result = getmethod(Future::type, "result");
-		Py_DECREF(asyncio);
-		if(!Future::type || !Future::result)
+		PyObject* asgirefsync = PyImport_ImportModule("asgiref.sync");
+		asyncToSync = PyObject_GetAttrString(asgirefsync, "async_to_sync");
+		Py_DECREF(asgirefsync);
+		if(!asyncToSync)
 		{
-			PyErr_SetString(PyExc_RuntimeError, "Failed to initialize asyncio.Future");
+			PyErr_SetString(PyExc_RuntimeError, "Failed to initialize asgiref.sync.async_to_sync");
 			Py_DECREF(djasgiApp);
 			return 0;
 		}
-
-		Coro::cr_running = getmember(&PyCoro_Type, "cr_running");
 
 		Py_RETURN_NONE;
 	}
