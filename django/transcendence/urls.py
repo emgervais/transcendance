@@ -1,5 +1,5 @@
 """
-URL configuration for transcande project.
+URL configuration for transcendence project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
@@ -15,8 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import include, path
+from rest_framework import routers
+from users import views
+
+router = routers.DefaultRouter()
+router.register(r'users', views.UserViewSet)
+
 
 urlpatterns = [
     path('', include('app.urls')),
     path('', include('users.urls')),
+    path('', include(router.urls)),
+    path('users/login/', views.login, name='login'),
 ]

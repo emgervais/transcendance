@@ -1,5 +1,5 @@
 """
-ASGI config for transcande project.
+ASGI config for transcendence project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -14,7 +14,7 @@ from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 from app.routing import websocket_urlpatterns
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transcande.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transcendence.settings')
 
 application = ProtocolTypeRouter(
 	{
