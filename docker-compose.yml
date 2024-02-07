@@ -40,6 +40,8 @@ services:
       - 443:443
     volumes:
       - ./static/:/home/app/static/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./frontend/:/home/app/frontend/
       # - static:/home/app/static/
     depends_on:
       - web
