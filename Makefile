@@ -19,4 +19,4 @@ nginx_:
 	docker exec -it nginx sh
 
 db:
-	docker exec -it postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
+	docker exec -it postgres psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}

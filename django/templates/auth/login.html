@@ -1,0 +1,16 @@
+{% load crispy_forms_tags %}
+{% comment %} {% block content %} {% endcomment %}
+<div class="form-container" id="login">
+        <h1>Login</h1>
+        <p class="text-muted">Don't have an account? <a onclick="Show(false, false)">Register</a></p>
+
+        <form id="login-form" action="{% url 'login' %}" method="post" headers='{ "X-CSRFToken": "{{ csrf_token }}" }'>
+            {% csrf_token %}
+            {{ loginForm|crispy }}
+            <p id="form-error"></p>
+            <button type="button" id="login-button" class="btn btn-primary" onclick="login.loginButton()">Login</button>
+        </form>        
+        <button onclick="authenticate()">Connect with 42</button>
+</div>
+<script src="/static/js/oauth.js"></script>
+{% comment %} {% endblock %} {% endcomment %}
