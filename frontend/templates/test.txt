@@ -1,0 +1,5 @@
+Salut
+
+{% include "test2.txt" %}
+
+Aurevoir
