@@ -3,7 +3,7 @@ import sys
 
 import django.conf
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from users.forms import RegisterForm, LoginForm, ChangeInfoForm
+from users.forms import ChangeInfoForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.urls import reverse
@@ -16,60 +16,20 @@ from .models import Friend_Request
 
 User = get_user_model()
 
-def register(request) -> HttpResponse:
-    template = 'auth/register.html'
-    navbar = True
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(request, "Account created successfully")
-            template = 'index.html'
-    else:
-        form = RegisterForm()
-        navbar = False
-    return render(request, template, {'form': form, 'navbar': navbar})
-
-def login(request) -> HttpResponse:
-    navbar = True
-    success = False
-    error = None
-    form = LoginForm(data=request.POST)
-    if form.is_valid():
-        email = form.cleaned_data.get('email')
-        password = form.cleaned_data.get('password')
-        try:
-            user = authenticate(request, email=email, password=password)
-            if user is not None:
-                auth.login(request, user)
-                messages.success(request, "Logged in successfully")
-                success = True
-            print(user)
-        except ValidationError as e:
-            error = str(e)
-    else:
-        error = "Invalid form"
-    return JsonResponse({'navbar': navbar, 'success': success, 'error': error})
-
 def oauth42_redirected(request):
     code = request.GET.get('code', None)
-    try:
-        redirect_uri = django.conf.settings.OAUTH_REDIRECT_URL
-        token = oauth42.get_user_token(code, redirect_uri)
-        credentials = oauth42.get_user_data(token)
-        user = authenticate(request, **credentials, backend='users.auth.OAuthBackend')
-        auth.login(request, user)
-    except oauth42.AuthError as e:
-        form = LoginForm(data=request.POST)
-        form.add_error(None, str(e))
-        return render(request, 'auth/login.html', {'form': form})        
-    return redirect('index')
+    # try:
+    #     redirect_uri = django.conf.settings.OAUTH_REDIRECT_URL
+    #     token = oauth42.get_user_token(code, redirect_uri)
+    #     credentials = oauth42.get_user_data(token)
+    #     user = authenticate(request, **credentials, backend='users.auth.OAuthBackend')
+    #     auth.login(request, user)
+    # except oauth42.AuthError as e:
+    #     # form = LoginForm(data=request.POST)
+    #     form.add_error(None, str(e))
+    #     return render(request, 'auth/login.html', {'form': form})
 
-def logout(request) -> HttpResponse:
-    auth.logout(request)
-    messages.success(request, "Logged out successfully")
-    return JsonResponse({'navbar': True, 'success': True, 'error': None})
+    return redirect('index')
 
 def get_oauth_uri(request):
     redirect_uri = django.conf.settings.OAUTH_REDIRECT_URL

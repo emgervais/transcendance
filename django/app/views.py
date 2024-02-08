@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.decorators import login_required
-from users.forms import RegisterForm, LoginForm, ChangeInfoForm
+from users.forms import ChangeInfoForm
 from django.contrib.auth import get_user_model
 from functools import wraps
 from django.http import JsonResponse
@@ -22,8 +22,7 @@ def pong(request):
 def index(request):
     context = {
         'user': request.user,
-        'loginForm': LoginForm(),
-        'registerForm': RegisterForm(),
+
         'changeInfoForm': ChangeInfoForm(),
     }    
     return render(request, 'index.html', context=context)
