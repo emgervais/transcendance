@@ -61,13 +61,15 @@ def get_user_data(access_token):
 	}
 
 def create_oauth_uri(redirect_uri):
-    base_url = os.getenv("OAUTH_API_URL", "") + "/oauth/"
-    authorization_endpoint = urljoin(base_url, "authorize")
-    params = {
-        'client_id': os.getenv("OAUTH_UID", ""),
-        'redirect_uri': redirect_uri,
-        'response_type': 'code',
-    }
-    authorization_uri = authorization_endpoint + '?' + urlencode(params)
-    return authorization_uri
+	base_url = os.getenv("OAUTH_API_URL", "") + "/oauth/"
+	authorization_endpoint = urljoin(base_url, "authorize")
+	params = {
+		'client_id': os.getenv("OAUTH_UID", ""),
+		'redirect_uri': redirect_uri,
+		'scope': 'public',
+		'response_type': 'code',
+	}
+	authorization_uri = authorization_endpoint + '?' + urlencode(params)
+	print(authorization_uri)
+	return authorization_uri
 

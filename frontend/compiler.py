@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os
 import re
+from pathlib import Path
 
 class TokenNotFound(Exception):
     pass
@@ -8,7 +9,7 @@ class TokenNotFound(Exception):
 class TemplateNameNotFound(Exception):
     pass
 
-TEMPLATES_ROOT = "templates/"
+TEMPLATES_ROOT = os.path.join(Path(__file__).resolve(), "templates")
 INDEX = "base.html"
 
 # -- util ----

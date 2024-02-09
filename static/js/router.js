@@ -1,8 +1,9 @@
 import { routes } from "/js/routes.js";
+import { authContainerDisplay } from "/js/nav.js";
 
 document.addEventListener("click", (e) => {
     const { target } = e;
-    if (!target.matches("nav a")) {
+    if (!target.matches("a[href]")) {
         return;
     }
     e.preventDefault();
@@ -11,7 +12,6 @@ document.addEventListener("click", (e) => {
 
 const route = (event) => {
     event.preventDefault();
-    //                       state, unused, target_link
     window.history.pushState({}, "", event.target.href);
     locationHandler();
 };
@@ -22,11 +22,17 @@ const locationHandler = async () => {
         location = "/";
     }
     const route = routes[location] || routes["404"];
-    const html = await fetch(route.template).then((response) => response.text());
-    document.getElementById("content").innerHTML = html;
-    document
-        .querySelector('meta[name="description"]')
-        .setAttribute("content", route.description);
+    if (route.function)
+        route.function();
+    if (route.template)
+    {
+        authContainerDisplay(true);
+        const html = await fetch(route.template).then((response) => response.text());
+        document.getElementById("dynamic-content").innerHTML = html;
+    }
+    // document
+    //     .querySelector('meta[name="description"]')
+    //     .setAttribute("dynamic-content", route.description);
 };
 
 window.onpopstate = locationHandler;

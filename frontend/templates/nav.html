@@ -1,25 +1,25 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="max-height: 10%;" id="dynamic_nav">
   <div class="container-fluid">
-    <a class="navbar-brand">ft_transcendence</a>
+    <a class="navbar-brand" href="/">ft_transcendence</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="/">Home</a>
-        </li>
+        </li> -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Games
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <!-- TODO --><li><a class="dropdown-item" href="#" hx-get="/pong/" hx-target="#dynamic-content" hx-push-url="true">Pong</a></li>
-            <li><a class="dropdown-item" href="#">Another Game</a></li>
+            <li><a class="nav-link" href="/pong/">Pong</a></li>
+            <li><a class="nav-link" href="/another-game/">Another Game</a></li>
           </ul>
         </li>
         <li class="nav-item">
-          <!-- TODO --><a class="nav-link" href="#" hx-get="/chat/" hx-target="#dynamic-content" hx-push-url="true">Chat</a>
+          <a class="nav-link" href="/chat/">Chat</a>
         </li>
       </ul>
       <!-- {% if not user.is_anonymous %}
@@ -34,10 +34,10 @@
       {% endif %} -->
       <ul class="navbar-nav">
         <li class="nav-item anonymous">
-          <a class="nav-link" onclick="Show(false, true)">Register</a>
+          <a class="nav-link" href="/register/">Register</a>
         </li>
         <li class="nav-item anonymous">
-          <a class="nav-link" onclick="Show(true, true)">Login</a>
+          <a class="nav-link" href="/login/">Login</a>
         </li>
         <h6 class="p-3 connected" id='usernameNav'>{{ user.username }}</h6>
         <li class="nav-item dropdown connected">
@@ -51,7 +51,8 @@
     </div>
   </div>
 </nav>
-<!-- {% if messages %}
+<!-- <script type="module" src="/js/nav.js">
+{% if messages %}
 {% for message in messages %}
   <div class="alert alert-{{ message.tags }}">
     {{ message }}
@@ -63,3 +64,8 @@
   </div>
 {% endfor %}
 {% endif %} -->
+<a class="overlay" href="/" id="shadow"></a></div>
+<div class="floating-box" id="authentication-container">
+{% include 'auth/login.html' %}
+{% include 'auth/register.html' %}
+</div>
