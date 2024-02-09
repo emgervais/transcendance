@@ -34,10 +34,12 @@ public:
 
 	static u64 playerCount();
 
-	// static PyObject* pystartGame(PyObject* self, PyObject* args);
-	// static PyObject* pyendGame(PyObject* self, PyObject* args);
-	// static PyObject* pynewPlayer(PyObject* self, PyObject* args);
-	// static PyObject* pyupdate(PyObject* self, PyObject* args);
+	static PyObject* pystartGame(PyObject*, PyObject*);
+	static PyObject* pyendGame(PyObject*, PyObject*);
+	static PyObject* pynewPlayer(PyObject*, PyObject*);
+	static PyObject* pyupdate(PyObject*, PyObject*);
+
+	static PyObject* pyplayerCount;
 
 private:
 	static std::mutex _mutex;

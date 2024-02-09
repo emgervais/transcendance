@@ -78,74 +78,42 @@ static void listmembers(PyTypeObject* to)
 	}
 }
 
-static PyObject* asgiThread(PyObject* self, PyObject* const * args, Py_ssize_t nargs)
+static PyObject* getevent(PyObject* self, PyObject* const * args, Py_ssize_t nargs)
 {
-	PyObject* scope = args[0];
-	PyObject* receive = PyObject_CallFunctionObjArgs(Py::asyncToSync, args[1], NULL);
-	PyObject* send = PyObject_CallFunctionObjArgs(Py::asyncToSync, args[2], NULL);
-	printf("Started pong websocket thread\n");
-
-	if(!receive || !send || !PyCallable_Check(receive) || !PyCallable_Check(send))
+	PyObject* const event = args[0];
+	const u8* const type = PyUnicode_1BYTE_DATA(PyDict_GetItemString(event, "type"));
+	if(type[0] == 'w')
 	{
-		PyErr_SetString(PyExc_TypeError, "receive and send must be callable");
-		return NULL;
-	}
-	// confirm we connected by sending accept event
-	PyObject* dict = PyDict_New();
-	PyDict_SetItemString(dict, "type", PyUnicode_FromString("websocket.accept"));
-	PyObject* result = PyObject_CallFunctionObjArgs(send, dict, NULL);
-	// print type name of result to check
-	printf("Result type: %s\n", result->ob_type->tp_name);
-	while(true)
-	{
-		PyObject* event = PyObject_CallFunctionObjArgs(receive, NULL);
-		if(!event)
+		if(type[10] == 'r') // receive
 		{
-			PyErr_SetString(PyExc_RuntimeError, "Failed to receive event");
-			break;
+			u64 playerid = ((Py::PlayerObject*)args[1])->id;
+			Py_ssize_t size;
+			char* data;
+			PyBytes_AsStringAndSize(PyDict_GetItemString(event, "bytes"), &data, &size);
+			PongGame::receive(data, size, playerid);
+			return PyLong_FromLong(0);
 		}
-
-		listmethods((PyTypeObject*)event->ob_type);
-		listmembers((PyTypeObject*)event->ob_type);
-
-		Py_DECREF(event);
-		break;
-		// break if type is close
+		else if(type[10] == 'c') // connect
+			return PyLong_FromLong(1);
+		else if(type[10] == 'd') // disconnect
+			return PyLong_FromLong(2);
 	}
-	// just send a websocket.close event for now
-	// PyObject* dict = PyDict_New();
-	// PyDict_SetItemString(dict, "type", PyUnicode_FromString("websocket.accept"));
-	// PyObject* future = PyObject_CallFunctionObjArgs(send, dict, NULL);
-	// coroWait(future);
-	// Py_DECREF(future);
-	// PyDict_SetItemString(dict, "type", PyUnicode_FromString("websocket.close"));
-	// future = PyObject_CallFunctionObjArgs(send, dict, NULL);
-	// coroWait(future);
-	// Py_DECREF(future);
-	// Py_DECREF(dict);
-	printf("Ended pong websocket thread\n");
-	Py_RETURN_NONE;
-}
 
-static PyObject* checktype(PyObject* self, PyObject* const * args, Py_ssize_t nargs)
-{
-	PyObject* scope = args[0];
-	PyObject* scopetype = PyDict_GetItemString(scope, "type");
-	const char* sp = PyUnicode_AS_DATA(scopetype);
-	printf("Type: %4.4s\n", sp);
-	if(sp[0] == 'h')
-	{
-		Py_DECREF(scopetype);
-		return PyLong_FromLong(1);
-	}
-	Py_DECREF(scopetype);
 	return PyLong_FromLong(0);
 }
 
+static PyObject* getplayercount(PyObject*, PyObject*)
+{
+	return PongGame::pyplayerCount;
+}
+
 static PyMethodDef PongBackendMethods[] = {
-	{"checktype", (PyCFunction)checktype, METH_FASTCALL, "check if http or websocket"}, // needs kwargs
-	{"wsapp", (PyCFunction)asgiThread, METH_FASTCALL, "start pong websocket app"},
-	// {"new_player", PongGame::pynewPlayer, METH_NOARGS | METH_STATIC, "Create a new player"},
+	{"get_event", (PyCFunction)getevent, METH_FASTCALL, "recv ws event"},
+	{"new_player", PongGame::pynewPlayer, METH_NOARGS, "Create a new player"},
+	{"start_game", PongGame::pystartGame, METH_NOARGS, "Start the game"},
+	{"end_game", PongGame::pyendGame, METH_NOARGS, "End the game"},
+	{"update", PongGame::pyupdate, METH_NOARGS, "Update the game and get data to broadcast"},
+	{"player_count", getplayercount, METH_NOARGS, "Get the number of players"},
 	{NULL, NULL, 0, NULL}
 };
 
@@ -154,13 +122,15 @@ static PyModuleDef PongBackendModule = {
 	"pong",
 	"Pong Module",
 	-1,
-	PongBackendMethods
+	PongBackendMethods,
+
 };
 
 PyMODINIT_FUNC PyInit_pong(void)
 {
 	PyObject* module =  PyModule_Create(&PongBackendModule);
-	if(!module || !Py::init())
+	PongGame::init();
+	if(!module || !Py::PlayerObject::registerObject(module) || !Py::init())
 	{
 		Py_XDECREF(module);
 		return NULL;

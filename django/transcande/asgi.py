@@ -11,15 +11,16 @@ import os
 
 # from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
+from asgiref.sync import async_to_sync
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transcande.settings')
 
-import pong
+import app.pong as pong
 
 application = get_asgi_application()
 
 async def app(scope, receive, send):
-	if pong.checktype(scope):
+	if scope['type'] == 'http':
 		await application(scope, receive, send)
 	else:
-		pong.wsapp(scope, receive, send)
+		await pong.wsapp(scope, receive, send)
