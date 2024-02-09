@@ -2,6 +2,9 @@ from rest_framework import serializers, status
 from django.contrib import auth
 from django.contrib.auth import authenticate
 from users.models import User
+from users.utils import generate_username
+from users.oauth42 import get_user_token, get_user_data
+from django.conf import settings
 
 class RegisterSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True)

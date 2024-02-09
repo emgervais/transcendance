@@ -7,22 +7,15 @@ from django.contrib.auth import get_user_model
 UserModel = get_user_model()
 
 class EmailBackend(ModelBackend):
-    def authenticate(self, request, email=None, password=None, **kwargs) -> UserModel:
-        if email is None or password is None:
-            return None
+    def authenticate(self, request, email=None, password=None, **kwargs):
         try:
             user = UserModel.objects.get(email=email)
         except UserModel.DoesNotExist:
-            raise ValidationError("User does not exist")
-        if user.check_password(password):
-            return user
-        return None
+            raise ValidationError('Invalid email')
+        if not user.check_password(password):
+            raise ValidationError('Invalid password')
+        return user
 
-    def get_user(self, user_id):
-        try:
-            return UserModel.objects.get(pk=user_id)
-        except UserModel.DoesNotExist:
-            return None
 
 class OAuthBackend(BaseBackend):
     def authenticate(self, request, backend=None, **credentials) -> UserModel:

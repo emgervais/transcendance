@@ -19,11 +19,11 @@ User = get_user_model()
 def oauth42_redirected(request):
     code = request.GET.get('code', None)
     # try:
-    #     redirect_uri = django.conf.settings.OAUTH_REDIRECT_URL
-    #     token = oauth42.get_user_token(code, redirect_uri)
-    #     credentials = oauth42.get_user_data(token)
-    #     user = authenticate(request, **credentials, backend='users.auth.OAuthBackend')
-    #     auth.login(request, user)
+        # redirect_uri = django.conf.settings.OAUTH_REDIRECT_URL
+        # token = oauth42.get_user_token(code, redirect_uri)
+        # credentials = oauth42.get_user_data(token)
+        # user = authenticate(request, **credentials, backend='users.auth.OAuthBackend')
+        # auth.login(request, user)
     # except oauth42.AuthError as e:
     #     # form = LoginForm(data=request.POST)
     #     form.add_error(None, str(e))

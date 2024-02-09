@@ -19,6 +19,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(" ")
 
 INSTALLED_APPS = [
 	'daphne',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -44,7 +45,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'transcendence.urls'
 LOGIN_URL = "login/"
-OAUTH_REDIRECT_URL = "https://localhost/" + "oauth42-redirected/"
+OAUTH_REDIRECT_URL = "https://localhost/" + "api/oauth42-redirected/"
 AUTH_USER_MODEL = "users.User"
 CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(" ")
 
@@ -68,9 +69,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 CHANNEL_LAYERS = {
@@ -81,7 +82,7 @@ CHANNEL_LAYERS = {
 
 ASGI_APPLICATION = 'transcendence.asgi.application'
 WSGI_APPLICATION = 'transcendence.wsgi.application'
-SESSION_COOKIE_SECURE = True
+
 
 DATABASES = {
     'default': {
