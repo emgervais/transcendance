@@ -17,9 +17,9 @@ def random_default_image():
     #return random.choice(['/static/media/default/2.png', '/static/media/default/1.jpg'])
     return '/static/media/default/default.png'
 
-class User(AbstractUser):
+class User(AbstractUser, PermissionsMixin):
     oauth = models.BooleanField(default=False)
-    image = models.ImageField(upload_to='media/', default=random_default_image)
+    image = models.ImageField(upload_to='profile_pics', default=random_default_image)
     matches = models.ManyToManyField("self", through="PongMatch", symmetrical=False, related_name="user_matches", through_fields=('p1', 'p2'))
     friends = models.ManyToManyField("User", related_name='user_friends', blank=True)
     friend_requests = models.ManyToManyField("User", through="Friend_Request", related_name='user_friend_requests', blank=True)
