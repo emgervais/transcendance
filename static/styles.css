@@ -37,6 +37,10 @@
     height: 100%;
 }
 
+.form-error {
+    color: red;
+}
+
 .form-container button {
     display: flex;
     align-items: center;

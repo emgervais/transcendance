@@ -1,47 +1,28 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 import random
-
 
 def random_default_image():
     #return random.choice(['/static/media/default/2.png', '/static/media/default/1.jpg'])
     return '/static/media/default/default.png'
 
-class User(AbstractUser):
+class User(AbstractUser, PermissionsMixin):
     oauth = models.BooleanField(default=False)
-    image = models.ImageField(upload_to='media/', default=random_default_image)
+    image = models.ImageField(upload_to='profile_pics', default=random_default_image)
     matches = models.ManyToManyField("self", through="PongMatch", symmetrical=False, related_name="user_matches", through_fields=('p1', 'p2'))
     friends = models.ManyToManyField("User", related_name='user_friends', blank=True)
-
-    groups = models.ManyToManyField(
-        Group,
-        verbose_name=_("groups"),
-        blank=True,
-        help_text=_(
-            "The groups this user belongs to. A user will get all permissions "
-            "granted to each of their groups."
-        ),
-        related_name="app_user_set",
-        related_query_name="user",
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        verbose_name=_("user permissions"),
-        blank=True,
-        help_text=_("Specific permissions for this user."),
-        related_name="app_user_set",
-        related_query_name="user",
-    )
-
-    def __str__(self):
-        return self.username
+    friend_requests = models.ManyToManyField("User", through="Friend_Request", related_name='user_friend_requests', blank=True)
+    
+    # Delete old image when a new one is uploaded
     def delete_old_image(self):
         default_images = ['/static/media/1.jpg', '/static/media/2.png'] 
         if self.image.name not in default_images:
             self.image.storage.delete(self.image.name)
+    
+    def __str__(self):
+        return self.username
 
 class Friend_Request(models.Model):
     from_user = models.ForeignKey(
@@ -67,4 +48,3 @@ class PongMatch(models.Model):
 
     def __str__(self):
         return f"{self.p1} vs {self.p2} ({self.score[0]}-{self.score[1]})"
-    

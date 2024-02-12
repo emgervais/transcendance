@@ -18,3 +18,4 @@ def generate_username(first_name, last_name):
             if not User.objects.filter(username=username).exists():
                 return username
         number += 1
+        

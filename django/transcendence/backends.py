@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.contrib.auth.backends import ModelBackend, BaseBackend
-from users import oauth42
+from auth import oauth42
 from users.utils import generate_username
 from django.contrib.auth import get_user_model
 

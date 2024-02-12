@@ -7,6 +7,12 @@ if [ "$APP_ENV" != "production" ]; then
     export PYTHONUNBUFFERED=1               # Don't buffer stdout/err
 fi
 
+# Collect static files
+python manage.py collectstatic --noinput
+
+# Apply database migrations
 python manage.py makemigrations
 python manage.py migrate
+
+# Start server
 python manage.py runserver 0.0.0.0:$DJANGO_PORT
