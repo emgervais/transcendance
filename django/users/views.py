@@ -7,8 +7,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 class UserView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     
-    def get(self, request: HttpRequest) -> JsonResponse:
-        user = request.user
+    def get(self, request: HttpRequest, pk: int) -> JsonResponse:
+        user = User.objects.get(pk=pk)
         return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
     
 class ChangeInfoView(generics.UpdateAPIView):
@@ -16,10 +16,10 @@ class ChangeInfoView(generics.UpdateAPIView):
     parser_classes = [MultiPartParser, FormParser]
     
     def put(self, request: HttpRequest) -> JsonResponse:
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.update(request.user, serializer.validated_data)
-        return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
+        serializer.save()
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
     
 class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
