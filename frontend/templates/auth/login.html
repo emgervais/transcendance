@@ -3,18 +3,16 @@
         <p class="text-muted">Don't have an account? <a href="/register/">Register</a></p>
 
         <form id="login-form" action="/api/login/" method="post">
-            <div>
+            <div id="email">
                 <label for="email">Email:</label>
-                <input type="text" id="email" name="email" required>
+                <input type="email" name="email" required>
             </div>
-            <div>
+            <div id="password">
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" name="password" required>
             </div>            
-            <p class="form-error"></p>
-            <button type="button" id="login-button" class="btn btn-primary" onclick="login.loginButton()">Login</button>
+            
+            <button type="button" id="login-button" class="btn btn-primary">Login</button>
         </form>        
-        <button onclick="authenticate()">Connect with 42</button>
+        <button id="oauth-button">Connect with 42</button>
 </div>
-<script src="/js/auth/oauth.js"></script>
-<script src="/js/auth/login.js"></script>

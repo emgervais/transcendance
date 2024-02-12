@@ -34,31 +34,33 @@
 //     return cookieValue;
 // }
 
-function authContainerDisplay(hide=false)
+function displayAuthContainer(display="block")
 {
-    const style = {true: "none", false: "block"}[hide];
-    const authElement = document.getElementById("authentication-container");
-    authElement.style.display = style;
-    const overlay = document.getElementById("shadow");
-    overlay.style.display = style;
+    document.getElementById("authentication-container").style.display = display;
+    document.getElementById("shadow").style.display = display;
 }
 
-function loginDisplay(hide=false)
+function hideAuthContainer()
+{
+    displayAuthContainer("none");
+}
+
+function displayLogin()
 {
     const loginElement = document.querySelector("#login");
     loginElement.style.display = "flex";
     const registerElement = document.querySelector("#register");
     registerElement.style.display = "none";
-    authContainerDisplay();
+    displayAuthContainer();
 }
 
-function registerDisplay(hide=false)
+function displayRegister()
 {
     const loginElement = document.querySelector("#login");
     loginElement.style.display = "none";
     const registerElement = document.querySelector("#register");
     registerElement.style.display = "flex";
-    authContainerDisplay();  
+    displayAuthContainer();  
 }
 
 
@@ -105,4 +107,4 @@ function registerDisplay(hide=false)
 //     }); 
 // }
 
-export {loginDisplay, registerDisplay, authContainerDisplay};
+export {displayLogin, displayRegister, hideAuthContainer};

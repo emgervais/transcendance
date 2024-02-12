@@ -19,7 +19,7 @@
           </ul>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/chat/">Chat</a>
+          <a class="nav-link" id="chat-toggle">Chat</a>
         </li>
       </ul>
       <!-- {% if not user.is_anonymous %}
@@ -51,7 +51,7 @@
     </div>
   </div>
 </nav>
-<!-- <script type="module" src="/js/nav.js">
+<!--
 {% if messages %}
 {% for message in messages %}
   <div class="alert alert-{{ message.tags }}">
