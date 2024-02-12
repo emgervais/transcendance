@@ -15,6 +15,8 @@ var stockplayery = 0;
 
 var started = false;
 
+var playerid = 1;
+
 async function gamestart() {
 	window.addEventListener("keydown", function (event) {
 		switch(event.key) {
@@ -38,7 +40,7 @@ async function gamestart() {
 			default:
 		}
 	});
-	setInterval(gameloop, 1000 / 60);
+	setInterval(gameloop, 1000 / 30);
 }
 
 function gameloop() {
@@ -75,17 +77,22 @@ ws.onopen = function (event) {
 ws.onmessage = function (event) {
 	let dv = new DataView(event.data);
 	let type = dv.getUint8(0);
+	// console.log("Received data: " + type + ' ' + dv.getUint8(1));
 	switch(type) {
 	case 1: // player movement
-		player.y = dv.getUint32(1, true);
+		rplayer.y = dv.getUint32(1, true);
 		break;
 	case 2: // opponent movement
-		opponent.y = dv.getUint32(1, true);
+		ropponent.y = dv.getUint32(1, true);
 		break;
-	case 4: // gamestart
+	case 5: // gamestart
 		if(dv.getUint8(1) == 1) {
+			playerid = 1;
+		}
+		else {
 			player = ropponent;
 			opponent = rplayer;
+			playerid = 2;
 		}
 		gamestart();
 		console.log("Game started.");
@@ -99,10 +106,11 @@ function senddata() {
 	{
 		let a = new ArrayBuffer(5);
 		let v = new DataView(a);
-		v.setUint8(0, 1);
+		v.setUint8(0, playerid);
 		v.setUint32(1, player.y, true);
-		ws.send(a);
 		stockplayery = player.y;
+		// console.log("Sending data: " + player.y);
+		ws.send(a);
 	}
 }
 

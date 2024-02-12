@@ -12,7 +12,8 @@
 
 enum PongMessage : u8
 {
-	PLAYER_MOVE = 1
+	PLAYER1_MOVE = 1,
+	PLAYER2_MOVE,
 };
 
 struct MLocker
@@ -28,7 +29,7 @@ public:
 	static int init();
 	static void update();
 
-	static u64 newPlayer();
+	static u64 newPlayer(Py::PlayerObject& p);
 	static void removePlayer(u64 id);
 	static void receive(const char* data, u64 size, u64 playerid);
 
@@ -41,9 +42,15 @@ public:
 
 	static PyObject* pyplayerCount;
 
+	static std::mutex mutex;
+
 private:
-	static std::mutex _mutex;
 	static std::unordered_map<u64, std::unique_ptr<Player> > _players;
+
+	static Player* _player1;
+	static Player* _player2;
+
+	static PyObject* _pybytes;
 
 	static std::thread _gameThread;
 };

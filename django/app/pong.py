@@ -19,12 +19,28 @@ class PongInstance:
 		await send({
 				'type': 'websocket.accept',
 			})
+		
 		if pong.player_count() == 2:
 			if self.task != None:
 				await self.task
 				self.task = None
-			print('start game')
 			self.task = asyncio.create_task(self.gameloop())
+		
+		if self.player.pongid == 1:
+			await send({
+				'type': 'websocket.send',
+				'bytes': b'\x05\x01'
+			})
+		elif self.player.pongid == 2:
+			await send({
+				'type': 'websocket.send',
+				'bytes': b'\x05\x02'
+			})
+		else:
+			await send({
+				'type': 'websocket.send',
+				'bytes': b'\x05\x00'
+			})
 
 	def disconnect(self):
 		print('disconnect')
@@ -43,17 +59,18 @@ class PongInstance:
 
 	async def gameloop(self):
 		pong.start_game()
+		print('start game')
 		message = {'type': 'websocket.send', 'bytes': ''}
 		while pong.player_count() >= 2:
 			data = pong.update()
 			if len(data) == 0:
-				await asyncio.sleep(0.5)
+				await asyncio.sleep(0.01)
 				continue
 			# send to and await all websockets
 			message['bytes'] = data
 			for ws in self.websockets:
 				await ws(message)
-			await asyncio.sleep(0.5)
+			await asyncio.sleep(0.01)
 
 async def wsapp(scope, receive, send):
 	pi = PongInstance()

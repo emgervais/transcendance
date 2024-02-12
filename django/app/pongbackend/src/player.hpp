@@ -9,7 +9,8 @@ public:
 	Player();
 	~Player();
 
-	void move(i32 y) { _y = y; }
+	void move(i32 y);
+	u64 serialize(char* buffer, u64 max);
 
 	i32 y() const { return _y; }
 
@@ -23,6 +24,7 @@ namespace Py
 	{
 		PyObject_HEAD
 		u64 id;
+		u64 pongid;
 
 		static bool registerObject(PyObject* module);
 

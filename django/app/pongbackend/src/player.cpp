@@ -13,6 +13,19 @@ Player::~Player()
 	printf("Player destructor\n");
 }
 
+void Player::move(i32 y)
+{
+	_y = y;
+}
+
+u64 Player::serialize(char* buffer, u64 max)
+{
+	if(max < sizeof(_y))
+		return 0;
+	*(i32*)buffer = _y;
+	return sizeof(_y);
+}
+
 ///////////////////////
 // Python interface
 ///////////////////////
@@ -26,6 +39,7 @@ namespace Py
 	};
 	static PyMemberDef _members[] = {
 		{"id", T_ULONGLONG, offsetof(PlayerObject, id), READONLY, "Player id"},
+		{"pongid", T_ULONGLONG, offsetof(PlayerObject, pongid), READONLY, "Pong id"},
 		{NULL}
 	};
 	static PyType_Slot _slots[] = {

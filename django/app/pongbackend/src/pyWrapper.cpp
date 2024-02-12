@@ -71,26 +71,26 @@ namespace Py
 		printf("Initializing pong backend\n");
 		srand(time(0) * 7348194244561);
 		// fetch the get_asgi_application function from django.core.asgi and call it to cache the asgi application
-		PyObject* djasgi = PyImport_ImportModule("django.core.asgi");
-		PyObject* get_asgi_application = PyObject_GetAttrString(djasgi, "get_asgi_application");
-		Py_DECREF(djasgi);
-		djasgiApp = PyObject_CallFunctionObjArgs(get_asgi_application, NULL);
-		Py_DECREF(get_asgi_application);
-		if(!djasgiApp)
-		{
-			PyErr_SetString(PyExc_RuntimeError, "Failed to initialize django.asgi application");
-			return 0;
-		}
+		// PyObject* djasgi = PyImport_ImportModule("django.core.asgi");
+		// PyObject* get_asgi_application = PyObject_GetAttrString(djasgi, "get_asgi_application");
+		// Py_DECREF(djasgi);
+		// djasgiApp = PyObject_CallFunctionObjArgs(get_asgi_application, NULL);
+		// Py_DECREF(get_asgi_application);
+		// if(!djasgiApp)
+		// {
+		// 	PyErr_SetString(PyExc_RuntimeError, "Failed to initialize django.asgi application");
+		// 	return 0;
+		// }
 
-		PyObject* asgirefsync = PyImport_ImportModule("asgiref.sync");
-		asyncToSync = PyObject_GetAttrString(asgirefsync, "async_to_sync");
-		Py_DECREF(asgirefsync);
-		if(!asyncToSync)
-		{
-			PyErr_SetString(PyExc_RuntimeError, "Failed to initialize asgiref.sync.async_to_sync");
-			Py_DECREF(djasgiApp);
-			return 0;
-		}
+		// PyObject* asgirefsync = PyImport_ImportModule("asgiref.sync");
+		// asyncToSync = PyObject_GetAttrString(asgirefsync, "async_to_sync");
+		// Py_DECREF(asgirefsync);
+		// if(!asyncToSync)
+		// {
+		// 	PyErr_SetString(PyExc_RuntimeError, "Failed to initialize asgiref.sync.async_to_sync");
+		// 	Py_DECREF(djasgiApp);
+		// 	return 0;
+		// }
 
 		Py_RETURN_NONE;
 	}

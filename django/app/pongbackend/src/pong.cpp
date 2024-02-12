@@ -2,45 +2,59 @@
 
 #include "player.hpp"
 #include "pyWrapper.hpp"
+#include "filthmap.hpp"
 
-std::mutex PongGame::_mutex;
+#define PACKET_MAX_SIZE 256
+
+std::mutex PongGame::mutex;
 std::unordered_map<u64, std::unique_ptr<Player> > PongGame::_players;
+PyObject* PongGame::_pybytes = 0;
+Player* PongGame::_player1 = 0;
+Player* PongGame::_player2 = 0;
 std::thread PongGame::_gameThread;
 PyObject* PongGame::pyplayerCount = 0;
 
 int PongGame::init()
 { // non-zero return value: error
-	const MLocker lock(_mutex);
+	const MLocker lock(mutex);
 	if(_players.size())
 		_players.clear();
+	_pybytes = PyBytes_FromStringAndSize(0, PACKET_MAX_SIZE);
+	if(!_pybytes)
+		return 1;
+	PyVarObject* bytes = (PyVarObject*)_pybytes;
+	bytes->ob_size = 0;
 	pyplayerCount = PyLong_FromUnsignedLongLong(0);
-	return 0;
+	return !pyplayerCount;
 }
 
 void PongGame::update()
 {
-	// MLocker lock(mutex);
-	// PyObject* json;
-
-	// // populate json with game state
-	// json = PyDict_New();
-	// PyDict_SetItemString(json, "type", PyUnicode_FromString("update"));
-	// PyDict_SetItemString(json, "players", PyList_New(0));
-	// for(auto& player : players)
-	// {
-	// 	PyObject* playerjson = PyDict_New();
-	// 	PyDict_SetItemString(playerjson, "y", PyLong_FromLong(player.second->y()));
-	// 	PyDict_SetItemString(playerjson, "uid", PyLong_FromUnsignedLongLong(player.first));
-	// 	PyList_Append(PyDict_GetItemString(json, "players"), playerjson);
-	// 	Py_DECREF(playerjson);
-	// }
+	char* const data = (char*)((PyBytesObject*)_pybytes)->ob_sval;
+	MLocker lock(PongGame::mutex);
+	u64 offset = 0;
+	if(_player1 && FilthMap::isFilthy(PLAYER1_Y))
+	{
+		data[offset++] = PLAYER1_MOVE;
+		*(i32*)(data + offset) = _player1->y();
+		offset += sizeof(i32);
+	}
+	if(_player2 && FilthMap::isFilthy(PLAYER2_Y))
+	{
+		data[offset++] = PLAYER2_MOVE;
+		*(i32*)(data + offset) = _player2->y();
+		offset += sizeof(i32);
+	}
+	PyVarObject* const bytes = (PyVarObject*)_pybytes;
+	bytes->ob_size = offset;
+	FilthMap::cleanFilth();
 }
 
-u64 PongGame::newPlayer()
+u64 PongGame::newPlayer(Py::PlayerObject& p)
 {
 	UID id;
 	u16 attempts = 0;
-	const MLocker lock(_mutex);
+	const MLocker lock(mutex);
 	do
 		id = UID(++attempts);
 	while(_players.find(id) != _players.end() && attempts < 16);
@@ -50,6 +64,18 @@ u64 PongGame::newPlayer()
 
 	printf("New player with id %lu\nPlayer Count: %lu\n", (u64)id, _players.size());
 
+	p.pongid = 0;
+	if(!_player1)
+	{
+		p.pongid = 1;
+		_player1 = _players[id].get();
+	}
+	else if(!_player2)
+	{
+		p.pongid = 2;
+		_player2 = _players[id].get();
+	}
+
 	pyplayerCount = PyLong_FromUnsignedLongLong(_players.size());
 
 	return id;
@@ -57,7 +83,7 @@ u64 PongGame::newPlayer()
 
 void PongGame::removePlayer(u64 id)
 {
-	const MLocker lock(_mutex);
+	const MLocker lock(mutex);
 
 	printf("Removing player with id %lu\n", (u64)id);
 
@@ -66,20 +92,30 @@ void PongGame::removePlayer(u64 id)
 		return;
 	_players.erase(id);
 
+	if(_player1 == player->second.get())
+		_player1 = 0;
+	else if(_player2 == player->second.get())
+		_player2 = 0;
+
 	pyplayerCount = PyLong_FromUnsignedLongLong(_players.size());
 }
 
 void PongGame::receive(const char* data, u64 size, u64 playerid)
 {
-	const MLocker lock(_mutex);
+	const MLocker lock(mutex);
 	auto pi = _players.find(playerid);
 	if(pi == _players.end())
 		return;
 	Player* player = pi->second.get();
 	switch((PongMessage)data[0])
 	{
-	case PLAYER_MOVE:
+	case PLAYER1_MOVE:
 		player->move(*(i32*)(data + 1));
+		FilthMap::setFilthy(PLAYER1_Y);
+		break;
+	case PLAYER2_MOVE:
+		player->move(*(i32*)(data + 1));
+		FilthMap::setFilthy(PLAYER2_Y);
 		break;
 	}
 }
@@ -107,25 +143,26 @@ PyObject* PongGame::pyupdate(PyObject*, PyObject*)
 {
 	PongGame::update();
 	// todo return list of changed values in a tuple or send it directly to all players to avoid python
-	PyBytesObject* bytes = (PyBytesObject*)PyBytes_FromStringAndSize("0", 1);
-	return (PyObject*)bytes;
+	// PyBytesObject* bytes = (PyBytesObject*)PyBytes_FromStringAndSize("0", 1);
+	Py_INCREF(_pybytes);
+	return _pybytes;
 }
 
 PyObject* PongGame::pynewPlayer(PyObject*, PyObject*)
 { // create a python player handle that has an id to a player in the game
 	// trying desperately to avoid python here by making this handle have a direct route to acting on the game
 	// without needing to parse arguments
-	u64 id = PongGame::newPlayer();
-	if(!id)
-	{
-		PyErr_SetString(PyExc_RuntimeError, "Could not add player");
-		return NULL;
-	}
 	PyObject* player = PyObject_New(PyObject, (PyTypeObject*)Py::PlayerObject::type);
 	if(!player)
 	{
 		PyErr_SetString(PyExc_MemoryError, "Could not allocate memory for Player");
-		PongGame::removePlayer(id);
+		return NULL;
+	}
+	u64 id = PongGame::newPlayer(*((Py::PlayerObject*)player));
+	if(!id)
+	{
+		PyErr_SetString(PyExc_RuntimeError, "Could not add player");
+		Py_DECREF(player);
 		return NULL;
 	}
 	// PyObject_Init(player, (PyTypeObject*)PlayerObjectType);

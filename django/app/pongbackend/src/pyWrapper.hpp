@@ -2,9 +2,6 @@
 
 namespace Py
 {
-	inline PyObject* djasgiApp = 0;
-	inline PyObject* asyncToSync = 0;
-
 	struct Object
 	{
 	public:
