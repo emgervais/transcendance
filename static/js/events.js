@@ -12,4 +12,13 @@ document.addEventListener("DOMContentLoaded", () => {
             buttons[target.id]();
         }
     });
+
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+            if (document.querySelector("#shadow").style.display !== 'none')
+            {
+                window.history.back();
+            }
+        }
+    });   
 });
