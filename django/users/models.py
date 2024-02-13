@@ -6,7 +6,7 @@ import random
 
 def random_default_image():
     #return random.choice(['/static/media/default/2.png', '/static/media/default/1.jpg'])
-    return '/static/media/default/default.png'
+    return '/default/default.webp'
 
 class User(AbstractUser, PermissionsMixin):
     oauth = models.BooleanField(default=False)

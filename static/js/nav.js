@@ -1,23 +1,23 @@
-// function updateNav(connect) {
-//     var connected = document.querySelectorAll('.connected');
-//     var notconnected = document.querySelectorAll('.anonymous');
-//     if(connect) {
-//     connected.forEach(function(connected) {
-// 		connected.style.display = 'block';
-// 	});
-// 	notconnected.forEach(function(notconnected) {
-// 		notconnected.style.display = 'none';
-// 	});
-//     }
-//     else {
-//         connected.forEach(function(connected) {
-//             connected.style.display = 'none';
-//         });
-//         notconnected.forEach(function(notconnected) {
-//             notconnected.style.display = 'block';
-//         });
-//     }
-// }
+function updateNav(connect) {
+    var connected = document.querySelectorAll('.connected');
+    var notconnected = document.querySelectorAll('.anonymous');
+    if(connect) {
+        connected.forEach(function(connected) {
+            connected.style.display = 'block';
+        });
+        notconnected.forEach(function(notconnected) {
+            notconnected.style.display = 'none';
+        });
+    }
+    else {
+        connected.forEach(function(connected) {
+            connected.style.display = 'none';
+        });
+        notconnected.forEach(function(notconnected) {
+            notconnected.style.display = 'block';
+        });
+    }
+}
 // function getCookie(name) {
 //     let cookieValue = null;
 //     if (document.cookie && document.cookie !== '') {
@@ -36,8 +36,8 @@
 
 function displayAuthContainer(display="block")
 {
-    document.getElementById("authentication-container").style.display = display;
-    document.getElementById("shadow").style.display = display;
+    document.querySelector("#authentication-container").style.display = display;
+    document.querySelector("#shadow").style.display = display;
 }
 
 function hideAuthContainer()
@@ -107,4 +107,4 @@ function displayRegister()
 //     }); 
 // }
 
-export {displayLogin, displayRegister, hideAuthContainer};
+export {updateNav, displayLogin, displayRegister, hideAuthContainer};

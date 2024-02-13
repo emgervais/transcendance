@@ -1,14 +1,16 @@
-import { hideAuthContainer } from "/js/nav.js";
+import { updateNav, hideAuthContainer } from "/js/nav.js";
+import { route } from "/js/router.js";
 
 export function loginButton() {
-    formSubmit("login-button");
+    formSubmit("login-form");
 }
 
 export function registerButton() {
-    formSubmit("register-button");
+    formSubmit("register-form");
 }
 
 function formSubmit(formId) {
+    removeFormErrors();
     const form = document.getElementById(formId);
     const formData = new FormData(form);
     fetch(form.action, {
@@ -20,23 +22,53 @@ function formSubmit(formId) {
         if (response.ok) {
             return response.json();
         } else {
-            throw new Error(response.json());
-        }
+            return response.json().then(errorData => {
+                throw { status: response.status, data: errorData };
+            });
+        }        
     })
     .then(data => {
         console.log(data);
-        if (data.success) {
-            hideAuthContainer();
-        }
-        if (data.email) {  // data.error: 
-            const element = document.querySelector("#login-form#email");
-            element.innerHTML = data.email;
-        }
+        route("/");
+        login(data);
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.log(error.data)
+        if (error.status && error.data) {
+            for (const [key, value] of Object.entries(error.data)) {
+                const div = form.querySelector("." + key);
+                const error = document.createElement('p');
+                error.className = "form-error";
+                error.innerText = value;
+                div.appendChild(error);
+                console.log(`${key}: ${value}`);
+            }
+        } else {
+            console.error('Network error or server not responding');
+        }
     });
 }
+
+function removeFormErrors() {
+    let errors = document.querySelectorAll(".form-error");
+    errors.forEach((error) => {
+        error.outerHTML = "";
+    });
+}
+
+function login(data) {
+    // imgDropdown
+    let userImg = document.querySelector("#imgDropdown");
+    userImg.setAttribute('src', data.image);
+    let username = document.querySelector("#usernameNav");
+    username.innerText = data.username;
+
+    updateNav(true);
+
+    // username image oauth friend_requests friends matches
+    // token: access, refresh
+}
+
 
 export function oauthButton() {
 	fetch('/api/oauth42/')

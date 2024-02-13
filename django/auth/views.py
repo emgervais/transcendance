@@ -8,6 +8,16 @@ from auth.oauth42 import create_oauth_uri, get_user_token, get_user_data
 from users.utils import generate_username
 from django.conf import settings
 
+# For development purposes only
+class ResetDatabaseView(generics.DestroyAPIView):
+    permission_classes = [AllowAny]
+    def delete(self, request: HttpRequest) -> JsonResponse:
+        try:
+            User.objects.all().delete()
+            return JsonResponse({'message': 'Database reset successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class RegisterView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -25,8 +35,7 @@ class LoginView(generics.GenericAPIView):
     
     def post(self, request: HttpRequest) -> JsonResponse:
         serializer = self.get_serializer(data=request.data)
-        print("________", serializer)
-        print(serializer.is_valid(raise_exception=True))
+        serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
     
