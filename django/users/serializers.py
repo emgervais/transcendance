@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
-from users.models import User
+from users.models import User, FriendRequest, Friend
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,9 +17,6 @@ class UserSerializerWithToken(UserSerializer):
         data['access'] = str(token.access_token)
         return data
 
-# Create a serializer for changing user info
-# This serializer will be used to change the username and image of a user
-# It will also be used to delete the old image if a new one is uploaded
 class ChangeInfoSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=False)
     image = serializers.ImageField(required=False)
@@ -79,3 +76,114 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         instance.set_password(validated_data.get('password1'))
         instance.save()
         return instance
+    
+class FriendRequestsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'image']
+
+# class FriendRequest(models.Model):
+#     from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_requests")
+#     to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_requests")
+#     created_at = models.DateTimeField(auto_now_add=True)
+    
+#     def __str__(self):
+#         return f"{self.from_user} to {self.to_user}"
+        
+class FriendRequestSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    action = serializers.CharField(required=True)
+    
+    class Meta:
+        model = User
+        fields = ['username', 'action']
+        
+    def validate(self, data):
+        username = data.get('username', None)
+        action = data.get('action', None)
+        
+        if not User.objects.filter(username=username).exists():
+            raise serializers.ValidationError({'username': 'User does not exist'})
+        if action not in ['send', 'accept', 'reject']:
+            raise serializers.ValidationError({'action': 'Invalid action'})
+        
+        
+        data['from_user'] = from_user = User.objects.get(pk=self.context['request'].user.id)
+        data['to_user'] = to_user = User.objects.get(username=username)
+        if action == 'send':
+            temp = from_user
+            from_user = to_user
+            to_user = temp
+        
+        if action == 'send':
+            if from_user == to_user:
+                raise serializers.ValidationError({'username': 'Cannot send friend request to yourself'})
+            if from_user.is_friend(to_user):
+                raise serializers.ValidationError({'username': 'You are already friends with this user'})
+            if from_user.has_sent_request(to_user):
+                raise serializers.ValidationError({'username': 'Friend request already sent'})
+        elif action == 'accept' or action == 'reject':
+            if not to_user.has_received_request(from_user):
+                raise serializers.ValidationError({'username': 'No friend request from this user'})
+        print("validated data: ", data)
+        return data
+    
+    def create(self, validated_data):
+        from_user = validated_data['from_user']
+        to_user = validated_data['to_user']
+        action = validated_data['action']
+        
+        if action == 'send' or action == 'accept':
+            if not to_user.has_received_request(from_user) and action != 'accept':
+                FriendRequest.objects.create(from_user=to_user, to_user=from_user)
+            else:
+                Friend.objects.create(user=from_user, friend=to_user)
+                Friend.objects.create(user=to_user, friend=from_user)
+                from_user.get_friend_request(to_user).delete()
+        elif action == 'reject':
+            from_user.get_friend_request(to_user).delete()
+        return validated_data
+    
+    def to_representation(self, instance):
+        action = instance['action']
+        if action == 'send':
+            return {'message': 'Friend request sent'}
+        elif action == 'accept':
+            return {'message': 'Friend request accepted'}
+        elif action == 'reject':
+            return {'message': 'Friend request rejected'}
+    
+class FriendSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'image']
+        
+class RemoveFriendSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    
+    class Meta:
+        model = User
+        fields = ['username']
+        
+    def validate(self, data):
+        username = data.get('username', None)
+        
+        if not User.objects.filter(username=username).exists():
+            raise serializers.ValidationError({'username': 'User does not exist'})
+        
+        from_user = self.context['request'].user
+        to_user = User.objects.get(username=username)
+        
+        if not from_user.friend_list.filter(username=to_user.username).exists():
+            raise serializers.ValidationError({'username': 'You are not friends with this user'})
+        
+        return data
+    
+    def delete(self, validated_data):
+        from_user = self.context['request'].user
+        to_user = User.objects.get(username=validated_data['username'])
+        
+        from_user.friend_list.filter(username=to_user.username).delete()
+        to_user.friend_list.filter(username=from_user.username).delete()
+        
+        return validated_data

@@ -6,29 +6,51 @@ import random
 
 def random_default_image():
     #return random.choice(['/static/media/default/2.png', '/static/media/default/1.jpg'])
-    return '/static/media/default/default.png'
+    return '/default/default.png'
 
 class User(AbstractUser, PermissionsMixin):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='profile_pics', default=random_default_image)
     matches = models.ManyToManyField("self", through="PongMatch", symmetrical=False, related_name="user_matches", through_fields=('p1', 'p2'))
-    friends = models.ManyToManyField("User", related_name='user_friends', blank=True)
-    friend_requests = models.ManyToManyField("User", through="Friend_Request", related_name='user_friend_requests', blank=True)
+    friend_list = models.ManyToManyField("self", through="Friend", symmetrical=False, related_name="user_friends", through_fields=('user', 'friend'))
+    friend_requests = models.ManyToManyField("self", through="FriendRequest", symmetrical=False, related_name="user_requests", through_fields=('from_user', 'to_user'))
+
+    def is_friend(self, user):
+        return self.friends.filter(friend=user).exists()
     
-    # Delete old image when a new one is uploaded
-    def delete_old_image(self):
-        default_images = ['/static/media/1.jpg', '/static/media/2.png'] 
-        if self.image.name not in default_images:
-            self.image.storage.delete(self.image.name)
+    def has_sent_request(self, user):
+        return self.sent_requests.filter(to_user=user).exists()
+    
+    def has_received_request(self, user):
+        return self.received_requests.filter(from_user=user).exists()
+    
+    def get_friend_request(self, user):
+        return self.sent_requests.get(to_user=user)
     
     def __str__(self):
         return self.username
 
-class Friend_Request(models.Model):
-    from_user = models.ForeignKey(
-        User, related_name='from_user', on_delete=models.CASCADE)
-    to_user = models.ForeignKey(
-        User, related_name='to_user', on_delete=models.CASCADE)
+class FriendRequest(models.Model):
+    from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_requests")
+    to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_requests")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('from_user', 'to_user')
+    
+    def __str__(self):
+        return f"{self.from_user} to {self.to_user}"
+    
+class Friend(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="friends")
+    friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('user', 'friend')
+
+    def __str__(self):
+        return f"{self.user} and {self.friend}"
 
 class PongMatch(models.Model):
     p1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="p1_matches")

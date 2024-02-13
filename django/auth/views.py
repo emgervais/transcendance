@@ -14,6 +14,7 @@ class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
+        print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -69,4 +70,14 @@ class OAuth42RedirectedView(generics.GenericAPIView):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    
+# For development purposes only
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+class ResetDatabaseView(generics.DestroyAPIView):
+    permission_classes = [AllowAny]
+    def delete(self, request: HttpRequest) -> JsonResponse:
+        try:
+            User.objects.all().delete()
+            return JsonResponse({'message': 'Database reset successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
