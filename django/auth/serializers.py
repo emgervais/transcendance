@@ -3,18 +3,19 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from users.serializers import UserSerializerWithToken
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 from users.models import User
     
 class RegisterSerializer(UserSerializerWithToken):
-    password1 = serializers.CharField(write_only=True, min_length=8)
+    password1 = serializers.CharField(write_only=True, min_length=8, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, min_length=8)
     
     class Meta(UserSerializerWithToken.Meta):
         fields = UserSerializerWithToken.Meta.fields + ['password1', 'password2']
         extra_kwargs = {'username': {'required': True, 'allow_blank': False},
                         'email': {'required': True, 'allow_blank': False},
-                        'password1': {'write_only': True, 'min_length': 8, 'required': True},
-                        'password2': {'write_only': True, 'min_length': 8, 'required': True}}
+                        'password1': {'write_only': True, 'required': True},
+                        'password2': {'write_only': True, 'required': True}}
         
     def create(self, validated_data):
         username = validated_data.get('username', None)
@@ -70,6 +71,7 @@ class LogoutSerializer(serializers.ModelSerializer):
     refresh = serializers.CharField()
     
     class Meta:
+        model = User
         fields = ['refresh']
         extra_kwargs = {'refresh': {'write_only': True}}
         
