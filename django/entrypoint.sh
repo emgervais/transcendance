@@ -8,6 +8,7 @@ if [ "$APP_ENV" != "production" ]; then
 fi
 
 # Collect static files
+# For production, this should be done by a web server
 python manage.py collectstatic --noinput
 
 # Apply database migrations

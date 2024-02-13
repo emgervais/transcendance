@@ -25,7 +25,8 @@ class LoginView(generics.GenericAPIView):
     
     def post(self, request: HttpRequest) -> JsonResponse:
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        print("________", serializer)
+        print(serializer.is_valid(raise_exception=True))
         user = serializer.validated_data
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
     
