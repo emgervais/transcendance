@@ -6,7 +6,7 @@ stop:
 	yes | docker image prune
 
 autocompile:
-	frontend/auto_compile.py
+	@frontend/auto_compile.py
 
 prune:
 	docker system prune --all --volumes

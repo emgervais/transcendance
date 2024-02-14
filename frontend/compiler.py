@@ -9,8 +9,6 @@ class TokenNotFound(Exception):
 class TemplateNameNotFound(Exception):
     pass
 
-TEMPLATES_ROOT = os.path.join(Path(__file__).resolve(), "templates")
-INDEX = "base.html"
 
 # -- util ----
 def str_find(txt, strs):
@@ -87,5 +85,7 @@ def compile(root, template):
     return html
 
 if __name__ == "__main__":
+    TEMPLATES_ROOT = os.path.join(Path(__file__).resolve(), "templates")
+    INDEX = "base.html"    
     html = compile(TEMPLATES_ROOT, INDEX)
     print(html)

@@ -1,4 +1,4 @@
-import { updateNav, hideAuthContainer } from "/js/nav.js";
+import { updateNav, hideAuthContainer } from "/static/js/nav.js";
 import { route } from "/js/router.js";
 
 function loginButton() {
@@ -28,8 +28,6 @@ function formSubmit(formId) {
         }        
     })
     .then(data => {
-        console.log(data);
-        route("/");
         login(data);
     })
     .catch(error => {
@@ -78,6 +76,7 @@ function login(data) {
     let username = document.querySelector("#usernameNav");
     username.innerText = data.username;
     updateNav(true);
+    route("/");
     // username image oauth friend_requests friends matches
     // token: access, refresh
 }
@@ -111,9 +110,7 @@ function oauthLogin() {
     if (!queryParams.has("code")) {
         return;
     }
-    // code could be bogus, what then?
     const code = queryParams.get("code");
-    history.replaceState(null, null, window.location.pathname);    
     fetch("/api/oauth42-login/", {
         method: 'POST',
         headers: {
