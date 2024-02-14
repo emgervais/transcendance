@@ -4,11 +4,11 @@ from rest_framework_simplejwt.exceptions import TokenError
 from users.serializers import UserSerializerWithToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from auth.oauth42 import create_oauth_uri, get_user_token, get_user_data
+from auth.oauth42 import get_user_token, get_user_data
 from users.utils import generate_username
 from django.conf import settings
 from users.models import User
-    
+
 class RegisterSerializer(UserSerializerWithToken):
     password1 = serializers.CharField(write_only=True, min_length=8, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, min_length=8)
@@ -93,6 +93,8 @@ class OAuth42LoginSerializer(UserSerializerWithToken):
         if user is None:
             username = generate_username(user_data['login'])
             user = User.objects.create_user(username, email, None, oauth=True)
+            
+        return user
 
 
 class LogoutSerializer(serializers.ModelSerializer):
