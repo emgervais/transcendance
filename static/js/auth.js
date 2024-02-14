@@ -1,56 +1,136 @@
-import { hideAuthContainer } from "/js/nav.js";
+import { updateNav, hideAuthContainer } from "/js/nav.js";
+import { route } from "/js/router.js";
 
-export function loginButton() {
-    formSubmit("login-button");
+function loginButton() {
+    formSubmit("login-form");
 }
 
-export function registerButton() {
-    formSubmit("register-button");
+function registerButton() {
+    formSubmit("register-form");
 }
 
+// -- form ----
 function formSubmit(formId) {
+    removeFormErrors();
     const form = document.getElementById(formId);
     const formData = new FormData(form);
     fetch(form.action, {
         method: form.method,
         body: formData,
-        // headers: { X-CSRFToken': formData.get('csrfmiddlewaretoken') },
     })
     .then(response => {
         if (response.ok) {
             return response.json();
         } else {
-            throw new Error(response.json());
-        }
+            return response.json().then(errorData => {
+                throw { status: response.status, data: errorData };
+            });
+        }        
     })
     .then(data => {
         console.log(data);
-        if (data.success) {
-            hideAuthContainer();
-        }
-        if (data.email) {  // data.error: 
-            const element = document.querySelector("#login-form#email");
-            element.innerHTML = data.email;
-        }
+        route("/");
+        login(data);
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.log(error.data)
+        if (error.status && error.data) {
+            for (const [key, value] of Object.entries(error.data)) {
+                addFormError(form, key, value);
+            }
+        } else {
+            console.error('Network error or server not responding');
+        }
     });
 }
 
-export function oauthButton() {
-	fetch('/api/oauth42/')
-		.then(response => {
-			if (!response.ok) {
-				throw new Error(`HTTP error! Status: ${response.status}`);
-			}
-			console.log(response);
-			return response.json();
-		})
-		.then(data => {
-			window.location.href = data.url;
-		})
-		.catch(error => {
-			console.error('Fetch error:', error);
-		});
+function addFormError(form, key, value) {
+    const div = form.querySelector("." + key);
+    const error = document.createElement('p');
+    error.className = "form-error";
+    error.innerText = value;
+    div.appendChild(error);
+    console.log(`${key}: ${value}`);  
 }
+
+function removeFormErrors() {
+    let errors = document.querySelectorAll(".form-error");
+    errors.forEach((error) => {
+        error.outerHTML = "";
+    });
+}
+
+function clearForm(formId) {
+    const form = document.getElementById(formId);
+    const inputFields = form.querySelectorAll('input');
+    inputFields.forEach(input => {
+        if (input.value) {
+            input.value = '';
+        }
+    });
+}
+// --
+
+function login(data) {
+    console.log(data);
+    let userImg = document.querySelector("#imgDropdown");
+    userImg.setAttribute('src', data.image);
+    let username = document.querySelector("#usernameNav");
+    username.innerText = data.username;
+    updateNav(true);
+    // username image oauth friend_requests friends matches
+    // token: access, refresh
+}
+
+function logout() {
+    console.log("logout");
+    updateNav(false);
+    //  /logout/
+    clearForm("login-form");
+    clearForm("register-form");
+}
+
+function oauthButton() {
+	fetch('/api/oauth42-uri/')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        window.location.href = data.uri;
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+    });
+}
+
+function oauthLogin() {
+    const queryParams = new URLSearchParams(window.location.search);
+    if (!queryParams.has("code")) {
+        return;
+    }
+    // code could be bogus, what then?
+    const code = queryParams.get("code");
+    history.replaceState(null, null, window.location.pathname);    
+    fetch("/api/oauth42-login/", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code: code }), 
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(login)
+    .catch(error => {
+        console.error('Fetch error:', error);
+    });
+}
+
+export {loginButton, registerButton, logout, oauthButton, oauthLogin};

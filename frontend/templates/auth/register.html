@@ -3,23 +3,25 @@
     <p class="text-muted">Already have an account?
       <a href="/login/">Login</a>
     </p>
+    
     <form id="register-form" action="/api/register/" method="post">
-      <div id="id_username">
-        <label for="id_username">Username:</label>
+      <div class="username">
+        <label for="username">Username:</label>
         <input type="text" name="username" required>
       </div>
-      <div id="id_email">
-        <label for="id_email">Email:</label>
+      <div class="email">
+        <label for="email">Email:</label>
         <input type="email" name="email" required>
       </div>
-      <div id="id_password1"> 
-        <label for="id_password1">Password:</label>
+      <div class="password1"> 
+        <label for="password1">Password:</label>
         <input type="password" name="password1" required>
       </div>
-      <div id="id_password2">
-        <label for="id_password2">Confirm Password:</label>
+      <div class="password2">
+        <label for="password2">Confirm Password:</label>
         <input type="password" name="password2" required>
       </div>
-      <button id="register-button" class="btn btn-primary">Register</button>
     </form>
+    <button id="register-button" class="btn btn-primary">Register</button>
+  
   </div>

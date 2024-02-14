@@ -17,6 +17,9 @@ class UserSerializerWithToken(UserSerializer):
         data['access'] = str(token.access_token)
         return data
 
+# Create a serializer for changing user info
+# This serializer will be used to change the username and image of a user
+# It will also be used to delete the old image if a new one is uploaded
 class ChangeInfoSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=False)
     image = serializers.ImageField(required=False)

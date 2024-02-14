@@ -21,11 +21,11 @@ const routes = {
     },
 };
 
-const route = (event) => {
-    event.preventDefault();
-    window.history.pushState({}, "", event.target.href);
+const route = (href) => {
+    window.history.pushState({}, "", href);
     locationHandler();
 };
+
 
 const locationHandler = async () => {
     const location = window.location.pathname;
@@ -55,6 +55,5 @@ function enableScripts(elementId) {
 
 window.onpopstate = locationHandler;
 window.route = route;
-locationHandler();
 
-export { route };
+export { route, locationHandler };

@@ -4,6 +4,9 @@ from rest_framework_simplejwt.exceptions import TokenError
 from users.serializers import UserSerializerWithToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from auth.oauth42 import create_oauth_uri, get_user_token, get_user_data
+from users.utils import generate_username
+from django.conf import settings
 from users.models import User
     
 class RegisterSerializer(UserSerializerWithToken):
@@ -12,8 +15,8 @@ class RegisterSerializer(UserSerializerWithToken):
     
     class Meta(UserSerializerWithToken.Meta):
         fields = UserSerializerWithToken.Meta.fields + ['password1', 'password2']
-        extra_kwargs = {'username': {'required': True, 'allow_blank': False},
-                        'email': {'required': True, 'allow_blank': False},
+        extra_kwargs = {'username': {'required': True},
+                        'email': {'required': True},
                         'password1': {'write_only': True, 'required': True},
                         'password2': {'write_only': True, 'required': True}}
         
@@ -48,8 +51,8 @@ class LoginSerializer(UserSerializerWithToken):
     
     class Meta(UserSerializerWithToken.Meta):
         fields = UserSerializerWithToken.Meta.fields + ['password']
-        extra_kwargs = {'username': {'required': False, 'allow_blank': True},
-                        'email': {'required': True, 'allow_blank': False},
+        extra_kwargs = {'username': {'required': False},
+                        'email': {'required': True},
                         'password': {'write_only': True, 'required': True}}
         
     def validate(self, data):
@@ -66,6 +69,31 @@ class LoginSerializer(UserSerializerWithToken):
             raise serializers.ValidationError({'password': 'Invalid password'})
 
         return user
+    
+class OAuth42LoginSerializer(UserSerializerWithToken):
+    code = serializers.CharField(write_only=True)
+    
+    class Meta(UserSerializerWithToken.Meta):
+        fields = UserSerializerWithToken.Meta.fields + ['code']
+        extra_kwargs = {'username': {'required': False},
+                        'email': {'required': False},
+                        'code': {'write_only': True, 'required': True}}
+        
+    def validate(self, data):
+        code = data.get('code', None)
+        
+        if code is None:
+            raise serializers.ValidationError({'code': 'Code is required to login through OAuth'})
+        token = get_user_token(code)
+        user_data = get_user_data(token)
+        email = user_data['email']
+        user = User.objects.filter(email=email).first()
+        if user is not None and user.oauth is False:
+            raise serializers.ValidationError({'email': 'Your email address is used by an existing account'})
+        if user is None:
+            username = generate_username(user_data['login'])
+            user = User.objects.create_user(username, email, None, oauth=True)
+
 
 class LogoutSerializer(serializers.ModelSerializer):
     refresh = serializers.CharField()
