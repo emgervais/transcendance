@@ -72,6 +72,7 @@ function clearForm(formId) {
 // --
 
 function login(data) {
+    console.log(data);
     let userImg = document.querySelector("#imgDropdown");
     userImg.setAttribute('src', data.image);
     let username = document.querySelector("#usernameNav");
@@ -90,20 +91,46 @@ function logout() {
 }
 
 function oauthButton() {
-	fetch('/api/oauth42/')
-		.then(response => {
-			if (!response.ok) {
-				throw new Error(`HTTP error! Status: ${response.status}`);
-			}
-			console.log(response);
-			return response.json();
-		})
-		.then(data => {
-			window.location.href = data.url;
-		})
-		.catch(error => {
-			console.error('Fetch error:', error);
-		});
+	fetch('/api/oauth42-uri/')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        window.location.href = data.uri;
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+    });
 }
 
-export {loginButton, registerButton, logout, oauthButton};
+function oauthLogin() {
+    const queryParams = new URLSearchParams(window.location.search);
+    if (!queryParams.has("code")) {
+        return;
+    }
+    // code could be bogus, what then?
+    const code = queryParams.get("code");
+    history.replaceState(null, null, window.location.pathname);    
+    fetch("/api/oauth42-login/", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code: code }), 
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(login)
+    .catch(error => {
+        console.error('Fetch error:', error);
+    });
+}
+
+export {loginButton, registerButton, logout, oauthButton, oauthLogin};

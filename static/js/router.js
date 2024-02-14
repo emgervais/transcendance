@@ -55,6 +55,5 @@ function enableScripts(elementId) {
 
 window.onpopstate = locationHandler;
 window.route = route;
-locationHandler();
 
-export { route };
+export { route, locationHandler };

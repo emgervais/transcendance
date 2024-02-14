@@ -47,22 +47,19 @@ class LogoutView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         return JsonResponse({'message': 'User logged out'}, status=status.HTTP_200_OK)
     
-class OAuth42View(generics.GenericAPIView):
+class OAuth42UriView(generics.GenericAPIView):
     permission_classes = [AllowAny]
-    
     def get(self, request: HttpRequest) -> JsonResponse:
-        redirect_uri = settings.OAUTH_REDIRECT_URL
-        url = create_oauth_uri(redirect_uri)
-        return JsonResponse({'url': url}, status=status.HTTP_200_OK)
+        uri = create_oauth_uri()
+        return JsonResponse({'uri': uri}, status=status.HTTP_200_OK)
 
-class OAuth42RedirectedView(generics.GenericAPIView):
+class OAuth42LoginView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     
-    def get(self, request: HttpRequest) -> JsonResponse:
+    def post(self, request: HttpRequest) -> JsonResponse:
         try:
-            code = request.GET.get('code')
-            redirect_uri = settings.OAUTH_REDIRECT_URL
-            token = get_user_token(code, redirect_uri)
+            code = request.data.get('code')
+            token = get_user_token(code)
             user_data = get_user_data(token)
 
             if User.objects.filter(email=user_data['email']).exists():
@@ -78,5 +75,3 @@ class OAuth42RedirectedView(generics.GenericAPIView):
                 return JsonResponse(UserSerializerWithToken(user).data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    

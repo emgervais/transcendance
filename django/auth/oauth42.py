@@ -22,7 +22,7 @@ def get_token():
 	)
 	return token
 
-def get_user_token(code, redirect_uri):
+def get_user_token(code):
 	if code is None:
 		raise AuthError("No code provided.")
 	params = {
@@ -30,7 +30,7 @@ def get_user_token(code, redirect_uri):
 		'client_id': os.getenv("OAUTH_UID", ""),
 		'client_secret': os.getenv("OAUTH_SECRET", ""),
 		'code': code,
-		'redirect_uri': redirect_uri,
+		'redirect_uri': os.getenv("OAUTH_REDIRECT_URI", ""),
 	}
 	encoded_params = urlencode(params)
 	token_url = os.getenv("OAUTH_API_URL", "") + "/oauth/token"
@@ -60,12 +60,12 @@ def get_user_data(access_token):
 		'last_name': user_data['last_name'],
 	}
 
-def create_oauth_uri(redirect_uri):
+def create_oauth_uri():
     base_url = os.getenv("OAUTH_API_URL", "") + "/oauth/"
     authorization_endpoint = urljoin(base_url, "authorize")
     params = {
         'client_id': os.getenv("OAUTH_UID", ""),
-        'redirect_uri': redirect_uri,
+        'redirect_uri': os.getenv("OAUTH_REDIRECT_URI", ""),
         'response_type': 'code',
     }
     authorization_uri = authorization_endpoint + '?' + urlencode(params)
