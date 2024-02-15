@@ -77,6 +77,15 @@ function login(data) {
     username.innerText = data.username;
     updateNav(true);
     route("/");
+
+    fetch("/api/")
+    .then(response => {
+        return response.json()
+    })
+    .then(data => {
+        console.log(data);
+    })
+
     // username image oauth friend_requests friends matches
     // token: access, refresh
 }

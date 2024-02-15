@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 from users.models import User, FriendRequest, Friend
 
@@ -12,9 +11,6 @@ class UserSerializer(serializers.ModelSerializer):
 class UserSerializerWithToken(UserSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        token = TokenObtainPairSerializer().get_token(instance)
-        data['refresh'] = str(token)
-        data['access'] = str(token.access_token)
         return data
 
 # Create a serializer for changing user info

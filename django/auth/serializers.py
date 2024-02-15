@@ -92,7 +92,7 @@ class OAuth42LoginSerializer(UserSerializerWithToken):
             raise serializers.ValidationError({'email': 'Your email address is used by an existing account'})
         if user is None:
             username = generate_username(user_data['first_name'], user_data['last_name'])
-            user = User.objects.create_user(username, email, None, oauth=True)
+            user = User.objects.create_user(username, email, None, oauth=True, image=user_data['image'])
             
         return user
 

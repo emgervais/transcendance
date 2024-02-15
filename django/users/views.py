@@ -3,6 +3,7 @@ from users.models import User, FriendRequest, Friend
 from users.serializers import UserSerializer, ChangeInfoSerializer, ChangePasswordSerializer, FriendRequestSerializer, FriendSerializer, RemoveFriendSerializer, FriendRequestsSerializer
 from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import AllowAny
 
 class UserView(generics.RetrieveAPIView):
     serializer_class = UserSerializer

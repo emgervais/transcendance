@@ -1,11 +1,12 @@
 start:
+	frontend/auto_compile.py --once
 	docker-compose up --build
 
 stop:
 	docker compose down
 	yes | docker image prune
 
-autocompile:
+frontend:
 	@frontend/auto_compile.py
 
 prune:

@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import time
 import os
+import sys
 from pathlib import Path
 from threading import Timer
 from watchdog.observers import Observer
@@ -62,6 +63,8 @@ class Recompiler(FileSystemEventHandler):
 if __name__ == "__main__":
     event_handler = Recompiler()
     event_handler.on_any_event()
+    if len(sys.argv) > 1 and sys.argv[1] == "--once":
+        exit(0)
     observer = Observer()
     observer.schedule(event_handler, ROOT, recursive=True)
     observer.start()
