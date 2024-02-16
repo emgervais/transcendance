@@ -1,5 +1,6 @@
 import * as util from "/static/js/util.js";
 
+// -- display ----
 function displayFriends() {
     util.display("account-friends", "block");
 }
@@ -30,4 +31,14 @@ function hideAll() {
     hideStats();
 }
 
+// ----
+
+
+// username image oauth friend_requests friends matches
+// token: access, refresh
+function changeInfoButton() {
+    util.formSubmit("change-info-form", console.log);
+}
+
 export { displayFriends, displayInfo, displayStats, hideAll };
+export { changeInfoButton };
