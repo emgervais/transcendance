@@ -13,6 +13,8 @@ In this script's directory, the folders containing a "base.html" file will be co
 The result will be an html named like the directory.
 It will be located in DEST.
 The folder hierarchy here is replicated in DEST.
+Args:
+    --once: compile once and quit
 """
 
 ROOT = Path(__file__).resolve().parent
@@ -63,7 +65,7 @@ class Recompiler(FileSystemEventHandler):
 if __name__ == "__main__":
     event_handler = Recompiler()
     event_handler.on_any_event()
-    if len(sys.argv) > 1 and sys.argv[1] == "--once":
+    if "--once" in sys.argv:
         exit(0)
     observer = Observer()
     observer.schedule(event_handler, ROOT, recursive=True)
