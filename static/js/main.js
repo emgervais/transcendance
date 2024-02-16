@@ -1,6 +1,6 @@
-import { route, locationHandler } from "/js/router.js";
-import { buttons } from "/js/buttons.js";
-import { oauthLogin } from "/js/auth.js";
+import { route, locationHandler } from "/static/js/router.js";
+import { buttons } from "/static/js/buttons.js";
+import { oauthLogin } from "/static/js/auth.js";
 
 function click(event) {
     const { target } = event;

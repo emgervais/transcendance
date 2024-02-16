@@ -1,5 +1,5 @@
-import * as nav from "/js/nav.js";
-import * as chat from "/js/chat.js";
+import * as nav from "/static/js/nav.js";
+import * as account from "/static/js/account.js";
 
 const routes = {
     404: {
@@ -10,14 +10,32 @@ const routes = {
     "/": {
         template: "/templates/home.html",
     },
-    "/pong/": {
-        template: "/templates/pong.html",
-    },
     "/register/": {
         function: nav.displayRegister,
+        authContainer: true,
     },
     "/login/": {
         function: nav.displayLogin,
+        authContainer: true,
+    },
+    "/pong/": {
+        template: "/templates/pong.html",
+    },
+    "/account/": {
+        template: "/templates/account.html",
+        function: account.hideAll,
+    },
+    "/account/friends/": {
+        template: "/templates/account.html",
+        function: account.displayFriends,
+    },
+    "/account/info/": {
+        template: "/templates/account.html",
+        function: account.displayInfo,
+    },
+    "/account/stats/": {
+        template: "/templates/account.html",
+        function: account.displayStats,
     },
 };
 
@@ -27,21 +45,39 @@ const route = (href) => {
 };
 
 
+const htmlCache = {};
+async function fetchHTMLWithCache(template) {
+    if (htmlCache[template]) {
+        return htmlCache[template];
+    } else {
+        const response = await fetch(template);
+        const html = await response.text();
+        htmlCache[template] = html;
+        return html;
+    }
+}
+
 const locationHandler = async () => {
     const location = window.location.pathname;
     if (location.length == 0) {
         location = "/";
     }
     const route = routes[location] || routes["404"];
+    if (!route.authContainer) {
+        nav.hideAuthContainer();
+    }
     if (route.template)
     {
-        nav.hideAuthContainer();
-        const html = await fetch(route.template).then((response) => response.text());
-        document.getElementById("dynamic-content").innerHTML = html;
-        enableScripts("dynamic-content");
+        const html = await fetchHTMLWithCache(route.template);
+        if (!route.containerId) {
+            route.containerId = "dynamic-section"
+        }
+        document.getElementById(route.containerId).innerHTML = html;
+        enableScripts(route.containerId);
     }
-    if (route.function)
+    if (route.function) {
         route.function();
+    }
 };
 
 function enableScripts(elementId) {

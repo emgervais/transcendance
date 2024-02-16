@@ -25,6 +25,7 @@ def get_token():
 def get_user_token(code):
 	if code is None:
 		raise AuthError("No code provided.")
+	print("CODE:", code)
 	params = {
 		'grant_type': 'authorization_code',
 		'client_id': os.getenv("OAUTH_UID", ""),
@@ -37,6 +38,7 @@ def get_user_token(code):
 	headers = {
 		'Content-Type': 'application/x-www-form-urlencoded',
 	}
+	print(params)
 	response = requests.post(token_url, data=encoded_params, headers=headers)
 	if response.status_code != 200:
 		raise AuthError(f"Error: {response.status_code} - {response.text}")

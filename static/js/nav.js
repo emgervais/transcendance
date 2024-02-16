@@ -1,3 +1,5 @@
+import * as util from "/static/js/util.js";
+
 function updateNav(connect) {
     var connected = document.querySelectorAll('.connected');
     var notconnected = document.querySelectorAll('.anonymous');
@@ -19,32 +21,30 @@ function updateNav(connect) {
     }
 }
 
-function displayAuthContainer(display="block")
+function displayAuthContainer()
 {
-    document.querySelector("#authentication-container").style.display = display;
-    document.querySelector("#shadow").style.display = display;
+    util.display("authentication-container", "block");
+    util.display("shadow", "block");
 }
 
 function hideAuthContainer()
 {
-    displayAuthContainer("none");
+    util.display("authentication-container", "none");
+    util.display("shadow", "none");
 }
 
 function displayLogin()
 {
-    const loginElement = document.querySelector("#login");
-    loginElement.style.display = "flex";
-    const registerElement = document.querySelector("#register");
-    registerElement.style.display = "none";
+    util.display("login", "flex");
+    util.display("register", "none");
     displayAuthContainer();
 }
 
 function displayRegister()
 {
-    const loginElement = document.querySelector("#login");
-    loginElement.style.display = "none";
-    const registerElement = document.querySelector("#register");
-    registerElement.style.display = "flex";
+    util.display("login", "none");
+    util.display("register", "flex");
+    displayAuthContainer();
     displayAuthContainer();  
 }
 

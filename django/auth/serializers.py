@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-from users.serializers import UserSerializerWithToken
+from users.serializers import UserSerializer
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from auth.oauth42 import get_user_token, get_user_data
@@ -9,12 +9,12 @@ from users.utils import generate_username
 from django.conf import settings
 from users.models import User
 
-class RegisterSerializer(UserSerializerWithToken):
+class RegisterSerializer(UserSerializer):
     password1 = serializers.CharField(write_only=True, min_length=8, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, min_length=8)
     
-    class Meta(UserSerializerWithToken.Meta):
-        fields = UserSerializerWithToken.Meta.fields + ['password1', 'password2']
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + ['password1', 'password2']
         extra_kwargs = {'username': {'required': True},
                         'email': {'required': True},
                         'password1': {'write_only': True, 'required': True},
@@ -46,11 +46,11 @@ class RegisterSerializer(UserSerializerWithToken):
         
         return data
     
-class LoginSerializer(UserSerializerWithToken):
+class LoginSerializer(UserSerializer):
     password = serializers.CharField(write_only=True)
     
-    class Meta(UserSerializerWithToken.Meta):
-        fields = UserSerializerWithToken.Meta.fields + ['password']
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + ['password']
         extra_kwargs = {'username': {'required': False},
                         'email': {'required': True},
                         'password': {'write_only': True, 'required': True}}
@@ -70,11 +70,11 @@ class LoginSerializer(UserSerializerWithToken):
 
         return user
     
-class OAuth42LoginSerializer(UserSerializerWithToken):
+class OAuth42LoginSerializer(UserSerializer):
     code = serializers.CharField(write_only=True)
     
-    class Meta(UserSerializerWithToken.Meta):
-        fields = UserSerializerWithToken.Meta.fields + ['code']
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + ['code']
         extra_kwargs = {'username': {'required': False},
                         'email': {'required': False},
                         'code': {'write_only': True, 'required': True}}
@@ -91,8 +91,8 @@ class OAuth42LoginSerializer(UserSerializerWithToken):
         if user is not None and user.oauth is False:
             raise serializers.ValidationError({'email': 'Your email address is used by an existing account'})
         if user is None:
-            username = generate_username(user_data['login'])
-            user = User.objects.create_user(username, email, None, oauth=True)
+            username = generate_username(user_data['first_name'], user_data['last_name'])
+            user = User.objects.create_user(username, email, None, oauth=True, image=user_data['image'])
             
         return user
 

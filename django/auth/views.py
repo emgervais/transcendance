@@ -1,12 +1,21 @@
 from django.http import JsonResponse, HttpRequest
 from users.models import User
-from users.serializers import UserSerializerWithToken
 from auth.serializers import RegisterSerializer, LoginSerializer, LogoutSerializer, OAuth42LoginSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
-from auth.oauth42 import create_oauth_uri, get_user_token, get_user_data
-from users.utils import generate_username
-from django.conf import settings
+from auth.oauth42 import create_oauth_uri
+
+from datetime import datetime
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+def set_cookies(response, user):
+    refresh_token = TokenObtainPairSerializer().get_token(user)
+    access_token = refresh_token.access_token    
+    refresh_token_exp = datetime.fromtimestamp(refresh_token['exp'])
+    access_token_exp = datetime.fromtimestamp(access_token['exp'])
+    response.set_cookie('refresh_token', str(refresh_token), samesite='Strict', httponly=True, secure=True, expires=refresh_token_exp)
+    response.set_cookie('access_token', str(access_token), samesite='Strict', httponly=True, secure=True, expires=access_token_exp)
+    return response
 
 # For development purposes only
 class ResetDatabaseView(generics.DestroyAPIView):
@@ -28,17 +37,22 @@ class RegisterView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+        response = JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+        response = set_cookies(response, serializer.instance)
+        return response
 
 class LoginView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
+        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        response = set_cookies(response, user)
+        return response
     
 class LogoutView(generics.GenericAPIView):
     serializer_class = LogoutSerializer
@@ -46,7 +60,11 @@ class LogoutView(generics.GenericAPIView):
     def post(self, request: HttpRequest) -> JsonResponse:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return JsonResponse({'message': 'User logged out'}, status=status.HTTP_200_OK)
+        serializer.save()
+        response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        return response
     
 class OAuth42UriView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -59,7 +77,10 @@ class OAuth42LoginView(generics.GenericAPIView):
     serializer_class = OAuth42LoginSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
+        request.COOKIES
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        response = set_cookies(response, user)
+        return response
