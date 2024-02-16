@@ -1,5 +1,4 @@
 start:
-# frontend/auto_compile.py --once
 	docker-compose up --build
 
 stop:

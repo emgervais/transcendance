@@ -93,27 +93,16 @@ class OAuth42LoginSerializer(UserSerializer):
         if user is None:
             username = generate_username(user_data['first_name'], user_data['last_name'])
             user = User.objects.create_user(username, email, None, oauth=True, image=user_data['image'])
-            
+
         return user
 
-
-class LogoutSerializer(serializers.ModelSerializer):
-    refresh = serializers.CharField()
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(required=False)
     
-    class Meta:
-        model = User
-        fields = ['refresh']
-        extra_kwargs = {'refresh': {'write_only': True}}
-        
     def validate(self, data):
-        refresh = data.get('refresh', None)
-        
-        if refresh is None:
-            raise serializers.ValidationError({'refresh': 'Refresh token is required to logout'})
-        try:
-            token = RefreshToken(refresh)
-            token.blacklist()
-        except TokenError:
-            raise serializers.ValidationError({'refresh': 'Invalid refresh token'})
-        
+        if 'refresh' not in data:
+            data['refresh'] = self.context['request'].COOKIES.get('refresh_token')
         return data
+    
+    def save(self, **kwargs):
+        pass

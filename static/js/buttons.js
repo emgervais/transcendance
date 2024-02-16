@@ -11,5 +11,6 @@ export const buttons = {
     "chat-toggle": chat.toggleDisplay,
     "chat-submit-button": chat.submitButton,
 
-    "change-info-button": account.changeInfoButton
+    "update-info-button": account.updateInfoButton,
+    "update-password-button": account.updatePasswordButton,
 };

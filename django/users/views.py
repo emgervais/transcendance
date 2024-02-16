@@ -1,15 +1,15 @@
 from django.http import JsonResponse, HttpRequest
-from users.models import User, FriendRequest, Friend
+from users.models import User
 from users.serializers import UserSerializer, ChangeInfoSerializer, FriendRequestSerializer, FriendSerializer, RemoveFriendSerializer, FriendRequestsSerializer
 from rest_framework import generics, status
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import AllowAny
+
 
 class UserView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     
-    def get(self, request: HttpRequest, pk: int) -> JsonResponse:
-        user = User.objects.get(pk=pk)
+    def get(self, request: HttpRequest, username: str) -> JsonResponse:
+        user = User.objects.get(username=username)
         return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
     
 class UsersView(generics.ListAPIView):
@@ -61,3 +61,10 @@ class RemoveFriendView(generics.DestroyAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return JsonResponse({'message': 'Friend removed successfully'}, status=status.HTTP_200_OK)
+
+class ObtainInfoView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    
+    def get(self, request: HttpRequest) -> JsonResponse:
+        user = User.objects.get(pk=request.user.id)
+        return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)

@@ -29,7 +29,7 @@ const routes = {
         template: "/templates/account.html",
         function: account.displayFriends,
     },
-    "/account/info/": {
+    "/account/update-info/": {
         template: "/templates/account.html",
         function: account.displayInfo,
     },

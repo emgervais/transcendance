@@ -15,6 +15,8 @@ services:
       interval: 1s
       timeout: 1s
       retries: 20
+    # networks:
+    #   - trans_network
 
   web:
     container_name: web
@@ -32,7 +34,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      
+    # networks:
+    #   - trans_network
+
   nginx:
     container_name: nginx
     build:
@@ -46,7 +50,13 @@ services:
       # - static:/home/app/static/
     depends_on:
       - web
+    # networks:
+    #   - trans_network
 
 volumes:
   static:
   db:
+
+# networks:
+#   trans_network:
+#     external: true

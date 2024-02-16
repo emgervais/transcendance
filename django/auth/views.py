@@ -1,6 +1,6 @@
 from django.http import JsonResponse, HttpRequest
 from users.models import User
-from auth.serializers import RegisterSerializer, LoginSerializer, LogoutSerializer, OAuth42LoginSerializer
+from auth.serializers import RegisterSerializer, LoginSerializer, OAuth42LoginSerializer, LogoutSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from auth.oauth42 import create_oauth_uri
@@ -53,17 +53,18 @@ class LoginView(generics.GenericAPIView):
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
         response = set_cookies(response, user)
         return response
-    
+
 class LogoutView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
     serializer_class = LogoutSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        response.delete_cookie('access_token')
+        response = JsonResponse({'message': 'Logout successful'}, status=status.HTTP_200_OK)
         response.delete_cookie('refresh_token')
+        response.delete_cookie('access_token')
         return response
     
 class OAuth42UriView(generics.GenericAPIView):
