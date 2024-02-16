@@ -39,7 +39,7 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
         image = validated_data.get('image', None)
         username = validated_data.get('username', None)
         
-        if image is not None and instance.image != '/static/media/default/default.png':
+        if image is not None and instance.image != '/media/default/default.png':
             instance.image.delete(save=False)
         if username is not None and User.objects.filter(username=username).exists() and username != '':
             instance.username = validated_data.get('username', instance.username)
