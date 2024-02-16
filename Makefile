@@ -1,5 +1,4 @@
 start:
-	frontend/auto_compile.py --once
 	docker-compose up --build
 
 stop:
@@ -21,4 +20,7 @@ nginx:
 db:
 	source .env && docker exec -it postgres psql -U $${POSTGRES_USER} -d $${POSTGRES_DB}
 
-.PHONY: start stop frontend prune web nginx db
+tests:
+	cd tests && docker-compose up --build
+
+.PHONY: start stop frontend prune web nginx db tests

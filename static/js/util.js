@@ -4,12 +4,18 @@ function display(id, display) {
 }
 
 // -- form ----
-function formSubmit(formId, callback) {
-    removeFormErrors();
+function formSubmit(formId, callback, method=undefined) {
     const form = document.getElementById(formId);
+    if (!form) {
+        console.error('Form "' + formId + '" not found');
+        return;
+    }    
+    removeFormErrors();
+    method = method? method : form.method;
+    console.log("method:", method);
     const formData = new FormData(form);
     fetch(form.action, {
-        method: form.method,
+        method: method,
         body: formData,
     })
     .then(response => {
@@ -26,7 +32,7 @@ function formSubmit(formId, callback) {
         clearForm(formId);
     })
     .catch(error => {
-        console.log(error.data)
+        console.log(error.data);
         if (error.status && error.data) {
             for (const [key, value] of Object.entries(error.data)) {
                 addFormError(form, key, value);

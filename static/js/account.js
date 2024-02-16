@@ -10,11 +10,11 @@ function hideFriends() {
 }
 
 function displayInfo() {
-    util.display("account-info", "block");
+    util.display("account-update-info", "block");
 }
 
 function hideInfo() {
-    util.display("account-info", "none");
+    util.display("account-update-info", "none");
 }
 
 function displayStats() {
@@ -36,9 +36,13 @@ function hideAll() {
 
 // username image oauth friend_requests friends matches
 // token: access, refresh
-function changeInfoButton() {
-    util.formSubmit("change-info-form", console.log);
+function updateInfoButton() {
+    util.formSubmit("update-info-form", (e) => {console.log("result:", e)}, "put");
+}
+
+function updatePasswordButton() {
+    util.formSubmit("update-password-form", (e) => {console.log("result:", e)}, "put");
 }
 
 export { displayFriends, displayInfo, displayStats, hideAll };
-export { changeInfoButton };
+export { updateInfoButton, updatePasswordButton };
