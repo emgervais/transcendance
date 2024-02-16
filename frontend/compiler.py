@@ -24,7 +24,8 @@ def str_find(txt, strs):
     
 # -- strip ----
 def remove_comments(html):
-    comment = r'<!--((.|\r\n|\r|\n)*?)-->'
+    new_lines = r"\r\n|\r|\n"
+    comment = f'<!--((.|{new_lines})*?)-->'
     res = re.sub(comment, '', html)
     return res
 
@@ -85,6 +86,8 @@ def compile(root, template):
     return html
 
 if __name__ == "__main__":
+    print(remove_comments(text))
+    exit()
     TEMPLATES_ROOT = os.path.join(Path(__file__).resolve(), "templates")
     INDEX = "base.html"    
     html = compile(TEMPLATES_ROOT, INDEX)

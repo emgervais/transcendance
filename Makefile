@@ -21,4 +21,4 @@ nginx:
 db:
 	source .env && docker exec -it postgres psql -U $${POSTGRES_USER} -d $${POSTGRES_DB}
 
-.PHONY: start stop autocompile prune web nginx db
+.PHONY: start stop frontend prune web nginx db
