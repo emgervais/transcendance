@@ -1,6 +1,14 @@
 const canvas = document.getElementById('webgl-canvas');
 const gl = canvas.getContext('webgl2');
 
+const ambientSound = new Audio('static/app/sound/ambient.mp3');
+ambientSound.loop = true;
+ambientSound.volume = 0.5;
+const hurtSound = new Audio('static/app/sound/hurt.mp3');
+hurtSound.volume = 0.2;
+const bounceSound = new Audio('static/app/sound/beep.ogg');
+bounceSound.volume = 0.4;
+
 // const vertices = new Float32Array([
 // 	0.0,  0.0,  0.0,
 // 	0.0,  50.0, 0.0,
@@ -53,6 +61,7 @@ const screenFragShader = `\
 precision lowp float;
 in vec2 fraguv;
 out vec4 color;
+uniform float glitch;
 uniform sampler2D tex;
 #define PI 3.1415926538
 vec3 scanline(float u, float res)
@@ -71,9 +80,10 @@ void main()
 		color = vec4(0.0, 0.0, 0.0, 1.0);
 		return;
 	}
-	vec3 vertscanline = scanline(uv.y, 200.0) * (clamp(pow(uv.y * (1.0 - uv.y) * (200.0/64.0), 0.3), 0.0, 1.0));
-	vec3 horzscanline = scanline(uv.x, 150.0) * (clamp(pow(uv.x * (1.0 - uv.x) * (150.0/64.0), 0.3), 0.0, 1.0));
-	color = vec4(texture(tex, uv).xyz * vertscanline * horzscanline, 1.0);
+	uv.x += sin(glitch * 43758.5453 * (floor(uv.y * 20.0))) * glitch;
+	vec3 vertscanline = scanline(uv.y, 200.0) * (clamp(pow(uv.y * (1.0 - uv.y) * (200.0/16.0), 0.8), 0.0, 1.0));
+	vec3 horzscanline = scanline(uv.x, 150.0) * (clamp(pow(uv.x * (1.0 - uv.x) * (150.0/16.0), 0.8), 0.0, 1.0));
+	color = vec4(texture(tex, uv).xyz * vertscanline * horzscanline * 1.5, 1.0);
 }
 `;
 
@@ -112,6 +122,7 @@ var viewMatrix;
 var viewUniform;
 var projectionMatrix;
 var projectionUniform;
+var glitchUniform;
 
 const pongrenderwidth = 800 / 8;
 const pongrenderheight = 600 / 8;
@@ -280,7 +291,7 @@ function setup()
 		return false;
 	}
 
-	gl.clearColor(0.2, 0.2, 0.25, 1.0);
+	gl.clearColor(0.1, 0.1, 0.14, 1.0);
 
 	gl.useProgram(screenprogram);
 
@@ -288,6 +299,9 @@ function setup()
 	uvAttrib = gl.getAttribLocation(screenprogram, 'uv');
 	gl.vertexAttribPointer(uvAttrib, 2, gl.FLOAT, false, 0, 0);
 	gl.enableVertexAttribArray(uvAttrib);
+
+	glitchUniform = gl.getUniformLocation(screenprogram, 'glitch');
+	gl.uniform1f(glitchUniform, 0.0);
 
 	gl.useProgram(program);
 	stagelinebuffer = createBuffer(stagelines);
@@ -347,6 +361,8 @@ function setup()
 	player1.modelMatrix[13] = stage.bottom/2-paddle.height/2;
 	player2.modelMatrix[12] = stage.right-paddle.width;
 	player2.modelMatrix[13] = stage.bottom/2-paddle.height/2;
+
+	ambientSound.play();
 	
 	return true;
 }
@@ -357,6 +373,8 @@ function collisionCheck(player, ball)
 }
 
 var lastTime = 0;
+var redtimer = 0;
+var ratio = 0.0;
 function draw()
 {
 	dt = (performance.now() - lastTime);
@@ -385,16 +403,22 @@ function draw()
 	if(ball.modelMatrix[12] <= paddle.width + stage.left)
 	{
 		if(collisionCheck(player1, ball))
-		{
+		{ // bounce
 			ball.modelMatrix[12] = paddle.width + stage.left;
 			ball.xspeed *= -1.05;
 			ball.yspeed = (ball.modelMatrix[13]+ball.height/2 - (player1.modelMatrix[13] + paddle.height/2))/8 * ball.xspeed;
+			bounceSound.currentTime = 0;
+			bounceSound.play();
 		}
 		if(ball.modelMatrix[12] < stage.left)
-		{
+		{ // out of bounds
 			ball.modelMatrix[12] = stage.left;
 			ball.yspeed = (0.03 / -ball.xspeed) * ball.yspeed;
 			ball.xspeed = 0.03;
+			redtimer = 200;
+			hurtSound.currentTime = 0;
+			hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
+			hurtSound.play();
 		}
 	}
 	else if(ball.modelMatrix[12] > stage.right-ball.width-paddle.width)
@@ -404,12 +428,18 @@ function draw()
 			ball.modelMatrix[12] = stage.right-ball.width-paddle.width;
 			ball.xspeed *= -1.05;
 			ball.yspeed = -(ball.modelMatrix[13]+ball.height/2 - (player2.modelMatrix[13] + paddle.height/2))/8 * ball.xspeed;
+			bounceSound.currentTime = 0;
+			bounceSound.play();
 		}
 		if(ball.modelMatrix[12] > stage.right-ball.width)
 		{
 			ball.modelMatrix[12] = stage.right-ball.width;
 			ball.yspeed = (0.03 / ball.xspeed) * ball.yspeed;
 			ball.xspeed = -0.03;
+			redtimer = 200;
+			hurtSound.currentTime = 0;
+			hurtSound.playbackRate = Math.random() * 0.6 + 0.7;
+			hurtSound.play();
 		}
 	}
 	if(ball.modelMatrix[13] <= stage.top)
@@ -437,6 +467,22 @@ function draw()
 	}
 
 	gl.useProgram(program);
+	if(redtimer > 0)
+	{
+		redtimer -= dt;
+		if(redtimer < 0)
+		{
+			gl.clearColor(0.1, 0.1, 0.14, 1.0);
+			gl.uniform1f(glitchUniform, 0.0);
+			ratio = 0.0;
+		}
+		else
+		{
+			ratio = redtimer/200;
+			gl.uniform1f(glitchUniform, 0.1 * ratio + 0.9 * (1.0 - ratio));
+			gl.clearColor(0.8 * ratio + 0.1 * (1.0 - ratio), 0.1, 0.14, 1.0);
+		}
+	}
 	gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.viewport(0, 0, pongrenderwidth, pongrenderheight);
@@ -455,6 +501,7 @@ function draw()
 	gl.uniformMatrix4fv(modelUniform, false, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 	gl.drawArrays(gl.LINES, 0, 8);
 	gl.useProgram(screenprogram);
+	gl.uniform1f(glitchUniform, ratio * 0.08);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.viewport(0, 0, canvas.width, canvas.height);
@@ -470,127 +517,3 @@ if(setup())
 {
 	requestAnimationFrame(draw);
 }
-
-// var ws = new WebSocket("wss://" + window.location.host + "/ws/pong/");
-// ws.binaryType = "arraybuffer";
-// var canvas = document.getElementById("pong-canvas");
-// var ctx = canvas.getContext("2d");
-
-// var rplayer = {y: 0, x: 0};
-// var ropponent = {y: 0, x: 0};
-
-// var player = rplayer;
-// var opponent = ropponent;
-
-// var inputs = [0, 0];
-
-// var stockplayery = 0;
-
-// var started = false;
-
-// var playerid = 1;
-
-// async function gamestart() {
-// 	window.addEventListener("keydown", function (event) {
-// 		switch(event.key) {
-// 			case "ArrowUp":
-// 				inputs[0] = 1;
-// 				break;
-// 			case "ArrowDown":
-// 				inputs[1] = 1;
-// 				break;
-// 			default:
-// 		}
-// 	});
-// 	window.addEventListener("keyup", function (event) {
-// 		switch(event.key) {
-// 			case "ArrowUp":
-// 				inputs[0] = 0;
-// 				break;
-// 			case "ArrowDown":
-// 				inputs[1] = 0;
-// 				break;
-// 			default:
-// 		}
-// 	});
-// 	setInterval(gameloop, 1000 / 30);
-// }
-
-// function gameloop() {
-// 	if(inputs[0] == 1) {
-// 		player.y -= 5;
-// 		if(player.y > canvas.height - 128) {
-// 			player.y = canvas.height - 128;
-// 		}
-// 		else if(player.y < 0) {
-// 			player.y = 0;
-// 		}
-// 	}
-// 	if(inputs[1] == 1) {
-// 		player.y += 5;
-// 		if(player.y > canvas.height - 128) {
-// 			player.y = canvas.height - 128;
-// 		}
-// 		else if(player.y < 0) {
-// 			player.y = 0;
-// 		}
-// 	}
-// 	ctx.fillStyle = "#000000";
-// 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-// 	ctx.fillStyle = "#ffffff";
-// 	ctx.fillRect(0, rplayer.y, 16, 128);
-// 	ctx.fillRect(canvas.width - 16, ropponent.y, 16, 128);
-// 	senddata();
-// }
-
-// ws.onopen = function (event) {
-// 	console.log("Websocket connection opened.");
-// }
-
-// ws.onmessage = function (event) {
-// 	let dv = new DataView(event.data);
-// 	let type = dv.getUint8(0);
-// 	// console.log("Received data: " + type + ' ' + dv.getUint8(1));
-// 	switch(type) {
-// 	case 1: // player movement
-// 		rplayer.y = dv.getUint32(1, true);
-// 		break;
-// 	case 2: // opponent movement
-// 		ropponent.y = dv.getUint32(1, true);
-// 		break;
-// 	case 5: // gamestart
-// 		if(dv.getUint8(1) == 1) {
-// 			playerid = 1;
-// 		}
-// 		else {
-// 			player = ropponent;
-// 			opponent = rplayer;
-// 			playerid = 2;
-// 		}
-// 		gamestart();
-// 		console.log("Game started.");
-// 		break;
-// 	default:
-// 	}
-// }
-
-// function senddata() {
-// 	if(player.y != stockplayery)
-// 	{
-// 		let a = new ArrayBuffer(5);
-// 		let v = new DataView(a);
-// 		v.setUint8(0, playerid);
-// 		v.setUint32(1, player.y, true);
-// 		stockplayery = player.y;
-// 		// console.log("Sending data: " + player.y);
-// 		ws.send(a);
-// 	}
-// }
-
-// function ping() {
-// 	let a = new ArrayBuffer(8);
-// 	let v = new DataView(a);
-// 	v.setUint8(0, 2);
-// 	v.setUint32(1, Date.now(), true);
-// 	ws.send(a);
-// }
