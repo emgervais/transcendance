@@ -51,12 +51,13 @@ in vec2 fraguv;
 out vec4 color;
 uniform float glitch;
 uniform sampler2D tex;
+uniform sampler2D vignette;
 uniform vec2 screensize;
 #define PI 3.1415926538
 vec2 scanline(vec2 uv)
 {
-	vec2 intensity = vec2(sin(uv.x * screensize.x * PI * 4.0 - 1.0), sin(uv.y * screensize.y * 4.0 * PI * 2.0 - 0.6));
-	vec2 s = vec2(pow(((0.5 * intensity.x) + 0.5) * 0.9 + 0.1, 0.5), pow(((0.5 * intensity.y) + 0.5) * 0.9 + 0.1, 0.5));
+	vec2 intensity = vec2(sin(uv.x * screensize.x * PI * 2.0 - 1.5), sin(uv.y * screensize.y * PI * 2.0 - 1.5));
+	vec2 s = vec2(pow(((0.5 * intensity.x) + 0.5) * 0.9 + 0.1, 0.1), pow(((0.5 * intensity.y) + 0.5) * 0.9 + 0.1, 0.4));
 	return s;
 }
 void main()
@@ -70,24 +71,13 @@ void main()
 		color = vec4(0.0, 0.0, 0.0, 1.0);
 		return;
 	}
-	uv.x += sin(43758.5453 * (floor(uv.y * 20.0))) * glitch;
 	vec2 scanlines = scanline(uv);
-	scanlines.x *= (clamp(pow(uv.x * (1.0 - uv.x) * (screensize.x/16.0), 0.8), 0.0, 1.0));
-	scanlines.y *= (clamp(pow(uv.y * (1.0 - uv.y) * (screensize.y/16.0), 0.8), 0.0, 1.0));
-	// vec3 vertscanline = scanline(uv.y, 200.0) * (clamp(pow(uv.y * (1.0 - uv.y) * (200.0/16.0), 0.8), 0.0, 1.0));
-	// vec3 horzscanline = scanline(uv.x, 150.0) * (clamp(pow(uv.x * (1.0 - uv.x) * (150.0/16.0), 0.8), 0.0, 1.0));
-	color = vec4(texture(tex, uv).xyz * scanlines.x * scanlines.y * 2.0, 1.0);
+	uv.x += sin((floor(uv.y * 50.0)) * 32657.435) * glitch;
+	// scanlines.x *= (clamp(pow(uv.x * (1.0 - uv.x) * (screensize.x/16.0), 0.8), 0.0, 1.0));
+	// scanlines.y *= (clamp(pow(uv.y * (1.0 - uv.y) * (screensize.y/16.0), 0.8), 0.0, 1.0));
+	color = vec4(texture(tex, uv).xyz * scanlines.x * scanlines.y * texture(vignette, uv).x * 3.0, 1.0);
 }
 `;
-
-// const vertices = new Float32Array([
-// 	0.0, 0.0,  0.0,
-// 	0.0, 15.0, 0.0,
-// 	2.0, 0.0,  0.0,
-// 	2.0, 0.0,  0.0,
-// 	0.0, 15.0, 0.0,
-// 	2.0, 15.0, 0.0
-// ]);
 
 const screenverts = new Float32Array([
 	-1.0,  1.0, 0.0,
@@ -103,10 +93,8 @@ var pongVAO;
 var stagelineVAO;
 var screenVAO;
 
-// const pongUBOData = new Float32Array([
-// 	0.0, 0.0, // position
-// 	1.0, 1.0 // size
-// ]);
+var vignetteTexture;
+const vignetteImage = new Image();
 
 const ambientSound = new Audio('static/app/sound/ambient.ogg');
 ambientSound.loop = true;

@@ -91,6 +91,34 @@ function createUBO(name, program)
 	return ubo;
 }
 
+function createTexture(imagesrc, internalformat, format)
+{
+	const texture = {
+		_texture: gl.createTexture(),
+		bind: function()
+		{
+			gl.bindTexture(gl.TEXTURE_2D, this._texture);
+		},
+		update: function(data, format, width, height)
+		{
+			this.bind();
+			gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, gl.UNSIGNED_BYTE, data);
+		}
+	};
+	const i = new Image();
+	i.onload = function()
+	{
+		texture.bind();
+		gl.texImage2D(gl.TEXTURE_2D, 0, internalformat, format, gl.UNSIGNED_BYTE, i);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	};
+	i.src = imagesrc;
+	return texture;
+}
+
 function createFramebuffer(width, height)
 {
 	const framebuffer = {

@@ -5,7 +5,7 @@ const canvas = document.getElementById('webgl-canvas');
 
 const paddle = {
 	width: 2,
-	height: 15
+	height: 12
 }
 
 var screenprogram;
@@ -13,8 +13,8 @@ var screenprogram;
 var program;
 var glitchUniform;
 
-const pongrenderwidth = 800 / 8;
-const pongrenderheight = 600 / 8;
+const pongrenderwidth = 80;
+const pongrenderheight = 55;
 
 var fb;
 var fbtexture;
@@ -48,8 +48,8 @@ const ball = {
 	setsize: function(x, y) {this._ubodata[2] = x; this._ubodata[3] = y;},
 	xspeed: 0,
 	yspeed: 0,
-	width: 3,
-	height: 3
+	width: 2,
+	height: 2
 }
 
 const stage = {
@@ -77,6 +77,8 @@ function setup()
 		console.error('Could not create framebuffer');
 		return false;
 	}
+	gl.activeTexture(gl.TEXTURE0);
+	fb.bindTexture();
 
 	program = createProgram(pongVertShader, pongFragShader);
 	if(!gl.getProgramParameter(program, gl.LINK_STATUS))
@@ -98,7 +100,6 @@ function setup()
 		console.error(gl.getProgramInfoLog(screenprogram));
 		return false;
 	}
-	glitchUniform = gl.getUniformLocation(screenprogram, 'glitch');
 
 	gl.clearColor(0.1, 0.1, 0.14, 1.0);
 	
@@ -124,20 +125,31 @@ function setup()
 	
 	stagelineVAO = createVAO();
 	stagelineVAO.addBuffer(createStaticBuffer(new Float32Array([
-		stage.left - 1, stage.top, 0.0,
-		stage.left - 1, stage.bottom, 0.0,
-		stage.right + 1, stage.top, 0.0,
-		stage.right + 1, stage.bottom, 0.0,
-		stage.left - 1, stage.bottom, 0.0,
-		stage.right + 1, stage.bottom, 0.0,
-		stage.left - 1, stage.top, 0.0,
-		stage.right + 1, stage.top, 0.0
+		stage.left - 0.5, stage.top, 0.0,
+		stage.left - 0.5, stage.bottom + 0.5, 0.0,
+		stage.right + 0.5, stage.top, 0.0,
+		stage.right + 0.5, stage.bottom + 0.5, 0.0,
+		stage.left - 0.5, stage.bottom + 0.5, 0.0,
+		stage.right + 1.5, stage.bottom + 0.5, 0.0,
+		stage.left - 0.5, stage.top, 0.0,
+		stage.right + 1.5, stage.top, 0.0
 	])), 0, 3, gl.FLOAT, false, 0, 0);
 	
 	gl.useProgram(screenprogram);
+	glitchUniform = gl.getUniformLocation(screenprogram, 'glitch');
+	const texUniform = gl.getUniformLocation(screenprogram, 'tex');
+	const vignetteUniform = gl.getUniformLocation(screenprogram, 'vignette');
 	const screensizeuniform2 = gl.getUniformLocation(screenprogram, 'screensize');
-	gl.uniform2f(screensizeuniform2, pongrenderwidth, pongrenderheight);
+	gl.uniform2f(screensizeuniform2, pongrenderwidth * 4, pongrenderheight * 4);
 	gl.uniform1f(glitchUniform, 0.0);
+	gl.uniform1i(texUniform, 0);
+	gl.uniform1i(vignetteUniform, 1);
+
+	gl.activeTexture(gl.TEXTURE1);
+	vignetteTexture = createTexture('static/img/vignette.png', gl.R8, gl.RED);
+	gl.bindTexture(gl.TEXTURE_2D, vignetteTexture._texture);
+	// gl.activeTexture(gl.TEXTURE0);
+	// fb.bindTexture();
 
 	// gl.useProgram(program);
 	// stagelinebuffer = createStaticBuffer(stagelines);
@@ -169,7 +181,7 @@ function setup()
 	ball.sety(pongrenderheight/2.0 - ball.height/2.0);
 	ball.xspeed = -0.03;
 	ball.yspeed = 0;
-	ball.setsize(3.0, 3.0);
+	ball.setsize(2.0, 2.0);
 
 	player1.setsize(paddle.width, paddle.height);
 	player2.setsize(paddle.width, paddle.height);
@@ -322,7 +334,7 @@ function draw()
 	gl.drawArrays(gl.LINES, 0, 8);
 
 	gl.useProgram(screenprogram);
-	gl.uniform1f(glitchUniform, ratio * 0.08);
+	gl.uniform1f(glitchUniform, ratio * ratio * 0.2);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.viewport(0, 0, canvas.width, canvas.height);
