@@ -28,6 +28,7 @@ class ChangeInfoView(generics.UpdateAPIView):
         serializer = self.get_serializer(user, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        print("user.username:", user.username)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
 class ChangePasswordView(generics.UpdateAPIView):

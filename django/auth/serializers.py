@@ -113,6 +113,7 @@ class LogoutSerializer(serializers.ModelSerializer):
         try:
             token = RefreshToken(refresh)
             token.blacklist()
+            pass
         except TokenError:
             raise serializers.ValidationError({'refresh': 'Invalid refresh token'})
         

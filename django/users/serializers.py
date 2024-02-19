@@ -19,7 +19,7 @@ class UserSerializerWithToken(UserSerializer):
 class ChangeInfoSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=False)
     image = serializers.ImageField(required=False)
-    
+    print("username:", username)
     class Meta:
         model = User
         fields = ['username', 'image']
@@ -27,6 +27,7 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
         
     def validate(self, data):
         username = data.get('username', None)
+        print("validate username:", username)
         image = data.get('image', None)
         
         if username is not None and User.objects.filter(username=username).exists():
@@ -38,6 +39,7 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         image = validated_data.get('image', None)
         username = validated_data.get('username', None)
+        print("update username:", username)
         
         if image is not None and instance.image != '/media/default/default.png':
             instance.image.delete(save=False)

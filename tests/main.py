@@ -1,44 +1,68 @@
 #!/usr/bin/env python
-import requests
 import urllib3
-import util
-
 import warnings
 warnings.simplefilter('ignore', urllib3.exceptions.InsecureRequestWarning)
+import endpoints
+import util
 
 
-def reset_db():
-    res = util.request("/api/reset/database/", requests.delete)
-    print("reset_db:", res.get("data"))
+PASSWORD1 = "jambon1234"
+PASSWORD2 = "salami1234"
 
-def register():
-    data = {
-        'username': 'francoma', 
-        'email': 'ffrancoismmartineau@gmail.com',
-        'password1': 'shitpiss1234',
-        'password2': 'shitpiss1234'
+users = [
+    {
+        "username": "jambon",
+        "email": "jambon@gmail.com",
+        "password": PASSWORD1,
+    },
+    {
+        "username": "salami",
+        "email": "salami@gmail.com",
+        "password": PASSWORD1,
     }
-    res = util.request("/api/register/", requests.post, data=data)
-    print("register:", res.get("data"))
-    
-def login():
-    data = {
-        'email': 'ffrancoismmartineau@gmail.com',
-        'password': 'shitpiss1234',
-    }
-    res = util.request("/api/login/", requests.post, data=data)
-    print("login:", res.get("data"))
-    return res.get("cookies")
+]
 
-def update_info(cookies):
-    data = {
-        'username': 'asshole'
-    }
-    res = util.request("/api/change-info/", requests.put, cookies, data)
-    print("update_info:", res.get("data"))
+def register_login(user):
+    endpoints.register(
+        user["username"],
+        user["email"],
+        user["password"],
+        user["password"],
+    )
+    cookies = endpoints.login(
+        user["email"],
+        user["password"],
+    )
+    return cookies
+
+def update_info(user, new_username):
+    image = util.load_image()
+    endpoints.update_info(
+        user["cookies"],
+        new_username,
+        # image,
+        log=True,
+    )
+    # user["username"] = new_username
+
+
+
+def update_password(user, new_password):
+    endpoints.update_password(
+        user["cookies"],
+        user["password"],
+        new_password,
+        new_password,
+        log=True
+    )
+    # user["password"] = new_password
+
+# def logout(user):
+
 
 if __name__ == "__main__":
-    reset_db()
-    register()
-    cookies = login()
-    update_info(cookies)
+    endpoints.reset_db()
+    users = [ user | {"cookies": register_login(user)} for user in users]
+    for user in users:
+        update_info(user, user["username"]*2)
+        # update_password(user, PASSWORD2) 

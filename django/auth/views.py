@@ -19,7 +19,6 @@ class ResetDatabaseView(generics.DestroyAPIView):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
 class RegisterView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
@@ -35,7 +34,6 @@ class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
-        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
@@ -62,7 +60,6 @@ class OAuth42LoginView(generics.GenericAPIView):
     serializer_class = OAuth42LoginSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
-        request.COOKIES
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data

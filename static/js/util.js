@@ -1,3 +1,5 @@
+import * as auth from "/static/js/auth.js";
+
 function display(id, display) {
     const element = document.getElementById(id);
     element.style.display = display;
@@ -12,7 +14,6 @@ function formSubmit(formId, callback, method=undefined) {
     }    
     removeFormErrors();
     method = method? method : form.method;
-    console.log("method:", method);
     const formData = new FormData(form);
     fetch(form.action, {
         method: method,
@@ -32,7 +33,12 @@ function formSubmit(formId, callback, method=undefined) {
         clearForm(formId);
     })
     .catch(error => {
-        console.log(error.data);
+        if (error.status == 401)
+        {
+            auth.unauthorized();
+            return;
+        }
+        console.log("error.status:", error.status);
         if (error.status && error.data) {
             for (const [key, value] of Object.entries(error.data)) {
                 addFormError(form, key, value);

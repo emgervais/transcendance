@@ -1,6 +1,7 @@
 import { route, locationHandler } from "/static/js/router.js";
+import { confirmLogin } from "/static/js/auth.js";
 import { buttons } from "/static/js/buttons.js";
-import { oauthLogin } from "/static/js/auth.js";
+import { oauthRedirected } from "/static/js/auth.js";
 
 function click(event) {
     const { target } = event;
@@ -24,7 +25,7 @@ function key(event) {
 
 document.addEventListener("DOMContentLoaded", () => {
     locationHandler();
-    oauthLogin();
     document.addEventListener("click", click);
     document.addEventListener("keydown", key);
+    oauthRedirected() || confirmLogin();
 });
