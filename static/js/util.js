@@ -39,6 +39,7 @@ function formSubmit(formId, callback, method=undefined) {
             return;
         }
         console.log("error.status:", error.status);
+        console.log("error.data:", error.data);
         if (error.status && error.data) {
             for (const [key, value] of Object.entries(error.data)) {
                 addFormError(form, key, value);
@@ -76,5 +77,15 @@ function clearForm(formId) {
 }
 // --
 
+function fetchError(error) {
+    console.error('Fetch error:', error);
+}
 
-export { display, formSubmit };
+function fetchResponse(response) {
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+}
+
+export { display, formSubmit, fetchError, fetchResponse };

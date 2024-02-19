@@ -18,7 +18,7 @@ users = [
     {
         "username": "salami",
         "email": "salami@gmail.com",
-        "password": PASSWORD1,
+        "password": PASSWORD2,
     }
 ]
 
@@ -35,34 +35,50 @@ def register_login(user):
     )
     return cookies
 
-def update_info(user, new_username):
+def update_info(user, new_username, new_password):
     image = util.load_image()
     endpoints.update_info(
         user["cookies"],
         new_username,
-        # image,
         log=True,
     )
     # user["username"] = new_username
-
-
-
-def update_password(user, new_password):
-    endpoints.update_password(
-        user["cookies"],
-        user["password"],
-        new_password,
-        new_password,
-        log=True
-    )
     # user["password"] = new_password
 
-# def logout(user):
+def friend_request(users):
+    endpoints.friend_request(
+        users[0]["cookies"],
+        users[1]["username"],
+        "send",
+    )
+    # endpoints.friend_requests(
+    #     users[1]["cookies"],
+    #     log=True
+    # )
+    endpoints.friend_request(
+        users[1]["cookies"],
+        users[0]["username"],
+        "accept",
+        log=True
+    )
+    for user in users:
+        endpoints.friends(
+            user["cookies"],
+            log=True
+        )
 
+def get_user_info(user):
+    endpoints.user(
+        user["cookies"],
+        user["username"],
+        log=True    
+    )
 
 if __name__ == "__main__":
     endpoints.reset_db()
     users = [ user | {"cookies": register_login(user)} for user in users]
+    friend_request(users)
     for user in users:
-        update_info(user, user["username"]*2)
-        # update_password(user, PASSWORD2) 
+        get_user_info(user)
+        # endpoints.logout(user, log=True)
+        # update_info(user, user["username"]*2)

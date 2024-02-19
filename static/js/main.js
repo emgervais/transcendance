@@ -1,5 +1,5 @@
 import { route, locationHandler } from "/static/js/router.js";
-import { confirmLogin } from "/static/js/auth.js";
+import { confirmLogin, loginButton, registerButton } from "/static/js/auth.js";
 import { buttons } from "/static/js/buttons.js";
 import { oauthRedirected } from "/static/js/auth.js";
 
@@ -15,10 +15,19 @@ function click(event) {
 }
 
 function key(event) {
-    if (event.key === "Escape") {
-        if (document.querySelector("#shadow").style.display !== 'none')
-        {
+    const authContainerShown = document.querySelector("#shadow").style.display !== 'none';
+    if (authContainerShown) {
+        if (event.key === "Escape") {
             route("/");
+        }
+        if (event.key === "Enter") {
+            const loginShown = document.querySelector("#login").style.display !== 'none';
+
+            if (loginShown) {
+                loginButton();
+            } else {
+                registerButton();
+            }
         }
     }
 }

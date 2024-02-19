@@ -1,6 +1,6 @@
 import { updateNav } from "/static/js/nav.js";
 import { route } from "/js/router.js";
-import { formSubmit } from "/js/util.js";
+import { formSubmit, fetchError, fetchResponse } from "/js/util.js";
 
 // -- buttons ----
 function loginButton() {
@@ -12,14 +12,16 @@ function registerButton() {
 }
 // ----
 
-function login(user) {
+function login(user, redirect=true) {
     sessionStorage.setItem("user", JSON.stringify(user));
     let userImg = document.querySelector("#imgDropdown");
     userImg.setAttribute('src', user.image);
     let username = document.querySelector("#usernameNav");
     username.innerText = user.username;
     updateNav(true);
-    route("/");
+    if (redirect) {
+        route("/");
+    }
 }
 
 function confirmLogin() {
@@ -37,22 +39,14 @@ function confirmLogin() {
     //         "friend_requests": []
     //     }
     // }
-    if (user)
-    {
-        login(user);
+    if (user) {
+        login(user, false);
     }
     // console.log("confirmLogin");
     // fetch("/api/confirm-login/")
-    // .then(response => {
-    //     if (!response.ok) {
-    //         throw new Error(`HTTP error! Status: ${response.status}`);
-    //     }
-    //     return response.json();
-    // })
+    // .then(fetchResponse)
     // .then(login)
-    // .catch(error => {
-    //     console.error('oauthButton error:', error);
-    // });
+    // .catch(fetchError);
 }
 
 function logout() {
@@ -61,35 +55,22 @@ function logout() {
     fetch("/api/logout/", {
         method: "POST"
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
+    .then(fetchResponse)
     .then(data => {
         console.log("Successful logoutL\n", data);
+        route("/");
         updateNav(false);
     })
-    .catch(error => {
-        console.error('oauthButton error:', error);
-    });
+    .catch(fetchError);
 }
 
 function oauthButton() {
 	fetch('/api/oauth42-uri/')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
+    .then(fetchResponse)
     .then(data => {
         window.location.href = data.uri;
     })
-    .catch(error => {
-        console.error('oauthButton error:', error);
-    });
+    .catch(fetchError);
 }
 
 function oauthRedirected() {
@@ -116,15 +97,14 @@ function oauthRedirected() {
         login(data);
         res = true;
     })
-    .catch(error => {
-        console.error('Fetch error:', error);
-    });
+    .catch(fetchError);
     return res;
 }
 
 function unauthorized() {
     alert("Please login");
-    route("/login/")
+    route("/");
+    route("/login/");
 }
 
 export {loginButton, registerButton, oauthButton};

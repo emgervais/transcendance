@@ -1,30 +1,56 @@
 import requests
 import util
 
-def reset_db(log=False):
-    res = util.request("/api/reset/database/", requests.delete)
-    log and print("reset_db:", res.get("data"))
+def endpoint(func):
+    def wrapper(*args, **kwargs):
+        log = kwargs.get("log", False)
+        if "log" in kwargs:
+            del kwargs["log"]
+        response, res = func(*args, **kwargs)
+        log and print(func.__name__ + ":", response.get("data"))
+        return res
+    return wrapper
 
-def register(username, email, password1, password2, log=False):
+@endpoint
+def reset_db():
+    url = "/api/reset/database/"
+    method = "delete"
+    response = util.request(url, method)
+    return response, None
+
+@endpoint
+def register(username, email, password1, password2):
     data = {
         'username': username, 
         'email': email,
         'password1': password1,
         'password2': password2
     }
-    res = util.request("/api/register/", requests.post, data=data)
-    log and print("register:", res.get("data"))
+    url = "/api/register/"
+    method = "post"
+    response = util.request(url, method, data=data)
+    return response, None
     
-def login(email, password, log=False):
+@endpoint
+def login(email, password):
     data = {
         'email': email,
         'password': password,
     }
-    res = util.request("/api/login/", requests.post, data=data)
-    log and print("login:", res.get("data"))
-    return res.get("cookies")
+    url = "/api/login/"
+    method = "post"
+    response = util.request(url, method, data=data)
+    return response, response.get("cookies")
 
-def update_info(cookies, username=None, image=None, log=False):
+@endpoint
+def logout(user):
+    url = "/api/logout/"
+    method = "post"
+    response = util.request(url, method, cookies=user["cookies"])
+    return response, None
+
+@endpoint
+def update_info(cookies, username=None, image=None):
     data = {
         'username': username
     }
@@ -34,14 +60,53 @@ def update_info(cookies, username=None, image=None, log=False):
         }
     else:
         files = None
-    res = util.request("/api/change-info/", requests.put, cookies, data, files=files)
-    log and print("update_info:", res.get("data"))
+    url = "/api/change-info/"
+    method = "put"
+    response = util.request(url, method, cookies, data, files=files)
+    return response, None
 
-def update_password(cookies, old_password, password1, password2, log=False):
+@endpoint
+def update_password(cookies, old_password, password1, password2):
     data = {
         'old_password': old_password,
         'password1': password1,
         'password2': password2
     }
-    res = util.request("/api/change-password/", requests.put, cookies, data)
-    log and print("update_password:", res.get("data"))
+    url = "/api/change-password/"
+    method = "put"
+    response = util.request(url, method, cookies, data)
+    return response, None
+
+@endpoint
+def friend_request(cookies, to_user, action):
+    if action not in ["send", "accept", "reject"]:
+        raise ValueError("friend_request: bad action")
+    data = {
+        "username": to_user,
+        "action": action,
+    }
+    url = "/api/friend-request/"
+    method = "post"
+    response = util.request(url, method, cookies, data)
+    return response, None
+
+@endpoint
+def friend_requests(cookies):
+    url = "/api/friend-requests/"
+    method = "get"
+    response = util.request(url, method, cookies)
+    return response, None
+
+@endpoint
+def friends(cookies):
+    url = "/api/friends/"
+    method = "get"
+    response = util.request(url, method, cookies)
+    return response, None
+
+@endpoint
+def user(cookies, username):
+    url = f"/api/user/{username}/"
+    method = "get"
+    response = util.request(url, method, cookies)
+    return response, None

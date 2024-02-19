@@ -27,15 +27,15 @@ const routes = {
     },
     "/account/friends/": {
         template: "/templates/account.html",
-        function: account.displayFriends,
+        function: account.displayFriendsPage,
     },
     "/account/update-info/": {
         template: "/templates/account.html",
-        function: account.displayInfo,
+        function: account.displayInfoPage,
     },
     "/account/stats/": {
         template: "/templates/account.html",
-        function: account.displayStats,
+        function: account.displayStatsPage,
     },
 };
 
