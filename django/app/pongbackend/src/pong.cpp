@@ -8,6 +8,7 @@
 
 std::mutex PongGame::mutex;
 std::unordered_map<u64, std::unique_ptr<Player> > PongGame::_players;
+vec2<i32> PongGame::_ball;
 PyObject* PongGame::_pybytes = 0;
 Player* PongGame::_player1 = 0;
 Player* PongGame::_player2 = 0;
@@ -43,6 +44,14 @@ void PongGame::update()
 	{
 		data[offset++] = PLAYER2_MOVE;
 		*(i32*)(data + offset) = _player2->y();
+		offset += sizeof(i32);
+	}
+	if(FilthMap::isFilthy(BALL_POS))
+	{
+		data[offset++] = BALL_HIT;
+		*(i32*)(data + offset) = _ball.x;
+		offset += sizeof(i32);
+		*(i32*)(data + offset) = _ball.y;
 		offset += sizeof(i32);
 	}
 	PyVarObject* const bytes = (PyVarObject*)_pybytes;

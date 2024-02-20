@@ -8,12 +8,14 @@
 #include "pongbackend.hpp"
 #include "player.hpp"
 #include "uid.hpp"
+#include "vec2.hpp"
 #include "common.hpp"
 
 enum PongMessage : u8
 {
 	PLAYER1_MOVE = 1,
 	PLAYER2_MOVE,
+	BALL_HIT
 };
 
 struct MLocker
@@ -46,6 +48,8 @@ public:
 
 private:
 	static std::unordered_map<u64, std::unique_ptr<Player> > _players;
+
+	static vec2<i32> _ball;
 
 	static Player* _player1;
 	static Player* _player2;

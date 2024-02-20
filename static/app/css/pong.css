@@ -5,3 +5,10 @@
   height: 800px;
   background-color: #66f04b;
 }
+/* global */
+body {
+  background-color: #000000;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}

@@ -1,7 +1,21 @@
 const canvas = document.getElementById('webgl-canvas');
 
-// var ws = new WebSocket("wss://" + window.location.host + "/ws/pong/");
-// ws.binaryType = "arraybuffer";
+var ws = new WebSocket("wss://" + window.location.host + "/ws/pong/");
+ws.binaryType = "arraybuffer";
+
+var wsmovementbuffer = new ArrayBuffer(5);
+var wsmovementdv = new DataView(wsmovementbuffer);
+wsmovementdv.setUint8(0, 1);
+
+var wsscorebuffer = new ArrayBuffer(17);
+var wsscoredv = new DataView(wsscorebuffer);
+wsscoredv.setUint8(0, 2);
+
+var wsballbuffer = new ArrayBuffer(17);
+var wsballdv = new DataView(wsballbuffer);
+wsballdv.setUint8(0, 3);
+
+var ballprecision = 1000.0;
 
 const paddle = {
 	width: 2,
@@ -11,6 +25,8 @@ const paddle = {
 var program;
 var textprogram
 var screenprogram;
+
+var playerid = 0;
 
 var glitchUniform;
 
@@ -67,7 +83,8 @@ var score = {
 	}
 }
 
-state = 0;
+var player = 0;
+var state = 0;
 
 const player1 = {
 	_ubodata: new Float32Array([0.0, 0.0, paddle.width, paddle.height]),
@@ -268,6 +285,95 @@ function setup()
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
+	ws.onopen = function (event) {
+		console.log("Websocket connection opened.");
+	}
+	ws.onmessage = function (event) {
+		let dv = new DataView(event.data);
+		let offset = 0;
+		console.log("Received data: " + dv.getUint8(0));
+		while(offset < dv.byteLength) {
+			let type = dv.getUint8(offset);
+			offset += 1;
+			switch(type) {
+			case 1: // player movement
+				if(playerid != 1) {
+					player1.sety(dv.getUint32(offset, true));
+				}
+				offset += 4;
+				break;
+			case 2: // opponent movement
+				if(playerid != 2) {
+					player2.sety(dv.getUint32(offset, true));
+				}
+				offset += 4;
+				break;
+			case 3: // player1 score
+				score.points[0] = dv.getUint32(offset, true);
+				score.ubo1.setdata([
+					score.points[0] % 10 << 8 | score.points[0] / 10 << 0
+				]);
+				offset += 4;
+				if(playerid == 1)
+				{
+					redtimer = 200;
+					hurtSound.currentTime = 0;
+					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
+					hurtSound.play();
+				}
+				break;
+			case 4: // player 2 score
+				score.points[1] = dv.getUint32(offset, true);
+				score.ubo2.setdata([
+					score.points[1] % 10 << 8 | score.points[1] / 10 << 0
+				]);
+				offset += 4;
+				if(playerid == 2)
+				{
+					redtimer = 200;
+					hurtSound.currentTime = 0;
+					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
+					hurtSound.play();
+				}
+				break;
+			case 5: // ball hit
+				ball.setx(dv.getUint32(offset, true) / ballprecision);
+				ball.sety(dv.getUint32(offset + 4, true) / ballprecision);
+				ball.xspeed = dv.getInt32(offset + 8, true) / ballprecision;
+				ball.yspeed = dv.getInt32(offset + 12, true) / ballprecision;
+				offset += 16;
+				if(!redtimer && (ball.xspeed > 0 && playerid == 2 || ball.xspeed < 0 && playerid == 1))
+				{
+					bounceSound.currentTime = 0;
+					bounceSound.play();
+				}
+				break;
+			case 8: // gamestart
+				if(dv.getUint8(offset) == 1) {
+					playerid = 1;
+					player = player1;
+				}
+				else if(dv.getUint8(offset) == 2){
+					playerid = 2;
+					player = player2;
+				}
+				else {
+					playerid = 0;
+					player = 0;
+					state = 0;
+					break;
+				}
+				offset += 1;
+				state = 1;
+				console.log("Game started.");
+				break;
+			default:
+				offset = dv.byteLength; // stop processing
+				break;
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -276,108 +382,119 @@ function collisionCheck(player, ball)
 	return ball.gety() < player.gety()+paddle.height && ball.gety()+ball.height > player.gety();
 }
 
+function senddata(sendbytes)
+{
+	if(sendbytes[0] == 1)
+	{
+		wsmovementdv.setUint32(1, player.gety(), true);
+		ws.send(wsmovementbuffer);
+		sendbytes[0] = 0;
+	}
+}
+
 var lastTime = 0;
 var redtimer = 0;
 var ratio = 0.0;
 var sendtimer = 0.0;
 function draw()
 {
+	const sendbytes = new Uint32Array(1); // 0: player1 movement, rest is sent instantly
 	dt = (performance.now() - lastTime);
 	lastTime = performance.now();
-	if(!document.hasFocus())
+	if(state)
 	{
-		setTimeout(function(){requestAnimationFrame(draw);}, 1000/4);
-		return;
-	}
-	if(inputs[0] == 1)
-	{
-		player1.sety(player1.gety() - 0.04 * dt);
-		if(player1.gety() < stage.top)
-			player1.sety(stage.top);
-	}
-	if(inputs[1] == 1)
-	{
-		player1.sety(player1.gety() + 0.04 * dt);
-		if(player1.gety() > stage.bottom-paddle.height)
-			player1.sety(stage.bottom-paddle.height);
-	}
-
-	ball.setx(ball.getx() + ball.xspeed * dt);
-	ball.sety(ball.gety() + ball.yspeed * dt);
-
-	if(ball.getx() <= paddle.width + stage.left)
-	{
-		if(collisionCheck(player1, ball))
-		{ // bounce
-			ball.setx(paddle.width + stage.left);
-			ball.xspeed *= -1.05;
-			ball.yspeed = (ball.gety()+ball.height/2 - (player1.gety() + paddle.height/2))/8 * ball.xspeed;
-			bounceSound.currentTime = 0;
-			bounceSound.play();
-		}
-		if(ball.getx() < stage.left)
-		{ // out of bounds
-			ball.setx(stage.left);
-			ball.yspeed = (0.03 / -ball.xspeed) * ball.yspeed;
-			ball.xspeed = 0.03;
-			score.points[1] += 1;
-			score.ubo2.setdata([
-				score.points[1] % 10 << 8 | score.points[1] / 10 << 0
-			]);
-			redtimer = 200;
-			hurtSound.currentTime = 0;
-			hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-			hurtSound.play();
-		}
-	}
-	else if(ball.getx() > stage.right-ball.width-paddle.width)
-	{
-		if(collisionCheck(player2, ball))
+		// const opponent = (playerid == 1) ? player2 : player1;
+		if(inputs[0] == 1)
 		{
-			ball.setx(stage.right-ball.width-paddle.width);
-			ball.xspeed *= -1.05;
-			ball.yspeed = -(ball.gety()+ball.height/2 - (player2.gety() + paddle.height/2))/8 * ball.xspeed;
-			bounceSound.currentTime = 0;
-			bounceSound.play();
+			player.sety(player.gety() - 0.04 * dt);
+			if(player.gety() < stage.top)
+				player.sety(stage.top);
+			sendbytes[0] = 1;
 		}
-		if(ball.getx() > stage.right-ball.width)
+		if(inputs[1] == 1)
 		{
-			ball.setx(stage.right-ball.width);
-			ball.yspeed = (0.03 / ball.xspeed) * ball.yspeed;
-			ball.xspeed = -0.03;
-			score.points[0] += 1;
-			score.ubo1.setdata([
-				score.points[0] % 10 << 8 | score.points[0] / 10 << 0
-			]);
-			redtimer = 200;
-			hurtSound.currentTime = 0;
-			hurtSound.playbackRate = Math.random() * 0.6 + 0.7;
-			hurtSound.play();
+			player.sety(player.gety() + 0.04 * dt);
+			if(player.gety() > stage.bottom-paddle.height)
+				player.sety(stage.bottom-paddle.height);
+			sendbytes[0] = 1;
+		}
+
+		ball.setx(ball.getx() + ball.xspeed * dt);
+		ball.sety(ball.gety() + ball.yspeed * dt);
+
+		if((playerid == 1 && (ball.getx() <= stage.left + paddle.width)) || (playerid == 2 && (ball.getx() > stage.right-ball.width-paddle.width)))
+		{
+			if(collisionCheck(player, ball))
+			{ // ball bounce
+				ball.setx((playerid == 1) ? stage.left + paddle.width : stage.right-ball.width-paddle.width);
+				ball.xspeed *= -1.05;
+				ball.yspeed = (ball.gety()+ball.height/2 - (player.gety() + paddle.height/2))/8 * Math.abs(ball.xspeed);
+				bounceSound.currentTime = 0;
+				bounceSound.play();
+				wsballdv.setUint32(1, ball.getx() * ballprecision, true);
+				wsballdv.setUint32(5, ball.gety() * ballprecision, true);
+				wsballdv.setUint32(9, ball.xspeed * ballprecision, true);
+				wsballdv.setUint32(13, ball.yspeed * ballprecision, true);
+				ws.send(wsballbuffer);
+			}
+			else if(playerid == 1 && ball.getx() < stage.left)
+			{ // ouch owie
+				ball.setx(stage.left);
+				ball.yspeed = (0.03 / -ball.xspeed) * ball.yspeed;
+				ball.xspeed = 0.03;
+				score.points[1] += 1;
+				score.ubo2.setdata([
+					score.points[1] % 10 << 8 | score.points[1] / 10 << 0
+				]);
+				redtimer = 200;
+				hurtSound.currentTime = 0;
+				hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
+				hurtSound.play();
+				wsscoredv.setUint32(1, ball.getx() * ballprecision, true);
+				wsscoredv.setUint32(5, ball.gety() * ballprecision, true);
+				wsscoredv.setUint32(9, ball.xspeed * ballprecision, true);
+				wsscoredv.setUint32(13, ball.yspeed * ballprecision, true);
+				ws.send(wsscorebuffer);
+			}
+			else if(playerid == 2 && ball.getx() > stage.right-ball.width)
+			{
+				ball.setx(stage.right-ball.width);
+				ball.yspeed = (0.03 / ball.xspeed) * ball.yspeed;
+				ball.xspeed = -0.03;
+				score.points[0] += 1;
+				score.ubo1.setdata([
+					score.points[0] % 10 << 8 | score.points[0] / 10 << 0
+				]);
+				redtimer = 200;
+				hurtSound.currentTime = 0;
+				hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
+				hurtSound.play();
+				wsscoredv.setUint32(1, ball.getx() * ballprecision, true);
+				wsscoredv.setUint32(5, ball.gety() * ballprecision, true);
+				wsscoredv.setUint32(9, ball.xspeed * ballprecision, true);
+				wsscoredv.setUint32(13, ball.yspeed * ballprecision, true);
+				ws.send(wsscorebuffer);
+			}
+		}
+
+		if(ball.gety() <= stage.top)
+		{
+			ball.sety(stage.top);
+			ball.yspeed *= -1;
+		}
+		else if(ball.gety() > stage.bottom-ball.height)
+		{
+			ball.sety(stage.bottom-ball.height);
+			ball.yspeed *= -1;
+		}
+	
+		sendtimer += dt;
+		if(sendtimer > 1000/30)
+		{
+			senddata(sendbytes);
+			sendtimer = 0;
 		}
 	}
-	if(ball.gety() <= stage.top)
-	{
-		ball.sety(stage.top);
-		ball.yspeed *= -1;
-	}
-	else if(ball.gety() > stage.bottom-ball.height)
-	{
-		ball.sety(stage.bottom-ball.height);
-		ball.yspeed *= -1;
-	}
-
-	// if(ball.modelMatrix[13]+ball.height < player2.modelMatrix[13]+paddle.height/2-paddle.height/4)
-	// {
-	// 	player2.modelMatrix[13] -= 0.04 * dt;
-	// 	if(player2.modelMatrix[13] < stage.top)
-	// 		player2.modelMatrix[13] = stage.top;
-	// }
-	// else if(ball.modelMatrix[13]+ball.height > player2.modelMatrix[13]+paddle.height/2+paddle.height/4)
-	// {
-	// 	player2.modelMatrix[13] += 0.04 * dt;
-	// 	if(player2.modelMatrix[13] > stage.bottom-paddle.height)
-	// 		player2.modelMatrix[13] = stage.bottom-paddle.height;
-	// }
 
 	if(redtimer > 0)
 	{
@@ -393,12 +510,6 @@ function draw()
 			gl.clearColor(0.8 * ratio + 0.1 * (1.0 - ratio), 0.1, 0.14, 1.0);
 		}
 	}
-	// sendtimer += dt;
-	// if(sendtimer > 1000/30)
-	// {
-	// 	senddata();
-	// 	sendtimer = 0;
-	// }
 
 	// draw the paddles
 	fb.bind();
@@ -421,8 +532,6 @@ function draw()
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 	pongUBO.update(ball._ubodata);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
-	// gl.vertexAttribPointer(positionAttrib, 3, gl.FLOAT, false, 0, 0);
-	// gl.enableVertexAttribArray(positionAttrib);
 	stagelineVAO.bind();
 	pongUBO.update(stage._ubodata);
 	gl.drawArrays(gl.LINES, 0, 8);
@@ -430,12 +539,8 @@ function draw()
 	gl.useProgram(screenprogram);
 	gl.uniform1f(glitchUniform, ratio * ratio * 0.2);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	screenVAO.bind();
-	// gl.bindBuffer(gl.ARRAY_BUFFER, screenuvbuffer);
-	// gl.vertexAttribPointer(uvAttrib, 2, gl.FLOAT, false, 0, 0);
-	// gl.enableVertexAttribArray(uvAttrib);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 
 	requestAnimationFrame(draw);

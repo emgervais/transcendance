@@ -1,6 +1,7 @@
-players = []
+# from . import pybackend
+from .pybackend import pong
 
-import pong
+players = []
 
 import asyncio
 
@@ -29,17 +30,17 @@ class PongInstance:
 		if self.player.pongid == 1:
 			await send({
 				'type': 'websocket.send',
-				'bytes': b'\x05\x01'
+				'bytes': b'\x08\x01'
 			})
 		elif self.player.pongid == 2:
 			await send({
 				'type': 'websocket.send',
-				'bytes': b'\x05\x02'
+				'bytes': b'\x08\x02'
 			})
 		else:
 			await send({
 				'type': 'websocket.send',
-				'bytes': b'\x05\x00'
+				'bytes': b'\x08\x00'
 			})
 
 	def disconnect(self):
