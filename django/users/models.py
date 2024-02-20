@@ -6,11 +6,11 @@ from django.core.exceptions import ValidationError
 
 def random_default_image():
     #return random.choice(['/static/media/default/2.png', '/static/media/default/1.jpg'])
-    return 'media/default/default.webp'
+    return 'default.webp'
 
 class User(AbstractUser, PermissionsMixin):
     oauth = models.BooleanField(default=False)
-    image = models.ImageField(upload_to='media/', default=random_default_image)
+    image = models.ImageField(upload_to='profile_pics', default=random_default_image)
     matches = models.ManyToManyField("self", through="PongMatch", symmetrical=False, related_name="user_matches", through_fields=('p1', 'p2'))
     friend_list = models.ManyToManyField("self", through="Friend", symmetrical=False, related_name="user_friends", through_fields=('friend', 'user'))
     friend_requests = models.ManyToManyField("self", through="FriendRequest", symmetrical=False, related_name="user_friend_requests", through_fields=('from_user', 'to_user'))

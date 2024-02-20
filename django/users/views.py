@@ -6,17 +6,6 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.exceptions import ValidationError
 
-# For development purposes only
-# Remove all friend requests from all users
-class RemoveAllFriendRequestsView(APIView):
-    def delete(self, request: HttpRequest) -> JsonResponse:
-        try:
-            for user in User.objects.all():
-                user.friend_requests.all().delete()
-            return JsonResponse({'message': 'All friend requests removed successfully'}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 class UserView(APIView):
     serializer_class = UserSerializer
     
@@ -33,14 +22,18 @@ class UsersView(APIView):
     
 class ChangeInfoView(APIView):
     serializer_class = ChangeInfoSerializer
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = [MultiPartParser, FormParser]
     
     def put(self, request: HttpRequest) -> JsonResponse:
-        user = User.objects.get(pk=request.user.id)
-        serializer = self.get_serializer(user, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        try:
+            user = User.objects.get(pk=request.user.id)
+            serializer = self.serializer_class(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ObtainInfoView(APIView):
     serializer_class = UserSerializer

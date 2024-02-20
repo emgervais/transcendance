@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from users.models import User, FriendRequest, Friend, FriendShipManager
+from users.models import User, FriendRequest, Friend
+import os, re
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,7 +11,9 @@ class UserSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-
+        ret['matches'] = instance.matches.count()
+        ret['friends'] = instance.friends.count()
+        ret['friend_requests'] = instance.friend_requests.count()
         return ret
 
 class ChangeInfoSerializer(serializers.ModelSerializer):
@@ -51,6 +54,8 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'email': 'Email already exists'})
         if image is not None and image.size > 2*1024*1024:
             raise serializers.ValidationError({'image': 'Image file too large'})
+        if image is not None and re.match(r'^.*\.(jpg|jpeg|png|gif)$', image.name) is None:
+            raise serializers.ValidationError({'image': 'Invalid image file type'})
         return data
         
     def update(self, instance, validated_data):
@@ -59,10 +64,9 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
         if 'email' in validated_data:
             instance.email = validated_data['email']
         if 'image' in validated_data:
-            if instance.image and instance.image != 'media/default/default.webp':
-                print(instance.image)
-                instance.image.delete(save=False)
-            instance.image = validated_data.get('image', instance.image)
+            if instance.image.name != 'default.webp':
+                instance.image.delete()
+            instance.image.save(instance.username + os.path.splitext(validated_data['image'].name)[1], validated_data['image'])
         if 'password1' in validated_data:
             instance.set_password(validated_data['password1'])
         instance.save()

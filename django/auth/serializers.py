@@ -1,13 +1,13 @@
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.exceptions import TokenError
 from users.serializers import UserSerializer
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from auth.oauth42 import get_user_token, get_user_data
 from users.utils import generate_username
-from django.conf import settings
 from users.models import User
+import requests
+from django.core.files.base import ContentFile
+
 
 class RegisterSerializer(UserSerializer):
     password1 = serializers.CharField(write_only=True, min_length=8, validators=[validate_password])
@@ -82,18 +82,24 @@ class OAuth42LoginSerializer(UserSerializer):
         
         if code is None:
             raise serializers.ValidationError({'code': 'Code is required to login through OAuth'})
+        
         token = get_user_token(code)
         user_data = get_user_data(token)
         email = user_data['email']
+        
         user = User.objects.filter(email=email).first()
         if user is not None and user.oauth is False:
             raise serializers.ValidationError({'email': 'Your email address is used by an existing account'})
+        
         if user is None:
             username = generate_username(user_data['first_name'], user_data['last_name'])
             user = User.objects.create_user(username, email, None, oauth=True)
-            user.image = user_data['image']
-            user.save()
-        
+            if user_data['image'] is not None:
+                response = requests.get(user_data['image'])
+                user.image.save(f'{user.username}.jpg', ContentFile(response.content), save=False)
+            
+        user.oauth = True
+        user.save()
         return user
 
 class LogoutSerializer(serializers.Serializer):
