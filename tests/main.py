@@ -35,50 +35,56 @@ def register_login(user):
     )
     return cookies
 
-def update_info(user, new_username, new_password):
-    image = util.load_image()
-    endpoints.update_info(
-        user["cookies"],
-        new_username,
-        log=True,
-    )
-    # user["username"] = new_username
-    # user["password"] = new_password
+# def update_info(user, new_username, new_password):
+#     image = util.load_image()
+#     endpoints.update_info(
+#         user["cookies"],
+#         new_username,
+#         log=True,
+#     )
+#     # user["username"] = new_username
+#     # user["password"] = new_password
 
-def friend_request(users):
-    endpoints.friend_request(
-        users[0]["cookies"],
-        users[1]["username"],
-        "send",
-    )
-    # endpoints.friend_requests(
-    #     users[1]["cookies"],
-    #     log=True
-    # )
-    endpoints.friend_request(
-        users[1]["cookies"],
-        users[0]["username"],
-        "accept",
-        log=True
-    )
-    for user in users:
-        endpoints.friends(
-            user["cookies"],
-            log=True
-        )
+# def friend_request(users):
+#     endpoints.make_friend_request(
+#         users[0]["cookies"],
+#         users[1]["username"],
+#         "send",
+#     )
+#     # endpoints.friend_requests(
+#     #     users[1]["cookies"],
+#     #     log=True
+#     # )
+#     endpoints.friend_request(
+#         users[1]["cookies"],
+#         users[0]["username"],
+#         "accept",
+#         log=True
+#     )
+#     for user in users:
+#         endpoints.friends(
+#             user["cookies"],
+#             log=True
+#         )
 
-def get_user_info(user):
-    endpoints.user(
-        user["cookies"],
-        user["username"],
-        log=True    
-    )
+# def get_user_info(user):
+#     endpoints.user(
+#         user["cookies"],
+#         user["username"],
+#         log=True    
+#     )
 
 if __name__ == "__main__":
     endpoints.reset_db()
-    users = [ user | {"cookies": register_login(user)} for user in users]
-    friend_request(users)
-    for user in users:
-        get_user_info(user)
+    for i, user in enumerate(users):
+        response = register_login(user)
+        users[i] | {
+            "cookies": response["cookies"],
+            "id": response["id"]
+        }
+    print(users)
+    # friend_request(users)
+    # for user in users:
+    #     get_user_info(user)
         # endpoints.logout(user, log=True)
         # update_info(user, user["username"]*2)
