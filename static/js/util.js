@@ -1,3 +1,5 @@
+import * as auth from "/static/js/auth.js";
+
 function display(id, display) {
     const element = document.getElementById(id);
     element.style.display = display;
@@ -12,7 +14,6 @@ function formSubmit(formId, callback, method=undefined) {
     }    
     removeFormErrors();
     method = method? method : form.method;
-    console.log("method:", method);
     const formData = new FormData(form);
     fetch(form.action, {
         method: method,
@@ -32,7 +33,13 @@ function formSubmit(formId, callback, method=undefined) {
         clearForm(formId);
     })
     .catch(error => {
-        console.log(error.data);
+        if (error.status == 401)
+        {
+            auth.unauthorized();
+            return;
+        }
+        console.log("error.status:", error.status);
+        console.log("error.data:", error.data);
         if (error.status && error.data) {
             for (const [key, value] of Object.entries(error.data)) {
                 addFormError(form, key, value);
@@ -70,5 +77,15 @@ function clearForm(formId) {
 }
 // --
 
+function fetchError(error) {
+    console.error('Fetch error:', error);
+}
 
-export { display, formSubmit };
+function fetchResponse(response) {
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+}
+
+export { display, formSubmit, fetchError, fetchResponse };

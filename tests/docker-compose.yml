@@ -8,8 +8,9 @@ services:
     volumes:
       - ./:/usr/src/tests   
     networks:
-      - trans_network
+      - transcendence_network
 
 networks:
-  trans_network:
+  transcendence_network:
+    name: transcendence_network
     external: true

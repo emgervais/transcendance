@@ -43,6 +43,7 @@ def save_template(dest, html):
 
 class Recompiler(FileSystemEventHandler):
     COOLDOWN = 1
+    COUNTER = 0
     def __init__(self):
         super().__init__()
         self.timer = None    
@@ -58,9 +59,10 @@ class Recompiler(FileSystemEventHandler):
         if self.timer is None or not self.timer.is_alive():
             for src, dest in src_dest(ROOT):
                 html = compiler.compile(os.path.dirname(src), src)
-                print(f"-- Recompiling \"{dest}\" ----")
+                print(f"-- {self.COUNTER} Recompiling \"{dest}\" ----")
                 save_template(dest, html)
                 self._start_timer()
+            self.COUNTER += 1
 
 if __name__ == "__main__":
     event_handler = Recompiler()

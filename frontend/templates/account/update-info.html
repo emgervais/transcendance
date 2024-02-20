@@ -1,12 +1,12 @@
 <div id="account-update-info" style="display: none;">
-    <form id="update-info-form" class="w-25" action="/api/change-info/" enctype="multipart/form-data">
+    <form id="update-info-form" class="w-25" action="/api/change-info/">
         <div class="username">
             <label for="username">Username:</label>
             <input type="username" name="username" required>
         </div>
         <div class="image">
             <label for="image">Image:</label>
-            <input type="file" name="image" accept="image/*">
+            <input type="file" accept="image/*" name="image" >
         </div>
     </form>
     <button id="update-info-button" type="button" class="mt-2 btn btn-primary">Update info</button>

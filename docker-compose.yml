@@ -15,8 +15,8 @@ services:
       interval: 1s
       timeout: 1s
       retries: 20
-    # networks:
-    #   - trans_network
+    networks:
+      - transcendence_network
 
   web:
     container_name: web
@@ -34,8 +34,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    # networks:
-    #   - trans_network
+    networks:
+      - transcendence_network
 
   nginx:
     container_name: nginx
@@ -50,13 +50,14 @@ services:
       # - static:/home/app/static/
     depends_on:
       - web
-    # networks:
-    #   - trans_network
+    networks:
+      - transcendence_network
 
 volumes:
   static:
   db:
 
-# networks:
-#   trans_network:
-#     external: true
+networks:
+  transcendence_network:
+    name: transcendence_network
+    driver: bridge

@@ -3,10 +3,11 @@ start:
 
 stop:
 	docker compose down
+	yes | docker network prune
 	yes | docker image prune
 
 frontend:
-	@frontend/auto_compile.py
+	@python3 frontend/auto_compile.py
 
 prune:
 	docker system prune --all --volumes
@@ -14,10 +15,13 @@ prune:
 web:
 	docker exec -it web sh
 
-nginx_:
+nginx:
 	docker exec -it nginx sh
 
 db:
 	source .env && docker exec -it postgres psql -U $${POSTGRES_USER} -d $${POSTGRES_DB}
 
-.PHONY: start stop frontend prune web nginx db
+tests:
+	cd tests && docker-compose up --build --force-recreate
+
+.PHONY: start stop frontend prune web nginx db tests

@@ -25,7 +25,6 @@ def get_token():
 def get_user_token(code):
 	if code is None:
 		raise AuthError("No code provided.")
-	print("CODE:", code)
 	params = {
 		'grant_type': 'authorization_code',
 		'client_id': os.getenv("OAUTH_UID", ""),
