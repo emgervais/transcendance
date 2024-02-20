@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from users.serializers import UserSerializer
-from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from auth.oauth42 import get_user_token, get_user_data
 from users.utils import generate_username
@@ -56,15 +55,14 @@ class LoginSerializer(UserSerializer):
     def validate(self, data):
         email = data.get('email', None)
         password = data.get('password', None)
-        oauth = data.get('oauth', False)
         
-        if oauth:
-            raise serializers.ValidationError({'oauth': 'OAuth users need to login through OAuth'})
-        if not User.objects.filter(email=email).exists():
-            raise serializers.ValidationError({'email': 'Email is not registered. Please create an account'})
-        user = authenticate(email=email, password=password)
+        user = User.objects.filter(email=email).first()
         if user is None:
-            raise serializers.ValidationError({'password': 'Password is incorrect'})
+            raise serializers.ValidationError({'email': 'User with this email does not exist'})
+        if user.oauth is True:
+            raise serializers.ValidationError({'email': 'This email is used by an OAuth account'})
+        if not user.check_password(password):
+            raise serializers.ValidationError({'password': 'Incorrect password'})
 
         return user
     

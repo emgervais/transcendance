@@ -1,10 +1,9 @@
 from django.http import JsonResponse, HttpRequest
 from users.models import User, FriendRequest, Friend
 from users.serializers import UserSerializer, ChangeInfoSerializer, FriendRequestSerializer, FriendSerializer
-from rest_framework import generics, status
+from rest_framework import serializers, status
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
-from django.core.exceptions import ValidationError
 
 class UserView(APIView):
     serializer_class = UserSerializer
@@ -56,8 +55,6 @@ class FriendRequestListView(APIView):
             request = Friend.objects.add_friend(from_user, to_user)
             return JsonResponse(self.serializer_class(request).data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            print()
-            print(type(e))
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class FriendRequestDetailView(APIView):
@@ -75,7 +72,7 @@ class FriendRequestDetailView(APIView):
         try:
             friend_request = FriendRequest.objects.get(pk=pk)
             if friend_request.to_user != request.user:
-                raise ValidationError("You cannot accept this friend request")
+                raise serializers.ValidationError({'friend-request': 'You are not the recipient of this friend request'})
             friend_request.accept()
             return JsonResponse({'message': 'Friend request accepted successfully'}, status=status.HTTP_200_OK)
         except Exception as e:
@@ -94,7 +91,6 @@ class FriendDetailView(APIView):
     def delete(self, request: HttpRequest, pk: int) -> JsonResponse:
         try:
             friend = Friend.objects.get(pk=pk)
-            print(friend)
             Friend.objects.remove_friend(request.user, friend.friend)
             return JsonResponse({'message': 'Friend removed successfully'}, status=status.HTTP_200_OK)
         except Exception as e:

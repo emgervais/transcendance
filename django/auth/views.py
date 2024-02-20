@@ -35,9 +35,9 @@ class RegisterView(generics.GenericAPIView):
     def post(self, request: HttpRequest) -> JsonResponse:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        user = serializer.save()
         response = JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
-        return set_cookies(response, serializer.instance)
+        return set_cookies(response, user)
 
 class LoginView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -78,6 +78,8 @@ class OAuth42LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        print(user.image)
+        print(user.image.url)
         return set_cookies(response, user)
 
 class CustomTokenRefreshView(generics.GenericAPIView):

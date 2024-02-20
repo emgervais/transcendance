@@ -1,8 +1,7 @@
 from django.urls import path
-from users.views import UsersView, UserView, ChangeInfoView, ObtainInfoView, FriendRequestListView, FriendRequestDetailView, FriendListView, FriendDetailView
+from users.views import UsersView, UserView, ChangeInfoView, FriendRequestListView, FriendRequestDetailView, FriendListView, FriendDetailView
 
 urlpatterns = [
-    path('', ObtainInfoView.as_view(), name='obtain_info'),
     path('users/', UsersView.as_view(), name='users'),
     path('user/<int:pk>/', UserView.as_view(), name='user'),
     path('change-info/', ChangeInfoView.as_view(), name='change_info'),

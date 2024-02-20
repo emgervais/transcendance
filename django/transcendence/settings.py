@@ -140,8 +140,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'transcendence.backends.OAuthBackend',
-    'transcendence.backends.EmailBackend', 
     'django.contrib.auth.backends.ModelBackend',
 ]
 

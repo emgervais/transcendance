@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from users.models import User, FriendRequest, Friend
+from django.conf import settings
 import os, re
 
 class UserSerializer(serializers.ModelSerializer):
@@ -64,7 +65,7 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
         if 'email' in validated_data:
             instance.email = validated_data['email']
         if 'image' in validated_data:
-            if instance.image.name != 'default.webp':
+            if instance.image.name != 'profile_pics/default.webp':
                 instance.image.delete()
             instance.image.save(instance.username + os.path.splitext(validated_data['image'].name)[1], validated_data['image'])
         if 'password1' in validated_data:
@@ -79,16 +80,10 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
         if 'email' in self.validated_data:
             ret['email'] = self.validated_data['email']
         if 'image' in self.validated_data:
-            ret['image'] = 'Image updated'
+            ret['image'] = "https://" + settings.ALLOWED_HOSTS[0] + instance.image.url
         if 'password1' in self.validated_data:
             ret['password'] = 'Password updated'
         return ret
-    
-class UserBasicInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'image']
-        read_only_fields = ['id', 'username', 'image']
 
 class FriendRequestSerializer(serializers.ModelSerializer):
     class Meta:
