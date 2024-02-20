@@ -4,10 +4,11 @@ from auth.serializers import RegisterSerializer, LoginSerializer, OAuth42LoginSe
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from auth.oauth42 import create_oauth_uri
-
 from datetime import datetime
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from rest_framework_simplejwt.tokens import AccessToken
 
+    
 def set_cookies(response, user):
     refresh_token = TokenObtainPairSerializer().get_token(user)
     access_token = refresh_token.access_token    
@@ -73,9 +74,23 @@ class OAuth42LoginView(generics.GenericAPIView):
     serializer_class = OAuth42LoginSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
-        request.COOKIES
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
         return set_cookies(response, user)
+
+class CustomTokenRefreshView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request: HttpRequest) -> JsonResponse:
+        refresh_token = request.COOKIES.get('refresh_token')
+        if not refresh_token:
+            return JsonResponse({'error': 'No refresh token found'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = TokenRefreshSerializer(data={'refresh': refresh_token})
+        serializer.is_valid(raise_exception=True)
+        response = JsonResponse(serializer.validated_data, status=status.HTTP_200_OK)
+        access_token = serializer.validated_data['access']
+        access_token_exp = datetime.fromtimestamp(AccessToken(access_token)['exp'])
+        response.set_cookie('access_token', str(access_token), samesite='Strict', httponly=True, secure=True, expires=access_token_exp)
+        return response

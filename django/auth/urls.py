@@ -1,7 +1,8 @@
 from django.urls import path
-from auth.views import ResetDatabaseView, RegisterView, LoginView, LogoutView, OAuth42UriView, OAuth42LoginView
+from auth.views import ResetDatabaseView, RegisterView, LoginView, LogoutView, OAuth42UriView, OAuth42LoginView, CustomTokenRefreshView
 
 urlpatterns = [
+    path('refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
