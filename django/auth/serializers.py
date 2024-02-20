@@ -19,7 +19,23 @@ class RegisterSerializer(UserSerializer):
                         'email': {'required': True},
                         'password1': {'write_only': True, 'required': True},
                         'password2': {'write_only': True, 'required': True}}
+    
+    def validate(self, data):
+        username = data.get('username', None)
+        email = data.get('email', None)
+        password1 = data.get('password1', None)
+        password2 = data.get('password2', None)
         
+        if password1 != password2:
+            raise serializers.ValidationError({'password1': 'Passwords do not match'})
+        validate_password(password1)
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError({'username': 'Username already exists'})
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError({'email': 'Email already exists'})
+        
+        return data
+
     def create(self, validated_data):
         username = validated_data.get('username', None)
         email = validated_data.get('email', None)
@@ -27,24 +43,6 @@ class RegisterSerializer(UserSerializer):
         
         user = User.objects.create_user(username, email, password)
         return user
-    
-    def validate(self, data):
-        username = data.get('username', None)
-        email = data.get('email', None)
-        password1 = data.get('password1', None)
-        password2 = data.get('password2', None)
-        oauth = data.get('oauth', False)
-        
-        if oauth:
-            raise serializers.ValidationError({'oauth': 'OAuth users cannot register'})
-        if User.objects.filter(username=username).exists():
-            raise serializers.ValidationError({'username': 'Username is already in use'})
-        if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError({'email': 'Email is already in use'})
-        if password1 != password2:
-            raise serializers.ValidationError({'password': 'Passwords do not match'})
-        
-        return data
     
 class LoginSerializer(UserSerializer):
     password = serializers.CharField(write_only=True)
@@ -66,7 +64,7 @@ class LoginSerializer(UserSerializer):
             raise serializers.ValidationError({'email': 'Email is not registered. Please create an account'})
         user = authenticate(email=email, password=password)
         if user is None:
-            raise serializers.ValidationError({'password': 'Invalid password'})
+            raise serializers.ValidationError({'password': 'Password is incorrect'})
 
         return user
     
@@ -92,8 +90,10 @@ class OAuth42LoginSerializer(UserSerializer):
             raise serializers.ValidationError({'email': 'Your email address is used by an existing account'})
         if user is None:
             username = generate_username(user_data['first_name'], user_data['last_name'])
-            user = User.objects.create_user(username, email, None, oauth=True, image=user_data['image'])
-
+            user = User.objects.create_user(username, email, None, oauth=True)
+            user.image = user_data['image']
+            user.save()
+        
         return user
 
 class LogoutSerializer(serializers.Serializer):

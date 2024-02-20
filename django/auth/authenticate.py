@@ -5,8 +5,13 @@ from django.conf import settings
 # CSRF?
 class CustomAuthentication(JWTAuthentication):
     def authenticate(self, request):
+        # if request comes from the frontend, the header will be present
+        ignore_paths = ['/api/register/', '/api/login/', '/api/oauth42-uri/']
+        if request.path in ignore_paths:
+            return None
+        
         header = self.get_header(request)
-
+        
         if header is None:
             raw_token = request.COOKIES.get(settings.SIMPLE_JWT['AUTH_COOKIE']) or None
         else:

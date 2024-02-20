@@ -1,25 +1,37 @@
 from django.http import JsonResponse, HttpRequest
-from users.models import User
-from users.serializers import UserSerializer, ChangeInfoSerializer, FriendRequestSerializer, FriendSerializer, RemoveFriendSerializer, FriendRequestsSerializer
+from users.models import User, FriendRequest, Friend
+from users.serializers import UserSerializer, ChangeInfoSerializer, FriendRequestSerializer, FriendSerializer
 from rest_framework import generics, status
+from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.exceptions import ValidationError
 
+# For development purposes only
+# Remove all friend requests from all users
+class RemoveAllFriendRequestsView(APIView):
+    def delete(self, request: HttpRequest) -> JsonResponse:
+        try:
+            for user in User.objects.all():
+                user.friend_requests.all().delete()
+            return JsonResponse({'message': 'All friend requests removed successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-class UserView(generics.RetrieveAPIView):
+class UserView(APIView):
     serializer_class = UserSerializer
     
     def get(self, request: HttpRequest, username: str) -> JsonResponse:
         user = User.objects.get(username=username)
         return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
     
-class UsersView(generics.ListAPIView):
+class UsersView(APIView):
     serializer_class = UserSerializer
     
     def get(self, request: HttpRequest) -> JsonResponse:
         users = User.objects.all()
         return JsonResponse(self.serializer_class(users, many=True).data, status=status.HTTP_200_OK, safe=False)
     
-class ChangeInfoView(generics.UpdateAPIView):
+class ChangeInfoView(APIView):
     serializer_class = ChangeInfoSerializer
     parser_classes = (MultiPartParser, FormParser)
     
@@ -30,41 +42,67 @@ class ChangeInfoView(generics.UpdateAPIView):
         serializer.save()
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
-class FriendRequestsView(generics.ListAPIView):
-    serializer_class = FriendRequestsSerializer
-    
-    def get(self, request: HttpRequest) -> JsonResponse:
-        friend_requests = User.objects.get(pk=request.user.id).friend_requests.all()
-        return JsonResponse(self.serializer_class(friend_requests, many=True).data, status=status.HTTP_200_OK, safe=False)
-
-class FriendRequestView(generics.CreateAPIView):
-    serializer_class = FriendRequestSerializer
-    
-    def post(self, request: HttpRequest) -> JsonResponse:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
-    
-class FriendsView(generics.ListAPIView):
-    serializer_class = FriendSerializer
-    
-    def get(self, request: HttpRequest) -> JsonResponse:
-        friends = request.user.friend_list.all()
-        return JsonResponse(self.serializer_class(friends, many=True).data, status=status.HTTP_200_OK, safe=False)
-
-class RemoveFriendView(generics.DestroyAPIView):
-    serializer_class = RemoveFriendSerializer
-    
-    def delete(self, request: HttpRequest) -> JsonResponse:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return JsonResponse({'message': 'Friend removed successfully'}, status=status.HTTP_200_OK)
-
-class ObtainInfoView(generics.RetrieveAPIView):
+class ObtainInfoView(APIView):
     serializer_class = UserSerializer
     
     def get(self, request: HttpRequest) -> JsonResponse:
         user = User.objects.get(pk=request.user.id)
         return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
+
+class FriendRequestListView(APIView):
+    serializer_class = FriendRequestSerializer
+    
+    def get(self, request: HttpRequest) -> JsonResponse:
+        friend_requests = FriendRequest.objects.filter(to_user=request.user)
+        return JsonResponse(self.serializer_class(friend_requests, many=True).data, status=status.HTTP_200_OK, safe=False)
+    
+    def post(self, request: HttpRequest) -> JsonResponse:
+        try:
+            from_user = request.user
+            to_user = User.objects.get(pk=request.data['to_user'])
+            request = Friend.objects.add_friend(from_user, to_user)
+            return JsonResponse(self.serializer_class(request).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            print()
+            print(type(e))
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class FriendRequestDetailView(APIView):
+    serializer_class = FriendRequestSerializer
+    
+    def delete(self, request: HttpRequest, pk: int) -> JsonResponse:
+        try:
+            friend_request = FriendRequest.objects.get(pk=pk)
+            friend_request.delete()
+            return JsonResponse({'message': 'Friend request removed successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    def put(self, request: HttpRequest, pk: int) -> JsonResponse:
+        try:
+            friend_request = FriendRequest.objects.get(pk=pk)
+            if friend_request.to_user != request.user:
+                raise ValidationError("You cannot accept this friend request")
+            friend_request.accept()
+            return JsonResponse({'message': 'Friend request accepted successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class FriendListView(APIView):
+    serializer_class = FriendSerializer
+    
+    def get(self, request: HttpRequest) -> JsonResponse:
+        friends = Friend.objects.friends(request.user)
+        return JsonResponse(self.serializer_class(friends, many=True).data, status=status.HTTP_200_OK, safe=False)
+    
+class FriendDetailView(APIView):
+    serializer_class = FriendSerializer
+    
+    def delete(self, request: HttpRequest, pk: int) -> JsonResponse:
+        try:
+            friend = Friend.objects.get(pk=pk)
+            print(friend)
+            Friend.objects.remove_friend(request.user, friend.friend)
+            return JsonResponse({'message': 'Friend removed successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

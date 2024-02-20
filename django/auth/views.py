@@ -27,32 +27,27 @@ class ResetDatabaseView(generics.DestroyAPIView):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
 class RegisterView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
-        print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         response = JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
-        response = set_cookies(response, serializer.instance)
-        return response
+        return set_cookies(response, serializer.instance)
 
 class LoginView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
-        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        response = set_cookies(response, user)
-        return response
+        return set_cookies(response, user)
 
 class LogoutView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -83,5 +78,4 @@ class OAuth42LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        response = set_cookies(response, user)
-        return response
+        return set_cookies(response, user)
