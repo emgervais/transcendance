@@ -5,12 +5,13 @@ const canvas = document.getElementById('webgl-canvas');
 
 const paddle = {
 	width: 2,
-	height: 12
+	height: 10
 }
 
+var program;
+var textprogram
 var screenprogram;
 
-var program;
 var glitchUniform;
 
 const pongrenderwidth = 80;
@@ -21,6 +22,52 @@ var fbtexture;
 var fbdepthbuffer;
 
 var inputs = [0, 0];
+var scoredata1 = new Uint32Array([
+	0, 0, // position
+	0, // char count in string
+	0, // number of chars in texture
+	0, 0, 0, 0 // string data
+]);
+
+var score = {
+	points: [0, 0],
+	ubo1: {
+		_ubodata: new Uint32Array([
+			0, 0, // position
+			0, // char count in string
+			0, // number of chars in texture
+			0, 0, 0, 0 // string data
+		]),
+		setpos: function(x, y) {this._ubodata[0] = x; this._ubodata[1] = y;},
+		setstrlen: function(len) {this._ubodata[2] = len;},
+		settexlen: function(len) {this._ubodata[3] = len;},
+		setdata: function(data) {
+			for(var i = 0; i < data.length; i++)
+			{
+				this._ubodata[4 + i] = data[i];
+			}
+		}
+	},
+	ubo2: {
+		_ubodata: new Uint32Array([
+			0, 0, // position
+			0, // char count in string
+			0, // number of chars in texture
+			0, 0, 0, 0 // string data
+		]),
+		setpos: function(x, y) {this._ubodata[0] = x; this._ubodata[1] = y;},
+		setstrlen: function(len) {this._ubodata[2] = len;},
+		settexlen: function(len) {this._ubodata[3] = len;},
+		setdata: function(data) {
+			for(var i = 0; i < data.length; i++)
+			{
+				this._ubodata[4 + i] = data[i];
+			}
+		}
+	}
+}
+
+state = 0;
 
 const player1 = {
 	_ubodata: new Float32Array([0.0, 0.0, paddle.width, paddle.height]),
@@ -71,13 +118,13 @@ function setup()
 	canvas.height = canvas.clientHeight;
 
 	// create framebuffer
+	gl.activeTexture(gl.TEXTURE0);
 	fb = createFramebuffer(pongrenderwidth, pongrenderheight);
 	if(!fb)
 	{
 		console.error('Could not create framebuffer');
 		return false;
 	}
-	gl.activeTexture(gl.TEXTURE0);
 	fb.bindTexture();
 
 	program = createProgram(pongVertShader, pongFragShader);
@@ -91,8 +138,38 @@ function setup()
 	gl.uniform2f(screensizeuniform, pongrenderwidth, pongrenderheight);
 
 	// create ubo
-	pongUBO = createUBO('ubo', program);
+	pongUBO = createUBO('ubo', program, 0);
 	pongUBO.bindToProgram(program);
+
+	textprogram = createProgram(textVertShader, textFragShader);
+	if(!gl.getProgramParameter(textprogram, gl.LINK_STATUS))
+	{
+		console.error(gl.getProgramInfoLog(textprogram));
+		return false;
+	}
+	gl.useProgram(textprogram);
+	const screensizeuniformtext = gl.getUniformLocation(textprogram, 'screensize');
+	gl.uniform2f(screensizeuniformtext, pongrenderwidth, pongrenderheight);
+
+	textUBO = createUBO('strubo', textprogram, 1);
+	textUBO.bindToProgram(textprogram);
+
+	score.ubo1.setpos(pongrenderwidth / 2 - 20, stage.bottom - 9);
+	score.ubo1.setstrlen(2);
+	score.ubo1.settexlen(10);
+	score.ubo1.setdata([0]);
+	textUBO.update(score.ubo1._ubodata);
+	score.ubo2.setpos(pongrenderwidth / 2 + 6, stage.bottom - 9);
+	score.ubo2.setstrlen(2);
+	score.ubo2.settexlen(10);
+	score.ubo2.setdata([0]);
+	textUBO.update(score.ubo2._ubodata);
+
+	digitsTexture = createTexture('/static/app/img/digits.png', gl.R8, gl.RED, 2);
+	const digitstexuniform = gl.getUniformLocation(textprogram, 'tex');
+	gl.uniform1i(digitstexuniform, 2);
+
+	fb.bindTexture();
 
 	screenprogram = createProgram(screenVertShader, screenFragShader);
 	if(!gl.getProgramParameter(screenprogram, gl.LINK_STATUS))
@@ -145,11 +222,7 @@ function setup()
 	gl.uniform1i(texUniform, 0);
 	gl.uniform1i(vignetteUniform, 1);
 
-	gl.activeTexture(gl.TEXTURE1);
-	vignetteTexture = createTexture('static/img/vignette.png', gl.R8, gl.RED);
-	gl.bindTexture(gl.TEXTURE_2D, vignetteTexture._texture);
-	// gl.activeTexture(gl.TEXTURE0);
-	// fb.bindTexture();
+	vignetteTexture = createTexture('/static/app/img/vignette.png', gl.R8, gl.RED, 1);
 
 	// gl.useProgram(program);
 	// stagelinebuffer = createStaticBuffer(stagelines);
@@ -191,6 +264,9 @@ function setup()
 	player2.sety(pongrenderheight/2-paddle.height/2);
 
 	ambientSound.play();
+
+	gl.enable(gl.BLEND);
+	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
 	return true;
 }
@@ -244,6 +320,10 @@ function draw()
 			ball.setx(stage.left);
 			ball.yspeed = (0.03 / -ball.xspeed) * ball.yspeed;
 			ball.xspeed = 0.03;
+			score.points[1] += 1;
+			score.ubo2.setdata([
+				score.points[1] % 10 << 8 | score.points[1] / 10 << 0
+			]);
 			redtimer = 200;
 			hurtSound.currentTime = 0;
 			hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
@@ -265,6 +345,10 @@ function draw()
 			ball.setx(stage.right-ball.width);
 			ball.yspeed = (0.03 / ball.xspeed) * ball.yspeed;
 			ball.xspeed = -0.03;
+			score.points[0] += 1;
+			score.ubo1.setdata([
+				score.points[0] % 10 << 8 | score.points[0] / 10 << 0
+			]);
 			redtimer = 200;
 			hurtSound.currentTime = 0;
 			hurtSound.playbackRate = Math.random() * 0.6 + 0.7;
@@ -295,7 +379,6 @@ function draw()
 	// 		player2.modelMatrix[13] = stage.bottom-paddle.height;
 	// }
 
-	gl.useProgram(program);
 	if(redtimer > 0)
 	{
 		redtimer -= dt;
@@ -316,11 +399,22 @@ function draw()
 	// 	senddata();
 	// 	sendtimer = 0;
 	// }
+
+	// draw the paddles
 	fb.bind();
 	// fb.bindTexture();
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.viewport(0, 0, pongrenderwidth, pongrenderheight);
+
+	// draw the scores
 	pongVAO.bind();
+	gl.useProgram(textprogram);
+	textUBO.update(score.ubo1._ubodata);
+	gl.drawArrays(gl.TRIANGLES, 0, 6);
+	textUBO.update(score.ubo2._ubodata);
+	gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+	gl.useProgram(program);
 	pongUBO.update(player1._ubodata);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 	pongUBO.update(player2._ubodata);

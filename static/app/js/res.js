@@ -1,7 +1,7 @@
 const pongVertShader = `\
 #version 300 es
 precision mediump float;
-in vec3 position;
+layout(location = 0) in vec3 position;
 layout(std140) uniform ubo
 {
 	vec2 uposition;
@@ -22,6 +22,57 @@ out vec4 color;
 void main()
 {
 	color = vec4(1, 1, 1, 1.0);
+}
+`;
+
+const textVertShader = `\
+#version 300 es
+precision mediump float;
+precision mediump int;
+layout(location = 0) in vec3 position;
+layout(std140) uniform strubo
+{
+	uvec2 uposition; // at 0 to 8
+	uvec2 stringsize; // at 8 to 16
+	uvec4 stringdata; // at 16 to 32
+};
+uniform vec2 screensize;
+out vec2 fraguv;
+void main()
+{
+	vec2 pos = vec2(position.x * float(stringsize.x), position.y);
+	// fraguv = pos.xy / 7.0;
+	fraguv = vec2(pos.x, pos.y);
+	pos.xy = (pos.xy * 7.0 + vec2(uposition)) / screensize.xy * 2.0 - vec2(1.0, 1.0);
+	// pos.y = -pos.y;
+	gl_Position = vec4(pos, 0.0, 1.0);
+}
+`;
+const textFragShader = `\
+#version 300 es
+precision mediump float;
+precision mediump int;
+layout(std140) uniform strubo
+{
+	uvec2 uposition; // at 0 to 8
+	uvec2 stringsize; // at 8 to 16
+	uvec4 stringdata; // at 16 to 32
+};
+in vec2 fraguv;
+out vec4 color;
+uniform sampler2D tex;
+uniform vec2 screensize;
+float charPos(uint charindex)
+{
+	uint char = (stringdata[charindex / uint(4)] >> (uint(8) * (charindex % uint(4)))) & uint(0xFF);
+	// uint char = uint(2);
+	return float(char) / float(stringsize.y) + mod(fraguv.x, 1.0) / float(stringsize.y);
+}
+void main()
+{
+	vec2 uv = vec2(charPos(uint(floor(fraguv.x)) % uint(16)), fraguv.y);
+	vec4 col = vec4(texture(tex, uv).x);
+	color = vec4(col);
 }
 `;
 
@@ -79,22 +130,15 @@ void main()
 }
 `;
 
-const screenverts = new Float32Array([
-	-1.0,  1.0, 0.0,
-	-1.0, -1.0, 0.0,
-	 1.0,  1.0, 0.0,
-	 1.0,  1.0, 0.0,
-	-1.0, -1.0, 0.0,
-	 1.0, -1.0, 0.0
-]);
-
 var pongUBO;
+var textUBO;
 var pongVAO;
 var stagelineVAO;
 var screenVAO;
 
 var vignetteTexture;
-const vignetteImage = new Image();
+
+var digitsTexture;
 
 const ambientSound = new Audio('static/app/sound/ambient.ogg');
 ambientSound.loop = true;

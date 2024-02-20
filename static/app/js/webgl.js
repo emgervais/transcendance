@@ -62,7 +62,7 @@ function unbindVAO()
 	gl.bindVertexArray(null);
 }
 
-function createUBO(name, program)
+function createUBO(name, program, id)
 {
 	const ubo = {
 		_ubo: gl.createBuffer(),
@@ -75,23 +75,22 @@ function createUBO(name, program)
 			this.bind();
 			gl.bufferSubData(gl.UNIFORM_BUFFER, 0, data);
 		},
-		data: {size: 0, offsets: []},
+		size: 0,
 		bindToProgram: function(program)
 		{
 			const blockIndex = gl.getUniformBlockIndex(program, name);
-			gl.uniformBlockBinding(program, blockIndex, 0);
+			gl.uniformBlockBinding(program, blockIndex, id);
 		}
 	};
 	const blockIndex = gl.getUniformBlockIndex(program, name);
-	ubo.data.size = gl.getActiveUniformBlockParameter(program, blockIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
+	ubo.size = gl.getActiveUniformBlockParameter(program, blockIndex, gl.UNIFORM_BLOCK_DATA_SIZE);
 	ubo.bind();
-	gl.bufferData(gl.UNIFORM_BUFFER, ubo.data.size, gl.DYNAMIC_DRAW);
-	gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, ubo._ubo);
+	gl.bufferData(gl.UNIFORM_BUFFER, ubo.size, gl.DYNAMIC_DRAW);
+	gl.bindBufferBase(gl.UNIFORM_BUFFER, id, ubo._ubo);
 
 	return ubo;
 }
-
-function createTexture(imagesrc, internalformat, format)
+function createTexture(imagesrc, internalformat, format, id)
 {
 	const texture = {
 		_texture: gl.createTexture(),
@@ -108,12 +107,15 @@ function createTexture(imagesrc, internalformat, format)
 	const i = new Image();
 	i.onload = function()
 	{
+		gl.activeTexture(gl.TEXTURE0 + id);
 		texture.bind();
 		gl.texImage2D(gl.TEXTURE_2D, 0, internalformat, format, gl.UNSIGNED_BYTE, i);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		// gl.bindTexture(gl.TEXTURE_2D, null);
+		gl.activeTexture(gl.TEXTURE0);
 	};
 	i.src = imagesrc;
 	return texture;
