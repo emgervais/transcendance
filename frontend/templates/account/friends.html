@@ -1,4 +1,4 @@
-<div id="account-friends" style="display: none;">
+<div id="account-friends" class="hidden">
     <ul class="">
         {% for user in users %}
             {% if user not in request.user.friends.all and user != request.user %}
