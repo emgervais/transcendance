@@ -1,5 +1,7 @@
 import * as util from "/static/js/util.js";
 import * as nav from "/static/js/nav.js";
+import * as api from "/static/js/api.js";
+import { getUser } from "/static/js/user.js";
 
 // -- display ----
 function displayFriendsPage() {
@@ -13,21 +15,12 @@ function hideFriendsPage() {
 
 function displayInfoPage() {
     util.display("account-update-info");
+    const user = getUser();
+    util.display("change-password", !user.oauth);
 }
 
 function hideInfoPage() {
     util.display("account-update-info", false);
-}
-
-function hideChangePassword() {
-    const changePassword = document.querySelector("#change-password");
-    if (changePassword) {
-        changePassword.classList.add("hidden");
-    }
-}
-
-function displayChangePassword() {
-
 }
 
 function displayStatsPage() {
@@ -50,18 +43,14 @@ function hideAll() {
 // username image oauth friend_requests friends matches
 // token: access, refresh
 function updateInfoButton() {
-    util.formSubmit("update-info-form", (data) => {
-
+    api.formSubmit("update-info-form", (data) => {
         console.log("result:", data);
-        if (data.image) {
-            nav.updateUserImage(data.image);
-        }
     }, "put");
 }
 
 function getFriends() {
     fetch("/api/friends/")
-    .then(util.fetchResponse)
+    .then(api.fetchResponse)
     .then(friends => {
         const container = document.querySelector("#friends-container");
         console.log(friends);
@@ -77,7 +66,7 @@ function getFriends() {
             container.appendChild(div);
         });        
     })
-    .catch(util.fetchError);
+    .catch(api.fetchError);
 }
 
 export { displayFriendsPage, displayInfoPage, displayStatsPage, hideAll };

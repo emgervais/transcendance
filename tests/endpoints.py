@@ -3,7 +3,7 @@ import util
 
 def endpoint(func):
     def wrapper(*args, **kwargs):
-        log = kwargs.get("log", False)
+        log = kwargs.get("log", True)
         if "log" in kwargs:
             del kwargs["log"]
         response = func(*args, **kwargs)

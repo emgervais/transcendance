@@ -1,5 +1,6 @@
 import * as nav from "/static/js/nav.js";
 import * as account from "/static/js/account.js";
+import { updateUser } from "/static/js/user.js";
 
 const routes = {
     404: {
@@ -47,14 +48,15 @@ const route = (href) => {
 
 const htmlCache = {};
 async function fetchHTMLWithCache(template) {
+    let html;
     if (htmlCache[template]) {
-        return htmlCache[template];
+        html = htmlCache[template];
     } else {
         const response = await fetch(template);
-        const html = await response.text();
+        html = await response.text();
         htmlCache[template] = html;
-        return html;
     }
+    return html;
 }
 
 const locationHandler = async () => {
@@ -66,8 +68,7 @@ const locationHandler = async () => {
     if (!route.authContainer) {
         nav.hideAuthContainer();
     }
-    if (route.template)
-    {
+    if (route.template) {
         const html = await fetchHTMLWithCache(route.template);
         if (!route.containerId) {
             route.containerId = "dynamic-section"
@@ -78,6 +79,7 @@ const locationHandler = async () => {
     if (route.function) {
         route.function();
     }
+    updateUser();
 };
 
 function enableScripts(elementId) {

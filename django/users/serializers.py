@@ -67,7 +67,7 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
         if 'image' in validated_data:
             if instance.image.name != 'default/default.webp':
                 instance.image.delete()
-            instance.image.save(instance.username + os.path.splitext(validated_data['image'].name)[1], validated_data['image'])
+            instance.image.save(validated_data['image'].name, validated_data['image'])
         if 'password1' in validated_data:
             instance.set_password(validated_data['password1'])
         instance.save()

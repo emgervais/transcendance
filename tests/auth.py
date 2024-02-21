@@ -37,13 +37,12 @@ def login(id=0, user=user):
     response = endpoints.login(
         user["username"] + str(id) + "@gmail.com",
         user["password"],
+        log=True
     )
-    print(response['data'])
     return response
 
 def logout(cookies):
-    response = endpoints.logout(cookies)
-    print(response)
+    response = endpoints.logout(cookies, log=True)
     return response
 
 def normal_auth():
