@@ -28,8 +28,7 @@ def request(url, method, cookies=None, data=None, files=None):
     method = methods[method]
     response = method(url, verify=False, data=data, cookies=cookies, files=files)
     res = {}
-    if not response.ok:
-        print("Request failed with status code:", response.status_code)
+    res["status"] = response.status_code
     res["cookies"] = {cookie.name: cookie.value for cookie in response.cookies}
     res["data"] = json.loads(response.text)
     return res
