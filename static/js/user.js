@@ -20,24 +20,31 @@ function updateUser(data=null) {
     }
     displayUser();
 }
+
+function removeUser() {
+    sessionStorage.removeItem("user");
+}
 // --
-function displayUserImage(image=null) {
-    if (!image) {
-        image = getUser().image;
-    }
+function displayUserImage(image) {
     document.querySelectorAll("img.user-img").forEach(element => {
         element.src = image;
     });
 }
 
-function displayUserName() {
-    let username = getUser().username;
+function displayUserName(username) {
+    document.querySelectorAll(".user-username").forEach(element => {
+        element.innerText = username;
+    });
     console.log("displayUserName:", username);
 }
 
 function displayUser() {
-    displayUserImage();
-    displayUserName();
+    let user = getUser();
+    if (!user) {
+        return;
+    }    
+    displayUserImage(user.image);
+    displayUserName(user.username);
 }
 
-export { getUser, setUser, updateUser };
+export { getUser, setUser, updateUser, removeUser };

@@ -1,7 +1,7 @@
 import { updateNav } from "/static/js/nav.js";
 import { route } from "/js/router.js";
 import * as api from "/static/js/api.js";
-import { getUser, setUser } from "/static/js/user.js";
+import { getUser, setUser, removeUser } from "/static/js/user.js";
 
 // -- buttons ----
 function loginButton() {
@@ -17,47 +17,29 @@ function login(user, redirect=true) {
     setUser(user);
     let username = document.querySelector("#usernameNav");
     username.innerText = user.username;
-    updateNav(true, user.image);
+    updateNav(true);
     if (redirect) {
         route("/");
     }
 }
 
 function confirmLogin() {
-    console.log("confirmLogin");
-    // let user = JSON.parse(sessionStorage.getItem("user"));
-    // if (!user)
-    // {
-    //     user = {
-    //         "id": 21,
-    //         "username": "francoma",
-    //         "email": "ffrancoismmartineau@gmail.com",
-    //         "image": "/default/default.webp",
-    //         "oauth": false,
-    //         "matches": [],
-    //         "friends": [],
-    //         "friend_requests": []
-    //     }
-    // }
-    // fetch("/api/user/")
-    // .then(api.fetchResponse)
+    api.fetchRoute({
+        route: "/api/user/",
+        
+    });
     let user = getUser();
     if (user) {
         login(user, false);
     }
-    // console.log("confirmLogin");
-    // fetch("/api/confirm-login/")
-    // .then(api.fetchResponse)
-    // .then(login)
-    // .catch(api.fetchError);
 }
 
 function logout() {
-    sessionStorage.removeItem("user");
     api.fetchRoute({
         route: "/api/logout/",
         options: { method: "POST" },
         dataManager: data => {
+            removeUser();
             console.log("Successful logout\n", data);
             route("/");
             updateNav(false);

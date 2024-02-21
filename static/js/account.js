@@ -1,7 +1,7 @@
 import * as util from "/static/js/util.js";
 import * as nav from "/static/js/nav.js";
 import * as api from "/static/js/api.js";
-import { getUser } from "/static/js/user.js";
+import { getUser, updateUser } from "/static/js/user.js";
 
 // -- display ----
 function displayFriendsPage() {
@@ -44,7 +44,7 @@ function hideAll() {
 // token: access, refresh
 function updateInfoButton() {
     api.formSubmit("update-info-form", (data) => {
-        console.log("result:", data);
+        updateUser(data);
     }, "put");
 }
 

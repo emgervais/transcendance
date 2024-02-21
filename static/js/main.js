@@ -36,11 +36,11 @@ function key(event) {
 
 function onChange(event) {
     switch (event.target.id) {
-    case "user-img-changer":
-        api.formSubmit("upload-image", data => {
-            updateUser(data);
-        } , "put");
-        break;
+        case "user-img-changer":
+            api.formSubmit("upload-image", data => {
+                updateUser(data);
+            } , "put");
+            break;
     }
 }
 

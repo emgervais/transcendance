@@ -21,9 +21,6 @@ function updateNav(connect) {
     }
 }
 
-// function displayUserImage(image) {
-// }
-
 function displayAuthContainer() {
     util.display("authentication-container");
     util.display("shadow");

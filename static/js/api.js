@@ -5,7 +5,7 @@ function fetchRoute({
         route,
         options=null,
         responseManager=fetchResponse,
-        dataManager,
+        dataManager=(_) => {},
         errorManager=fetchError,
     }){
     fetch(route, options)
@@ -14,6 +14,10 @@ function fetchRoute({
     .catch(error => {
         if (error.status === 401) {
             // post /api/refresh/
+            // api.fetchRoute({
+            //     route: "/api/refresh/",
+            //     options: { method: "POST" },
+            // });   
             //  si 400: 
             auth.unauthorized();
             // si 200: chill
