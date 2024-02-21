@@ -7,12 +7,13 @@ function fetchRoute({
         responseManager=fetchResponse,
         dataManager=(_) => {},
         errorManager=fetchError,
+        requireAuthorized=true,
     }){
     fetch(route, options)
     .then(responseManager)
     .then(dataManager)
     .catch(error => {
-        if (error.status === 401) {
+        if (error.status == 401 && requireAuthorized) {
             // post /api/refresh/
             // api.fetchRoute({
             //     route: "/api/refresh/",

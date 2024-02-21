@@ -4,7 +4,6 @@ function getUser() {
 }
 
 function setUser(user) {
-    console.log(user);
     sessionStorage.setItem("user", JSON.stringify(user));
 }
 
@@ -35,7 +34,6 @@ function displayUserName(username) {
     document.querySelectorAll(".user-username").forEach(element => {
         element.innerText = username;
     });
-    console.log("displayUserName:", username);
 }
 
 function displayUser() {
