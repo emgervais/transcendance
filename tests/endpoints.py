@@ -6,9 +6,9 @@ def endpoint(func):
         log = kwargs.get("log", False)
         if "log" in kwargs:
             del kwargs["log"]
-        response, res = func(*args, **kwargs)
+        response = func(*args, **kwargs)
         log and print(func.__name__ + ":", response.get("data"))
-        return res
+        return response
     return wrapper
 
 @endpoint
@@ -16,7 +16,7 @@ def reset_db():
     url = "/api/reset/database/"
     method = "delete"
     response = util.request(url, method)
-    return response, None
+    return response
 
 @endpoint
 def register(username, email, password1, password2):
@@ -29,7 +29,7 @@ def register(username, email, password1, password2):
     url = "/api/register/"
     method = "post"
     response = util.request(url, method, data=data)
-    return response, None
+    return response
     
 @endpoint
 def login(email, password):
@@ -40,14 +40,14 @@ def login(email, password):
     url = "/api/login/"
     method = "post"
     response = util.request(url, method, data=data)
-    return response, response.get("cookies")
+    return response
 
 @endpoint
 def logout(user):
     url = "/api/logout/"
     method = "post"
     response = util.request(url, method, cookies=user["cookies"])
-    return response, None
+    return response
 
 @endpoint
 def update_info(cookies, username=None, image=None):
@@ -63,7 +63,7 @@ def update_info(cookies, username=None, image=None):
     url = "/api/change-info/"
     method = "put"
     response = util.request(url, method, cookies, data, files=files)
-    return response, None
+    return response
 
 @endpoint
 def update_password(cookies, old_password, password1, password2):
@@ -75,38 +75,35 @@ def update_password(cookies, old_password, password1, password2):
     url = "/api/change-password/"
     method = "put"
     response = util.request(url, method, cookies, data)
-    return response, None
+    return response
 
 @endpoint
-def friend_request(cookies, to_user, action):
-    if action not in ["send", "accept", "reject"]:
-        raise ValueError("friend_request: bad action")
+def make_friend_request(cookies, to_user):
     data = {
-        "username": to_user,
-        "action": action,
+        "to_user": to_user,
     }
-    url = "/api/friend-request/"
+    url = "/api/friend-requests/"
     method = "post"
     response = util.request(url, method, cookies, data)
-    return response, None
+    return response
 
 @endpoint
 def friend_requests(cookies):
     url = "/api/friend-requests/"
     method = "get"
     response = util.request(url, method, cookies)
-    return response, None
+    return response
 
 @endpoint
 def friends(cookies):
     url = "/api/friends/"
     method = "get"
     response = util.request(url, method, cookies)
-    return response, None
+    return response
 
 @endpoint
 def user(cookies, username):
     url = f"/api/user/{username}/"
     method = "get"
     response = util.request(url, method, cookies)
-    return response, None
+    return response

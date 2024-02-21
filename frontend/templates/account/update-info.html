@@ -1,4 +1,4 @@
-<div id="account-update-info" style="display: none;">
+<div id="account-update-info" class="hidden">
     <form id="update-info-form" class="w-25" action="/api/change-info/">
         <div class="username">
             <label for="username">Username:</label>
@@ -8,22 +8,20 @@
             <label for="image">Image:</label>
             <input type="file" accept="image/*" name="image" >
         </div>
-    </form>
-    <button id="update-info-button" type="button" class="mt-2 btn btn-primary">Update info</button>
-
-    <form id="update-password-form" class="w-25" action="/api/change-password/" enctype="multipart/form-data">
-        <div class="old-password"> 
-            <label for="old-password">Current password:</label>
-            <input type="password" name="old-password" required>
+        <div id="change-password">
+            <div class="old-password"> 
+                <label for="old-password">Current password:</label>
+                <input type="password" name="old-password" required>
+            </div>
+            <div class="password1"> 
+                <label for="password1">New password:</label>
+                <input type="password" name="password1" required>
+            </div>
+            <div class="password2">
+                <label for="password2">Confirm new password:</label>
+                <input type="password" name="password2" required>
+            </div>
         </div>
-        <div class="password1"> 
-            <label for="password1">New password:</label>
-            <input type="password" name="password1" required>
-        </div>
-        <div class="password2">
-            <label for="password2">Confirm new password:</label>
-            <input type="password" name="password2" required>
-        </div>
-    </form>
-    <button id="update-password-button" type="button" class="mt-2 btn btn-primary">Update password</button>
-</div>
+        </form>
+        <button id="update-info-button" type="button" class="mt-2 btn btn-primary">Update info</button>
+    </div>

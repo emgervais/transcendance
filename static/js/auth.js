@@ -13,12 +13,11 @@ function registerButton() {
 // ----
 
 function login(user, redirect=true) {
+    console.log(user);
     sessionStorage.setItem("user", JSON.stringify(user));
-    let userImg = document.querySelector("#imgDropdown");
-    userImg.setAttribute('src', user.image);
     let username = document.querySelector("#usernameNav");
     username.innerText = user.username;
-    updateNav(true);
+    updateNav(true, user.image);
     if (redirect) {
         route("/");
     }
@@ -57,7 +56,7 @@ function logout() {
     })
     .then(fetchResponse)
     .then(data => {
-        console.log("Successful logoutL\n", data);
+        console.log("Successful logout\n", data);
         route("/");
         updateNav(false);
     })

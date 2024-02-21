@@ -2,6 +2,7 @@ import { route, locationHandler } from "/static/js/router.js";
 import { confirmLogin, loginButton, registerButton } from "/static/js/auth.js";
 import { buttons } from "/static/js/buttons.js";
 import { oauthRedirected } from "/static/js/auth.js";
+import * as util from "/static/js/util.js";
 
 function click(event) {
     const { target } = event;
@@ -15,19 +16,18 @@ function click(event) {
 }
 
 function key(event) {
-    const authContainerShown = document.querySelector("#shadow").style.display !== 'none';
-    if (authContainerShown) {
-        if (event.key === "Escape") {
+    const loginShown = util.isDisplayed("login");
+    const registerShown = util.isDisplayed("register");
+    if (event.key === "Escape") {
+        if (loginShown || registerShown) {
             route("/");
         }
-        if (event.key === "Enter") {
-            const loginShown = document.querySelector("#login").style.display !== 'none';
-
-            if (loginShown) {
-                loginButton();
-            } else {
-                registerButton();
-            }
+    }
+    if (event.key === "Enter") {
+        if (loginShown) {
+            loginButton();
+        } else if (registerShown) {
+            registerButton();
         }
     }
 }
