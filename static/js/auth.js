@@ -24,13 +24,13 @@ function login(user, redirect=true) {
 }
 
 function confirmLogin() {
-    api.fetchRoute({
-        route: "/api/user/",
-        
-    });
-    let user = getUser();
-    if (user) {
-        login(user, false);
+    if (getUser()) {
+        api.fetchRoute({
+            route: "/api/user/",
+            dataManager: user => {
+                login(user, false);
+            },
+        });
     }
 }
 
