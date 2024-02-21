@@ -12,12 +12,7 @@ methods = {
 }
 
 def load_image():
-    global IMAGE_PATH, IMAGE
-    if IMAGE:
-        return IMAGE
-    with open(IMAGE_PATH, 'rb') as f:
-        IMAGE = f.read()
-    return IMAGE
+    return open(IMAGE_PATH, "rb")
 
 def request(url, method, cookies=None, data=None, files=None):
     if cookies is None:

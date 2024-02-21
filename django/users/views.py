@@ -1,16 +1,36 @@
 from django.http import JsonResponse, HttpRequest
 from users.models import User, FriendRequest, Friend
 from users.serializers import UserSerializer, ChangeInfoSerializer, FriendRequestSerializer, FriendSerializer
-from rest_framework import serializers, status, generics
+from rest_framework import serializers, status
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 
 class UserView(APIView):
     serializer_class = UserSerializer
     
-    def get(self, request: HttpRequest, username: str) -> JsonResponse:
-        user = User.objects.get(username=username)
+    def get(self, request: HttpRequest) -> JsonResponse:
+        user = User.objects.get(pk=request.user.id)
         return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
+    
+class UserPkView(APIView):
+    serializer_class = UserSerializer
+
+    def get(self, request: HttpRequest, pk: int) -> JsonResponse:
+        try:
+            user = User.objects.get(pk=pk)
+            return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        
+class UserUsernameView(APIView):
+    serializer_class = UserSerializer
+
+    def get(self, request: HttpRequest, username: str) -> JsonResponse:
+        try:
+            user = User.objects.get(username=username)
+            return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
     
 class UsersView(APIView):
     serializer_class = UserSerializer
@@ -54,8 +74,11 @@ class FriendRequestListView(APIView):
             to_user = User.objects.get(pk=request.data['to_user'])
             request = Friend.objects.add_friend(from_user, to_user)
             return JsonResponse(self.serializer_class(request).data, status=status.HTTP_201_CREATED)
+        except serializers.ValidationError as e:
+            return JsonResponse(e.detail, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
 
 class FriendRequestDetailView(APIView):
     serializer_class = FriendRequestSerializer

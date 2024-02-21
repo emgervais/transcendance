@@ -12,7 +12,7 @@ def auth(quantity=1):
     def decorator(func):
         def wrapper(*args, **kwargs):
             endpoints.reset_db()
-            users = [None] * quantity
+            users = [{} for _ in range(quantity)]
             for i in range(quantity):
                 response = register(i)
                 users[i] = response['data']
@@ -30,7 +30,6 @@ def register(id=0, user=user):
         user["password"],
         user["password"],
     )
-    print(response['data'])
     return response
 
 def login(id=0, user=user):

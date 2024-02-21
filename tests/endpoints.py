@@ -1,6 +1,7 @@
 import requests
 import util
 
+
 def endpoint(func):
     def wrapper(*args, **kwargs):
         log = kwargs.get("log", True)
@@ -60,10 +61,15 @@ def logout(cookies):
 #     "password2": "new_password",
 # }
 @endpoint
-def update_info(cookies, new_infos):
-    url = "/api/update-info/"
-    method = "post"
-    response = util.request(url, method, cookies, data = new_infos)
+def update_info(cookies, new_infos, image=None):
+    data = new_infos
+    if image:
+        files = {"image": image}
+    else:
+        files = {}
+    url = "/api/change-info/"
+    method = "put"
+    response = util.request(url, method, cookies, data, files)
     return response
 
 # Send a friend request
@@ -110,8 +116,11 @@ def remove_friend(cookies, friend_id):
     return response
 
 @endpoint
-def user(cookies, user_id):
-    url = f"/api/user/{user_id}/"
+def user(cookies, user_id=None):
+    if user_id is None:
+        url = "/api/user/"
+    else:
+        url = f"/api/user/{user_id}/"
     method = "get"
     response = util.request(url, method, cookies)
     return response
