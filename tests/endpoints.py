@@ -43,50 +43,41 @@ def login(email, password):
     return response
 
 @endpoint
-def logout(user):
+def logout(cookies):
     url = "/api/logout/"
     method = "post"
-    response = util.request(url, method, cookies=user["cookies"])
+    response = util.request(url, method, cookies)
     return response
 
+# new_infos is a dictionary with the new information
+# Possible keys are:
+# new_infos = {
+#     "username": "new_username",
+#     "email": "new_email",
+#     "image": new_image,           # new_image is a file
+#     "oldPassword": "old_password",
+#     "password1": "new_password",
+#     "password2": "new_password",
+# }
 @endpoint
-def update_info(cookies, username=None, image=None):
-    data = {
-        'username': username
-    }
-    if image:
-        files = {
-            'image': image
-        }
-    else:
-        files = None
-    url = "/api/change-info/"
-    method = "put"
-    response = util.request(url, method, cookies, data, files=files)
+def update_info(cookies, new_infos):
+    url = "/api/update-info/"
+    method = "post"
+    response = util.request(url, method, cookies, data = new_infos)
     return response
 
+# Send a friend request
 @endpoint
-def update_password(cookies, old_password, password1, password2):
+def make_friend_request(cookies, user_id):
     data = {
-        'old_password': old_password,
-        'password1': password1,
-        'password2': password2
-    }
-    url = "/api/change-password/"
-    method = "put"
-    response = util.request(url, method, cookies, data)
-    return response
-
-@endpoint
-def make_friend_request(cookies, to_user):
-    data = {
-        "to_user": to_user,
+        "to_user": user_id
     }
     url = "/api/friend-requests/"
     method = "post"
     response = util.request(url, method, cookies, data)
     return response
 
+# Get all friend requests
 @endpoint
 def friend_requests(cookies):
     url = "/api/friend-requests/"
@@ -94,6 +85,16 @@ def friend_requests(cookies):
     response = util.request(url, method, cookies)
     return response
 
+# Interact with a friend request
+# PUT : accept
+# DELETE : decline
+@endpoint
+def friend_request(cookies, request_id, method):
+    url = f"/api/friend-requests/{request_id}/"
+    response = util.request(url, method, cookies)
+    return response
+
+# Get all friends
 @endpoint
 def friends(cookies):
     url = "/api/friends/"
@@ -102,8 +103,22 @@ def friends(cookies):
     return response
 
 @endpoint
-def user(cookies, username):
-    url = f"/api/user/{username}/"
+def remove_friend(cookies, friend_id):
+    url = f"/api/friends/{friend_id}/"
+    method = "delete"
+    response = util.request(url, method, cookies)
+    return response
+
+@endpoint
+def user(cookies, user_id):
+    url = f"/api/user/{user_id}/"
+    method = "get"
+    response = util.request(url, method, cookies)
+    return response
+
+@endpoint
+def users(cookies):
+    url = "/api/users/"
     method = "get"
     response = util.request(url, method, cookies)
     return response

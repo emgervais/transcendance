@@ -1,7 +1,7 @@
 from django.http import JsonResponse, HttpRequest
 from users.models import User, FriendRequest, Friend
 from users.serializers import UserSerializer, ChangeInfoSerializer, FriendRequestSerializer, FriendSerializer
-from rest_framework import serializers, status
+from rest_framework import serializers, status, generics
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 

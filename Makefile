@@ -6,6 +6,10 @@ stop:
 	yes | docker network prune
 	yes | docker image prune
 
+delete_volumes:
+	make stop
+	docker volume ls -q | xargs docker volume rm
+
 frontend:
 	@python3 frontend/auto_compile.py
 

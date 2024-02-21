@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 class User(AbstractUser, PermissionsMixin):
     oauth = models.BooleanField(default=False)
-    image = models.ImageField(upload_to='profile_pics', default='profile_pics/default.webp')
+    image = models.ImageField(upload_to='profile_pics', default='default/default.webp')
     matches = models.ManyToManyField('self', through='PongMatch', symmetrical=False, related_name='user_matches', through_fields=('p1', 'p2'))
     friend_list = models.ManyToManyField('self', through='Friend', symmetrical=False, related_name='user_friends', through_fields=('friend', 'user'))
     friend_requests = models.ManyToManyField('self', through='FriendRequest', symmetrical=False, related_name='user_friend_requests', through_fields=('from_user', 'to_user'))
