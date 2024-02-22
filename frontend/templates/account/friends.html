@@ -7,11 +7,14 @@
         {% endfor %}
     </ul>
     <h1>Friend request</h1>
-    {% for friend_request in friend_requests %}
+    <div id="friends-requests-container">
+
+    </div>    
+    <!-- {% for friend_request in friend_requests %}
         <img src={{friend_request.from_user.image}}>
         <h1>{{friend_request.from_user.username}}</h1>
         <a href="/accept_friend_request/{{friend_request.id}}/"> accept friend request </a>
-    {% endfor %} 
+    {% endfor %}  -->
     <h1>Friends</h2>
     <div id="friends-container">
 

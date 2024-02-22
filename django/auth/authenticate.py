@@ -5,7 +5,7 @@ from django.conf import settings
 # CSRF?
 class CustomAuthentication(JWTAuthentication):
     def authenticate(self, request):
-        ignore_paths = ['/api/register/', '/api/login/', '/api/oauth42-login/', '/api/oauth42-uri/']
+        ignore_paths = ['/api/register/', '/api/login/', '/api/oauth42-login/', '/api/oauth42-uri/', '/api/refresh/']
         if request.path in ignore_paths:
             return None
         

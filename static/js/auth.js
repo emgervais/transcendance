@@ -33,6 +33,7 @@ function confirmLogin() {
             requireAuthorized: false,
             errorManager: error => {
                 if (error.status == 401) {
+                    console.log("REFUSED");
                     removeUser();
                 }
             },

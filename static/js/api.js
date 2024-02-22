@@ -13,8 +13,8 @@ function fetchRoute({
     .then(responseManager)
     .then(dataManager)
     .catch(error => {
-        if (error.status === 401 || error.status === 400) {
-            if(error.status === 400) {
+        if ((error.status === 401 || error.status === 400) && requireAuthorized) {
+            if (error.status === 400) {
                 auth.unauthorized();
                 return;
             }
@@ -22,7 +22,7 @@ function fetchRoute({
                 route: "/api/refresh/",
                 options: { method: "POST" },
                 //dataManager: data => update
-            })
+            });
         }
         errorManager(error);
     });
@@ -40,7 +40,7 @@ function fetchResponse(response) {
 
 function fetchError(error) {
     if (error.status && error.data) {
-        console.log(`HTTP error! Status: ${error.status}\n${error.data}`);
+        console.log(`HTTP error! Status: ${error.status}\n${error.data}\n`);
     }
     else if (error.stack) {
         console.error(error.stack);

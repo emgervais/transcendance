@@ -51,15 +51,15 @@ function getFriends() {
         dataManager: friends => {
             const container = document.querySelector("#friends-container");
             friends.forEach(friend => {
-                displayFriend(container, friend);
+                displayFriend(container, friend.friend);
             })
         }
     });
 }
 
 function displayFriend(container, friend) {
+    const div = document.createElement("div");
     const appendToContainer = (data) => {
-        const div = document.createElement("div");
         div.className = "friend";
         const img = document.createElement("img");
         img.src = data.image;
@@ -71,15 +71,30 @@ function displayFriend(container, friend) {
         container.appendChild(div);
     };
     api.fetchRoute({
-        route: `/api/user/${friend.user}/`,
+        route: `/api/user/${friend}/`,
         dataManager: appendToContainer,
     })
+    return div;
 }
 
 function getFriendRequests() {
-    api.fetchRoute({
+        const container = document.getElementById("friends-requests-container");
+        api.fetchRoute({
         route: "/api/friend-requests/",
-        dataManager:
+        dataManager: requests => {
+            requests.forEach(request => {
+                console.log("friend requests:", request);
+                const div = displayFriend(container, request.from_user);
+                const acceptButton = document.createElement("button");
+                acceptButton.innerText = "Accept";
+                const refuseButton = document.createElement("button");
+                refuseButton.innerText = "Refuse";
+                div.appendChild(acceptButton);
+                div.appendChild(refuseButton);
+                // set button id: triggers.js (attribute for request_id?)
+                // request.id
+            });
+        }
     })
     
 }

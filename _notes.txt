@@ -1,5 +1,10 @@
+api.fetchRoute:
+    si 400, pas nécessairement absence de token!
+    ça le call aussi si c'est une route inexistante
+
 /api/refresh/: faudrait pas envoyer l'token
     if user doesn't exists, delete token
+    si pas de token: 400: devrait être 403 forbidden
 
 enableScripts #ajoute des scripts inutiles
 
