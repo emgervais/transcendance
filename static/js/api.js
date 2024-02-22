@@ -1,19 +1,25 @@
 import * as auth from "/static/js/auth.js";
 
 // -- fetch ----
-function fetchRoute({
+function fetchRoute(params, retrying=false){
+    const {
         route,
         options=null,
         responseManager=fetchResponse,
         dataManager=(_) => {},
         errorManager=fetchError,
         requireAuthorized=true,
-    }){
-    fetch(route, options)
+    } = params;
+    return fetch(route, options)
     .then(responseManager)
     .then(dataManager)
-    .catch(error => {
-        if (requireAuthorized && !isAuthorized(error)) {
+    .catch(async error => {
+        if (requireAuthorized && !(await isAuthorized(error))) {
+            if (retrying) {
+                auth.reConnect();
+                return;
+            }
+            fetchRoute(params, true);
             return;
         }
         errorManager(error);
@@ -30,13 +36,13 @@ function fetchResponse(response) {
     }        
 }
 
-function isAuthorized(error) {
+async function isAuthorized(error) {
     switch (error.status) {
         case 401:
-            fetchRoute({
+            await fetchRoute({
                 route: "/api/refresh/",
                 options: { method: "POST" },
-                dataManager: (_) => { 
+                dataManager: (_) => {
                     auth.confirmLogin();
                     console.log("Renewed Access Token");
                 },
@@ -52,7 +58,8 @@ function isAuthorized(error) {
 }
 
 function fetchError(error) {
-    if (error.stack) { //// TODO: check if works
+    console.log("fetchError");
+    if (error.stack) {
         console.error(error.stack);
         return;
     }

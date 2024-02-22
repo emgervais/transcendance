@@ -46,6 +46,7 @@ function updateInfoButton() {
 }
 
 function getFriends() {
+    // return;
     api.fetchRoute({
         route: "/api/friends/",
         dataManager: friends => {
@@ -78,7 +79,6 @@ function displayFriend(container, friend) {
 }
 
 function getFriendRequests() {
-        fsddsf.ffew();
         const container = document.getElementById("friends-requests-container");
         api.fetchRoute({
         route: "/api/friend-requests/",

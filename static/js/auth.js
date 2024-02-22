@@ -42,11 +42,18 @@ function login(user, redirect=true) {
     if (redirect) {
         route("/");
     }
+    reconnecting = false;
 }
 
+var reconnecting = false;
 function reConnect() {
+    if (reconnecting) {
+        return;
+    }
+    reconnecting = true;
     setConnected(false);
     alert("Please login");
+    route("/");
     route("/login/");
 }
 
@@ -54,18 +61,18 @@ function confirmLogin() {
     if (!isConnected()) {
         return;
     }
-    api.fetchRoute({
-        route: "/api/user/",
-        dataManager: user => {
-            login(user, false);
-        },
-        requireAuthorized: false,
-        errorManager: error => {
-            if (error.status == 400 || error.status == 403) {
-                setConnected(false);
-            }
-        },
-    });
+    // api.fetchRoute({
+    //     route: "/api/user/",
+    //     dataManager: user => {
+    //         login(user, false);
+    //     },
+    //     requireAuthorized: false,
+    //     errorManager: error => {
+    //         if (error.status == 403) {
+    //             setConnected(false);
+    //         }
+    //     },
+    // });
 }
 // ----
 
