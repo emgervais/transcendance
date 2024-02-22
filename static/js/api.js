@@ -1,3 +1,4 @@
+import { confirmLogin } from "./auth";
 import * as auth from "/static/js/auth.js";
 
 // -- fetch ----
@@ -21,7 +22,7 @@ function fetchRoute({
             fetchRoute({
                 route: "/api/refresh/",
                 options: { method: "POST" },
-                //dataManager: data => update
+                dataManager: confirmLogin,
             });
         }
         errorManager(error);
