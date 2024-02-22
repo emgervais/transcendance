@@ -14,4 +14,4 @@ if __name__ == "__main__":
     # print("\n-- Friend tests --")
     # friend_tests()
     print("\n-- User tests --")
-    init_friend_requests()
+    init_friends()

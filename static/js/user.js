@@ -1,5 +1,3 @@
-import * as auth from "/static/js/auth.js";
-
 // -- singletons ----
 function getUser() {
     return JSON.parse(sessionStorage.getItem("user"));
@@ -9,7 +7,6 @@ function setUser(user) {
     if (!user) {
         throw new Error("setUser: Invalid user object provided.");
     }
-    auth.setConnected(true);
     sessionStorage.setItem("user", JSON.stringify(user));
 }
 

@@ -1,7 +1,8 @@
 import * as auth from "/static/js/auth.js";
+import * as router from "/static/js/router.js";
 
 // -- fetch ----
-function fetchRoute(params, retrying=false){
+async function fetchRoute(params, retrying=false){
     const {
         route,
         options=null,
@@ -14,13 +15,18 @@ function fetchRoute(params, retrying=false){
     .then(responseManager)
     .then(dataManager)
     .catch(async error => {
-        if (requireAuthorized && !(await isAuthorized(error))) {
-            if (retrying) {
+        if (!await isAuthorized(error)) {
+            if (!retrying) {
+                await fetchRoute(params, true);
+                if (!auth.isConnected() && !router.getCurrentRoute().unprotected) {
+                    auth.reConnect();
+                }        
+                return;
+            }
+            if (requireAuthorized) {
                 auth.reConnect();
                 return;
             }
-            fetchRoute(params, true);
-            return;
         }
         errorManager(error);
     });
@@ -43,7 +49,6 @@ async function isAuthorized(error) {
                 route: "/api/refresh/",
                 options: { method: "POST" },
                 dataManager: (_) => {
-                    auth.confirmLogin();
                     console.log("Renewed Access Token");
                 },
             });
@@ -58,14 +63,14 @@ async function isAuthorized(error) {
 }
 
 function fetchError(error) {
-    console.log("fetchError");
     if (error.stack) {
         console.error(error.stack);
         return;
     }
     console.log(`HTTP error! Status: ${error.status}`);
     if (error.data) {
-        console.log(`Error Data: ${error.data}\n`);
+        console.log(`Error Data:`);
+        console.log(error.data);
     }
 }
 // --

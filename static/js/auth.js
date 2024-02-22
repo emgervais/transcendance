@@ -1,7 +1,7 @@
 import { updateNav } from "/static/js/nav.js";
-import { route } from "/js/router.js";
+import * as router from "/js/router.js";
 import * as api from "/static/js/api.js";
-import { getUser, setUser, removeUser } from "/static/js/user.js";
+import { displayUser, setUser, removeUser } from "/static/js/user.js";
 
 // -- buttons ----
 function loginButton() {
@@ -38,9 +38,11 @@ function setConnected(connected) {
 // -- login ----
 function login(user, redirect=true) {
     setUser(user);
+    setConnected(true);
+    displayUser();
     updateNav(true);
     if (redirect) {
-        route("/");
+        router.route("/");
     }
     reconnecting = false;
 }
@@ -53,26 +55,23 @@ function reConnect() {
     reconnecting = true;
     setConnected(false);
     alert("Please login");
-    route("/");
-    route("/login/");
+    router.route("/");
+    router.route("/login/");
 }
 
 function confirmLogin() {
-    if (!isConnected()) {
+    console.log("isConnected():", isConnected());
+    if (!isConnected() && !router.getCurrentRoute().unprotected) {
+        reConnect();
         return;
     }
-    // api.fetchRoute({
-    //     route: "/api/user/",
-    //     dataManager: user => {
-    //         login(user, false);
-    //     },
-    //     requireAuthorized: false,
-    //     errorManager: error => {
-    //         if (error.status == 403) {
-    //             setConnected(false);
-    //         }
-    //     },
-    // });
+    api.fetchRoute({
+        route: "/api/user/",
+        dataManager: user => {
+            login(user, false);
+        },
+        requireAuthorized: false,
+    });
 }
 // ----
 
@@ -83,7 +82,7 @@ function logout() {
         dataManager: data => {
             removeUser();
             console.log("Successful logout\n", data);
-            route("/");
+            router.route("/");
             updateNav(false);
         }
     });
@@ -108,5 +107,5 @@ function oauthRedirected() {
 
 
 export { loginButton, registerButton, oauthButton };
-export { setConnected };
+export { isConnected, setConnected };
 export { confirmLogin, logout, oauthRedirected, reConnect };

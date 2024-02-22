@@ -1,3 +1,5 @@
+remove browser http console error
+
 cleanup old tokens:
     cron
 
@@ -132,7 +134,10 @@ https://cdn.intra.42.fr/pdf/pdf/114482/fr.subject.pdf
 .m	Base de donnée Postgre (accounts, tournament scores)
 .M	jouer à distance
 .M	chat
-.M	chat
+.M	gestion utilisateurs
+    .Historique parties:
+        .Partie: winner, loser, longest streak
+    .Statut en ligne
 .M	OAuth 2.0 avec 42
 .m	Bootstrap
 12

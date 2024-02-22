@@ -80,3 +80,7 @@
 .hidden {
     display: none;
 }
+
+.small-image {
+    width: 50px;
+}

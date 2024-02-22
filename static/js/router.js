@@ -10,14 +10,17 @@ const routes = {
     },
     "/": {
         template: "/templates/home.html",
+        unprotected: true,
     },
     "/register/": {
         function: nav.displayRegister,
         authContainer: true,
+        unprotected: true,
     },
     "/login/": {
         function: nav.displayLogin,
         authContainer: true,
+        unprotected: true,
     },
     "/pong/": {
         template: "/templates/pong.html",
@@ -45,7 +48,6 @@ const route = (href) => {
     locationHandler();
 };
 
-
 const htmlCache = {};
 async function fetchHTMLWithCache(template) {
     let html;
@@ -59,12 +61,17 @@ async function fetchHTMLWithCache(template) {
     return html;
 }
 
-const locationHandler = async () => {
+function getCurrentRoute() {
     const location = window.location.pathname;
     if (location.length == 0) {
         location = "/";
     }
     const route = routes[location] || routes["404"];
+    return route;
+}
+
+const locationHandler = async () => {
+    const route = getCurrentRoute();
     if (!route.authContainer) {
         nav.hideAuthContainer();
     }
@@ -94,4 +101,4 @@ function enableScripts(elementId) {
 window.onpopstate = locationHandler;
 window.route = route;
 
-export { route, locationHandler };
+export { route, locationHandler, getCurrentRoute };
