@@ -30,6 +30,12 @@ function confirmLogin() {
             dataManager: user => {
                 login(user, false);
             },
+            requireAuthorized: false,
+            errorManager: error => {
+                if (error.status == 401) {
+                    removeUser();
+                }
+            },
         });
     }
 }

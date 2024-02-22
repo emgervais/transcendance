@@ -7,6 +7,7 @@ function fetchRoute({
         responseManager=fetchResponse,
         dataManager=(_) => {},
         errorManager=fetchError,
+        requireAuthorized=true,
     }){
     fetch(route, options)
     .then(responseManager)

@@ -1,5 +1,4 @@
 import * as util from "/static/js/util.js";
-import * as nav from "/static/js/nav.js";
 import * as api from "/static/js/api.js";
 import { getUser, updateUser } from "/static/js/user.js";
 
@@ -49,24 +48,24 @@ function updateInfoButton() {
 }
 
 function getFriends() {
-    fetch("/api/friends/")
-    .then(api.fetchResponse)
-    .then(friends => {
-        const container = document.querySelector("#friends-container");
-        console.log(friends);
-        friends.forEach(friend => {
-            const div = document.createElement("div");
-            div.className = "friend";
-            const img = document.createElement("img");
-            img.src = "/" + friend.image;
-            const p = document.createElement("p");
-            p.textContent = friend.username;
-            div.appendChild(img);
-            div.appendChild(p);
-            container.appendChild(div);
-        });        
-    })
-    .catch(api.fetchError);
+    api.fetchRoute({
+        route: "/api/friends/",
+        dataManager: friends => {
+            const container = document.querySelector("#friends-container");
+            console.log(friends);
+            friends.forEach(friend => {
+                const div = document.createElement("div");
+                div.className = "friend";
+                const img = document.createElement("img");
+                img.src = "/" + friend.image;
+                const p = document.createElement("p");
+                p.textContent = friend.username;
+                div.appendChild(img);
+                div.appendChild(p);
+                container.appendChild(div);
+            })
+        }
+    });
 }
 
 export { displayFriendsPage, displayInfoPage, displayStatsPage, hideAll };
