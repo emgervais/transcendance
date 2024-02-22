@@ -12,16 +12,16 @@ function fetchRoute({
     .then(responseManager)
     .then(dataManager)
     .catch(error => {
-        if (error.status === 401) {
-            // post /api/refresh/
-            // api.fetchRoute({
-            //     route: "/api/refresh/",
-            //     options: { method: "POST" },
-            // });   
-            //  si 400: 
-            auth.unauthorized();
-            // si 200: chill
-            return;
+        if (error.status === 401 || error.status === 400) {
+            if(error.status === 400) {
+                auth.unauthorized();
+                return;
+            }
+            fetchRoute({
+                route: "/api/refresh/",
+                options: { method: "POST" },
+                //dataManager: data => update
+            })
         }
         errorManager(error);
     });
