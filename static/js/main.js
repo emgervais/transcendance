@@ -53,5 +53,5 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keydown", key);
     document.addEventListener("change", onChange);
     oauthRedirected() || confirmLogin();
-
+    chat.initChat();
 });

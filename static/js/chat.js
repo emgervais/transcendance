@@ -3,12 +3,8 @@ import * as util from "/static/js/util.js";
 var chatSocket;
 
 function toggleDisplay() {
-	// console.log("ICI");
-	// util.toggleDisplay("chat-widget");
 	const id = "chat-widget";
-	if (!util.isDisplayed(id)) {
-		util.display(id);
-	}
+	util.toggleDisplay(id);
 }
 
 function submit() {

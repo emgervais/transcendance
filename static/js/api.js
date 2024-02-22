@@ -1,4 +1,3 @@
-import { confirmLogin } from "./auth";
 import * as auth from "/static/js/auth.js";
 
 // -- fetch ----
@@ -37,6 +36,10 @@ function isAuthorized(error) {
             fetchRoute({
                 route: "/api/refresh/",
                 options: { method: "POST" },
+                dataManager: (_) => { 
+                    auth.confirmLogin();
+                    console.log("Renewed Access Token");
+                },
             });
             break;
         case 403:
