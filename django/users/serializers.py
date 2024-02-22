@@ -7,8 +7,8 @@ import re
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'image', 'oauth', 'matches', 'friends', 'friend_requests']
-        read_only_fields = ['id', 'matches', 'friends', 'friend_requests']
+        fields = ['id', 'username', 'email', 'image', 'oauth', 'matches', 'friends', 'friend_requests', 'status']
+        read_only_fields = ['id', 'matches', 'friends', 'friend_requests', 'status']
     
     def to_representation(self, instance):
         ret = super().to_representation(instance)

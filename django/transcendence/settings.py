@@ -106,8 +106,7 @@ CHANNEL_LAYERS = {
 }
 
 ASGI_APPLICATION = 'transcendence.asgi.application'
-WSGI_APPLICATION = 'transcendence.wsgi.application'
-
+# WSGI_APPLICATION = 'transcendence.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -156,9 +155,6 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "") != "0"
-
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")

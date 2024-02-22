@@ -7,6 +7,8 @@ from auth.oauth42 import create_oauth_uri
 from datetime import datetime
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import AccessToken
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
     
 def set_cookies(response, user):
@@ -14,8 +16,8 @@ def set_cookies(response, user):
     access_token = refresh_token.access_token    
     refresh_token_exp = datetime.fromtimestamp(refresh_token['exp'])
     access_token_exp = datetime.fromtimestamp(access_token['exp'])
-    response.set_cookie('refresh_token', str(refresh_token), samesite='Strict', httponly=True, secure=True, expires=refresh_token_exp)
     response.set_cookie('access_token', str(access_token), samesite='Strict', httponly=True, secure=True, expires=access_token_exp)
+    response.set_cookie('refresh_token', str(refresh_token), samesite='Strict', httponly=True, secure=True, expires=refresh_token_exp, path='/api/token/refresh/')
     return response
 
 # For development purposes only
@@ -61,6 +63,10 @@ class LogoutView(generics.GenericAPIView):
         response = JsonResponse({'message': 'Logout successful'}, status=status.HTTP_200_OK)
         response.delete_cookie('refresh_token')
         response.delete_cookie('access_token')
+        channel_layer = get_channel_layer()
+        user = request.user
+        async_to_sync(channel_layer.send)(user.channel_name, {'type': 'logout'})
+        user.status = 'offline'
         return response
 
     
