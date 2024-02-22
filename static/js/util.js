@@ -1,5 +1,3 @@
-import * as auth from "/static/js/auth.js";
-
 function display(id, display=true) {
     const element = document.getElementById(id);
     if (display)
@@ -12,4 +10,8 @@ function isDisplayed(id) {
     return !document.getElementById(id).classList.contains("hidden");
 }
 
-export { isDisplayed, display };
+function toggleDisplay(id) {
+    display(id, !isDisplayed(id));
+}
+
+export { isDisplayed, display, toggleDisplay };

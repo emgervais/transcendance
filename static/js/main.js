@@ -5,6 +5,7 @@ import { oauthRedirected } from "/static/js/auth.js";
 import { updateUser } from "/static/js/user.js";
 import * as util from "/static/js/util.js";
 import * as api from "/static/js/api.js";
+import * as chat from "/static/js/chat.js";
 
 function click(event) {
     const { target } = event;
@@ -26,7 +27,9 @@ function key(event) {
         }
     }
     if (event.key === "Enter") {
-        if (loginShown) {
+        if (event.target.id === "chat-message-input") {
+            chat.submit();
+        } else if (loginShown) {
             loginButton();
         } else if (registerShown) {
             registerButton();

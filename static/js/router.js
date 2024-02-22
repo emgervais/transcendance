@@ -1,6 +1,6 @@
 import * as nav from "/static/js/nav.js";
 import * as account from "/static/js/account.js";
-import { updateUser } from "/static/js/user.js";
+import { displayUser } from "/static/js/user.js";
 
 const routes = {
     404: {
@@ -79,7 +79,7 @@ const locationHandler = async () => {
     if (route.function) {
         route.function();
     }
-    updateUser();
+    displayUser();
 };
 
 function enableScripts(elementId) {

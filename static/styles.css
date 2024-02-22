@@ -1,7 +1,3 @@
-#chat-widget {
-    display: none;
-}
-
 .floating-box {
     display: flex;
     position: fixed;

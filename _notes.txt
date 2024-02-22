@@ -1,3 +1,6 @@
+cleanup old tokens:
+    cron
+
 api.fetchRoute:
     si 400, pas nécessairement absence de token!
     ça le call aussi si c'est une route inexistante

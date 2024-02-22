@@ -88,7 +88,7 @@ class CustomTokenRefreshView(generics.GenericAPIView):
     def post(self, request: HttpRequest) -> JsonResponse:
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
-            return JsonResponse({'error': 'No refresh token found'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': 'No refresh token found'}, status=status.HTTP_403_FORBIDDEN)
         serializer = TokenRefreshSerializer(data={'refresh': refresh_token})
         serializer.is_valid(raise_exception=True)
         response = JsonResponse(serializer.validated_data, status=status.HTTP_200_OK)

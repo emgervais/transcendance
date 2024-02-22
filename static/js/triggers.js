@@ -9,7 +9,7 @@ export const buttons = {
     "oauth-button": auth.oauthButton,
     
     "chat-toggle": chat.toggleDisplay,
-    "chat-submit-button": chat.submitButton,
+    "chat-submit-button": chat.submit,
 
     "update-info-button": account.updateInfoButton,
 };

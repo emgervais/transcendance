@@ -1,22 +1,26 @@
+import * as auth from "/static/js/auth.js";
+
 // -- singletons ----
 function getUser() {
     return JSON.parse(sessionStorage.getItem("user"));
 }
 
 function setUser(user) {
+    if (!user) {
+        throw new Error("setUser: Invalid user object provided.");
+    }
+    auth.setConnected(true);
     sessionStorage.setItem("user", JSON.stringify(user));
 }
 
-function updateUser(data=null) {
-    if (data) {
-        const user = getUser();
-        for (const key in data) {
-            if (key in user) {
-                user[key] = data[key];
-            }
+function updateUser(data) {
+    const user = getUser();
+    for (const key in data) {
+        if (key in user) {
+            user[key] = data[key];
         }
-        setUser(user);
     }
+    setUser(user);
     displayUser();
 }
 
@@ -37,12 +41,15 @@ function displayUserName(username) {
 }
 
 function displayUser() {
+    let image = ""
+    let username = "";
     let user = getUser();
-    if (!user) {
-        return;
-    }    
-    displayUserImage(user.image);
-    displayUserName(user.username);
+    if (user) {
+        image = user.image;
+        username = user.username;
+    }
+    displayUserImage(image);
+    displayUserName(username);
 }
 
-export { getUser, setUser, updateUser, removeUser };
+export { getUser, setUser, updateUser, displayUser, removeUser };

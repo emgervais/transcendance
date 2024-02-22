@@ -1,26 +1,17 @@
-var chatShown = false;
+import * as util from "/static/js/util.js";
 
-export function toggleDisplay() {
-	const functions = {
-		true: hide,
-		false: display
+var chatSocket;
+
+function toggleDisplay() {
+	// console.log("ICI");
+	// util.toggleDisplay("chat-widget");
+	const id = "chat-widget";
+	if (!util.isDisplayed(id)) {
+		util.display(id);
 	}
-	functions[chatShown]();
-	chatShown = !chatShown;
 }
 
-function display() {
-	console.log("display");
-	const chat = document.querySelector("#chat-widget");
-	chat.style.display = "block";
-}
-
-function hide() {
-	const chat = document.querySelector("#chat-widget");
-	chat.style.display = "none";
-}
-
-export function submitButton() {
+function submit() {
 	const messageInputDom = document.querySelector('#chat-message-input');
 	const message = messageInputDom.value;
 	chatSocket.send(JSON.stringify({
@@ -30,27 +21,25 @@ export function submitButton() {
 }
 
 // --------------------------------
-var roomName = 'room';
-const chatSocket = new WebSocket(
-	'wss://'
-	+ window.location.host
-	+ '/ws/chat/'
-	+ roomName + '/'	// Room name according to user's friends
-);
+function initChat() {
+	var roomName = 'room';
+	chatSocket = new WebSocket(
+		'wss://'
+		+ window.location.host
+		+ '/ws/chat/'
+		+ roomName + '/'	// Room name according to user's friends
+	);
 
-chatSocket.onmessage = function(e) {
-	const data = JSON.parse(e.data);
-	document.querySelector('#chat-log').value += (data.message + '\n');
-};
+	chatSocket.onmessage = (event) => {
+		const data = JSON.parse(event.data);
+		document.getElementById('chat-log').value += (data.message + '\n');
+	};
 
-chatSocket.onclose = function(e) {
-	console.error('Chat socket closed unexpectedly');
-};
+	chatSocket.onclose = (_) => {
+		console.error('Chat socket closed unexpectedly');
+	};
 
-document.querySelector('#chat-message-input').focus();
-document.querySelector('#chat-message-input').onkeyup = function(e) {
-	const ENTER = 13;
-	if (e.keyCode === ENTER) {
-		document.querySelector('#chat-submit-button').click();
-	}
-};
+	document.getElementById('chat-message-input').focus();
+}
+
+export { toggleDisplay, submit, initChat };

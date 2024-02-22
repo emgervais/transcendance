@@ -11,35 +11,63 @@ function loginButton() {
 function registerButton() {
     api.formSubmit("register-form", login);
 }
+
+function oauthButton() {
+    api.fetchRoute({
+        route: "/api/oauth42-uri/",
+        dataManager: data => {
+            window.location.href = data.uri;
+        }
+    });
+}
 // ----
 
+// -- singletons ----
+function isConnected() {
+    return JSON.parse(sessionStorage.getItem("connected"));
+}
+
+function setConnected(connected) {
+    if (!connected) {
+        removeUser();
+    }
+    sessionStorage.setItem("connected", connected);
+}
+// ----
+
+// -- login ----
 function login(user, redirect=true) {
     setUser(user);
-    let username = document.querySelector("#usernameNav");
-    username.innerText = user.username;
     updateNav(true);
     if (redirect) {
         route("/");
     }
 }
 
-function confirmLogin() {
-    if (getUser()) {
-        api.fetchRoute({
-            route: "/api/user/",
-            dataManager: user => {
-                login(user, false);
-            },
-            requireAuthorized: false,
-            errorManager: error => {
-                if (error.status == 401) {
-                    console.log("REFUSED");
-                    removeUser();
-                }
-            },
-        });
-    }
+function reConnect() {
+    setConnected(false);
+    alert("Please login");
+    route("/login/");
 }
+
+function confirmLogin() {
+    if (!isConnected()) {
+        return;
+    }
+    api.fetchRoute({
+        route: "/api/user/",
+        dataManager: user => {
+            login(user, false);
+        },
+        requireAuthorized: false,
+        errorManager: error => {
+            if (error.status == 400 || error.status == 403) {
+                setConnected(false);
+            }
+        },
+    });
+}
+// ----
 
 function logout() {
     api.fetchRoute({
@@ -50,15 +78,6 @@ function logout() {
             console.log("Successful logout\n", data);
             route("/");
             updateNav(false);
-        }
-    });
-}
-
-function oauthButton() {
-    api.fetchRoute({
-        route: "/api/oauth42-uri/",
-        dataManager: data => {
-            window.location.href = data.uri;
         }
     });
 }
@@ -80,12 +99,7 @@ function oauthRedirected() {
     return true;
 }
 
-function unauthorized() {
-    api.removeUser();
-    route("/");
-    alert("Please login");
-    route("/login/");
-}
 
 export { loginButton, registerButton, oauthButton };
-export { confirmLogin, logout, oauthRedirected, unauthorized };
+export { setConnected };
+export { confirmLogin, logout, oauthRedirected, reConnect };
