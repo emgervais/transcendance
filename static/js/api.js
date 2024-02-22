@@ -1,3 +1,4 @@
+import { confirmLogin } from "./auth";
 import * as auth from "/static/js/auth.js";
 
 // -- fetch ----
