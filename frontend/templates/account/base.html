@@ -4,14 +4,13 @@
     <div class="sidebar-sticky d-flex justify-content-center align-items-center">
         <ul class="nav flex-column text-center w-100 align-items-center setting-list">
             <div class="square-img-container rounded-circle border-light border border-2 m-2">
-                <img class="img-fluid" src="{{ user.image }}">
+                <img class="user-img img-fluid" src="">
             </div>
-            <form id="upload-image" class="" method="post" action="/upload_img/" enctype="multipart/form-data" content='{ "content_type": "upload_img" }'>
-                {% csrf_token %}
-            <label for="photo" style="cursor: pointer;">
-                <i class="fa-solid fa-arrows-rotate" style="color:white; margin-right: 50%;"></i>
-            </label>
-            <input type="file" id="photo" name="photo" accept="image/*" style="display: none;" required onchange="handleFileSelection()">
+            <form id="upload-image" method="post" action="/api/change-info/">
+                <label for="user-img-changer" style="cursor: pointer;">
+                    <i class="fa-solid fa-arrows-rotate" style="color:white; margin-right: 50%;"></i>
+                </label>
+                <input type="file" id="user-img-changer" name="image" accept="image/*" style="display: none;">
             </form>
             <hr style="color:white; width:100%;">
             <li class="nav-item" >

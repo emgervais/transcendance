@@ -1,6 +1,6 @@
 import * as util from "/static/js/util.js";
 
-function updateNav(connect, image=null) {
+function updateNav(connect) {
     var connected = document.querySelectorAll('.connected');
     var notconnected = document.querySelectorAll('.anonymous');
     if(connect) {
@@ -19,37 +19,25 @@ function updateNav(connect, image=null) {
             notconnected.style.display = 'block';
         });
     }
-    if (image) {
-        updateUserImage(image);
-    }
 }
 
-function updateUserImage(image) {
-    let userImg = document.querySelector("#imgDropdown");
-    userImg.setAttribute('src', image);
-}
-
-function displayAuthContainer()
-{
+function displayAuthContainer() {
     util.display("authentication-container");
     util.display("shadow");
 }
 
-function hideAuthContainer()
-{
+function hideAuthContainer() {
     util.display("authentication-container", false);
     util.display("shadow", false);
 }
 
-function displayLogin()
-{
+function displayLogin() {
     util.display("login");
     util.display("register", false);
     displayAuthContainer();
 }
 
-function displayRegister()
-{
+function displayRegister() {
     util.display("login", false);
     util.display("register");
     displayAuthContainer();
@@ -78,4 +66,4 @@ function displayRegister()
 
 
 
-export {updateNav, displayLogin, displayRegister, hideAuthContainer, updateUserImage};
+export {updateNav, displayLogin, displayRegister, hideAuthContainer };

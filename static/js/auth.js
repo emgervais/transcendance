@@ -1,110 +1,91 @@
 import { updateNav } from "/static/js/nav.js";
 import { route } from "/js/router.js";
-import { formSubmit, fetchError, fetchResponse } from "/js/util.js";
+import * as api from "/static/js/api.js";
+import { getUser, setUser, removeUser } from "/static/js/user.js";
 
 // -- buttons ----
 function loginButton() {
-    formSubmit("login-form", login);
+    api.formSubmit("login-form", login);
 }
 
 function registerButton() {
-    formSubmit("register-form", login);
+    api.formSubmit("register-form", login);
 }
 // ----
 
 function login(user, redirect=true) {
-    console.log(user);
-    sessionStorage.setItem("user", JSON.stringify(user));
+    setUser(user);
     let username = document.querySelector("#usernameNav");
     username.innerText = user.username;
-    updateNav(true, user.image);
+    updateNav(true);
     if (redirect) {
         route("/");
     }
 }
 
 function confirmLogin() {
-    let user = JSON.parse(sessionStorage.getItem("user"));
-    // if (!user)
-    // {
-    //     user = {
-    //         "id": 21,
-    //         "username": "francoma",
-    //         "email": "ffrancoismmartineau@gmail.com",
-    //         "image": "/default/default.webp",
-    //         "oauth": false,
-    //         "matches": [],
-    //         "friends": [],
-    //         "friend_requests": []
-    //     }
-    // }
-    if (user) {
-        login(user, false);
+    if (getUser()) {
+        api.fetchRoute({
+            route: "/api/user/",
+            dataManager: user => {
+                login(user, false);
+            },
+            requireAuthorized: false,
+            errorManager: error => {
+                if (error.status == 401) {
+                    console.log("REFUSED");
+                    removeUser();
+                }
+            },
+        });
     }
-    // console.log("confirmLogin");
-    // fetch("/api/confirm-login/")
-    // .then(fetchResponse)
-    // .then(login)
-    // .catch(fetchError);
 }
 
 function logout() {
-    sessionStorage.removeItem("user");
-    console.log("logout");
-    fetch("/api/logout/", {
-        method: "POST"
-    })
-    .then(fetchResponse)
-    .then(data => {
-        console.log("Successful logout\n", data);
-        route("/");
-        updateNav(false);
-    })
-    .catch(fetchError);
+    api.fetchRoute({
+        route: "/api/logout/",
+        options: { method: "POST" },
+        dataManager: data => {
+            removeUser();
+            console.log("Successful logout\n", data);
+            route("/");
+            updateNav(false);
+        }
+    });
 }
 
 function oauthButton() {
-	fetch('/api/oauth42-uri/')
-    .then(fetchResponse)
-    .then(data => {
-        window.location.href = data.uri;
-    })
-    .catch(fetchError);
+    api.fetchRoute({
+        route: "/api/oauth42-uri/",
+        dataManager: data => {
+            window.location.href = data.uri;
+        }
+    });
 }
 
 function oauthRedirected() {
-    let res = false;
     const queryParams = new URLSearchParams(window.location.search);
-    if (!queryParams.has("code")) {
-        return res;
-    }
     const code = queryParams.get("code");
-    fetch("/api/oauth42-login/", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
+    if (!code)
+        return false;
+    api.fetchRoute({
+        route: "/api/oauth42-login/",
+        options: {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ code: code }), 
         },
-        body: JSON.stringify({ code: code }), 
+        dataManager: login
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        login(data);
-        res = true;
-    })
-    .catch(fetchError);
-    return res;
+    return true;
 }
 
 function unauthorized() {
-    alert("Please login");
+    api.removeUser();
     route("/");
+    alert("Please login");
     route("/login/");
 }
 
-export {loginButton, registerButton, oauthButton};
-export {confirmLogin, logout, oauthRedirected, unauthorized};
+export { loginButton, registerButton, oauthButton };
+export { confirmLogin, logout, oauthRedirected, unauthorized };
