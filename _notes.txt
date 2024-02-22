@@ -1,0 +1,179 @@
+/api/refresh/: faudrait pas envoyer l'token
+    if user doesn't exists, delete token
+
+enableScripts #ajoute des scripts inutiles
+
+Si logged out: /login/ mais
+
+confirmLogin():
+    fetch /api/user/ et keep en variable
+    
+
+user/id/: get: ['id', 'username', 'email', 'image', 'oauth',
+    'matches', 'friends', 'friend_requests'] # nombres
+
+friend-requests/: 
+    get: current requests
+    post: make a request
+        to_user: user_id
+
+friend-requests/request_id/:
+    put:
+    delete:
+
+friends/:
+    get: ['id', 'user', 'friend', 'created_at']
+
+friends/user_id/:
+    delete: remove friend
+-------------------------------------------------------------
+If 401: /api/refresh/
+
+        Don't keep user info in cookie. The connection can only be confirmed by the server. 
+        Otherwise, keep data and use only if server validates. What if it was changed on another computer? Might as well not keep cookies, making implementation simpler.
+    Anti-csrf token: protected, give the token (see notes)
+
+Login, Register:
+
+regular user Image:
+
+Change-info:
+    ajouter email
+
+Logout:
+    currently: a post request with the refresh token
+    todo: a post with the token in http only cookie
+    Also: delete cookies?
+
+
+----
+Stop Pong JS quand quitte
+Login:
+Forms errors:
+    .response field "error: currently "email", "non_field_errors"
+    .Ajouter <p class="form-error"></p> par field avec erreur
+    document.queryAll(".form-error"); // clear
+
+Connect with oauth:
+    
+
+
+------------------------------------------------------------
+Frontend:
+    .save authentication token en RAM
+    .l'envoyer au serveur à chaque request
+    JWT: https://jwt.io/introduction
+    Cookie
+
+
+create_oauth_uri:
+    .provide state to 42 and check if correct state is given back
+    .pourquoi pas de authorize dialog? https://api.intra.42.fr/apidoc/guides/web_application_flow#scopes
+
+.Chat avec amis / adversaire
+.tests (selenium?)
+.Secrets (Docker, Github)
+
+------------------------------------------------------------------------
+non:
+◦ Module majeur : Stocker les pointages d’un tournoi dans la Blockchain.
+◦ Module majeur : Gestion utilisateur standard, authentification, utilisateurs
+en tournois.
+
+
+ptete:
+◦ Module majeur : Multijoueurs (plus de 2 dans la même partie)
+
+
+
+◦ Module mineur : Option de personnalisation du jeu.
+◦ Module majeur : Clavardage en direct (live chat).
+• IA-Algo
+◦ Module majeur : Implémenter un adversaire contrôlé par IA.
+◦ Module mineur : Panneaux d’affichage (dashboards) d’utilisateurs et statistiques des parties.
+• Cybersécurité
+◦ Module majeur : Mettez en place un pare-feu d’application Web (WAF) ou
+ModSecurity avec une configuration renforcée et utilisez HashiCorp Vault pour
+la gestion des secrets.
+◦ Module mineur : Options de conformité au RGPD avec anonymisation des
+utilisateurs, gestion des données locales et suppression de comptes.
+◦ Module majeur : Implémenter l’authentification à 2 facteurs (2FA) et JWT
+(JSON Web Tokens).
+• Devops
+9
+ft_transcendence Surprise.
+◦ Module majeur : Configuration de l’infrastructure pour la gestion des journaux (logs).
+◦ Module mineur : Système de monitoring.
+
+• Graphiques
+◦ Module majeur : Utilisation de techniques avancées 3D.
+
+• Orienté objet
+◦ Module majeur : Remplacer le Pong de base par un Pong côté serveur et
+implémentation d’une API.
+◦ Module majeur : Activation du gameplay via ligne de commande (CLI)
+contre les utilisateurs Web avec intégration API.
+------------------------------------------------------------------------
+https://cdn.intra.42.fr/pdf/pdf/114482/fr.subject.pdf
+-- Modules ----------
+14 nécessaires
+... En vert: "choix technologiques qui vont évoluer dans le temps"
+
+.M	Backend en Django
+.M	microservices
+.m	Base de donnée Postgre (accounts, tournament scores)
+.M	jouer à distance
+.M	chat
+.M	chat
+.M	OAuth 2.0 avec 42
+.m	Bootstrap
+12
+
+.m	Bootstrap
+12
+
+
+.M	3D
+.M	second jeu (Elijah)
+.M	joueurs mutliples (à voir...)
+.M	IA
+.M	Pare feu d'app web WAF
+
+ptete:
+.m	support différents appareils
+.m	support différents appareils
+.m	statistiques jeu
+.M 	gestion utilisateur
+.m	personnalisation jeu
+.m	support navigateurs web
+
+non:
+.m	support navigateurs web
+
+non:
+.m	langue
+.m	aveugles (alt, text)
+
+-- Exigences --------
+.Compétition en ligne de pong
+.Single page app
+.Démarrage: docker-compose up --build
+.Compatible with latest Google Chrome
+
+.Tournoi
+.Comptes utilisateur
+.Mots de passe chiffrés
+.Protégé contre injections SQL (parse strings, etc)
+.HTTPS, WSS (secure websocket)
+. 	.env .gitignore
+
+
+-- Début ------------
+.Choisir les modules (certains ont des dépendances mutuelles)
+.Choisir les technologies
+.Diviser les tâches
+
+Choix des librairies:
+.Existe-t-il une librairie pour ce qu'on fait?
+.Est-ce que coder à la main est vraiment meilleur?
+.Une librairie est-elle vraiment utile?
