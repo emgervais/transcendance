@@ -80,6 +80,7 @@ function oauthRedirected() {
 }
 
 function unauthorized() {
+    api.removeUser();
     route("/");
     alert("Please login");
     route("/login/");

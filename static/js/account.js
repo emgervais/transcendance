@@ -6,6 +6,7 @@ import { getUser, updateUser } from "/static/js/user.js";
 function displayFriendsPage() {
     util.display("account-friends");
     getFriends();
+    getFriendRequests();
 }
 
 function hideFriendsPage() {
@@ -38,9 +39,6 @@ function hideAll() {
 
 // ----
 
-
-// username image oauth friend_requests friends matches
-// token: access, refresh
 function updateInfoButton() {
     api.formSubmit("update-info-form", (data) => {
         updateUser(data);
@@ -52,20 +50,38 @@ function getFriends() {
         route: "/api/friends/",
         dataManager: friends => {
             const container = document.querySelector("#friends-container");
-            console.log(friends);
             friends.forEach(friend => {
-                const div = document.createElement("div");
-                div.className = "friend";
-                const img = document.createElement("img");
-                img.src = "/" + friend.image;
-                const p = document.createElement("p");
-                p.textContent = friend.username;
-                div.appendChild(img);
-                div.appendChild(p);
-                container.appendChild(div);
+                displayFriend(container, friend);
             })
         }
     });
+}
+
+function displayFriend(container, friend) {
+    const appendToContainer = (data) => {
+        const div = document.createElement("div");
+        div.className = "friend";
+        const img = document.createElement("img");
+        img.src = data.image;
+        img.className = "img-fluid rounded-circle";
+        const p = document.createElement("p");
+        p.textContent = data.username;
+        div.appendChild(img);
+        div.appendChild(p);
+        container.appendChild(div);
+    };
+    api.fetchRoute({
+        route: `/api/user/${friend.user}/`,
+        dataManager: appendToContainer,
+    })
+}
+
+function getFriendRequests() {
+    api.fetchRoute({
+        route: "/api/friend-requests/",
+        dataManager:
+    })
+    
 }
 
 export { displayFriendsPage, displayInfoPage, displayStatsPage, hideAll };
