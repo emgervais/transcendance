@@ -8,12 +8,10 @@ channels==4.0.0
 charset-normalizer==3.3.2
 click==8.1.7
 constantly==23.10.4
-crispy-bootstrap4==2023.1
 cryptography==41.0.7
 daphne==4.0.0
 Django==4.2.9
 django-cors-headers==4.3.1
-django-crispy-forms==2.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
 h11==0.14.0

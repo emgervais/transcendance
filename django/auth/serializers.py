@@ -6,6 +6,7 @@ from users.utils import generate_username
 from users.models import User
 import requests
 from django.core.files.base import ContentFile
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 
 class RegisterSerializer(UserSerializer):
@@ -104,11 +105,16 @@ class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField(required=False)
     
     def validate(self, data):
-        if 'refresh' not in data:
+        try:
             data['refresh'] = self.context['request'].COOKIES.get('refresh_token')
+        except KeyError:
+            raise serializers.ValidationError({'refresh': 'Refresh token is required'})
         return data
     
-    def save(self, **kwargs):
-        pass
-    
-    
+    def save(self):
+        refresh_token = self.validated_data['refresh']
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except TokenError:
+            raise serializers.ValidationError({'refresh': 'Invalid refresh token'})

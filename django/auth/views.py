@@ -62,6 +62,7 @@ class LogoutView(generics.GenericAPIView):
         response.delete_cookie('refresh_token')
         response.delete_cookie('access_token')
         return response
+
     
 class OAuth42UriView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -78,18 +79,17 @@ class OAuth42LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        print(user.image)
-        print(user.image.url)
         return set_cookies(response, user)
 
 class CustomTokenRefreshView(generics.GenericAPIView):
     permission_classes = [AllowAny]
+    serializer_class = TokenRefreshSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
-            return JsonResponse({'error': 'No refresh token found'}, status=status.HTTP_400_BAD_REQUEST)
-        serializer = TokenRefreshSerializer(data={'refresh': refresh_token})
+            return JsonResponse({'error': 'No refresh token found'}, status=status.HTTP_403_FORBIDDEN)
+        serializer = self.get_serializer(data={'refresh': refresh_token})
         serializer.is_valid(raise_exception=True)
         response = JsonResponse(serializer.validated_data, status=status.HTTP_200_OK)
         access_token = serializer.validated_data['access']

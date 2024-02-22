@@ -1,48 +1,37 @@
-class LoginView(generics.GenericAPIView):
-    permission_classes = [AllowAny]
-    serializer_class = LoginSerializer
-    
-    def post(self, request: HttpRequest) -> JsonResponse:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return JsonResponse({'token': str(serializer.validated_data['refresh']), 'user': UserSerializer(serializer.validated_data['user']).data}, status=status.HTTP_200_OK)
-    
-class LogoutView(generics.GenericAPIView):
-    serializer_class = LogoutSerializer
-    
-    def post(self, request: HttpRequest) -> JsonResponse:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return JsonResponse({'message': 'Successfully logged out'}, status=status.HTTP_200_OK)
-    
-class OAuth42View(generics.GenericAPIView):
-    permission_classes = [AllowAny]
-    
-    def get(self, request: HttpRequest) -> JsonResponse:
-        redirect_uri = settings.OAUTH_REDIRECT_URL
-        url = create_oauth_uri(redirect_uri)
-        return JsonResponse({'oauth_url': url}, status=status.HTTP_200_OK)
-
-class OAuth42RedirectedView(generics.GenericAPIView):
-    permission_classes = [AllowAny]
-    
-    def get(self, request: HttpRequest) -> JsonResponse:
-        try:
-            code = request.GET.get('code')
-            redirect_uri = settings.OAUTH_REDIRECT_URL
-            token = get_user_token(code, redirect_uri)
-            user_data = get_user_data(token)
-
-            if User.objects.filter(email=user_data['email']).exists():
-                user = User.objects.get(email=user_data['email'])
-                if user.oauth:
-                    return JsonResponse({'token': str(user.auth_token), 'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
-                else:
-                    raise JsonResponse({'error': 'Your email address is used by an existing account.'}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                if User.objects.filter(username=user_data['username']).exists():
-                    user_data['username'] = generate_username(user_data['first_name'], user_data['last_name'])
-                user = User.objects.create_user(**user_data, oauth=True)
-                return JsonResponse({'token': str(user.auth_token), 'user': UserSerializer(user).data}, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+{
+b'upgrade': 
+b'websocket', 
+b'connection': 
+b'upgrade', 
+b'host': 
+b'localhost', 
+b'x-real-ip': 
+b'172.20.0.1', 
+b'x-forwarded-for': 
+b'172.20.0.1,172.20.0.1', 
+b'x-forwarded-proto': 
+b'https,https', 
+b'x-forwarded-host': 
+b'localhost', 
+b'x-forwarded-port': 
+b'443', 
+b'pragma': 
+b'no-cache', 
+b'cache-control': 
+b'no-cache', 
+b'user-agent': 
+b'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36', 
+b'origin': 
+b'https://localhost', 
+b'sec-websocket-version': 
+b'13', 
+b'accept-encoding': 
+b'gzip, deflate, br', 
+b'accept-language': 
+b'en-CA,en;q=0.9,fr-CA;q=0.8,fr;q=0.7,en-GB;q=0.6,en-US;q=0.5', 
+b'cookie': 
+b'csrftoken=cViu4f3Tz1qze3sRyCGg81atsHCKmBKq; refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcwODU1NzgzOSwiaWF0IjoxNzA4NTU0MjM5LCJqdGkiOiI1YzAwZDkwM2JhMTg0MmZkOTJhOWJkY2NjMzBhZTYyOSIsInVzZXJfaWQiOjM1OH0.MTasxjNzHBBOjl4NKXN7vP-vpVr1WcDvoBRinvxzcDY; access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA4NTU0ODM5LCJpYXQiOjE3MDg1NTQyMzksImp0aSI6IjhkYzkxYTNmYWY4NjQ4Y2E4MmEzYzlmYjU3YzE1NjJiIiwidXNlcl9pZCI6MzU4fQ.GmpRqxTQIyQGTUMMR_OQy7ag0oKPB6TIAFVBXbxuUnA', 
+b'sec-websocket-key': 
+b'fUY2TuGG0tpXCo/px543jQ==', 
+b'sec-websocket-extensions': 
+b'permessage-deflate; client_max_window_bits'}
