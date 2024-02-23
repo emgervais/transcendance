@@ -1,8 +1,19 @@
 import * as auth from "/static/js/auth.js";
 import * as router from "/static/js/router.js";
 
+// -- block fetch ----
+var blockFetch = false;
+function setBlockFetch(bool) {
+    blockFetch = bool;
+}
+// --
+
 // -- fetch ----
 async function fetchRoute(params, retrying=false){
+    if (blockFetch) {
+        console.log("blocked fetch due to 403");
+        return;
+    }  
     const {
         route,
         options=null,
@@ -27,6 +38,7 @@ async function fetchRoute(params, retrying=false){
                 auth.reConnect();
                 return;
             }
+            return;
         }
         errorManager(error);
     });
@@ -54,6 +66,7 @@ async function isAuthorized(error) {
             });
             break;
         case 403:
+            blockFetch = true;
             auth.reConnect();
             break;
         default:
@@ -141,4 +154,4 @@ function clearForm(formId) {
 // --
 
 
-export { formSubmit, fetchRoute };
+export { formSubmit, fetchRoute, setBlockFetch };

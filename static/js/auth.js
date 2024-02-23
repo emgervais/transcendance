@@ -32,11 +32,13 @@ function setConnected(connected) {
         removeUser();
     }
     sessionStorage.setItem("connected", connected);
+    updateNav(false);
 }
 // ----
 
 // -- login ----
 function login(user, redirect=true) {
+    api.setBlockFetch(false);
     setUser(user);
     setConnected(true);
     displayUser();
@@ -61,8 +63,10 @@ function reConnect() {
 
 function confirmLogin() {
     console.log("isConnected():", isConnected());
-    if (!isConnected() && !router.getCurrentRoute().unprotected) {
-        reConnect();
+    if (!isConnected()) {
+        if (!router.getCurrentRoute().unprotected) {
+            reConnect();
+        }
         return;
     }
     api.fetchRoute({
@@ -80,10 +84,9 @@ function logout() {
         route: "/api/logout/",
         options: { method: "POST" },
         dataManager: data => {
-            removeUser();
             console.log("Successful logout\n", data);
+            setConnected(false);
             router.route("/");
-            updateNav(false);
         }
     });
 }
