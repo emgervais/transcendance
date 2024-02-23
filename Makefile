@@ -20,7 +20,7 @@ web:
 	docker exec -it web sh
 
 nginx:
-	docker exec -it nginx sh
+	docker exec -it -w /home/app/ nginx sh -c "nginx -s reload && sh"
 
 db:
 	source .env && docker exec -it postgres psql -U $${POSTGRES_USER} -d $${POSTGRES_DB}
