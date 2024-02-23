@@ -51,6 +51,7 @@ function getFriends() {
         dataManager: friends => {
             const container = document.querySelector("#friends-container");
             friends.forEach(friend => {
+                console.log("friend:", friend);
                 displayFriend(container, friend.friend);
             })
         }
@@ -63,7 +64,7 @@ function displayFriend(container, friend) {
         div.className = "friend";
         const img = document.createElement("img");
         img.src = data.image;
-        img.className = "img-fluid rounded-circle";
+        img.className = "img-fluid rounded-circle small-image";
         const p = document.createElement("p");
         p.textContent = data.username;
         div.appendChild(img);

@@ -30,5 +30,8 @@ def request(url, method, cookies=None, data=None, files=None):
     res = {}
     res["status"] = response.status_code
     res["cookies"] = {cookie.name: cookie.value for cookie in response.cookies}
-    res["data"] = json.loads(response.text)
+    try:
+        res["data"] = json.loads(response.content)
+    except:
+        res["json"] = None
     return res

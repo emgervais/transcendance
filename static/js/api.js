@@ -1,28 +1,44 @@
 import * as auth from "/static/js/auth.js";
+import * as router from "/static/js/router.js";
+
+// -- block fetch ----
+var blockFetch = false;
+function setBlockFetch(bool) {
+    blockFetch = bool;
+}
+// --
 
 // -- fetch ----
-function fetchRoute({
+async function fetchRoute(params, retrying=false){
+    if (blockFetch) {
+        console.log("blocked fetch due to 403");
+        return;
+    }  
+    const {
         route,
         options=null,
         responseManager=fetchResponse,
         dataManager=(_) => {},
         errorManager=fetchError,
         requireAuthorized=true,
-    }){
-    fetch(route, options)
+    } = params;
+    return fetch(route, options)
     .then(responseManager)
     .then(dataManager)
-    .catch(error => {
-        if ((error.status === 401 || error.status === 400) && requireAuthorized) {
-            if (error.status === 400) {
-                auth.unauthorized();
+    .catch(async error => {
+        if (!await isAuthorized(error)) {
+            if (!retrying) {
+                await fetchRoute(params, true);
+                if (!auth.isConnected() && !router.getCurrentRoute().unprotected) {
+                    auth.reConnect();
+                }        
                 return;
             }
-            fetchRoute({
-                route: "/api/refresh/",
-                options: { method: "POST" },
-                dataManager: confirmLogin,
-            });
+            if (requireAuthorized) {
+                auth.reConnect();
+                return;
+            }
+            return;
         }
         errorManager(error);
     });
@@ -38,12 +54,36 @@ function fetchResponse(response) {
     }        
 }
 
-function fetchError(error) {
-    if (error.status && error.data) {
-        console.log(`HTTP error! Status: ${error.status}\n${error.data}\n`);
+async function isAuthorized(error) {
+    switch (error.status) {
+        case 401:
+            await fetchRoute({
+                route: "/api/refresh/",
+                options: { method: "POST" },
+                dataManager: (_) => {
+                    console.log("Renewed Access Token");
+                },
+            });
+            break;
+        case 403:
+            blockFetch = true;
+            auth.reConnect();
+            break;
+        default:
+            return true;
     }
-    else if (error.stack) {
+    return false;
+}
+
+function fetchError(error) {
+    if (error.stack) {
         console.error(error.stack);
+        return;
+    }
+    console.log(`HTTP error! Status: ${error.status}`);
+    if (error.data) {
+        console.log(`Error Data:`);
+        console.log(error.data);
     }
 }
 // --
@@ -114,4 +154,4 @@ function clearForm(formId) {
 // --
 
 
-export { formSubmit, fetchRoute };
+export { formSubmit, fetchRoute, setBlockFetch };

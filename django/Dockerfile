@@ -7,5 +7,8 @@ RUN pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+# run this python3 manage.py flushexpiredtokens
+RUN crontab -l | { cat; echo "* * * * * /usr/local/bin/python /usr/src/app/manage.py flushexpiredtokens"; } | crontab -
+
 COPY . .
 CMD ["./entrypoint.sh"]

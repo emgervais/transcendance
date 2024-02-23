@@ -1,14 +1,16 @@
-api.fetchRoute:
-    si 400, pas nécessairement absence de token!
-    ça le call aussi si c'est une route inexistante
+manually edited token: fait planter le serveur
+
+remove browser http console error:
+    Impossible? Un feature de Chrome?
+
+cleanup old tokens:
+    cron
 
 /api/refresh/: faudrait pas envoyer l'token
     if user doesn't exists, delete token
     si pas de token: 400: devrait être 403 forbidden
 
 enableScripts #ajoute des scripts inutiles
-
-Si logged out: /login/ mais
 
 confirmLogin():
     fetch /api/user/ et keep en variable
@@ -129,7 +131,10 @@ https://cdn.intra.42.fr/pdf/pdf/114482/fr.subject.pdf
 .m	Base de donnée Postgre (accounts, tournament scores)
 .M	jouer à distance
 .M	chat
-.M	chat
+.M	gestion utilisateurs
+    .Historique parties:
+        .Partie: winner, loser, longest streak
+    .Statut en ligne
 .M	OAuth 2.0 avec 42
 .m	Bootstrap
 12

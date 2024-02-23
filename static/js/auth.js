@@ -1,7 +1,7 @@
 import { updateNav } from "/static/js/nav.js";
-import { route } from "/js/router.js";
+import * as router from "/js/router.js";
 import * as api from "/static/js/api.js";
-import { getUser, setUser, removeUser } from "/static/js/user.js";
+import { displayUser, setUser, removeUser } from "/static/js/user.js";
 
 // -- buttons ----
 function loginButton() {
@@ -11,54 +11,82 @@ function loginButton() {
 function registerButton() {
     api.formSubmit("register-form", login);
 }
-// ----
-
-function login(user, redirect=true) {
-    setUser(user);
-    let username = document.querySelector("#usernameNav");
-    username.innerText = user.username;
-    updateNav(true);
-    if (redirect) {
-        route("/");
-    }
-}
-
-function confirmLogin() {
-    if (getUser()) {
-        api.fetchRoute({
-            route: "/api/user/",
-            dataManager: user => {
-                login(user, false);
-            },
-            requireAuthorized: false,
-            errorManager: error => {
-                if (error.status == 401) {
-                    console.log("REFUSED");
-                    removeUser();
-                }
-            },
-        });
-    }
-}
-
-function logout() {
-    api.fetchRoute({
-        route: "/api/logout/",
-        options: { method: "POST" },
-        dataManager: data => {
-            removeUser();
-            console.log("Successful logout\n", data);
-            route("/");
-            updateNav(false);
-        }
-    });
-}
 
 function oauthButton() {
     api.fetchRoute({
         route: "/api/oauth42-uri/",
         dataManager: data => {
             window.location.href = data.uri;
+        }
+    });
+}
+// ----
+
+// -- singletons ----
+function isConnected() {
+    return JSON.parse(sessionStorage.getItem("connected"));
+}
+
+function setConnected(connected) {
+    if (!connected) {
+        removeUser();
+    }
+    sessionStorage.setItem("connected", connected);
+    updateNav(false);
+}
+// ----
+
+// -- login ----
+function login(user, redirect=true) {
+    api.setBlockFetch(false);
+    setUser(user);
+    setConnected(true);
+    displayUser();
+    updateNav(true);
+    if (redirect) {
+        router.route("/");
+    }
+    reconnecting = false;
+}
+
+var reconnecting = false;
+function reConnect() {
+    if (reconnecting) {
+        return;
+    }
+    reconnecting = true;
+    setConnected(false);
+    alert("Please login");
+    router.route("/");
+    router.route("/login/");
+}
+
+function confirmLogin() {
+    console.log("isConnected():", isConnected());
+    if (!isConnected()) {
+        if (!router.getCurrentRoute().unprotected) {
+            reConnect();
+        }
+        return;
+    }
+    api.fetchRoute({
+        route: "/api/user/",
+        dataManager: user => {
+            login(user, false);
+        },
+        requireAuthorized: false,
+    });
+}
+// ----
+
+function logout() {
+    api.fetchRoute({
+        route: "/api/logout/",
+        options: { method: "POST" },
+        dataManager: data => {
+            console.log("Successful logout\n", data);
+            setConnected(false);
+            router.route("/");
         }
     });
 }
@@ -80,12 +108,7 @@ function oauthRedirected() {
     return true;
 }
 
-function unauthorized() {
-    api.removeUser();
-    route("/");
-    alert("Please login");
-    route("/login/");
-}
 
 export { loginButton, registerButton, oauthButton };
-export { confirmLogin, logout, oauthRedirected, unauthorized };
+export { isConnected, setConnected };
+export { confirmLogin, logout, oauthRedirected, reConnect };

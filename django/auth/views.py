@@ -26,6 +26,7 @@ class ResetDatabaseView(generics.DestroyAPIView):
     def delete(self, request: HttpRequest) -> JsonResponse:
         try:
             User.objects.all().delete()
+            
             return JsonResponse({'message': 'Database reset successfully'}, status=status.HTTP_200_OK)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -65,7 +66,10 @@ class LogoutView(generics.GenericAPIView):
         response.delete_cookie('access_token')
         channel_layer = get_channel_layer()
         user = request.user
-        async_to_sync(channel_layer.send)(user.channel_name, {'type': 'logout'})
+        try:
+            async_to_sync(channel_layer.send)(user.channel_name, {'type': 'logout'})
+        except:
+            pass
         user.status = 'offline'
         return response
 
@@ -92,13 +96,16 @@ class CustomTokenRefreshView(generics.GenericAPIView):
     serializer_class = TokenRefreshSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
-        refresh_token = request.COOKIES.get('refresh_token')
-        if not refresh_token:
-            return JsonResponse({'error': 'No refresh token found'}, status=status.HTTP_403_FORBIDDEN)
-        serializer = self.get_serializer(data={'refresh': refresh_token})
-        serializer.is_valid(raise_exception=True)
-        response = JsonResponse(serializer.validated_data, status=status.HTTP_200_OK)
-        access_token = serializer.validated_data['access']
-        access_token_exp = datetime.fromtimestamp(AccessToken(access_token)['exp'])
-        response.set_cookie('access_token', str(access_token), samesite='Strict', httponly=True, secure=True, expires=access_token_exp)
-        return response
+        try:
+            refresh_token = request.COOKIES.get('refresh_token')
+            if not refresh_token:
+                return JsonResponse({'error': 'No refresh token found'}, status=status.HTTP_403_FORBIDDEN)
+            serializer = self.get_serializer(data={'refresh': refresh_token})
+            serializer.is_valid(raise_exception=True)
+            response = JsonResponse(serializer.validated_data, status=status.HTTP_200_OK)
+            access_token = serializer.validated_data['access']
+            access_token_exp = datetime.fromtimestamp(AccessToken(access_token)['exp'])
+            response.set_cookie('access_token', str(access_token), samesite='Strict', httponly=True, secure=True, expires=access_token_exp)
+            return response
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_403_FORBIDDEN)

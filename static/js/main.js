@@ -1,16 +1,17 @@
-import { route, locationHandler } from "/static/js/router.js";
+import * as router from "/static/js/router.js";
 import { confirmLogin, loginButton, registerButton } from "/static/js/auth.js";
 import { buttons } from "/static/js/triggers.js";
-import { oauthRedirected } from "/static/js/auth.js";
+import * as auth from "/static/js/auth.js";
 import { updateUser } from "/static/js/user.js";
 import * as util from "/static/js/util.js";
 import * as api from "/static/js/api.js";
+import * as chat from "/static/js/chat.js";
 
 function click(event) {
     const { target } = event;
     if (target.matches("a[href]")) {
         event.preventDefault();
-        route(event.target.href);
+        router.route(event.target.href);
     }
     else if (target.id in buttons) {
         buttons[target.id]();
@@ -22,11 +23,13 @@ function key(event) {
     const registerShown = util.isDisplayed("register");
     if (event.key === "Escape") {
         if (loginShown || registerShown) {
-            route("/");
+            router.route("/");
         }
     }
     if (event.key === "Enter") {
-        if (loginShown) {
+        if (event.target.id === "chat-message-input") {
+            chat.submit();
+        } else if (loginShown) {
             loginButton();
         } else if (registerShown) {
             registerButton();
@@ -45,10 +48,10 @@ function onChange(event) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    locationHandler();
+    auth.oauthRedirected() || confirmLogin();
+    router.locationHandler();
+    chat.initChat();
     document.addEventListener("click", click);
     document.addEventListener("keydown", key);
     document.addEventListener("change", onChange);
-    oauthRedirected() || confirmLogin();
-
 });
