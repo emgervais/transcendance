@@ -1,4 +1,4 @@
-import * as util from "/static/js/util.js";
+import * as util from "/js/util.js";
 
 function updateNav(connect) {
     var connected = document.querySelectorAll('.connected');

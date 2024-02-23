@@ -26,8 +26,8 @@ services:
       context: ./django/
     volumes:
       - ./django/:/usr/src/app/
-      - ./static/:/usr/src/app/static/
-      - ./media/:/usr/src/app/media/
+      # - ./static/:/usr/src/app/static/
+      # - ./media/:/usr/src/app/media/
       # - static:/usr/src/app/static/
     expose:
       - ${DJANGO_PORT}

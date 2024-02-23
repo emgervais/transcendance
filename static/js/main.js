@@ -1,11 +1,10 @@
-import * as router from "/static/js/router.js";
-import { confirmLogin, loginButton, registerButton } from "/static/js/auth.js";
-import { buttons } from "/static/js/triggers.js";
-import * as auth from "/static/js/auth.js";
-import { updateUser } from "/static/js/user.js";
-import * as util from "/static/js/util.js";
-import * as api from "/static/js/api.js";
-import * as chat from "/static/js/chat.js";
+import * as router from "/js/routing.js";
+import { buttons } from "/js/triggers.js";
+import * as auth from "/js/auth.js";
+import { updateUser } from "/js/user.js";
+import * as util from "/js/util.js";
+import * as api from "/js/api.js";
+import * as chat from "/js/chat.js";
 
 function click(event) {
     const { target } = event;
@@ -30,9 +29,9 @@ function key(event) {
         if (event.target.id === "chat-message-input") {
             chat.submit();
         } else if (loginShown) {
-            loginButton();
+            auth.loginButton();
         } else if (registerShown) {
-            registerButton();
+            auth.registerButton();
         }
     }
 }
@@ -48,7 +47,7 @@ function onChange(event) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    auth.oauthRedirected() || confirmLogin();
+    auth.oauthRedirected() || auth.confirmLogin();
     router.locationHandler();
     chat.initChat();
     document.addEventListener("click", click);

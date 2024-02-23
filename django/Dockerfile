@@ -7,5 +7,7 @@ RUN pip install --upgrade pip
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY . .
+# COPY . .
+COPY init_checks.py .
+COPY entrypoint.sh .
 CMD ["./entrypoint.sh"]

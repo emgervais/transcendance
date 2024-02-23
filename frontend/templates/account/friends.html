@@ -1,12 +1,12 @@
 <div id="account-friends" class="hidden">
-    <ul class="">
-        {% for user in users %}
-            {% if user not in request.user.friends.all and user != request.user %}
-                <h1>{{ user.username }} <a href="/send_friend_request/{{ user.id }}/">{{ "send friend request" }}</a></h1>
-            {% endif %}
-        {% endfor %}
-    </ul>
-    <h1>Friend request</h1>
+    <form>
+        <div class="request">
+            <label for="request">Username:</label>
+            <input type="request" name="request" required>
+        </div>
+        <button type="button" id="friend-request-button" class="btn btn-primary">Request Friendship</button>
+    </form>
+    <h1>Friend requests</h1>
     <div id="friends-requests-container">
 
     </div>    
