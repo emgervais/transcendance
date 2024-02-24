@@ -82,9 +82,9 @@ def init_friend_requests(users):
 
 
 def friend_tests():
-    # print("\n-- Friend/Friend request interactions --")
-    # friend_request()
-    # print("\n-- Friend/Friend request wrong interactions --")
-    # friend_requests_wrong()
+    print("\n-- Friend/Friend request interactions --")
+    friend_request()
+    print("\n-- Friend/Friend request wrong interactions --")
+    friend_requests_wrong()
     print("\n-- Block interactions --")
     block()

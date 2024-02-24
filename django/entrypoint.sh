@@ -7,6 +7,8 @@ if [ "$APP_ENV" != "production" ]; then
     export PYTHONUNBUFFERED=1               # Don't buffer stdout/err
 fi
 
+crond -L /var/log/cron.log && tail -f /var/log/cron.log &
+
 ./init_checks.py &&
 python manage.py makemigrations &&
 python manage.py migrate &&
