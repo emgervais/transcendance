@@ -8,8 +8,8 @@ from friend import friend_tests, init_friends, init_friend_requests
 # from user import user_tests
 
 if __name__ == "__main__":
-    print("\n-- Auth tests --")
-    auth_tests()
+    # print("\n-- Auth tests --")
+    # auth_tests()
     print("\n-- Friend tests --")
     friend_tests()
     # print("\n-- User tests --")

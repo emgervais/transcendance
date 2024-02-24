@@ -1,7 +1,7 @@
-import { updateNav } from "/static/js/nav.js";
-import * as router from "/js/router.js";
-import * as api from "/static/js/api.js";
-import { displayUser, setUser, removeUser } from "/static/js/user.js";
+import * as router from "/js/routing.js";
+import { updateNav } from "/js/nav.js";
+import * as api from "/js/api.js";
+import { displayUser, setUser, removeUser } from "/js/user.js";
 
 // -- buttons ----
 function loginButton() {
@@ -56,6 +56,7 @@ function reConnect() {
     }
     reconnecting = true;
     setConnected(false);
+    displayUser();
     alert("Please login");
     router.route("/");
     router.route("/login/");

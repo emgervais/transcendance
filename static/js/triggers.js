@@ -1,6 +1,6 @@
-import * as auth from "/static/js/auth.js";
-import * as chat from "/static/js/chat.js";
-import * as account from "/static/js/account.js";
+import * as auth from "/js/auth.js";
+import * as chat from "/js/chat.js";
+import * as account from "/js/account/account.js";
 
 export const buttons = {
     "login-button": auth.loginButton,

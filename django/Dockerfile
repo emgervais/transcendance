@@ -10,5 +10,7 @@ RUN pip install -r requirements.txt
 # run this python3 manage.py flushexpiredtokens
 RUN crontab -l | { cat; echo "* * * * * /usr/local/bin/python /usr/src/app/manage.py flushexpiredtokens"; } | crontab -
 
-COPY . .
+# COPY . .
+COPY init_checks.py .
+COPY entrypoint.sh .
 CMD ["./entrypoint.sh"]

@@ -1,5 +1,5 @@
-import * as auth from "/static/js/auth.js";
-import * as router from "/static/js/router.js";
+import * as router from "/js/routing.js";
+import * as auth from "/js/auth.js";
 
 // -- block fetch ----
 var blockFetch = false;

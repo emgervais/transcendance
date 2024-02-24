@@ -116,6 +116,33 @@ def remove_friend(cookies, friend_id):
     return response
 
 @endpoint
+def block_user(cookies, user_id):
+    data = {
+        "user_id": user_id
+    }
+    url = "/api/block/"
+    method = "post"
+    response = util.request(url, method, cookies, data)
+    return response
+
+@endpoint
+def unblock_user(cookies, user_id):
+    data = {
+        "user_id": user_id
+    }
+    url = "/api/block/"
+    method = "delete"
+    response = util.request(url, method, cookies, data)
+    return response
+
+@endpoint
+def blocked_users(cookies):
+    url = "/api/block/"
+    method = "get"
+    response = util.request(url, method, cookies)
+    return response
+
+@endpoint
 def user(cookies, user_id=None):
     if user_id is None:
         url = "/api/user/"

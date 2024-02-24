@@ -6,21 +6,14 @@ def friend_requests_wrong(users):
     user1 = users[0]
     user2 = users[1]
     
-    response = endpoints.make_friend_request(user1["cookies"], user2["id"])
-    print(response["data"])
-    response = endpoints.make_friend_request(user1["cookies"], user2["id"])
-    print(response["data"])
+    endpoints.make_friend_request(user1["cookies"], user2["id"])
+    endpoints.make_friend_request(user1["cookies"], user2["id"])
     request_id = 12
-    response = endpoints.friend_request(user1["cookies"], request_id, "put")
-    print(response["data"])
-    response = endpoints.friend_request(user1["cookies"], request_id, "delete")
-    print(response["data"])
-    response = endpoints.make_friend_request(user1["cookies"], user1["id"])
-    print(response["data"])
-    response = endpoints.remove_friend(user1["cookies"], user2["id"])
-    print(response["data"])
-    
-    return response
+    endpoints.friend_request(user1["cookies"], request_id, "put")
+    endpoints.friend_request(user1["cookies"], request_id, "delete")
+    endpoints.make_friend_request(user1["cookies"], user1["id"])
+    endpoints.remove_friend(user1["cookies"], user2["id"])
+
 
 @auth(3)
 def friend_request(users):
@@ -53,8 +46,23 @@ def friend_request(users):
     print('Friends u1 ', response["data"])
     response = endpoints.friends(user2["cookies"])
     print('Friends u2 ', response["data"])
+
+
+@auth(2)
+def block(users):
+    user1 = users[0]
+    user2 = users[1]
     
-    return response
+    endpoints.block_user(user1["cookies"], user2["id"])
+    endpoints.block_user(user1["cookies"], user2["id"])
+    endpoints.unblock_user(user2["cookies"], user1["id"])
+    endpoints.blocked_users(user1["cookies"])
+    endpoints.unblock_user(user1["cookies"], user2["id"])
+    endpoints.blocked_users(user1["cookies"])
+    endpoints.block_user(user1["cookies"], user1["id"])
+    endpoints.blocked_users(user1["cookies"])
+    endpoints.unblock_user(user1["cookies"], user1["id"])
+    endpoints.blocked_users(user1["cookies"])
 
 
 @auth(10)
@@ -74,7 +82,9 @@ def init_friend_requests(users):
 
 
 def friend_tests():
-    print("\n-- Friend/Friend request interactions --")
-    friend_request()
-    print("\n-- Friend/Friend request wrong interactions --")
-    friend_requests_wrong()
+    # print("\n-- Friend/Friend request interactions --")
+    # friend_request()
+    # print("\n-- Friend/Friend request wrong interactions --")
+    # friend_requests_wrong()
+    print("\n-- Block interactions --")
+    block()

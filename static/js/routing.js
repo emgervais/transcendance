@@ -1,6 +1,7 @@
-import * as nav from "/static/js/nav.js";
-import * as account from "/static/js/account.js";
-import { displayUser } from "/static/js/user.js";
+import * as nav from "/js/nav.js";
+import * as account from "/js/account/account.js";
+import * as friends from "/js/account/friends.js";
+import * as user from "/js/user.js";
 
 const routes = {
     404: {
@@ -14,11 +15,13 @@ const routes = {
     },
     "/register/": {
         function: nav.displayRegister,
+        onQuit: nav.hideAuthContainer,
         authContainer: true,
         unprotected: true,
     },
     "/login/": {
         function: nav.displayLogin,
+        onQuit: nav.hideAuthContainer,
         authContainer: true,
         unprotected: true,
     },
@@ -31,6 +34,7 @@ const routes = {
     },
     "/account/friends/": {
         template: "/templates/account.html",
+        onQuit: friends.removeFriendRequestButtons,
         function: account.displayFriendsPage,
     },
     "/account/update-info/": {
@@ -48,6 +52,7 @@ const route = (href) => {
     locationHandler();
 };
 
+// -- fetch document ----
 const htmlCache = {};
 async function fetchHTMLWithCache(template) {
     let html;
@@ -60,7 +65,9 @@ async function fetchHTMLWithCache(template) {
     }
     return html;
 }
+// --
 
+var prevRoute;
 function getCurrentRoute() {
     const location = window.location.pathname;
     if (location.length == 0) {
@@ -71,22 +78,24 @@ function getCurrentRoute() {
 }
 
 const locationHandler = async () => {
-    const route = getCurrentRoute();
-    if (!route.authContainer) {
-        nav.hideAuthContainer();
+    if (prevRoute && prevRoute.onQuit) {
+        prevRoute.onQuit();
     }
+    const route = getCurrentRoute();
+    prevRoute = route;
     if (route.template) {
         const html = await fetchHTMLWithCache(route.template);
-        if (!route.containerId) {
-            route.containerId = "dynamic-section"
+        var containerId = route.containerId;
+        if (!containerId) {
+            containerId = "dynamic-section"
         }
-        document.getElementById(route.containerId).innerHTML = html;
-        enableScripts(route.containerId);
+        document.getElementById(containerId).innerHTML = html;
+        // enableScripts(route.containerId);
     }
     if (route.function) {
         route.function();
     }
-    displayUser();
+    user.displayUser();
 };
 
 function enableScripts(elementId) {
