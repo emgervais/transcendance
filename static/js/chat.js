@@ -11,14 +11,15 @@ function submit() {
 	const messageInputDom = document.querySelector('#chat-message-input');
 	const message = messageInputDom.value;
 	chatSocket.send(JSON.stringify({
-		'message': message
+		'message': message,
+		'room_id': 'global' 
 	}));
 	messageInputDom.value = '';
 }
 
 // --------------------------------
 function initChat() {
-	var roomName = 'room';
+	var roomName = 'global';
 	chatSocket = new WebSocket(
 		'wss://'
 		+ window.location.host

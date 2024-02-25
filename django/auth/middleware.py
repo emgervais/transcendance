@@ -43,10 +43,6 @@ class JWTAuthMiddleware:
         return payload
 
     def get_user_credentials(self, payload):
-        """
-        method to get user credentials from jwt token payload.
-        defaults to user id.
-        """
         user_id = payload['user_id']
         return user_id
 

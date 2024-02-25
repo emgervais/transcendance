@@ -6,6 +6,10 @@ remove browser http console error:
 cleanup old tokens:
     cron
 
+Channel Layer
+    url : https://channels.readthedocs.io/en/stable/topics/channel_layers.html#redis-channel-layer
+    Cant use In-Memory Channel Layer for production, we will need to use Redis.
+
 /api/refresh/: faudrait pas envoyer l'token
     if user doesn't exists, delete token
     si pas de token: 400: devrait être 403 forbidden

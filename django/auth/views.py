@@ -69,7 +69,7 @@ class LogoutView(generics.GenericAPIView):
         try:
             async_to_sync(channel_layer.send)(user.channel_name, {'type': 'logout'})
         except:
-            pass
+            print('User is not connected to a websocket')
         user.status = 'offline'
         return response
 
