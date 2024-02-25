@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 from rest_framework import serializers
 
-
 class User(AbstractUser, PermissionsMixin):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='profile_pics', default='default/default.webp')
