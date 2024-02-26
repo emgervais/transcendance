@@ -30,7 +30,7 @@ class UserUsernameView(APIView):
             user = User.objects.get(username=username)
             return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
-            return JsonResponse({'error': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'username': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
     
 class UsersView(APIView):
     serializer_class = UserSerializer

@@ -59,12 +59,14 @@ def friend_request(users):
 
 @auth(10)
 def init_friends(users):
-    for user in users[1:]:
+    for i, user in enumerate(users[1:]):
+        if (i % 2):
+            response = endpoints.make_friend_request(user["cookies"], users[0]["id"])
+            continue
         response = endpoints.make_friend_request(users[0]["cookies"], user["id"])
         response = endpoints.friend_requests(user["cookies"])
         request_id = response["data"][0]["id"]
         response = endpoints.friend_request(user["cookies"], request_id, "put")
-        break
 
 @auth(10)
 def init_friend_requests(users):
