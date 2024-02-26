@@ -10,7 +10,13 @@ class User(AbstractUser, PermissionsMixin):
     matches = models.ManyToManyField('self', through='PongMatch', symmetrical=False, related_name='user_matches', through_fields=('p1', 'p2'))
     friend_list = models.ManyToManyField('self', through='Friend', symmetrical=False, related_name='user_friends', through_fields=('friend', 'user'))
     friend_requests = models.ManyToManyField('self', through='FriendRequest', symmetrical=False, related_name='user_friend_requests', through_fields=('from_user', 'to_user'))
-
+    block_list = models.ManyToManyField('self', through='Block', symmetrical=False, related_name='user_blocked', through_fields=('blocker', 'blocked'))
+    channel_name = models.CharField(max_length=255, blank=True, null=True)
+    status = models.CharField(max_length=10, default='offline')
+    
+    class Meta:
+        db_table = 'users'
+        
     def __str__(self):
         return self.username
     
@@ -61,6 +67,61 @@ class FriendShipManager(models.Manager):
     def are_friends(self, user1, user2):
         return Friend.objects.filter(user=user1, friend=user2).exists()
 
+class BlockManager(models.Manager):
+    
+    def blocked(self, user):
+        return user.blocked.all()
+    
+    def blocked_by(self, user):
+        return user.blocked_by.all()
+       
+    def block(self, blocker, blocked):
+        if blocker == blocked:
+            raise serializers.ValidationError({'block': 'Users cannot block themselves'})
+        
+        block, created = Block.objects.get_or_create(
+            blocker=blocker, blocked=blocked
+        )
+        
+        if created is False:
+            raise serializers.ValidationError({'block': 'User already blocked'})
+        
+        return block
+    
+    def unblock(self, blocker, blocked):
+        if blocker == blocked:
+            raise serializers.ValidationError({'block': 'Users cannot unblock themselves'})
+        
+        if not self.is_blocked(blocker, blocked):
+            raise serializers.ValidationError({'block': 'User was not blocked'})
+        
+        Block.objects.filter(blocker=blocker, blocked=blocked).delete()
+    
+    def is_blocked(self, blocker, blocked):
+        return Block.objects.filter(blocker=blocker, blocked=blocked).exists()    
+
+class Block(models.Model):
+    blocker = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked')
+    blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    objects = BlockManager()
+    
+    class Meta:
+        db_table = 'blocks'
+        verbose_name = _('Block')
+        verbose_name_plural = _('Blocks')
+        unique_together = ('blocker', 'blocked')
+        
+    def __str__(self):
+        return f'{self.blocker} blocked {self.blocked}'
+    
+    def save(self, *args, **kwargs):
+        if self.blocker == self.blocked:
+            raise serializers.ValidationError({'block': 'Users cannot block themselves'})
+        
+        super().save(*args, **kwargs)
+
 class FriendRequest(models.Model):
     from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_requests')
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_requests')
@@ -73,6 +134,7 @@ class FriendRequest(models.Model):
         FriendRequest.objects.filter(from_user=self.to_user, to_user=self.from_user).delete()
     
     class Meta:
+        db_table = 'friend_requests'
         verbose_name = _('Friend Request')
         verbose_name_plural = _('Friend Requests')
         unique_together = ('from_user', 'to_user')
@@ -88,6 +150,7 @@ class Friend(models.Model):
     objects = FriendShipManager()
     
     class Meta:
+        db_table = 'friends'
         verbose_name = _('Friend')
         verbose_name_plural = _('Friends')
         unique_together = ('user', 'friend')

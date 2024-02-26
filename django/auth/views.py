@@ -7,6 +7,8 @@ from auth.oauth42 import create_oauth_uri
 from datetime import datetime
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import AccessToken
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
     
 def set_cookies(response, user):
@@ -14,8 +16,8 @@ def set_cookies(response, user):
     access_token = refresh_token.access_token    
     refresh_token_exp = datetime.fromtimestamp(refresh_token['exp'])
     access_token_exp = datetime.fromtimestamp(access_token['exp'])
-    response.set_cookie('refresh_token', str(refresh_token), samesite='Strict', httponly=True, secure=True, expires=refresh_token_exp)
     response.set_cookie('access_token', str(access_token), samesite='Strict', httponly=True, secure=True, expires=access_token_exp)
+    response.set_cookie('refresh_token', str(refresh_token), samesite='Strict', httponly=True, secure=True, expires=refresh_token_exp, path='/api/token/refresh/')
     return response
 
 # For development purposes only
@@ -61,7 +63,15 @@ class LogoutView(generics.GenericAPIView):
         response = JsonResponse({'message': 'Logout successful'}, status=status.HTTP_200_OK)
         response.delete_cookie('refresh_token')
         response.delete_cookie('access_token')
+        channel_layer = get_channel_layer()
+        user = request.user
+        try:
+            async_to_sync(channel_layer.send)(user.channel_name, {'type': 'logout'})
+        except:
+            print('User is not connected to a websocket')
+        user.status = 'offline'
         return response
+
     
 class OAuth42UriView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -78,21 +88,23 @@ class OAuth42LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        print(user.image)
-        print(user.image.url)
         return set_cookies(response, user)
 
 class CustomTokenRefreshView(generics.GenericAPIView):
     permission_classes = [AllowAny]
+    serializer_class = TokenRefreshSerializer
     
     def post(self, request: HttpRequest) -> JsonResponse:
-        refresh_token = request.COOKIES.get('refresh_token')
-        if not refresh_token:
-            return JsonResponse({'error': 'No refresh token found'}, status=status.HTTP_403_FORBIDDEN)
-        serializer = TokenRefreshSerializer(data={'refresh': refresh_token})
-        serializer.is_valid(raise_exception=True)
-        response = JsonResponse(serializer.validated_data, status=status.HTTP_200_OK)
-        access_token = serializer.validated_data['access']
-        access_token_exp = datetime.fromtimestamp(AccessToken(access_token)['exp'])
-        response.set_cookie('access_token', str(access_token), samesite='Strict', httponly=True, secure=True, expires=access_token_exp)
-        return response
+        try:
+            refresh_token = request.COOKIES.get('refresh_token')
+            if not refresh_token:
+                return JsonResponse({'error': 'No refresh token found'}, status=status.HTTP_403_FORBIDDEN)
+            serializer = self.get_serializer(data={'refresh': refresh_token})
+            serializer.is_valid(raise_exception=True)
+            response = JsonResponse(serializer.validated_data, status=status.HTTP_200_OK)
+            access_token = serializer.validated_data['access']
+            access_token_exp = datetime.fromtimestamp(AccessToken(access_token)['exp'])
+            response.set_cookie('access_token', str(access_token), samesite='Strict', httponly=True, secure=True, expires=access_token_exp)
+            return response
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_403_FORBIDDEN)

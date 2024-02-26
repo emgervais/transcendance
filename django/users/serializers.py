@@ -1,14 +1,14 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from users.models import User, FriendRequest, Friend
+from users.models import User, FriendRequest, Friend, Block
 from django.conf import settings
-import os, re
+import re
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'image', 'oauth', 'matches', 'friends', 'friend_requests']
-        read_only_fields = ['id', 'matches', 'friends', 'friend_requests']
+        fields = ['id', 'username', 'email', 'image', 'oauth', 'matches', 'friends', 'friend_requests', 'status']
+        read_only_fields = ['id', 'matches', 'friends', 'friend_requests', 'status']
     
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -96,3 +96,9 @@ class FriendSerializer(serializers.ModelSerializer):
         model = Friend
         fields = ['id', 'user', 'friend', 'created_at']
         read_only_fields = ['id', 'user', 'created_at']
+
+class BlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Block
+        fields = ['id', 'blocker', 'blocked', 'created_at']
+        read_only_fields = ['id', 'blocker', 'created_at']

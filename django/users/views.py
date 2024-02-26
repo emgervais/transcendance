@@ -1,6 +1,6 @@
 from django.http import JsonResponse, HttpRequest
-from users.models import User, FriendRequest, Friend
-from users.serializers import UserSerializer, ChangeInfoSerializer, FriendRequestSerializer, FriendSerializer
+from users.models import User, FriendRequest, Friend, Block
+from users.serializers import UserSerializer, ChangeInfoSerializer, FriendRequestSerializer, FriendSerializer, BlockSerializer
 from rest_framework import serializers, status
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -76,9 +76,10 @@ class FriendRequestListView(APIView):
             return JsonResponse(self.serializer_class(request).data, status=status.HTTP_201_CREATED)
         except serializers.ValidationError as e:
             return JsonResponse(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
 
 class FriendRequestDetailView(APIView):
     serializer_class = FriendRequestSerializer
@@ -88,6 +89,8 @@ class FriendRequestDetailView(APIView):
             friend_request = FriendRequest.objects.get(pk=pk)
             friend_request.delete()
             return JsonResponse({'message': 'Friend request removed successfully'}, status=status.HTTP_200_OK)
+        except FriendRequest.DoesNotExist:
+            return JsonResponse({'error': 'Friend request does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -98,6 +101,8 @@ class FriendRequestDetailView(APIView):
                 raise serializers.ValidationError({'friend-request': 'You are not the recipient of this friend request'})
             friend_request.accept()
             return JsonResponse({'message': 'Friend request accepted successfully'}, status=status.HTTP_200_OK)
+        except FriendRequest.DoesNotExist:
+            return JsonResponse({'error': 'Friend request does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -116,5 +121,38 @@ class FriendDetailView(APIView):
             friend = Friend.objects.get(pk=pk)
             Friend.objects.remove_friend(request.user, friend.friend)
             return JsonResponse({'message': 'Friend removed successfully'}, status=status.HTTP_200_OK)
+        except Friend.DoesNotExist:
+            return JsonResponse({'error': 'Friend does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class BlockView(APIView):
+    serializer_class = BlockSerializer
+    
+    def post(self, request: HttpRequest) -> JsonResponse:
+        try:
+            blocked = User.objects.get(pk=request.data['user_id'])
+            Block.objects.block(request.user, blocked)
+            return JsonResponse({'message': 'User blocked successfully'}, status=status.HTTP_201_CREATED)
+        except serializers.ValidationError as e:
+            return JsonResponse(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request: HttpRequest) -> JsonResponse:
+        try:
+            blocked = User.objects.get(pk=request.data['user_id'])
+            Block.objects.unblock(request.user, blocked)
+            return JsonResponse({'message': 'User unblocked successfully'}, status=status.HTTP_200_OK)
+        except serializers.ValidationError as e:
+            return JsonResponse(e.detail, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    def get(self, request: HttpRequest) -> JsonResponse:
+        blocked = Block.objects.blocked(request.user)
+        return JsonResponse(self.serializer_class(blocked, many=True).data, status=status.HTTP_200_OK, safe=False)

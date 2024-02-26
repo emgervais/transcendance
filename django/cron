@@ -1,0 +1,2 @@
+0 2 * * * /usr/local/bin/python /usr/src/app/manage.py flushexpiredtokens
+0 2 * * * echo "flushed expired tokens" >> /var/log/cron.log 2>&1

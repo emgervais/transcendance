@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from django.urls import reverse
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,6 +19,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(" ")
 
 INSTALLED_APPS = [
 	'daphne',
+    'channels',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -27,15 +27,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
-    'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'users',
+    'chat',
     'app',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -77,25 +78,13 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    # 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    # 'REFRESH_TOKEN_LIFETIME': timedelta(minutes=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': False,
-    
-    'ALGORITHM': 'HS256',
-    
-    'SIGNING_KEY': SECRET_KEY,
 
-    'AUTH_HEADER_TYPES': ('Bearer', 'JWT'),
-    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'AUTH_COOKIE': 'access_token',
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
-    
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
 CHANNEL_LAYERS = {
@@ -105,8 +94,7 @@ CHANNEL_LAYERS = {
 }
 
 ASGI_APPLICATION = 'transcendence.asgi.application'
-WSGI_APPLICATION = 'transcendence.wsgi.application'
-
+# WSGI_APPLICATION = 'transcendence.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -155,9 +143,6 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "") != "0"
-
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
-CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")

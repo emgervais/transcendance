@@ -2,21 +2,15 @@
 import urllib3
 import warnings
 warnings.simplefilter('ignore', urllib3.exceptions.InsecureRequestWarning)
-import endpoints
-import util
-from auth import auth_tests, auth
+
+from auth import auth_tests
 from friend import friend_tests, init_friends, init_friend_requests
 # from user import user_tests
 
-@auth(10)
-def empty(users):
-    pass
-
 if __name__ == "__main__":
-    empty()
     # print("\n-- Auth tests --")
     # auth_tests()
-    # print("\n-- Friend tests --")
-    # friend_tests()
+    print("\n-- Friend tests --")
+    friend_tests()
     # print("\n-- User tests --")
     # init_friends()
