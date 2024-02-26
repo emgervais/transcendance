@@ -5,11 +5,17 @@ import { displayUser, setUser, removeUser } from "/js/user.js";
 
 // -- buttons ----
 function loginButton() {
-    api.formSubmit("login-form", login);
+    api.formSubmit({
+        formId: "login-form",
+        callback: login
+    });    
 }
 
 function registerButton() {
-    api.formSubmit("register-form", login);
+    api.formSubmit({
+        formId: "register-form",
+        callback: login
+    });
 }
 
 function oauthButton() {

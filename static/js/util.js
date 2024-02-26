@@ -14,21 +14,30 @@ function isDisplayed(id) {
 function toggleDisplay(id) {
     display(id, !isDisplayed(id));
 }
-// --
+
+// -- buttons ----
+const button_actions = {};
 
 function createButton({text, id, action, container}) {
     const button = document.createElement("button");
     button.innerText = text;
     button.id = id;
-    button.addEventListener("click", action);
+    button_actions[id] = action;
+    button.addEventListener("click", button_actions[id]);
     container.appendChild(button);
 }
 
-function deleteButton(id, action) {
+function deleteButton(id) {
     const button = document.getElementById(id);
-    button.removeEventListener("click", action);
+    button.removeEventListener("click", button_actions[id]);
     button.remove();
+}
+
+// -- sleep ----
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export { isDisplayed, display, toggleDisplay };
 export { createButton, deleteButton };
+export { sleep };

@@ -11,9 +11,11 @@ function setUser(user) {
 }
 
 function updateUser(data) {
+    console.log("updateUser()");
     const user = getUser();
     for (const key in data) {
         if (key in user) {
+            console.log(key, ":", data[key]);
             user[key] = data[key];
         }
     }

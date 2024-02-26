@@ -74,7 +74,6 @@ def init_friend_requests(users):
         response = endpoints.make_friend_request(user["cookies"], users[0]["id"])
 
 
-
 def friend_tests():
     print("\n-- Friend/Friend request interactions --")
     friend_request()

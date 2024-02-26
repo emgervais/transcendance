@@ -90,7 +90,6 @@ const locationHandler = async () => {
             containerId = "dynamic-section"
         }
         document.getElementById(containerId).innerHTML = html;
-        // enableScripts(route.containerId);
     }
     if (route.function) {
         route.function();

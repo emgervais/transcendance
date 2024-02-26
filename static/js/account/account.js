@@ -7,13 +7,11 @@ import { getUser, updateUser } from "/js/user.js";
 function displayFriendsPage() {
     console.log("displayFriendsPage");
     util.display("account-friends");
-    friends.getFriends();
-    friends.getFriendRequests();
+    friends.refresh();
 }
 
 function hideFriendsPage() {
     console.log("hideFriendsPage");
-    friends.removeFriendRequestButtons();
     util.display("account-friends", false);
 }
 
@@ -46,9 +44,11 @@ function hideAll() {
 // ----
 
 function updateInfoButton() {
-    api.formSubmit("update-info-form", (data) => {
-        updateUser(data);
-    }, "put");
+    api.formSubmit({
+        formId: "update-info-form",
+        callback: updateUser,
+        method: "put"
+    });
 }
 
 export { displayFriendsPage, displayInfoPage, displayStatsPage, hideAll };

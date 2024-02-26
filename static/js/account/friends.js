@@ -1,11 +1,74 @@
 import * as api from "/js/api.js";
 import * as util from "/js/util.js";
 
+function refresh() {
+    getFriends();
+    getFriendRequests();
+}
+function getFriends() {
+    const friendManager = (friends) => {
+        const container = document.getElementById("friends-container");
+        container.innerHTML = '';
+        friends.forEach(friend => {
+            displayFriend(container, friend.friend);
+        })
+    };
+    api.fetchRoute({
+        route: "/api/friends/",
+        dataManager: friendManager
+    });
+}
+
+function getFriendRequests() {
+    const container = document.getElementById("friends-requests-container");
+    container.innerHTML = '';
+    const requestsManager = (requests) => {
+        requests.forEach(request => {
+            displayFriendRequest(container, request);
+        })
+    }
+    api.fetchRoute({
+        route: "/api/friend-requests/",
+        dataManager: requestsManager
+    });
+}
+
+function makeFriendRequest() {
+    const formId = "friend-request-form";
+    const input = document.getElementById("friend-request-input");
+    const username = input.value;
+    api.removeFormErrors();
+    const userIdCallback = data => {
+        const id = data.id;
+        api.fetchRoute({
+            route: "/api/friend-requests/",
+            options: {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({"to_user": id }), 
+            },
+            dataManager: data => {
+                console.log("successful friend request:", data);
+            },
+            errorManager: error => {
+                const form = document.getElementById(formId);
+                const data = {"username": error.data["friend-request"]};
+                api.addFormErrors(form, data);
+            }
+        })
+    };
+    api.formSubmit({
+        formId: formId,
+        route: "/api/user/" + username + "/",
+        body: null,
+        callback: userIdCallback
+    });
+}
+
 // -- display ----
 function displayFriend(container, friend) {
     const div = document.createElement("div");
     const appendToContainer = (data) => {
-        // console.log("friend:", data);
         div.className = "friend";
         const img = document.createElement("img");
         img.src = data.image;
@@ -23,18 +86,7 @@ function displayFriend(container, friend) {
     return div;
 }
 
-function requestButtonAction(request_id, accept) {
-    const method = accept ? "put" : "delete";
-    return () => {
-        api.fetchRoute({
-            route: "/api/friend-requests/" + request_id + "/",
-            options: { method: method },
-        });
-    };
-}
-
 function displayFriendRequest(container, request) {
-    // console.log("friend requests:", request);
     const div = displayFriend(container, request.from_user);
     const buttons = [
         {
@@ -52,46 +104,29 @@ function displayFriendRequest(container, request) {
     ]
     buttons.forEach(util.createButton);
 }
-// --
 
-// -- friends ----
-function getFriends() {
-    const friendManager = (friends) => {
-        const container = document.getElementById("friends-container");
-        friends.forEach(friend => {
-            displayFriend(container, friend.friend);
-        })
+// -- buttons ----
+function requestButtonAction(request_id, accept) {
+    const method = accept ? "put" : "delete";
+    return () => {
+        api.fetchRoute({
+            route: "/api/friend-requests/" + request_id + "/",
+            options: { method: method },
+            dataManager: (_) => {
+                refresh();
+            }
+        });
     };
-    api.fetchRoute({
-        route: "/api/friends/",
-        dataManager: friendManager
-    });
-}
-// --
-
-// -- friend requests ----
-function getFriendRequests() {
-    const container = document.getElementById("friends-requests-container");
-    const requestsManager = (requests) => {
-        // console.log("requestsManager:", requests);
-        requests.forEach(request => {
-            // console.log("request:", request);
-            displayFriendRequest(container, request);
-        })
-    }
-    api.fetchRoute({
-        route: "/api/friend-requests/",
-        dataManager: requestsManager
-    })
 }
 
 function removeFriendRequestButtons() {
     const container = document.getElementById("friends-requests-container");
-    console.log("container:", container);
     const buttons = container.querySelectorAll("button");
-    buttons.forEach(console.log);
+    buttons.forEach(button => {
+        if (button.id.includes("friend-request")) {
+            util.deleteButton(button.id);
+        }
+    }); 
 }
-// --
 
-export { getFriends, getFriendRequests };
-export { removeFriendRequestButtons };
+export { refresh, removeFriendRequestButtons, makeFriendRequest };

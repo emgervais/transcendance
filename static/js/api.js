@@ -86,42 +86,62 @@ function fetchError(error) {
         console.log(error.data);
     }
 }
-// --
 
 // -- form ----
-function formSubmit(formId, callback, method=undefined) {
+// body=true
+// body = body ? new FormData(form): null
+//
+function formSubmit(
+    {
+        formId,
+        route=undefined,
+        callback,
+        method=undefined,
+        body=undefined,
+    }) {
     const form = document.getElementById(formId);
     if (!form) {
         console.error('Form "' + formId + '" not found');
         return;
-    }    
+    }
     removeFormErrors();
     method = method ? method : form.method;
+    if (body === undefined) {
+        body = new FormData(form);
+    } else if (body === null) {
+        body = undefined;
+    }
     const options = {
         method: method,
-        body: new FormData(form),
+        body: body,
     };
     const dataManager = (data) => {
         callback(data);
         clearForm(formId);
     };
-    const errorManager = (error) => {
+    route = route ? route : form.action;
+    const formErrorManager = error => {
         console.log("error.status:", error.status);
         console.log("error.data:", error.data);
         if (error.status && error.data) {
-            for (const [key, value] of Object.entries(error.data)) {
-                addFormError(form, key, value);
-            }
+            addFormErrors(form, error.data);
             return;
         }
         fetchError(error);
     };
     fetchRoute({
-        route: form.action,
+        route: route,
         options: options,
         dataManager: dataManager,
-        errorManager: errorManager
+        errorManager: formErrorManager
     })
+}
+
+// -- form errors ----
+function addFormErrors(form, data) {
+    for (const [key, value] of Object.entries(data)) {
+        addFormError(form, key, value);
+    }
 }
 
 function addFormError(form, key, value) {
@@ -142,6 +162,7 @@ function removeFormErrors() {
     });
 }
 
+// -- clear form ----
 function clearForm(formId) {
     const form = document.getElementById(formId);
     const inputFields = form.querySelectorAll('input');
@@ -151,7 +172,6 @@ function clearForm(formId) {
         }
     });
 }
-// --
-
 
 export { formSubmit, fetchRoute, setBlockFetch };
+export { addFormErrors ,removeFormErrors };

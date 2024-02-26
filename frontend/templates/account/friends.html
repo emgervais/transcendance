@@ -1,26 +1,16 @@
 <div id="account-friends" class="hidden">
-    <form>
-        <div class="request">
+    <form id="friend-request-form">
+        <div class="request username">
+            <h1>Request friendship</h1>
             <label for="request">Username:</label>
-            <input type="request" name="request" required>
+            <input id="friend-request-input" type="request" name="request" required>
         </div>
-        <button type="button" id="friend-request-button" class="btn btn-primary">Request Friendship</button>
     </form>
+    <button type="button" id="friend-request-button" class="btn btn-primary">Make request</button>
+    
     <h1>Friend requests</h1>
-    <div id="friends-requests-container">
+    <div id="friends-requests-container"></div>    
 
-    </div>    
-    <!-- {% for friend_request in friend_requests %}
-        <img src={{friend_request.from_user.image}}>
-        <h1>{{friend_request.from_user.username}}</h1>
-        <a href="/accept_friend_request/{{friend_request.id}}/"> accept friend request </a>
-    {% endfor %}  -->
     <h1>Friends</h2>
-    <div id="friends-container">
-
-    </div>
-    <!-- {% for friend in friends %}
-        <img src={{friend.image}}>
-        <h4>{{friend.username}}</h4>
-    {% endfor %} -->
+    <div id="friends-container"></div>
 </div>
