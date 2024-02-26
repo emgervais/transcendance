@@ -1,25 +1,25 @@
 <div id="account-update-info" class="hidden">
     <form id="update-info-form" class="w-25" action="/api/change-info/">
         <div class="username">
-            <label for="username">Username:</label>
-            <input type="username" name="username" required>
+            <label for="update-info-username">Username:</label>
+            <input id="update-info-username" type="username" name="username" required>
         </div>
         <div class="email">
-            <label for="email">Email:</label>
-            <input type="email" name="email" required>
+            <label for="update-info-email">Email:</label>
+            <input id="update-info-email" type="email" name="email" required>
         </div>
         <div id="change-password">
             <div class="old-password"> 
-                <label for="old-password">Current password:</label>
-                <input type="password" name="old-password" required>
+                <label for="update-info-old-password">Current password:</label>
+                <input id="update-info-old-password" type="password" name="old-password" required>
             </div>
             <div class="password1"> 
-                <label for="password1">New password:</label>
-                <input type="password" name="password1" required>
+                <label for="update-info-password1">New password:</label>
+                <input id="update-info-password1" type="password" name="password1" required>
             </div>
             <div class="password2">
-                <label for="password2">Confirm new password:</label>
-                <input type="password" name="password2" required>
+                <label for="update-info-password2">Confirm new password:</label>
+                <input id="update-info-password2" type="password" name="password2" required>
             </div>
         </div>
         </form>
