@@ -3,7 +3,7 @@ import * as api from "/js/api.js";
 import * as auth from "/js/auth.js";
 import * as chat from "/js/chat.js";
 import * as friends from "/js/account/friends.js";
-import * as router from "/js/routing.js";
+import * as router from "/js/router.js";
 import { updateUser } from "/js/user.js";
 import * as util from "/js/util.js";
 

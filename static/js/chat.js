@@ -38,4 +38,11 @@ function initChat() {
 	document.getElementById('chat-message-input').focus();
 }
 
-export { toggleDisplay, submit, initChat };
+function closeChat() {
+	if (chatSocket) {
+		chatSocket.close();
+		chatSocket = undefined;
+	}
+}
+
+export { closeChat, toggleDisplay, submit, initChat };

@@ -1,4 +1,4 @@
-import * as router from "/js/routing.js";
+import * as router from "/js/router.js";
 import * as auth from "/js/auth.js";
 
 // -- block fetch ----

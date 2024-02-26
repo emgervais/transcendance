@@ -1,4 +1,5 @@
-import * as router from "/js/routing.js";
+import * as router from "/js/router.js";
+import * as chat from "/js/chat.js";
 import { updateNav } from "/js/nav.js";
 import * as api from "/js/api.js";
 import { displayUser, setUser, removeUser } from "/js/user.js";
@@ -35,6 +36,7 @@ function isConnected() {
 
 function setConnected(connected) {
     if (!connected) {
+        chat.closeChat();
         removeUser();
     }
     sessionStorage.setItem("connected", connected);
@@ -53,6 +55,7 @@ function login(user, redirect=true) {
         router.route("/");
     }
     reconnecting = false;
+    chat.initChat();
 }
 
 var reconnecting = false;
