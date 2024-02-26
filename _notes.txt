@@ -1,3 +1,10 @@
+/api/update-info/ image:
+    doesn't work
+    sends https://localhost/media/profile_pics/file_name
+    but the file is in django/media/profile_pics/
+
+    
+
 manually edited token: fait planter le serveur
 
 remove browser http console error:
