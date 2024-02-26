@@ -2,7 +2,7 @@ from django.urls import path
 from auth.views import ResetDatabaseView, RegisterView, LoginView, LogoutView, OAuth42UriView, OAuth42LoginView, CustomTokenRefreshView
 
 urlpatterns = [
-    path('refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'), # Custom token refresh view | Method: POST
+    path('refresh-token/', CustomTokenRefreshView.as_view(), name='token_refresh'), # Custom token refresh view | Method: POST
     path('register/', RegisterView.as_view(), name='register'), # Register view | Method: POST
     path('login/', LoginView.as_view(), name='login'), # Login view | Method: POST
     path('logout/', LogoutView.as_view(), name='logout'), # Logout view | Method: POST

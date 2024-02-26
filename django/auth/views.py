@@ -17,7 +17,7 @@ def set_cookies(response, user):
     refresh_token_exp = datetime.fromtimestamp(refresh_token['exp'])
     access_token_exp = datetime.fromtimestamp(access_token['exp'])
     response.set_cookie('access_token', str(access_token), samesite='Strict', httponly=True, secure=True, expires=access_token_exp)
-    response.set_cookie('refresh_token', str(refresh_token), samesite='Strict', httponly=True, secure=True, expires=refresh_token_exp, path='/api/token/refresh/')
+    response.set_cookie('refresh_token', str(refresh_token), samesite='Strict', httponly=True, secure=True, expires=refresh_token_exp, path='/api/refresh-token/')
     return response
 
 # For development purposes only
