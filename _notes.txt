@@ -3,15 +3,21 @@
     sends https://localhost/media/profile_pics/file_name
     but the file is in django/media/profile_pics/
 
+/api/logout/ 401 (Unauthorized):
+    frontend: logout pareil, ignore l'erreur
     
+-- chat ----
+    .global
+    .userId_userId (croissant)
+    .partie
+    json: message, sender_id
+    saver les messages sur localStorage
+
 
 manually edited token: fait planter le serveur
 
 remove browser http console error:
     Impossible? Un feature de Chrome?
-
-cleanup old tokens:
-    cron
 
 /api/refresh/: faudrait pas envoyer l'token
     if user doesn't exists, delete token
