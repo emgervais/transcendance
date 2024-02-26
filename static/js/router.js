@@ -34,7 +34,7 @@ const routes = {
     },
     "/account/friends/": {
         template: "/templates/account.html",
-        onQuit: friends.removeFriendRequestButtons,
+        onQuit: friends.removeFriendButtons,
         function: account.displayFriendsPage,
     },
     "/account/update-info/": {

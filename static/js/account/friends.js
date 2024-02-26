@@ -4,33 +4,7 @@ import * as util from "/js/util.js";
 function refresh() {
     getFriends();
     getFriendRequests();
-}
-function getFriends() {
-    const friendManager = (friends) => {
-        const container = document.getElementById("friends-container");
-        container.innerHTML = '';
-        friends.forEach(friend => {
-            displayFriend(container, friend.friend);
-        })
-    };
-    api.fetchRoute({
-        route: "/api/friends/",
-        dataManager: friendManager
-    });
-}
-
-function getFriendRequests() {
-    const container = document.getElementById("friends-requests-container");
-    container.innerHTML = '';
-    const requestsManager = (requests) => {
-        requests.forEach(request => {
-            displayFriendRequest(container, request);
-        })
-    }
-    api.fetchRoute({
-        route: "/api/friend-requests/",
-        dataManager: requestsManager
-    });
+    getBlockedUsers();
 }
 
 function makeFriendRequest() {
@@ -65,29 +39,90 @@ function makeFriendRequest() {
     });
 }
 
+function getFriendRequests() {
+    const container = document.getElementById("friends-requests-container");
+    container.innerHTML = '';
+    const requestsManager = (requests) => {
+        requests.forEach(request => {
+            displayFriendRequest(container, request);
+        })
+    }
+    api.fetchRoute({
+        route: "/api/friend-requests/",
+        dataManager: requestsManager
+    });
+}
+
+function getFriends() {
+    const friendManager = (friends) => {
+        const container = document.getElementById("friends-container");
+        container.innerHTML = '';
+        friends.forEach(friend => {
+            displayUser(container, friend.friend);
+        })
+    };
+    api.fetchRoute({
+        route: "/api/friends/",
+        dataManager: friendManager
+    });
+}
+
+function getBlockedUsers() {
+    const blockedUsersManager = (friends) => {
+        const container = document.getElementById("blocked-users-container");
+        container.innerHTML = '';
+        friends.forEach(user => {
+            console.log(user);
+            displayUser(container, user.blocked, true);
+        })
+    };    
+    api.fetchRoute({
+        route: "/api/block/",
+        dataManager: blockedUsersManager
+    });    
+}
+
+
 // -- display ----
-function displayFriend(container, friend) {
+function displayUser(container, user, blocked=false) {
     const div = document.createElement("div");
     const appendToContainer = (data) => {
-        div.className = "friend";
+        div.className = "user";
         const img = document.createElement("img");
         img.src = data.image;
         img.className = "img-fluid rounded-circle small-image";
-        const p = document.createElement("p");
-        p.textContent = data.username;
         div.appendChild(img);
-        div.appendChild(p);
+        const username = document.createElement("p");
+        username.textContent = data.username;
+        div.appendChild(username);
+        const status = document.createElement("p");
+        status.textContent = data.status;
+        div.append(status);
         container.appendChild(div);
+        addBlockButton(container, user, !blocked);
     };
     api.fetchRoute({
-        route: `/api/user/${friend}/`,
+        route: `/api/user/${user}/`,
         dataManager: appendToContainer,
     })
     return div;
 }
 
+function addBlockButton(container, user_id, block) {
+    const params = {
+        id: "block-user-" + user_id,
+        container: container,
+        text: "Block",
+        action: blockButtonAction(user_id, block),
+    };
+    if (!block) {
+        params.text = "Unblock";
+    }
+    util.createButton(params);
+}
+
 function displayFriendRequest(container, request) {
-    const div = displayFriend(container, request.from_user);
+    const div = displayUser(container, request.from_user);
     const buttons = [
         {
             text: "Accept",
@@ -106,6 +141,18 @@ function displayFriendRequest(container, request) {
 }
 
 // -- buttons ----
+function removeFriendButtons() {
+    const container = document.getElementById("account-friends");
+    const buttons = container.querySelectorAll("button");
+
+    buttons.forEach(button => {
+        if (button.id.includes("friend-request")
+            || button.id.includes("block-user")) {
+            util.deleteButton(button.id);
+        }
+    });
+}
+
 function requestButtonAction(request_id, accept) {
     const method = accept ? "put" : "delete";
     return () => {
@@ -119,14 +166,25 @@ function requestButtonAction(request_id, accept) {
     };
 }
 
-function removeFriendRequestButtons() {
-    const container = document.getElementById("friends-requests-container");
-    const buttons = container.querySelectorAll("button");
-    buttons.forEach(button => {
-        if (button.id.includes("friend-request")) {
-            util.deleteButton(button.id);
-        }
-    }); 
+function blockButtonAction(user_id, block=true) {
+    const options = {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ user_id: user_id }),
+    };
+    if (!block) {
+        options.method = "DELETE";
+    }
+    return () => {
+        console.log(block ? "" : "un" + "blocking user_id:", user_id);
+        api.fetchRoute({
+            route: "/api/block/",
+            options: options,
+            dataManager: (_) => {
+                refresh();
+            }
+        });
+    };
 }
 
-export { refresh, removeFriendRequestButtons, makeFriendRequest };
+export { refresh, removeFriendButtons, makeFriendRequest };

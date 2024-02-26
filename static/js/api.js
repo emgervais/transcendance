@@ -58,7 +58,7 @@ async function isAuthorized(error) {
     switch (error.status) {
         case 401:
             await fetchRoute({
-                route: "/api/refresh/",
+                route: "/api/refresh-token/",
                 options: { method: "POST" },
                 dataManager: (_) => {
                     console.log("Renewed Access Token");

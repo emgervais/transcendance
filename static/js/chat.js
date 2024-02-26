@@ -28,7 +28,7 @@ function initChat() {
 
 	chatSocket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
-		document.getElementById('chat-log').value += (data.message + '\n');
+		document.getElementById('chat-log').value += (data.sender_id + ": " + data.message + '\n');
 	};
 
 	chatSocket.onclose = (_) => {
