@@ -65,12 +65,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name
             )
-            await add_channel_name(user, self.channel_name)
+            await add_channel_name(user, self.room_name)
             if self.room_name == 'global':
                 await self.accept()
             else:
                 await self.private_room(user)
-    
+
     async def private_room(self, user):
         recipient_ids = self.room_name.split('_')
         if len(recipient_ids) == 2:
@@ -100,14 +100,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name
             )
-            await remove_channel_name(user, self.channel_name)
+            await remove_channel_name(user, self.room_name)
 
     # Receive message from WebSocket
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         user = self.scope["user"]
-        message = f"{user}: {message}"
+        # message = f"{user}: {message}"
                     
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -142,7 +142,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 self.channel_name
             )
-            await add_channel_name(user, self.channel_name)
+            await add_channel_name(user, self.room_name)
             if user.status == 'offline':
                 await change_status(user, 'online')
             self.clear_all_user_channels(user)
@@ -152,7 +152,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         user = self.scope["user"]
 
         if user.is_authenticated:
-            await remove_channel_name(user, self.channel_name)
+            await remove_channel_name(user, self.room_name)
             if user.status == 'online':
                 await change_status(user, 'offline')
     
@@ -160,7 +160,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         notification = event['notification']
         sender_id = event['sender_id']
         room = event['room']
-        
         await self.send(text_data=json.dumps({
             'notification': notification,
             'sender_id': sender_id,
