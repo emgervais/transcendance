@@ -1,4 +1,4 @@
-import * as user from "/js/user.js"
+import { getCurrUser, getUser } from "/js/user.js"
 
 var chatSockets = {};
 var INDEX;
@@ -92,15 +92,16 @@ function startChat(roomId="global") {
 	ws.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 		let	who = 'else';
-		const sender = await user.getUser(data.sender_id);
-		if(data.sender_id === (await user.getUser()).id)
+		console.log("ws.onmessage, data.sender_id:", data.sender_id);
+		const sender =  await getUser(data.sender_id);
+		if(data.sender_id === getCurrUser().id)
 			who = 'self';
 		const username = sender.username;
 		const message = username + ': ' + data.message;
 		INDEX++;
-		if (roomId === currRoomId) {
+		// if (roomId === currRoomId) {
 			generateMessage(message, who, sender.image);
-		}
+		// }
 		saveMessage(roomId, message, who, sender.image);
 	};
 

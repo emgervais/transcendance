@@ -4,7 +4,7 @@ import * as auth from "/js/auth.js";
 import * as chat from "/js/websockets/chat.js";
 import * as friends from "/js/account/friends.js";
 import * as router from "/js/router.js";
-import { updateUser } from "/js/user.js";
+import { updateCurrUser } from "/js/user.js";
 import * as util from "/js/util.js";
 
 const buttons = {
@@ -73,7 +73,7 @@ function onChange(event) {
         case "user-img-changer":
             api.formSubmit({
                 formId: "upload-image",
-                callback: updateUser,
+                callback: updateCurrUser,
                 method: "put"
             });
             break;

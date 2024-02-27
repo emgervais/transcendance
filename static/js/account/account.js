@@ -1,7 +1,7 @@
 import * as util from "/js/util.js";
 import * as api from "/js/api.js";
 import * as friends from "/js/account/friends.js";
-import { getUser, updateUser } from "/js/user.js";
+import { getCurrUser, updateCurrUser } from "/js/user.js";
 
 // -- display ----
 function displayFriendsPage() {
@@ -15,10 +15,10 @@ function hideFriendsPage() {
     util.display("account-friends", false);
 }
 
-async function displayInfoPage() {
+function displayInfoPage() {
     console.log("displayInfoPage");
     util.display("account-update-info");
-    const user = await getUser();
+    const user = getCurrUser();
     util.display("change-password", !user.oauth);
 }
 
@@ -46,7 +46,7 @@ function hideAll() {
 function updateInfoButton() {
     api.formSubmit({
         formId: "update-info-form",
-        callback: updateUser,
+        callback: updateCurrUser,
         method: "put"
     });
 }

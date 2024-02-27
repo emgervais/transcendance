@@ -1,7 +1,7 @@
 import * as api from "/js/api.js";
 import * as util from "/js/util.js";
 import * as chat from "/js/websockets/chat.js";
-import { getUser } from "/js/user.js";
+import { getCurrUser, getUser } from "/js/user.js";
 
 function refresh() {
     getFriends();
@@ -103,7 +103,7 @@ async function displayUser(container, userId, blocked=false) {
         addBlockButton(container, userId, !blocked);
         addChatButton(container, currUserId, userId);
     };
-    const currUserId = (await getUser()).id;
+    const currUserId = getCurrUser().id;
     let user = await getUser(userId);
     appendToContainer(currUserId, user);
     return div;

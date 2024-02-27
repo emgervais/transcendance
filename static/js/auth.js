@@ -3,7 +3,7 @@ import * as chat from "/js/websockets/chat.js";
 import * as notifications from "/js/websockets/notifications.js";
 import { updateNav } from "/js/nav.js";
 import * as api from "/js/api.js";
-import { displayUser, setUser, removeUser } from "/js/user.js";
+import { displayUser, setCurrUser, removeCurrUser } from "/js/user.js";
 
 // -- buttons ----
 function loginButton() {
@@ -38,7 +38,7 @@ function isConnected() {
 function setConnected(connected) {
     if (!connected) {
         chat.closeChat();
-        removeUser();
+        removeCurrUser();
     }
     sessionStorage.setItem("connected", connected);
     updateNav(false);
@@ -47,7 +47,7 @@ function setConnected(connected) {
 
 // -- login ----
 function login(user, redirect=true) {
-    setUser(user);
+    setCurrUser(user);
     setConnected(true);
     displayUser();
     updateNav(true);
