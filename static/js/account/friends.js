@@ -1,5 +1,6 @@
 import * as api from "/js/api.js";
 import * as util from "/js/util.js";
+import * as chat from "/js/websockets/chat.js";
 import { getUser } from "/js/user.js";
 
 function refresh() {
@@ -86,7 +87,7 @@ function getBlockedUsers() {
 // -- display ----
 async function displayUser(container, userId, blocked=false) {
     const div = document.createElement("div");
-    const appendToContainer = (data) => {
+    const appendToContainer = (currUserId, data) => {
         div.className = "user";
         const img = document.createElement("img");
         img.src = data.image;
@@ -100,23 +101,12 @@ async function displayUser(container, userId, blocked=false) {
         div.append(status);
         container.appendChild(div);
         addBlockButton(container, userId, !blocked);
+        addChatButton(container, currUserId, userId);
     };
+    const currUserId = (await getUser()).id;
     let user = await getUser(userId);
-    appendToContainer(user);
+    appendToContainer(currUserId, user);
     return div;
-}
-
-function addBlockButton(container, user_id, block) {
-    const params = {
-        id: "block-user-" + user_id,
-        container: container,
-        text: "Block",
-        action: blockButtonAction(user_id, block),
-    };
-    if (!block) {
-        params.text = "Unblock";
-    }
-    util.createButton(params);
 }
 
 function displayFriendRequest(container, request) {
@@ -139,6 +129,29 @@ function displayFriendRequest(container, request) {
 }
 
 // -- buttons ----
+function addBlockButton(container, userId, block) {
+    const params = {
+        id: "block-user-" + userId,
+        container: container,
+        text: "Block",
+        action: blockButtonAction(userId, block),
+    };
+    if (!block) {
+        params.text = "Unblock";
+    }
+    util.createButton(params);
+}
+
+function addChatButton(container, currUserId, targetId) {
+    const params = {
+        id: "chat-user-" + targetId,
+        container: container,
+        text: "Chat",
+        action: chatButtonAction(currUserId, targetId),
+    };
+    util.createButton(params);
+}
+
 function removeFriendButtons() {
     const container = document.getElementById("account-friends");
     const buttons = container.querySelectorAll("button");
@@ -182,6 +195,13 @@ function blockButtonAction(user_id, block=true) {
                 refresh();
             }
         });
+    };
+}
+
+function chatButtonAction(currUserId, targetId) {
+    const room = [currUserId, targetId].sort().join("_");
+    return () => {
+        chat.startChat(room);
     };
 }
 

@@ -1,5 +1,6 @@
 import * as router from "/js/router.js";
-import * as chat from "/js/chat.js";
+import * as chat from "/js/websockets/chat.js";
+import * as notifications from "/js/websockets/notifications.js";
 import { updateNav } from "/js/nav.js";
 import * as api from "/js/api.js";
 import { displayUser, setUser, removeUser } from "/js/user.js";
@@ -54,7 +55,8 @@ function login(user, redirect=true) {
         router.route("/");
     }
     reconnecting = false;
-    chat.chatMaster();
+    notifications.notificationMaster()
+    chat.startChat();
 }
 
 var reconnecting = false;

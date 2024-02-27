@@ -1,7 +1,8 @@
 import * as user from "/js/user.js"
 
-var chatSocket;
+var chatSockets = {};
 var INDEX;
+var currRoomId;
 
 function initChat() {
 	INDEX = 0;
@@ -53,10 +54,11 @@ async function generateMessage(msg, type, img) {
 	chatLogs.scrollTop = chatLogs.scrollHeight;
 }
 
-async function saveMessage(msg, type, img) {
+async function saveMessage(roomId, msg, type, img) {
 	let messages = JSON.parse(sessionStorage.getItem("messages"));
 	console.log('first: ', messages);
 	const newMessage = {
+		roomId: roomId,
 		message: msg,
 		type: type,
 		image: img,
@@ -77,53 +79,65 @@ function loadMessages() {
 	});
 }
 
-function chatMaster() {
-	var roomName = 'room';
-	chatSocket = new WebSocket(
+function startChat(roomId="global") {
+	console.log("startChat, room:", roomId);
+	let ws = new WebSocket(
 		'wss://'
 		+ window.location.host
 		+ '/ws/chat/'
-		+ roomName + '/'	// Room name according to user's friends
+		+ roomId + '/'	// Room name according to user's friends
 	);
+    chatSockets[roomId] = ws;
 
-	chatSocket.onmessage = async (event) => {
+	ws.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 		let	who = 'else';
+		const sender = await user.getUser(data.sender_id);
 		if(data.sender_id === (await user.getUser()).id)
 			who = 'self';
-		const username = (await user.getUser(data.sender_id)).username;
+		const username = sender.username;
 		const message = username + ': ' + data.message;
 		INDEX++;
-		generateMessage(message, who, data.image);
-		saveMessage(message, who, data.image);
+		if (roomId === currRoomId) {
+			generateMessage(message, who, sender.image);
+		}
+		saveMessage(roomId, message, who, sender.image);
 	};
 
-	chatSocket.onclose = (_) => {
+	ws.onclose = (_) => {
 		console.error('Chat socket closed unexpectedly');
 	};
 
 	// send first message
-	chatSocket.onopen = (event) => {
-		console.log('Chat socket opened');
-		chatSocket.send(JSON.stringify({
-			'message': 'Hello, world!',
-		}));
-	};
+	// ws.onopen = (event) => {
+	// 	console.log('Chat socket opened');
+	// 	ws.send(JSON.stringify({
+	// 		'message': 'Hello, world!',
+	// 	}));
+	// };
 
 }
 
-function submit(message) {
-	chatSocket.send(JSON.stringify({
+function submit(message, roomId="global") {
+    let ws = chatSockets[roomId];
+    if (!ws) {
+        console.log("chat: submit: unexistant roomId");
+        return;
+    }
+	ws.send(JSON.stringify({
 		'message': message
 	}));
 }
 
-function closeChat() {
-	if (chatSocket) {
-		chatSocket.close();
-		chatSocket = undefined;
-	}
+function closeChat(roomId="global") {
+    let ws = chatSockets[roomId];
+    if (!ws) {
+        console.log("chat: closeChat: unexistant roomId");
+        return;
+    }    
+    ws.close();
+    delete chatSockets[roomId];
 }
 // --------------------------------
 
-export { submit, chatMaster, initChat, closeChat };
+export { submit, startChat, initChat, closeChat };

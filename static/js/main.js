@@ -1,7 +1,7 @@
 import * as router from "/js/router.js";
 import * as auth from "/js/auth.js";
 import * as triggers from "/js/triggers.js";
-import * as chat from "/js/chat.js";
+import * as chat from "/js/websockets/chat.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
     auth.oauthRedirected() || auth.confirmLogin();

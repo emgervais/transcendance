@@ -72,7 +72,6 @@ def init_friends(users):
         response = endpoints.friend_requests(user["cookies"])
         request_id = response["data"][0]["id"]
         response = endpoints.friend_request(user["cookies"], request_id, "put")
-        break
 
 @auth(10)
 def init_friend_requests(users):
