@@ -1,5 +1,8 @@
 FROM python:3.9.18-alpine3.19
 
+# Install the PostgreSQL and Redis client tools
+RUN apk add --no-cache postgresql-client redis
+
 WORKDIR /usr/src/app
 
 RUN pip install --upgrade pip

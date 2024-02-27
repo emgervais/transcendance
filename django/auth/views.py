@@ -1,5 +1,5 @@
 from django.http import JsonResponse, HttpRequest
-from users.models import User
+from users.models import User, UserWebSocket
 from auth.serializers import RegisterSerializer, LoginSerializer, OAuth42LoginSerializer, LogoutSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
@@ -9,7 +9,6 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from rest_framework_simplejwt.tokens import AccessToken
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-
     
 def set_cookies(response, user):
     refresh_token = TokenObtainPairSerializer().get_token(user)
@@ -64,18 +63,26 @@ class LogoutView(generics.GenericAPIView):
         response = JsonResponse({'message': 'Logout successful'}, status=status.HTTP_200_OK)
         response.delete_cookie('refresh_token')
         response.delete_cookie('access_token')
+        # close all user websockets
+        user = User.objects.get(pk=request.user.id)
+        channels = UserWebSocket.objects.get(user=user).channel_names
         channel_layer = get_channel_layer()
-        user = request.user
-        if not user.main_channel_name:
+        for channel in channels:
             try:
-                async_to_sync(channel_layer.send)(user.main_channel_name, {'type': 'logout'})
+                print(f'Closing channel {channel}')
+                async_to_sync(channel_layer.send)(channel, {
+                    'type': 'logout',
+                })
+                print(f'Channel {channel} closed')
             except:
-                print('User is not connected to a websocket')
-        user.main_channel_name = ''
+                print('Error closing channel')
+                pass
         user.status = 'offline'
+        # delete all user websockets
+        UserWebSocket.objects.get(user=user).delete()
         return response
 
-    
+        
 class OAuth42UriView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     def get(self, request: HttpRequest) -> JsonResponse:
