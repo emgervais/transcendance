@@ -55,7 +55,7 @@ function login(user, redirect=true) {
         router.route("/");
     }
     reconnecting = false;
-    chat.initChat();
+    chat.chatMaster();
 }
 
 var reconnecting = false;
@@ -96,6 +96,7 @@ function logout() {
         dataManager: data => {
             console.log("Successful logout\n", data);
             setConnected(false);
+            sessionStorage.removeItem("messages");
             router.route("/");
         }
     });

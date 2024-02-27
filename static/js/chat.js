@@ -1,23 +1,84 @@
-import * as util from "/js/util.js";
+import * as user from "/js/user.js"
 
 var chatSocket;
+var INDEX;
 
-function toggleDisplay() {
-	const id = "chat-widget";
-	util.toggleDisplay(id);
-}
-
-function submit() {
-	const messageInputDom = document.querySelector('#chat-message-input');
-	const message = messageInputDom.value;
-	chatSocket.send(JSON.stringify({
-		'message': message
-	}));
-	messageInputDom.value = '';
-}
-
-// --------------------------------
 function initChat() {
+	INDEX = 0;
+	const chatSubmit = document.getElementById('chat-submit');
+	const chatInput = document.getElementById('chat-input');
+	loadMessages();
+	chatSubmit.addEventListener('click', function(e) {
+	  e.preventDefault();
+	  var msg = chatInput.value.trim();
+	  if (msg === '') {
+		return false;
+	  }
+	  submit(msg);
+	});
+
+	var chatCircle = document.getElementById('chat-circle');//add connected check
+	chatCircle.addEventListener('click', function() {
+	  chatCircle.classList.remove('chat-active');
+	  document.querySelector('.chat-box').classList.add('chat-active');;
+	});
+
+	var chatBoxToggle = document.querySelector('.chat-box-toggle');
+	chatBoxToggle.addEventListener('click', function() {
+		chatCircle.classList.add('chat-active');
+		document.querySelector('.chat-box').classList.remove('chat-active');
+	});
+}
+
+async function generateMessage(msg, type, img) {
+	const chatInput = document.getElementById('chat-input');
+	const chatLogs = document.querySelector('.chat-logs');
+
+	var str = "";
+	str += "<div id='cm-msg-" + INDEX + "' class=\"chat-msg " + type + "\">";
+	str += "          <span class=\"msg-avatar\">";
+	str += "            <img src=\"" + img + "\">";
+	str += "          <\/span>";
+	str += "          <div class=\"cm-msg-text\">";
+	str += msg;
+	str += "          <\/div>";
+	str += "        <\/div>";
+	chatLogs.insertAdjacentHTML('beforeend', str);
+	var newMessage = document.getElementById('cm-msg-' + INDEX);
+	newMessage.style.display = 'block';
+	newMessage.style.animation = 'fadeIn 0.3s ease forwards';
+	if (type === 'self') {
+	  chatInput.value = '';
+	}
+	chatLogs.scrollTop = chatLogs.scrollHeight;
+}
+
+async function saveMessage(msg, type, img) {
+	let messages = JSON.parse(sessionStorage.getItem("messages"));
+	console.log('first: ', messages);
+	const newMessage = {
+		message: msg,
+		type: type,
+		image: img,
+	};
+	if(!messages)
+		messages = [];
+
+	messages.push(newMessage);
+	sessionStorage.setItem("messages", JSON.stringify(messages));
+}
+
+function loadMessages() {
+	const messages = JSON.parse(sessionStorage.getItem("messages"));
+	console.log("messages:", messages);
+	if(!messages)
+		return;
+	messages.forEach(msg => {
+		generateMessage(msg.message, msg.type, msg.image);
+	});
+}
+
+function chatMaster() {
 	var roomName = 'room';
 	chatSocket = new WebSocket(
 		'wss://'
@@ -28,14 +89,25 @@ function initChat() {
 
 	chatSocket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
-		document.getElementById('chat-log').value += (data.sender_id + ": " + data.message + '\n');
+		let	who = 'else';
+		if(data.user === user.getUser().username)
+			who = 'self';
+		const message = data.user + ': ' + data.message;
+		INDEX++;
+		generateMessage(message, who, data.image);
+		saveMessage(message, who, data.image);
 	};
 
 	chatSocket.onclose = (_) => {
 		console.error('Chat socket closed unexpectedly');
 	};
 
-	document.getElementById('chat-message-input').focus();
+}
+
+function submit(message) {
+	chatSocket.send(JSON.stringify({
+		'message': message
+	}));
 }
 
 function closeChat() {
@@ -44,5 +116,6 @@ function closeChat() {
 		chatSocket = undefined;
 	}
 }
+// --------------------------------
 
-export { closeChat, toggleDisplay, submit, initChat };
+export { submit, chatMaster, initChat, closeChat };

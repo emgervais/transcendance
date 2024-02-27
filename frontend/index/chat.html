@@ -1,5 +1,31 @@
-<div id="chat-widget" class="hidden">
-    <textarea readonly id="chat-log" cols="100" rows="20"></textarea><br>
-    <input id="chat-message-input" type="text" size="100"><br>
-    <button id="chat-submit-button">Send</button>
+<div id="chat-circle" class="btn btn-raised chat-active">
+    <div id="chat-overlay"></div>
+        <i class="fa-brands fa-rocketchat" style="font-size: x-large;"></i>
+</div>
+
+<div class="chat-box">
+<div class="chat-box-header">
+  Chat
+  <span class="chat-box-toggle"><i class="fa-solid fa-x" alt="close"></i></span>
+</div>
+<div>
+    <ul class="d-flex list-unstyled m-0">
+        <li class="tab-chat text-center flex-grow-1 tab-active" >Global</li>
+        <li class="tab-chat text-center flex-grow-1" >Friends</li>
+        <li class="tab-chat text-center flex-grow-1" >Game</li>
+    </ul>
+</div>
+<div class="chat-box-body">
+  <div class="chat-box-overlay">   
+  </div>
+  <div class="chat-logs">
+   <!--chat-log -->
+  </div>
+</div>
+<div class="chat-input">      
+  <form>
+    <input type="text" id="chat-input" placeholder="Send a message..."/>
+  <button type="submit" class="chat-submit" id="chat-submit"><i class="fa-solid fa-paper-plane" alt="send"></i></button>
+  </form>      
+</div>
 </div>
