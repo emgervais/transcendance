@@ -26,9 +26,8 @@ services:
       context: ./django/
     volumes:
       - ./django/:/usr/src/app/
-      # - ./static/:/usr/src/app/static/
-      # - ./media/:/usr/src/app/media/
-      # - static:/usr/src/app/static/
+      - media:/usr/src/app/media/
+
     expose:
       - ${DJANGO_PORT}
     depends_on:
@@ -47,7 +46,6 @@ services:
       - ./static/:/home/app/static/
       - ./media/:/home/app/media/
       - ./nginx/conf.d/:/etc/nginx/conf.d/
-      # - static:/home/app/static/
     depends_on:
       - web
     networks:

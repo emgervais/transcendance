@@ -66,10 +66,12 @@ class LogoutView(generics.GenericAPIView):
         response.delete_cookie('access_token')
         channel_layer = get_channel_layer()
         user = request.user
-        try:
-            async_to_sync(channel_layer.send)(user.channel_name, {'type': 'logout'})
-        except:
-            print('User is not connected to a websocket')
+        if not user.main_channel_name:
+            try:
+                async_to_sync(channel_layer.send)(user.main_channel_name, {'type': 'logout'})
+            except:
+                print('User is not connected to a websocket')
+        user.main_channel_name = ''
         user.status = 'offline'
         return response
 

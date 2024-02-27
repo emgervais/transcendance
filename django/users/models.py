@@ -11,7 +11,7 @@ class User(AbstractUser, PermissionsMixin):
     friend_list = models.ManyToManyField('self', through='Friend', symmetrical=False, related_name='user_friends', through_fields=('friend', 'user'))
     friend_requests = models.ManyToManyField('self', through='FriendRequest', symmetrical=False, related_name='user_friend_requests', through_fields=('from_user', 'to_user'))
     block_list = models.ManyToManyField('self', through='Block', symmetrical=False, related_name='user_blocked', through_fields=('blocker', 'blocked'))
-    channel_name = models.CharField(max_length=255, blank=True, null=True)
+    main_channel_name = models.CharField(max_length=255, default='', blank=True)
     status = models.CharField(max_length=10, default='offline')
     
     class Meta:
@@ -85,6 +85,10 @@ class BlockManager(models.Manager):
         
         if created is False:
             raise serializers.ValidationError({'block': 'User already blocked'})
+        
+        if Friend.objects.filter(user=blocker, friend=blocked).exists():
+            Friend.objects.filter(user=blocker, friend=blocked).delete()
+            Friend.objects.filter(user=blocked, friend=blocker).delete()
         
         return block
     
