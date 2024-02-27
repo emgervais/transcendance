@@ -11,7 +11,6 @@ class User(AbstractUser, PermissionsMixin):
     friend_list = models.ManyToManyField('self', through='Friend', symmetrical=False, related_name='user_friends', through_fields=('friend', 'user'))
     friend_requests = models.ManyToManyField('self', through='FriendRequest', symmetrical=False, related_name='user_friend_requests', through_fields=('from_user', 'to_user'))
     block_list = models.ManyToManyField('self', through='Block', symmetrical=False, related_name='user_blocked', through_fields=('blocker', 'blocked'))
-    channel_name = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=10, default='offline')
     
     class Meta:
@@ -19,6 +18,23 @@ class User(AbstractUser, PermissionsMixin):
         
     def __str__(self):
         return self.username
+
+class UserWebSocket(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    channel_names = models.JSONField(default=list)
+
+    def add_channel_name(self, channel_name):
+        if channel_name not in self.channel_names:
+            self.channel_names.append(channel_name)
+            self.save()
+
+    def remove_channel_name(self, channel_name):
+        if channel_name in self.channel_names:
+            self.channel_names.remove(channel_name)
+            self.save()
+    
+    class Meta:
+        db_table = 'user_websockets'
     
 class FriendShipManager(models.Manager):
     
@@ -85,6 +101,10 @@ class BlockManager(models.Manager):
         
         if created is False:
             raise serializers.ValidationError({'block': 'User already blocked'})
+        
+        if Friend.objects.filter(user=blocker, friend=blocked).exists():
+            Friend.objects.filter(user=blocker, friend=blocked).delete()
+            Friend.objects.filter(user=blocked, friend=blocker).delete()
         
         return block
     

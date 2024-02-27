@@ -2,7 +2,8 @@ start:
 	docker-compose up --build
 
 stop:
-	docker compose down
+	cd tests && docker-compose down
+	docker-compose down
 	yes | docker network prune
 	yes | docker image prune
 
@@ -27,5 +28,13 @@ db:
 
 tests:
 	cd tests && docker-compose up --build --force-recreate
+
+run_tests:
+	cd tests && docker-compose up -d --build --force-recreate
+	cd tests && docker exec -it tests sh
+
+freeze:
+	python -m pip install -r django/requirements.txt
+	python -m pip freeze > django/requirements.txt
 
 .PHONY: start stop frontend prune web nginx db tests

@@ -102,6 +102,14 @@ function chatMaster() {
 		console.error('Chat socket closed unexpectedly');
 	};
 
+	// send first message
+	chatSocket.onopen = (event) => {
+		console.log('Chat socket opened');
+		chatSocket.send(JSON.stringify({
+			'message': 'Hello, world!',
+		}));
+	};
+
 }
 
 function submit(message) {

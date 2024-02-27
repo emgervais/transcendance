@@ -10,11 +10,6 @@ services:
       - db:/var/lib/postgresql/data
     expose:
       - ${POSTGRES_PORT}
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
-      interval: 1s
-      timeout: 1s
-      retries: 20
     networks:
       - transcendence_network
 
@@ -26,14 +21,12 @@ services:
       context: ./django/
     volumes:
       - ./django/:/usr/src/app/
-      # - ./static/:/usr/src/app/static/
-      # - ./media/:/usr/src/app/media/
-      # - static:/usr/src/app/static/
+      - ./media/:/usr/src/app/media/
     expose:
       - ${DJANGO_PORT}
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
+      - redis
     networks:
       - transcendence_network
 
@@ -47,9 +40,18 @@ services:
       - ./static/:/home/app/static/
       - ./media/:/home/app/media/
       - ./nginx/conf.d/:/etc/nginx/conf.d/
-      # - static:/home/app/static/
     depends_on:
       - web
+    networks:
+      - transcendence_network
+
+  redis:
+    container_name: redis
+    image: redis:6.2.6-alpine
+    volumes:
+      - static:/data
+    expose:
+      - ${REDIS_PORT}
     networks:
       - transcendence_network
 
