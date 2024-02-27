@@ -46,7 +46,6 @@ function setConnected(connected) {
 
 // -- login ----
 function login(user, redirect=true) {
-    api.setBlockFetch(false);
     setUser(user);
     setConnected(true);
     displayUser();
@@ -67,6 +66,7 @@ function reConnect() {
     setConnected(false);
     displayUser();
     alert("Please login");
+    api.setBlockFetch(false);
     router.route("/");
     router.route("/login/");
 }

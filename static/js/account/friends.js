@@ -59,7 +59,6 @@ function getFriends() {
         const container = document.getElementById("friends-container");
         container.innerHTML = '';
         friends.forEach(friend => {
-            console.log("friend:", friend);
             displayUser(container, friend.friend);
         })
     };
@@ -74,7 +73,6 @@ function getBlockedUsers() {
         const container = document.getElementById("blocked-users-container");
         container.innerHTML = '';
         users.forEach(user => {
-            console.log("blocked:", user);
             displayUser(container, user.blocked, true);
         })
     };    
