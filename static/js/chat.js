@@ -89,9 +89,10 @@ function chatMaster() {
 	chatSocket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 		let	who = 'else';
-		if(data.user === await user.getUser().username)
+		if(data.sender_id === (await user.getUser()).id)
 			who = 'self';
-		const message = data.user + ': ' + data.message;
+		const username = (await user.getUser(data.sender_id)).username;
+		const message = username + ': ' + data.message;
 		INDEX++;
 		generateMessage(message, who, data.image);
 		saveMessage(message, who, data.image);
