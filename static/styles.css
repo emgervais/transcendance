@@ -296,6 +296,7 @@
     float:left;
     width:15%;
   }
+
   .chat-msg.self > .msg-avatar img {
     width:45px;
     height:45px;
@@ -334,3 +335,7 @@
       clear: both;
       margin-bottom: 70px;
   }
+
+.small-image {
+    width: 50px;
+}

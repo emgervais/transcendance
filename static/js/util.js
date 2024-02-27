@@ -30,6 +30,7 @@ function createButton({text, id, action, container}) {
 function deleteButton(id) {
     const button = document.getElementById(id);
     button.removeEventListener("click", button_actions[id]);
+    delete button_actions["id"];
     button.remove();
 }
 

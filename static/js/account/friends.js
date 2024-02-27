@@ -1,5 +1,6 @@
 import * as api from "/js/api.js";
 import * as util from "/js/util.js";
+import { getUser } from "/js/user.js";
 
 function refresh() {
     getFriends();
@@ -58,6 +59,7 @@ function getFriends() {
         const container = document.getElementById("friends-container");
         container.innerHTML = '';
         friends.forEach(friend => {
+            console.log("friend:", friend);
             displayUser(container, friend.friend);
         })
     };
@@ -68,11 +70,11 @@ function getFriends() {
 }
 
 function getBlockedUsers() {
-    const blockedUsersManager = (friends) => {
+    const blockedUsersManager = (users) => {
         const container = document.getElementById("blocked-users-container");
         container.innerHTML = '';
-        friends.forEach(user => {
-            console.log(user);
+        users.forEach(user => {
+            console.log("blocked:", user);
             displayUser(container, user.blocked, true);
         })
     };    
@@ -84,7 +86,7 @@ function getBlockedUsers() {
 
 
 // -- display ----
-function displayUser(container, user, blocked=false) {
+async function displayUser(container, userId, blocked=false) {
     const div = document.createElement("div");
     const appendToContainer = (data) => {
         div.className = "user";
@@ -99,12 +101,10 @@ function displayUser(container, user, blocked=false) {
         status.textContent = data.status;
         div.append(status);
         container.appendChild(div);
-        addBlockButton(container, user, !blocked);
+        addBlockButton(container, userId, !blocked);
     };
-    api.fetchRoute({
-        route: `/api/user/${user}/`,
-        dataManager: appendToContainer,
-    })
+    let user = await getUser(userId);
+    appendToContainer(user);
     return div;
 }
 

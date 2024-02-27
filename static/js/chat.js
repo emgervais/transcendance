@@ -70,7 +70,6 @@ async function saveMessage(msg, type, img) {
 
 function loadMessages() {
 	const messages = JSON.parse(sessionStorage.getItem("messages"));
-	console.log("messages:", messages);
 	if(!messages)
 		return;
 	messages.forEach(msg => {
@@ -87,10 +86,10 @@ function chatMaster() {
 		+ roomName + '/'	// Room name according to user's friends
 	);
 
-	chatSocket.onmessage = (event) => {
+	chatSocket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 		let	who = 'else';
-		if(data.user === user.getUser().username)
+		if(data.user === await user.getUser().username)
 			who = 'self';
 		const message = data.user + ': ' + data.message;
 		INDEX++;

@@ -1,30 +1,50 @@
+import * as util from "/js/util.js";
+import * as api from "/js/api.js";
+// save user info in sessionStorage
+// if exists, use, else fetch /api/user/id/
+// no id: "user"
+// id: "user-id"
+
 // -- singletons ----
-function getUser() {
-    return JSON.parse(sessionStorage.getItem("user"));
+// No id means current user.
+async function getUser(id="") {
+    let key = "user" + id;
+    let user = JSON.parse(sessionStorage.getItem(key));
+    if (id && !user) {
+        await api.fetchRoute({
+            route: `/api/user/${id}/`,
+            dataManager: user => {
+                setUser(user, id);
+            },
+        });
+        user = JSON.parse(sessionStorage.getItem(key));
+    }
+    return user;
 }
 
-function setUser(user) {
+function setUser(user, id="") {
     if (!user) {
         throw new Error("setUser: Invalid user object provided.");
     }
-    sessionStorage.setItem("user", JSON.stringify(user));
+    let key = "user" + id;
+    sessionStorage.setItem(key, JSON.stringify(user));
 }
 
-function updateUser(data) {
-    console.log("updateUser()");
-    const user = getUser();
+async function updateUser(data, id="") {
+    const user = await getUser(id);
     for (const key in data) {
         if (key in user) {
             console.log(key, ":", data[key]);
             user[key] = data[key];
         }
     }
-    setUser(user);
+    setUser(user, id);
     displayUser();
 }
 
-function removeUser() {
-    sessionStorage.removeItem("user");
+function removeUser(id="") {
+    let key = "user" + id;
+    sessionStorage.removeItem(key);
 }
 // --
 function displayUserImage(image) {
@@ -39,10 +59,10 @@ function displayUserName(username) {
     });
 }
 
-function displayUser() {
+async function displayUser() {
     let image = ""
     let username = "";
-    let user = getUser();
+    let user = await getUser();
     if (user) {
         image = user.image;
         username = user.username;

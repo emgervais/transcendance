@@ -15,10 +15,10 @@ function hideFriendsPage() {
     util.display("account-friends", false);
 }
 
-function displayInfoPage() {
+async function displayInfoPage() {
     console.log("displayInfoPage");
     util.display("account-update-info");
-    const user = getUser();
+    const user = await getUser();
     util.display("change-password", !user.oauth);
 }
 

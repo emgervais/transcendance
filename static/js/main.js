@@ -3,7 +3,7 @@ import * as auth from "/js/auth.js";
 import * as triggers from "/js/triggers.js";
 import * as chat from "/js/chat.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     auth.oauthRedirected() || auth.confirmLogin();
     router.locationHandler();
     chat.initChat();
