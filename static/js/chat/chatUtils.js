@@ -47,7 +47,7 @@ async function generateMessage(msg, type, img, userId) {
 	var str = "";
 	str += "<div class=\"chat-msg " + type + "\">";
 	str += "          <span class=\"msg-avatar\">";
-	str += "            <img src=\"" + img + "\" data-id=\"" + userId + "\">";
+	str += "            <img src=\"" + img + "\" class=\"profile-picture-chat\" data-id=\"" + userId + "\">";
 	str += "          <\/span>";
 	str += "          <div class=\"cm-msg-text\">";
 	str += msg;

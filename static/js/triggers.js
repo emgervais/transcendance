@@ -15,7 +15,7 @@ const idFunctions = {
     "oauth-button": auth.oauthButton,
     
     "chat-toggle": chat.toggleDisplay,
-    "chat-submit-button": chat.submit,
+    "chat-submit": chat.submit,
 
     "update-info-button": account.updateInfoButton,
 
@@ -27,55 +27,65 @@ const classFunctions = {
     'chat-tab-list': (target) => { chatUtils.changeChatTab(target.id); },
 }
 
+function callIdFunction(target) {
+    while (target && !target.id in idFunctions) {
+        target = target.parentElement;
+    }
+    if (target.id in idFunctions) {
+        idFunctions[target.id]();
+        return true;
+    }
+    return false;
+}
+
 function callClassFunctions(target) {
+    while (target && !_callClassFunctions(target)) {
+        target = target.parentElement;
+    }
+}
+
+function _callClassFunctions(target) {
     target.classList.forEach(className => {
         if (className in classFunctions) {
             classFunctions[className](target);
-            return;
+            return true;
         }
     });
+    return false;
 }
 
 function click(event) {
     const { target } = event;
+    console.log("click:", target.id);
     if (target.matches("a[href]")) {
         event.preventDefault();
-        // if(event.target.classList.contains('chat-tab-list')) {
-        //     chatUtils.changeChatTab(event.target.id);
-        //     return;
-        // }
         router.route(event.target.href);
+    } else {
+        callIdFunction(target) || callClassFunctions(target);
     }
-    // else if(event.target.classList.contains('closeFriendChat')) {
-    //     chat.closeChat(event.target.getAttribute('data-roomid'));
-    // }
-    else if (target.id in idFunctions) {
-        idFunctions[target.id]();
-    }
-    callClassFunctions(target);
 }
 
 function key(event) {
 
     switch (event.key) {
         case "Escape":
-            key_escape();
+            keyEscape();
             break;
         case "Enter":
-            key_enter(event.target.id )
+            keyEnter(event.target.id);
             break;
     }
 }
 
-function key_escape() {
+function keyEscape() {
     if (util.isDisplayed("authentication-container")) {
         router.route("/");
     }
 }
 
-function key_enter(id) {
+function keyEnter(id) {
     switch (id) {
-        case "chat-message-input":
+        case "chat-input":
             chat.submit();
             return;
         case "friend-request-input":

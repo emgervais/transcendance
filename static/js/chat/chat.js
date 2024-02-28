@@ -50,11 +50,15 @@ function startChat(roomId="global") {
 
 }
 
-function submit(message) {
+const chatInput = document.getElementById('chat-input');
+function submit() {
+	let message = chatInput.value.trim();
+	if (!message) {
+		return;
+	}
     let ws = chatSockets[currRoomId];
-	console.log('sent');
     if (!ws) {
-        console.log("chat: submit: unexistant roomId");
+        console.log("chat: submit: unexistant roomId:", currRoomId);
         return;
     }
 	ws.send(JSON.stringify({

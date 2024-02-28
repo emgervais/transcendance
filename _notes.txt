@@ -2,7 +2,8 @@ Si un client refresh, les websockets actifs devraient redémarrer.
     Serveur:
     .conserver les websockets actifs
     .À la connexion, renvoyer les identificateurs de websockets pour que le client les redémarre
-
+    Solution:
+    .websocket notifications: envoie les room_names à l'ouverture
     
 
 manually edited token: fait planter le serveur

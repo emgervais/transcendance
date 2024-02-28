@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     auth.oauthRedirected() || auth.confirmLogin();
     router.locationHandler();
     chat.initChat();
+    document.addEventListener("submit", event => { event.preventDefault(); });
     document.addEventListener("click", triggers.click);
     document.addEventListener("keydown", triggers.key);
     document.addEventListener("change", triggers.onChange);
-    document.addEventListener("submit", event => { event.preventDefault(); });
 });
