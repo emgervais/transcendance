@@ -1,20 +1,8 @@
 import * as router from "/js/router.js";
 import * as auth from "/js/auth.js";
 
-// -- block fetch ----
-var blockFetch = false;
-function setBlockFetch(bool) {
-    blockFetch = bool;
-    console.log("setBlockFetch:", blockFetch);
-}
-// --
-
 // -- fetch ----
 async function fetchRoute(params, retrying=false){
-    if (blockFetch) {
-        console.log("blocked fetch due to 403. blockFetch:", blockFetch);
-        return;
-    }
     const {
         route,
         options=null,
@@ -58,16 +46,20 @@ function fetchResponse(response) {
 async function isAuthorized(error) {
     switch (error.status) {
         case 401:
-            await fetchRoute({
-                route: "/api/refresh-token/",
-                options: { method: "POST" },
-                dataManager: (_) => {
-                    console.log("Renewed Access Token");
-                },
+            await fetch("/api/refresh-token/", { method: "POST" })
+            .then(fetchResponse)
+            .then((_) => {
+                console.log("Renewed Access Token");
+            })
+            .catch((_) => {
+                auth.setConnected(false);
+                console.log("Couldn't Renew Access Token");
+                if (!router.getCurrentRoute().unprotected) {
+                    auth.reConnect();
+                }
             });
             break;
         case 403:
-            setBlockFetch(true);
             auth.reConnect();
             break;
         default:
@@ -174,5 +166,5 @@ function clearForm(formId) {
     });
 }
 
-export { formSubmit, fetchRoute, setBlockFetch };
+export { formSubmit, fetchRoute };
 export { addFormErrors ,removeFormErrors };

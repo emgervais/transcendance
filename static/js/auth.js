@@ -68,7 +68,6 @@ function reConnect() {
     setConnected(false);
     displayUser();
     alert("Please login");
-    api.setBlockFetch(false);
     router.route("/");
     router.route("/login/");
 }
