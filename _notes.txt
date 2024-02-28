@@ -1,53 +1,16 @@
+Si un client refresh, les websockets actifs devraient redémarrer.
+    Serveur:
+    .conserver les websockets actifs
+    .À la connexion, renvoyer les identificateurs de websockets pour que le client les redémarre
+
+    
+
 manually edited token: fait planter le serveur
 
-remove browser http console error:
-    Impossible? Un feature de Chrome?
 
 /api/refresh/: faudrait pas envoyer l'token
     if user doesn't exists, delete token
     si pas de token: 400: devrait être 403 forbidden
-
-enableScripts #ajoute des scripts inutiles
-
-confirmLogin():
-    fetch /api/user/ et keep en variable
-    
-
-user/id/: get: ['id', 'username', 'email', 'image', 'oauth',
-    'matches', 'friends', 'friend_requests'] # nombres
-
-friend-requests/: 
-    get: current requests
-    post: make a request
-        to_user: user_id
-
-friend-requests/request_id/:
-    put:
-    delete:
-
-friends/:
-    get: ['id', 'user', 'friend', 'created_at']
-
-friends/user_id/:
-    delete: remove friend
--------------------------------------------------------------
-If 401: /api/refresh/
-
-        Don't keep user info in cookie. The connection can only be confirmed by the server. 
-        Otherwise, keep data and use only if server validates. What if it was changed on another computer? Might as well not keep cookies, making implementation simpler.
-    Anti-csrf token: protected, give the token (see notes)
-
-Login, Register:
-
-regular user Image:
-
-Change-info:
-    ajouter email
-
-Logout:
-    currently: a post request with the refresh token
-    todo: a post with the token in http only cookie
-    Also: delete cookies?
 
 
 ----
