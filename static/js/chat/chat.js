@@ -6,9 +6,6 @@ import * as chatListener from "/js/chat/chatListener.js"
 var chatSockets = {
 	'global': 1,
 	'match': 2,
-	'user0_francoma': 3,
-	'user0_ele-sage': 4,
-	'user0_eboyce': 5,
 };
 var currRoomId = 'global';
 
@@ -28,7 +25,7 @@ function startChat(roomId="global") {
 		'wss://'
 		+ window.location.host
 		+ '/ws/chat/'
-		+ roomId + '/'	// Room name according to user's friends
+		+ roomId + '/'
 	);
     chatSockets[roomId] = ws;
 
@@ -52,8 +49,8 @@ function startChat(roomId="global") {
 
 }
 
-function submit(message, roomId="global") {
-    let ws = chatSockets[roomId];
+function submit(message) {
+    let ws = chatSockets[currRoomId];
     if (!ws) {
         console.log("chat: submit: unexistant roomId");
         return;
@@ -69,12 +66,10 @@ function closeChat(roomId="global") {
         console.log("chat: closeChat: unexistant roomId");
         return;
     }    
-    // ws.close();
     delete chatSockets[roomId];
 	chatUtils.deleteMessages(roomId);
 	if(currRoomId === roomId)
 		chatUtils.clearLogs();
-	chatSockets
 }
 // --------------------------------
 

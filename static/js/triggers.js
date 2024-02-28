@@ -8,7 +8,7 @@ import { updateCurrUser } from "/js/user.js";
 import * as util from "/js/util.js";
 import * as chatUtils from "/js/chat/chatUtils.js";
 
-const buttons = {
+const idFunctions = {
     "login-button": auth.loginButton,
     "register-button": auth.registerButton,
     "logout-button": auth.logout,
@@ -22,22 +22,36 @@ const buttons = {
     "friend-request-button": friends.makeFriendRequest
 };
 
+const classFunctions = {
+    'closeFriendChat': (target) => { chat.closeChat(target.getAttribute('data-roomid')); },
+    'chat-tab-list': (target) => { chatUtils.changeChatTab(target.id); },
+}
+
+function callClassFunctions(target) {
+    target.classList.forEach(className => {
+        if (className in classFunctions) {
+            classFunctions[className](target);
+        }
+    });
+}
+
 function click(event) {
     const { target } = event;
     if (target.matches("a[href]")) {
         event.preventDefault();
-        if(event.target.classList.contains('chat-tab-list')) {
-            chatUtils.changeChatTab(event.target.id);
-            return;
-        }
+        // if(event.target.classList.contains('chat-tab-list')) {
+        //     chatUtils.changeChatTab(event.target.id);
+        //     return;
+        // }
         router.route(event.target.href);
     }
-    else if(event.target.classList.contains('closeFriendChat')) {
-        chat.closeChat(event.target.getAttribute('data-roomid'));
+    // else if(event.target.classList.contains('closeFriendChat')) {
+    //     chat.closeChat(event.target.getAttribute('data-roomid'));
+    // }
+    else if (target.id in idFunctions) {
+        idFunctions[target.id]();
     }
-    else if (target.id in buttons) {
-        buttons[target.id]();
-    }
+    callClassFunctions(target);
 }
 
 function key(event) {

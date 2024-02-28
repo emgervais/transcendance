@@ -51,7 +51,6 @@ async function getUser(id) {
             setUser(id, user);
         },
     });
-    console.log("getUser, id:", id, "user:", users[key]);
     return users[key];
 }
 

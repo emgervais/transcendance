@@ -3,18 +3,20 @@ import * as user from "/js/user.js"
 
 async function generateFriendTab(element) {
 	const currUser = user.getCurrUser();
-	console.log("currUser:", currUser);
+	console.log('curr', currUser);
 	for(var key in chat.chatSockets) {
 		var activate = '';
 
-		var username = key.split('_').filter(function(key) {
-			console.log("key:", key);
-			return key !== currUser.username;
+		var id = key.split('_').filter(function(key) {
+			console.log(key, currUser.id);
+			return key != currUser.id;
 		});
+		console.log('id;', id);
 		if(key !== 'global' && key !== 'match') {
 			if(key === chat.currRoomId) {
 				activate = 'tab-active';
 			}
+			const username = (await user.getUser(id)).username;
 			var str = "<div class=\"dropdown-item chat-tab-container\"> <a class=\"chat-tab-list " + activate + "\" href=\"\" id=\"" + key + "\" title=\"" + username +"\">" + username + "</a>"
 			+ "<i title=\"close Chat\"class=\"closeFriendChat fa-solid fa-x\" data-roomId=\"" + key + "\"></i> </div>";
 			element.insertAdjacentHTML('beforeend', str);
@@ -38,6 +40,7 @@ function deleteMessages(roomId) {
 	console.log('2', filteredMessages);
 	sessionStorage.setItem('messages', JSON.stringify(filteredMessages));
 }
+
 async function generateMessage(msg, type, img) {
 	const chatInput = document.getElementById('chat-input');
 	const chatLogs = document.querySelector('.chat-logs');
@@ -86,7 +89,8 @@ function loadMessages() {
 	});
 }
 
-function clearLogs(){
+function clearLogs() {
 	document.querySelector('.chat-logs').innerHTML = '';
 }
+
 export {generateFriendTab, changeChatTab, generateMessage, saveMessage, loadMessages, deleteMessages, clearLogs};
