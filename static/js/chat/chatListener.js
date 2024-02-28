@@ -1,5 +1,5 @@
-import * as chat from "/js/chat/chat.js"
-import * as chatUtils from "/js/chat/chatUtils.js"
+import * as chat from "/js/chat/chat.js";
+import * as chatUtils from "/js/chat/chatUtils.js";
 
 export function chatListeners() {
 

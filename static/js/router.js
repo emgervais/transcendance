@@ -1,7 +1,7 @@
 import * as nav from "/js/nav.js";
 import * as account from "/js/account/account.js";
 import * as friends from "/js/account/friends.js";
-import * as user from "/js/user.js";
+import { displayCurrUser } from "/js/user/currUser.js";
 
 const routes = {
     404: {
@@ -94,7 +94,7 @@ const locationHandler = async () => {
     if (route.function) {
         route.function();
     }
-    user.displayUser();
+    displayCurrUser();
 };
 
 function enableScripts(elementId) {

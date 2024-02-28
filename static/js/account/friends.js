@@ -1,7 +1,7 @@
 import * as api from "/js/api.js";
+import { displayUser } from "/js/user/user.js";
 import * as util from "/js/util.js";
-import * as chat from "/js/chat/chat.js";
-import { getCurrUser, getUser } from "/js/user.js";
+
 
 function refresh() {
     getFriends();
@@ -85,43 +85,19 @@ function getBlockedUsers() {
 
 
 // -- display ----
-async function displayUser(container, userId, blocked=false) {
-    const div = document.createElement("div");
-    const appendToContainer = (currUserId, data) => {
-        div.className = "user";
-        const img = document.createElement("img");
-        img.src = data.image;
-        img.className = "img-fluid rounded-circle small-image";
-        div.appendChild(img);
-        const username = document.createElement("p");
-        username.textContent = data.username;
-        div.appendChild(username);
-        const status = document.createElement("p");
-        status.textContent = data.status;
-        div.append(status);
-        container.appendChild(div);
-        addBlockButton(container, userId, !blocked);
-        addChatButton(container, currUserId, userId);
-    };
-    const currUserId = getCurrUser().id;
-    let user = await getUser(userId);
-    appendToContainer(currUserId, user);
-    return div;
-}
-
 function displayFriendRequest(container, request) {
     const div = displayUser(container, request.from_user);
     const buttons = [
         {
             text: "Accept",
             id: "friend-request-accept-" + request.id,
-            action: requestButtonAction(request.id, true),
+            action: requestAction(request.id, true),
             container: div,
         },
         {
             text: "Refuse",
             id: "friend-request-refuse-" + request.id,
-            action: requestButtonAction(request.id, false),
+            action: requestAction(request.id, false),
             container: div,
         }
     ]
@@ -129,42 +105,17 @@ function displayFriendRequest(container, request) {
 }
 
 // -- buttons ----
-function addBlockButton(container, userId, block) {
-    const params = {
-        id: "block-user-" + userId,
-        container: container,
-        text: "Block",
-        action: blockButtonAction(userId, block),
-    };
-    if (!block) {
-        params.text = "Unblock";
-    }
-    util.createButton(params);
-}
-
-function addChatButton(container, currUserId, targetId) {
-    const params = {
-        id: "chat-user-" + targetId,
-        container: container,
-        text: "Chat",
-        action: chatButtonAction(currUserId, targetId),
-    };
-    util.createButton(params);
-}
-
 function removeFriendButtons() {
     const container = document.getElementById("account-friends");
     const buttons = container.querySelectorAll("button");
 
     buttons.forEach(button => {
-        if (button.id.includes("friend-request")
-            || button.id.includes("block-user")) {
-            util.deleteButton(button.id);
-        }
+        util.deleteButton(button.id);
     });
 }
 
-function requestButtonAction(request_id, accept) {
+// -- actions ----
+function requestAction(request_id, accept) {
     const method = accept ? "put" : "delete";
     return () => {
         api.fetchRoute({
@@ -174,34 +125,6 @@ function requestButtonAction(request_id, accept) {
                 refresh();
             }
         });
-    };
-}
-
-function blockButtonAction(user_id, block=true) {
-    const options = {
-        method: "POST",
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ user_id: user_id }),
-    };
-    if (!block) {
-        options.method = "DELETE";
-    }
-    return () => {
-        console.log(block ? "" : "un" + "blocking user_id:", user_id);
-        api.fetchRoute({
-            route: "/api/block/",
-            options: options,
-            dataManager: (_) => {
-                refresh();
-            }
-        });
-    };
-}
-
-function chatButtonAction(currUserId, targetId) {
-    const room = [currUserId, targetId].sort().join("_");
-    return () => {
-        chat.startChat(room);
     };
 }
 

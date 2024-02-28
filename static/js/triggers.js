@@ -4,7 +4,7 @@ import * as auth from "/js/auth.js";
 import * as chat from "/js/chat/chat.js";
 import * as friends from "/js/account/friends.js";
 import * as router from "/js/router.js";
-import { updateCurrUser } from "/js/user.js";
+import { updateCurrUser } from "/js/user/currUser.js";
 import * as util from "/js/util.js";
 import * as chatUtils from "/js/chat/chatUtils.js";
 
@@ -31,6 +31,7 @@ function callClassFunctions(target) {
     target.classList.forEach(className => {
         if (className in classFunctions) {
             classFunctions[className](target);
+            return;
         }
     });
 }

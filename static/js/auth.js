@@ -3,7 +3,7 @@ import * as chat from "/js/chat/chat.js";
 import * as notifications from "/js/chat/notifications.js";
 import { updateNav } from "/js/nav.js";
 import * as api from "/js/api.js";
-import { displayUser, setCurrUser, removeCurrUser } from "/js/user.js";
+import { displayCurrUser, setCurrUser, removeCurrUser } from "/js/user/currUser.js";
 
 // -- buttons ----
 function loginButton() {
@@ -49,7 +49,7 @@ function setConnected(connected) {
 function login(user, redirect=true) {
     setCurrUser(user);
     setConnected(true);
-    displayUser();
+    displayCurrUser();
     updateNav(true);
     if (redirect) {
         router.route("/");
@@ -66,7 +66,7 @@ function reConnect() {
     }
     reconnecting = true;
     setConnected(false);
-    displayUser();
+    displayCurrUser();
     alert("Please login");
     router.route("/");
     router.route("/login/");

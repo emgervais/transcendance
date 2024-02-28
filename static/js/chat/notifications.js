@@ -1,5 +1,6 @@
-import { getCurrUser } from "/js/user.js"
 import * as chat from "/js/chat/chat.js";
+import { getCurrUser } from "/js/user/currUser.js";
+
 var ws;
 
 async function notificationMaster() {

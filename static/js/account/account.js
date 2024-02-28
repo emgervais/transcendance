@@ -1,7 +1,7 @@
 import * as util from "/js/util.js";
 import * as api from "/js/api.js";
 import * as friends from "/js/account/friends.js";
-import { getCurrUser, updateCurrUser } from "/js/user.js";
+import { getCurrUser, updateCurrUser } from "/js/user/currUser.js";
 
 // -- display ----
 function displayFriendsPage() {

@@ -1,7 +1,8 @@
-import * as user from "/js/user.js"
-import * as test from "/js/test_messages.js"
-import * as chatUtils from "/js/chat/chatUtils.js"
-import * as chatListener from "/js/chat/chatListener.js"
+import * as chatUtils from "/js/chat/chatUtils.js";
+import * as chatListener from "/js/chat/chatListener.js";
+import * as test from "/js/test_messages.js";
+import { getCurrUser } from "/js/user/currUser.js";
+import { getUser } from "/js/user/user.js"
 
 var chatSockets = {
 	'global': 1,
@@ -25,22 +26,22 @@ function startChat(roomId="global") {
 		'wss://'
 		+ window.location.host
 		+ '/ws/chat/'
-		+ roomId + '/'
+		+ roomId + '/'	// Room name according to user's friends
 	);
     chatSockets[roomId] = ws;
 
 	ws.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 		let	who = 'else';
-		const sender = await user.getUser(data.sender_id);
-		if(data.sender_id === user.getCurrUser().id)
+		const sender = await getUser(data.sender_id);
+		if(data.sender_id === getCurrUser().id)
 			who = 'self';
 		const username = sender.username;
 		const message = username + ': ' + data.message;
 		if (roomId === currRoomId) {
-			chatUtils.generateMessage(message, who, sender.image);
+			chatUtils.generateMessage(message, who, sender.image, data.sender_id);
 		}
-		chatUtils.saveMessage(roomId, message, who, sender.image);
+		chatUtils.saveMessage(roomId, message, who, sender.image, data.sender_id);
 	};
 
 	ws.onclose = (_) => {
@@ -51,6 +52,7 @@ function startChat(roomId="global") {
 
 function submit(message) {
     let ws = chatSockets[currRoomId];
+	console.log('sent');
     if (!ws) {
         console.log("chat: submit: unexistant roomId");
         return;

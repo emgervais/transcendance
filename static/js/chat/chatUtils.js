@@ -1,23 +1,22 @@
-import * as chat from "/js/chat/chat.js"
-import * as user from "/js/user.js"
+import * as chat from "/js/chat/chat.js";
+import { getUser } from "/js/user/user.js";
+import { getCurrUser } from "/js/user/currUser.js";
 
 async function generateFriendTab(element) {
-	const currUser = user.getCurrUser();
+	const currUser = getCurrUser();
 	console.log('curr', currUser);
 	for(var key in chat.chatSockets) {
 		var activate = '';
 
 		var id = key.split('_').filter(function(key) {
-			console.log(key, currUser.id);
 			return key != currUser.id;
 		});
-		console.log('id;', id);
 		if(key !== 'global' && key !== 'match') {
 			if(key === chat.currRoomId) {
 				activate = 'tab-active';
 			}
-			const username = (await user.getUser(id)).username;
-			var str = "<div class=\"dropdown-item chat-tab-container\"> <a class=\"chat-tab-list " + activate + "\" href=\"\" id=\"" + key + "\" title=\"" + username +"\">" + username + "</a>"
+			const username = (await getUser(id)).username;
+			var str = "<div class=\"dropdown-item " + activate + " chat-tab-container\"> <a class=\"chat-tab-list\" href=\"\" id=\"" + key + "\" title=\"" + username +"\">" + username + "</a>"
 			+ "<i title=\"close Chat\"class=\"closeFriendChat fa-solid fa-x\" data-roomId=\"" + key + "\"></i> </div>";
 			element.insertAdjacentHTML('beforeend', str);
 		}
@@ -41,14 +40,14 @@ function deleteMessages(roomId) {
 	sessionStorage.setItem('messages', JSON.stringify(filteredMessages));
 }
 
-async function generateMessage(msg, type, img) {
+async function generateMessage(msg, type, img, userId) {
 	const chatInput = document.getElementById('chat-input');
 	const chatLogs = document.querySelector('.chat-logs');
 
 	var str = "";
 	str += "<div class=\"chat-msg " + type + "\">";
 	str += "          <span class=\"msg-avatar\">";
-	str += "            <img src=\"" + img + "\">";
+	str += "            <img src=\"" + img + "\" data-id=\"" + userId + "\">";
 	str += "          <\/span>";
 	str += "          <div class=\"cm-msg-text\">";
 	str += msg;
@@ -61,7 +60,7 @@ async function generateMessage(msg, type, img) {
 	chatLogs.scrollTop = chatLogs.scrollHeight;
 }
 
-async function saveMessage(roomId, msg, type, img) {
+async function saveMessage(roomId, msg, type, img, userId) {
 	let messages = JSON.parse(sessionStorage.getItem("messages"));
 
 	const newMessage = {
@@ -69,6 +68,7 @@ async function saveMessage(roomId, msg, type, img) {
 		message: msg,
 		type: type,
 		image: img,
+		userId: userId,
 	};
 	if(!messages)
 		messages = [];
@@ -85,7 +85,7 @@ function loadMessages() {
 		return;
 	messages = messages.filter(room => room.roomId === chat.currRoomId)
 	messages.forEach(msg => {
-		generateMessage(msg.message, msg.type, msg.image);
+		generateMessage(msg.message, msg.type, msg.image, msg.userId);
 	});
 }
 
