@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from users.models import User, UserWebSocket
-# from chat.censor import censor
+from .censor import censor
 
 from typing import List
 
@@ -117,7 +117,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
     async def chat_message(self, event):
-        message = event['message']
+        message = censor(event['message'])
         sender_id = event['sender_id']
         
         await self.send(text_data=json.dumps({
