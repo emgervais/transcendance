@@ -1,6 +1,6 @@
 import * as router from "/js/router.js";
-import * as chat from "/js/websockets/chat.js";
-import * as notifications from "/js/websockets/notifications.js";
+import * as chat from "/js/chat/chat.js";
+import * as notifications from "/js/chat/notifications.js";
 import { updateNav } from "/js/nav.js";
 import * as api from "/js/api.js";
 import { displayUser, setCurrUser, removeCurrUser } from "/js/user.js";

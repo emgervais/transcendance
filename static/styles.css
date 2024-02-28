@@ -194,7 +194,7 @@
     box-shadow: inset 0 0 0 1px rgb(121, 121, 121);
   }
 
-  .tab-chat.tab-active {
+  .tab-active {
     background-color: #bababa;
     box-shadow: inset 0 0 0 1px rgb(121, 121, 121);
   }
@@ -289,7 +289,7 @@
       }
   }
   
-  .chat-msg.user > .msg-avatar img {
+  .chat-msg.else > .msg-avatar img {
     width:45px;
     height:45px;
     border-radius:50%;
@@ -336,6 +336,28 @@
       margin-bottom: 70px;
   }
 
+  .chat-tab-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chat-tab-container a {
+    text-decoration: none;
+    color:black;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .chat-tab-list {
+    flex:5;
+  }
+  .closeFriendChat{
+    flex:1;
+  }
+  .dropdown-menu {
+    max-width: 100px;
+  }
 .small-image {
     width: 50px;
 }

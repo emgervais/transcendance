@@ -1,6 +1,6 @@
 import * as api from "/js/api.js";
 import * as util from "/js/util.js";
-import * as chat from "/js/websockets/chat.js";
+import * as chat from "/js/chat/chat.js";
 import { getCurrUser, getUser } from "/js/user.js";
 
 function refresh() {

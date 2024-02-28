@@ -1,11 +1,12 @@
 import * as account from "/js/account/account.js";
 import * as api from "/js/api.js";
 import * as auth from "/js/auth.js";
-import * as chat from "/js/websockets/chat.js";
+import * as chat from "/js/chat/chat.js";
 import * as friends from "/js/account/friends.js";
 import * as router from "/js/router.js";
 import { updateCurrUser } from "/js/user.js";
 import * as util from "/js/util.js";
+import * as chatUtils from "/js/chat/chatUtils.js";
 
 const buttons = {
     "login-button": auth.loginButton,
@@ -25,7 +26,14 @@ function click(event) {
     const { target } = event;
     if (target.matches("a[href]")) {
         event.preventDefault();
+        if(event.target.classList.contains('chat-tab-list')) {
+            chatUtils.changeChatTab(event.target.id);
+            return;
+        }
         router.route(event.target.href);
+    }
+    else if(event.target.classList.contains('closeFriendChat')) {
+        chat.closeChat(event.target.getAttribute('data-roomid'));
     }
     else if (target.id in buttons) {
         buttons[target.id]();

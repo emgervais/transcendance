@@ -1,8 +1,8 @@
 import { getCurrUser } from "/js/user.js"
-import * as chat from "/js/websockets/chat.js";
+import * as chat from "/js/chat/chat.js";
 var ws;
 
-function notificationMaster() {
+async function notificationMaster() {
 	var userId = getCurrUser().id;
 	ws = new WebSocket(
 		'wss://'
