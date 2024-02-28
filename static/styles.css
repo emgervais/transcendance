@@ -340,6 +340,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-radius: 0 0 10px 10px;
   }
 
   .chat-tab-container a {
@@ -352,12 +353,27 @@
   .chat-tab-list {
     flex:5;
   }
-  .closeFriendChat{
+  .closeFriendChat {
     flex:1;
+  }
+  .closeFriendChat:hover {
+    font-size: 1.1rem;
   }
   .dropdown-menu {
     max-width: 100px;
+    padding-bottom: 0px;
+    border-radius: 0 0 10px 10px;
   }
+
+.chatMenu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: none;
+}
+
 .small-image {
     width: 50px;
 }
