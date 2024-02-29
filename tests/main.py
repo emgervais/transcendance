@@ -11,6 +11,6 @@ if __name__ == "__main__":
     # print("\n-- Auth tests --")
     # auth_tests()
     print("\n-- Friend tests --")
-    init_friends()
+    init_friend_requests()
     # print("\n-- User tests --")
     # init_friends()

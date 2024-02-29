@@ -27,8 +27,8 @@ const idFunctions = {
 };
 
 const classFunctions = {
-    'close-friend-chat': (target) => { chat.closeChat(target.getAttribute('data-roomid')); },
-    'chat-tab-list': (target) => { chatTriggers.activateFriendsTab(target.id); },
+    'close-friend-chat': (target) => { chat.stop(target.getAttribute('data-roomid')); },
+    'chat-friends-list': (target) => { chatTriggers.activateFriendsTab(target.id); },
     'chat-box-toggle': (_) => { chatTriggers.toggleChat(); },
     "profile-picture-chat": chatTriggers.activateMenu,
 }

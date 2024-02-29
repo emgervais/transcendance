@@ -1,3 +1,7 @@
+Chat/Friends:
+    Tous les amis connectés. Cliquer sur un start le websocket.
+
+
 Si un client refresh, les websockets actifs devraient redémarrer.
     Serveur:
     .conserver les websockets actifs
@@ -7,11 +11,6 @@ Si un client refresh, les websockets actifs devraient redémarrer.
     
 
 manually edited token: fait planter le serveur
-
-
-/api/refresh/: faudrait pas envoyer l'token
-    if user doesn't exists, delete token
-    si pas de token: 400: devrait être 403 forbidden
 
 
 ----

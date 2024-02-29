@@ -119,7 +119,7 @@ function blockAction(userId, block=true) {
 function chatAction(currUserId, targetId) {
     const roomId = [currUserId, targetId].sort().join("_");
     return () => {
-        chat.startChat(roomId);
+        chat.start(roomId);
     };
 }
 

@@ -1,5 +1,6 @@
 import * as chat from "/js/chat/chat.js";
 import * as chatUtils from "/js/chat/chatUtils.js";
+import * as chatMessages from "/js/chat/messages.js";
 import * as util from "/js/util.js";
 
 
@@ -30,10 +31,10 @@ function activateTab(target, roomId) {
 	if (chat.currRoomId == roomId) {
 		return;
 	}
-	chat.updateCurrRoomId(roomId);
+	chat.updateRoomId(roomId);
 	document.querySelector('.tab-active').classList.remove('tab-active');
 	target.classList.add('tab-active');
-	chatUtils.loadMessages();
+	chatMessages.loadMessages();
 }
 
 const friendsList = document.getElementById('friendlist-tab');
