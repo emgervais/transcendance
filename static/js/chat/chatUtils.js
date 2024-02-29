@@ -2,34 +2,58 @@ import * as chat from "/js/chat/chat.js";
 import { getUser } from "/js/user/user.js";
 import { getCurrUser } from "/js/user/currUser.js";
 
-async function generateFriendTab(element) {
-	const currUser = getCurrUser();
-	console.log('curr', currUser);
-	for(var key in chat.chatSockets) {
-		var activate = '';
-
-		var id = key.split('_').filter(function(key) {
-			return key != currUser.id;
-		});
-		if(key !== 'global' && key !== 'match') {
-			if(key === chat.currRoomId) {
-				activate = 'tab-active';
-			}
-			const username = (await getUser(id)).username;
-			var str = "<div class=\"dropdown-item " + activate + " chat-tab-container\"> <a class=\"chat-tab-list\" href=\"\" id=\"" + key + "\" title=\"" + username +"\">" + username + "</a>"
-			+ "<i title=\"close Chat\"class=\"closeFriendChat fa-solid fa-x\" data-roomId=\"" + key + "\"></i> </div>";
-			element.insertAdjacentHTML('beforeend', str);
+function generateFriendsList(container) {
+	container.innerHTML = '';
+	const currUserId = getCurrUser().id;
+	for(let chatSocket in chat.chatSockets) {
+		if(chatSocket === 'global' || chatSocket === 'match') {
+			continue;
 		}
+		let userId = getCorrespondentId(currUserId, chatSocket);
+		if (!userId) {
+			throw new Error(`Invalid friend chatSocket: ${chatSocket}`);
+		}
+		generateFriendsListElement(container, chatSocket, userId);
 	}
 }
 
-function changeChatTab(roomId) {
-	document.querySelector('.tab-active').classList.remove('tab-active');
-	document.getElementById('tab-friends').classList.add('tab-active');
-	chat.updateCurrRoomId(roomId);
-	clearLogs()
-	loadMessages();
+function getCorrespondentId(currUserId, chatSocket) {
+	const ids = chatSocket.split('_').filter(id => {
+		return id != currUserId;
+	});
+	if (ids.length !== 1) {
+		return undefined;
+	}
+	return ids[0];
 }
+
+async function generateFriendsListElement(container, chatSocket, userId) {
+	const username = (await getUser(userId)).username;
+	const div = document.createElement('div');
+	div.classList.add(
+		'dropdown-item',
+		'chat-tab-container'
+	);
+	if (chatSocket === chat.currRoomId) {
+		div.classList.add('tab-active');
+	}
+	
+	const anchor = document.createElement('a');
+	anchor.classList.add('chat-tab-list');
+	anchor.id = chatSocket;
+	anchor.title = username;
+	anchor.textContent = username;
+	div.appendChild(anchor);
+		
+	const closeIcon = document.createElement('i');
+	closeIcon.classList.add('close-friend-chat', 'fa-solid', 'fa-x');
+	closeIcon.title = 'Close Chat';
+	closeIcon.setAttribute('data-roomId', chatSocket);
+	div.appendChild(closeIcon);
+
+	container.appendChild(div);
+}
+
 
 function deleteMessages(roomId) {
 	var messages = JSON.parse(sessionStorage.getItem('messages')) || [];
@@ -93,4 +117,4 @@ function clearLogs() {
 	document.querySelector('.chat-logs').innerHTML = '';
 }
 
-export {generateFriendTab, changeChatTab, generateMessage, saveMessage, loadMessages, deleteMessages, clearLogs};
+export {generateFriendsList, generateMessage, saveMessage, loadMessages, deleteMessages, clearLogs};

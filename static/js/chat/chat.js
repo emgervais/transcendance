@@ -1,12 +1,12 @@
 import * as chatUtils from "/js/chat/chatUtils.js";
-import * as chatListener from "/js/chat/chatListener.js";
+import * as chatTriggers from "/js/chat/triggers.js";
 import * as test from "/js/test_messages.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js"
 
 var chatSockets = {
-	'global': 1,
-	'match': 2,
+	'global': undefined,
+	'match': undefined,
 };
 var currRoomId = 'global';
 
@@ -16,7 +16,6 @@ function updateCurrRoomId(newRoom) {
 
 function initChat() {
 	test.setMessages();
-	chatListener.chatListeners();
 	chatUtils.loadMessages();
 }
 

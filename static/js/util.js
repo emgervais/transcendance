@@ -15,6 +15,14 @@ function toggleDisplay(id) {
     display(id, !isDisplayed(id));
 }
 
+function toggleClass(element, _class) {
+    if (element.classList.contains(_class)) {
+		element.classList.remove(_class);
+    } else {
+		element.classList.add(_class);
+    }
+}
+
 // -- buttons ----
 const button_actions = {};
 
@@ -41,6 +49,6 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export { isDisplayed, display, toggleDisplay };
+export { isDisplayed, display, toggleDisplay, toggleClass };
 export { createButton, deleteButton };
 export { sleep };

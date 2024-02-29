@@ -119,7 +119,7 @@
 /*-----------------------chat-------------------*/
 
 
-#chat-circle {
+#chat-icon {
     opacity: 0;
     visibility: hidden;
     position: fixed;
@@ -136,7 +136,7 @@
     box-shadow: 0px 3px 16px 0px rgba(0, 0, 0, 0.6), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
   }
 
-  #chat-circle:hover {
+  #chat-icon:hover {
     background: linear-gradient(to left, #9181F4, #5038ED);
     background-clip: padding-box;
   }
@@ -166,7 +166,7 @@
     visibility: visible!important;
   }
   
-  .chat-box {
+  #chat-box {
     opacity: 0;
     visibility: hidden;
     background: #efefef;
