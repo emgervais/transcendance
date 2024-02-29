@@ -7,14 +7,12 @@ import re
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'image', 'oauth', 'matches', 'friends', 'friend_requests', 'status']
-        read_only_fields = ['id', 'matches', 'friends', 'friend_requests', 'status']
+        fields = ['id', 'username', 'email', 'image', 'oauth', 'status']
+        read_only_fields = ['id', 'oauth', 'status']
     
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['matches'] = instance.matches.count()
-        ret['friends'] = instance.friends.count()
-        ret['friend_requests'] = instance.friend_requests.count()
+        ret['image'] = "https://" + settings.ALLOWED_HOSTS[0] + instance.image.url
         return ret
 
 class ChangeInfoSerializer(serializers.ModelSerializer):

@@ -7,60 +7,51 @@ from rest_framework import serializers
 class User(AbstractUser, PermissionsMixin):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='profile_pics', default='default/default.webp')
-    matches = models.ManyToManyField('self', through='PongMatch', symmetrical=False, related_name='user_matches', through_fields=('p1', 'p2'))
-    friend_list = models.ManyToManyField('self', through='Friend', symmetrical=False, related_name='user_friends', through_fields=('friend', 'user'))
-    friend_requests = models.ManyToManyField('self', through='FriendRequest', symmetrical=False, related_name='user_friend_requests', through_fields=('from_user', 'to_user'))
-    block_list = models.ManyToManyField('self', through='Block', symmetrical=False, related_name='user_blocked', through_fields=('blocker', 'blocked'))
     status = models.CharField(max_length=10, default='offline')
+    
+    def __str__(self):
+        return self.username
     
     class Meta:
         db_table = 'users'
-        
-    def __str__(self):
-        return self.username
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
 
-class ChannelGroup(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    members = models.ManyToManyField(User, related_name='channel_groups')
+class UserChannelGroup(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    channel_groups = models.JSONField(default=dict)
+    main = models.CharField(max_length=100, default='')
     
-    def add_member(self, user):
-        if user not in self.members.all():
-            self.members.add(user)
-    
-    def remove_member(self, user):
-        if user in self.members.all():
-            self.members.remove(user)
-    
-    def in_group(self, user):
-        return user in self.members.all()
-
-    class Meta:
-        db_table = 'channel_groups'
-    
-    def __str__(self):
-        return self.name
-    
-class UserWebSocket(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    channel_names = models.JSONField(default=list)
-    main_channel = models.CharField(max_length=255, default='')
-    
-    def set_main_channel(self, channel_name):
-        self.main_channel = channel_name
-        self.save()
-
-    def add_channel_name(self, channel_name):
-        if channel_name not in self.channel_names:
-            self.channel_names.append(channel_name)
+    # add a channel name to a group if the user is not part of the group
+    def add_channel_group(self, channel_name, group_name):
+        if channel_name not in self.channel_groups:
+            self.channel_groups[channel_name] = group_name
             self.save()
-
-    def remove_channel_name(self, channel_name):
-        if channel_name in self.channel_names:
-            self.channel_names.remove(channel_name)
+            
+    def remove_channel_group(self, channel_name):
+        if channel_name in self.channel_groups:
+            del self.channel_groups[channel_name]
             self.save()
+            
+    def in_group(self, group_name):
+        return group_name in self.channel_groups.values()
     
+    def get_channels(self):
+        return list(self.channel_groups.keys())
+    
+    def get_group_names(self):
+        groups = list(self.channel_groups.values())
+        return groups
+    
+    def get_channel_name(self, group_name):
+        for channel, group in self.channel_groups.items():
+            if group == group_name:
+                return channel
+        return None
+            
     class Meta:
-        db_table = 'user_websockets'
+        db_table = 'user_channel_groups'
+    
     
 class FriendShipManager(models.Manager):
     
@@ -80,19 +71,14 @@ class FriendShipManager(models.Manager):
         if self.are_friends(from_user, to_user):
             raise serializers.ValidationError({'friend-request': 'Users are already friends'})
 
-        if FriendRequest.objects.filter(
-            from_user=from_user, to_user=to_user
-        ).exists():
+        if FriendRequest.objects.filter(from_user=from_user, to_user=to_user).exists():
             raise serializers.ValidationError({'friend-request': 'You already requested friendship from this user.'})
 
-        if FriendRequest.objects.filter(
-            from_user=to_user, to_user=from_user
-        ).exists():
-            raise serializers.ValidationError({'friend-request': 'This user already requested friendship from you.'})
+        if FriendRequest.objects.filter(from_user=to_user, to_user=from_user).exists():
+            FriendRequest.objects.get(from_user=to_user, to_user=from_user).accept()
+            return
 
-        request, created = FriendRequest.objects.get_or_create(
-            from_user=from_user, to_user=to_user
-        )
+        request, created = FriendRequest.objects.get_or_create(from_user=from_user, to_user=to_user)
         
         if created is False:
             raise serializers.ValidationError({'friend-request': 'Friendship already requested'})
@@ -121,9 +107,7 @@ class BlockManager(models.Manager):
         if blocker == blocked:
             raise serializers.ValidationError({'block': 'Users cannot block themselves'})
         
-        block, created = Block.objects.get_or_create(
-            blocker=blocker, blocked=blocked
-        )
+        block, created = Block.objects.get_or_create(blocker=blocker, blocked=blocked)
         
         if created is False:
             raise serializers.ValidationError({'block': 'User already blocked'})
@@ -206,8 +190,8 @@ class Friend(models.Model):
     
 
 class PongMatch(models.Model):
-    p1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='p1_matches')
-    p2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='p2_matches')
+    p1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='matches_as_p1')
+    p2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='matches_as_p2')
     score = ArrayField(models.IntegerField(), size=2, default=list)
     created_at = models.DateTimeField(auto_now_add=True)
     winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='won_matches', null=True, blank=True)

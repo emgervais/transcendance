@@ -10,6 +10,7 @@ stop:
 delete_volumes:
 	make stop
 	docker volume ls -q | xargs docker volume rm
+	cd django/users/migrations && find . -type f -not -name '__init__.py' -delete
 
 frontend:
 	@python3 frontend/auto_compile.py
@@ -30,7 +31,7 @@ tests:
 	cd tests && docker-compose up --build --force-recreate
 
 run_tests:
-	docker exec -it tests sh -c "./main.py"
+	cd tests && docker-compose up -d --build --force-recreate && docker exec -it tests sh
 
 freeze:
 	python -m pip install -r django/requirements.txt

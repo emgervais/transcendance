@@ -1,5 +1,5 @@
 from django.http import JsonResponse, HttpRequest
-from users.models import User, UserWebSocket
+from users.models import User, UserChannelGroup
 from auth.serializers import RegisterSerializer, LoginSerializer, OAuth42LoginSerializer, LogoutSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
@@ -9,7 +9,6 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from rest_framework_simplejwt.tokens import AccessToken
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from channels.testing import WebsocketCommunicator
     
 def set_cookies(response, user):
     refresh_token = TokenObtainPairSerializer().get_token(user)
@@ -65,20 +64,26 @@ class LogoutView(generics.GenericAPIView):
         response.delete_cookie('refresh_token')
         response.delete_cookie('access_token')
         # close all user websockets
-        user = User.objects.get(pk=request.user.id)
-        channels = UserWebSocket.objects.get(user=user).channel_names
-        channel_layer = get_channel_layer()
-        for channel in channels:
-            try:
-                async_to_sync(channel_layer.send)(channel, {
-                    'type': 'websocket.disconnect',
-                    'code': 1000,
-                })
-            except:
-                print('Error closing channel')
-                pass
-        channels.clear()
-        print('Channels:', channels)
+        try:
+            user = User.objects.get(pk=request.user.id)
+            channel_layer = get_channel_layer()
+            channels = UserChannelGroup.objects.get(user=user).channel_groups.keys()
+            for channel in channels:
+                try:
+                    async_to_sync(channel_layer.send)(channel, {
+                        'type': 'websocket.disconnect',
+                        'code': 1000,
+                    })
+                except:
+                    print('Error closing channel')
+            print('Channels:', channels)
+            channels.clear()
+        except User.DoesNotExist:
+            print('User not found')
+        except UserChannelGroup.DoesNotExist:
+            print('User channel group not found')
+        except Exception as e:
+            print('Error:', e)
         return response
 
         
