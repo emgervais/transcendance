@@ -44,8 +44,8 @@ function startChat(roomId="global") {
 		chatUtils.saveMessage(roomId, message, who, sender.image, data.sender_id);
 	};
 
-	ws.onclose = (_) => {
-		console.error('Chat socket closed unexpectedly');
+	ws.onclose = () => {
+		console.log("Chat closed");
 	};
 
 }

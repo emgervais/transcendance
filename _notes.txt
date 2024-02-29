@@ -1,3 +1,9 @@
+user/<id>
+    renvoie les infos de l'utilisateur de base
+
+refresh Frontend (user/)
+    
+
 Si un client refresh, les websockets actifs devraient redémarrer.
     Serveur:
     .conserver les websockets actifs

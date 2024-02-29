@@ -20,9 +20,9 @@ async function notificationMaster() {
         }
     }
 
-	ws.onclose = (_) => {
-		console.error('Notifications socket closed unexpectedly');
-	};
+	ws.onclose = () => {
+		console.log("Notifications closed");
+	}
 }
 
 export { notificationMaster };

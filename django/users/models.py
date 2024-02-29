@@ -19,9 +19,35 @@ class User(AbstractUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
+class ChannelGroup(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    members = models.ManyToManyField(User, related_name='channel_groups')
+    
+    def add_member(self, user):
+        if user not in self.members.all():
+            self.members.add(user)
+    
+    def remove_member(self, user):
+        if user in self.members.all():
+            self.members.remove(user)
+    
+    def in_group(self, user):
+        return user in self.members.all()
+
+    class Meta:
+        db_table = 'channel_groups'
+    
+    def __str__(self):
+        return self.name
+    
 class UserWebSocket(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     channel_names = models.JSONField(default=list)
+    main_channel = models.CharField(max_length=255, default='')
+    
+    def set_main_channel(self, channel_name):
+        self.main_channel = channel_name
+        self.save()
 
     def add_channel_name(self, channel_name):
         if channel_name not in self.channel_names:

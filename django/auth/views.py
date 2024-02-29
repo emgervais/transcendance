@@ -9,6 +9,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from rest_framework_simplejwt.tokens import AccessToken
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from channels.testing import WebsocketCommunicator
     
 def set_cookies(response, user):
     refresh_token = TokenObtainPairSerializer().get_token(user)
@@ -69,17 +70,15 @@ class LogoutView(generics.GenericAPIView):
         channel_layer = get_channel_layer()
         for channel in channels:
             try:
-                print(f'Closing channel {channel}')
                 async_to_sync(channel_layer.send)(channel, {
-                    'type': 'logout',
+                    'type': 'websocket.disconnect',
+                    'code': 1000,
                 })
-                print(f'Channel {channel} closed')
             except:
                 print('Error closing channel')
                 pass
-        user.status = 'offline'
-        # delete all user websockets
-        UserWebSocket.objects.get(user=user).delete()
+        channels.clear()
+        print('Channels:', channels)
         return response
 
         
