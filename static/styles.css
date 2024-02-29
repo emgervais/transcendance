@@ -374,6 +374,9 @@
   display: none;
 }
 
+.profile-picture-chat {
+  position: relative;
+}
 .small-image {
     width: 50px;
 }
