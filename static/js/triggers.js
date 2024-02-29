@@ -6,7 +6,6 @@ import * as friends from "/js/account/friends.js";
 import * as router from "/js/router.js";
 import { updateCurrUser } from "/js/user/currUser.js";
 import * as util from "/js/util.js";
-import * as chatUtils from "/js/chat/chatUtils.js";
 import * as chatTriggers from "/js/chat/triggers.js";
 
 // -- click ----
