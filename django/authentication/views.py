@@ -1,5 +1,6 @@
 from django.http import JsonResponse, HttpRequest
-from users.models import User, UserChannelGroup
+from users.models import User
+from friend.models import Friend
 from authentication.serializers import RegisterSerializer, LoginSerializer, OAuth42LoginSerializer, LogoutSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
@@ -7,8 +8,7 @@ from authentication.oauth42 import create_oauth_uri
 from datetime import datetime
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import AccessToken
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from notification.consumers import close_websockets
     
 def set_cookies(response, user):
     refresh_token = TokenObtainPairSerializer().get_token(user)
@@ -63,6 +63,7 @@ class LogoutView(generics.GenericAPIView):
         response = JsonResponse({'message': 'Logout successful'}, status=status.HTTP_200_OK)
         response.delete_cookie('refresh_token')
         response.delete_cookie('access_token')
+<<<<<<< HEAD:django/authentication/views.py
         # close all user websockets
         try:
             user = User.objects.get(pk=request.user.id)
@@ -83,6 +84,10 @@ class LogoutView(generics.GenericAPIView):
             print('User channel group not found')
         except Exception as e:
             print('Error:', e)
+=======
+        user = User.objects.get(pk=request.user.id)
+        close_websockets(user)
+>>>>>>> ele-sage:django/auth/views.py
         return response
 
         

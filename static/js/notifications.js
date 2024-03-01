@@ -16,7 +16,7 @@ function start() {
 	ws.onmessage = async (event) => {
         const data = JSON.parse(event.data);
         console.log("ws.onmessage:", data);
-		switch (data.notification) { // TODO: data.type
+		switch (data.type) {
 			case "chat":
 				chat.start(data.room);
 				break;
@@ -27,9 +27,15 @@ function start() {
 		}
     }
 
+<<<<<<< HEAD
 	ws.onclose = (_) => {
 		console.log('Notifications websocket closed.');
 	};
+=======
+	ws.onclose = () => {
+		console.log("Notifications closed");
+	}
+>>>>>>> ele-sage
 }
 
 function stop() {
