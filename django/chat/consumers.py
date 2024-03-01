@@ -64,14 +64,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_name = f"chat_{self.group_name}"
             if await in_group(user, self.group_name):
                 old_channel = await get_channel_name(user, self.group_name)
-                if old_channel:
-                    try:
-                        await self.channel_layer.send(old_channel, {
-                            'type': 'websocket.disconnect',
-                            'code': 1000,
-                        })
-                    except:
-                        print('Error closing old channel')
                 await remove_channel_group(user, old_channel)
             await self.channel_layer.group_add(
                 self.group_name,
@@ -82,7 +74,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 await self.private_room(user)
             await self.accept()
     
-    async def disconnect(self, close_code):
+    async def disconnect(self, code):
         user = self.scope["user"]
 
         if user.is_authenticated:
@@ -90,6 +82,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.group_name,
                 self.channel_name
             )
+            
             await self.close()
         
     async def receive(self, text_data):
@@ -117,11 +110,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         message = censor(event['message'])
-        sender_id = event['sender_id']
+        sender_id = event['senderId']
         
         await self.send(text_data=json.dumps({
             'message': message,
-            'sender_id': sender_id
+            'senderId': sender_id
         }))
         
     async def private_room(self, user):

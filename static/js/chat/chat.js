@@ -26,15 +26,15 @@ function start(roomId="global") {
 	ws.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 		let	who = 'else';
-		const sender = await getUser(data.sender_id);
-		if(data.sender_id === getCurrUser().id)
+		const sender = await getUser(data.senderId);
+		if(data.senderId === getCurrUser().id)
 			who = 'self';
 		const username = sender.username;
 		const message = username + ': ' + data.message;
 		if (roomId === currRoomId) {
-			chatMessages.generateMessage(message, who, sender.image, data.sender_id);
+			chatMessages.generateMessage(message, who, sender.image, data.senderId);
 		}
-		chatMessages.saveMessage(roomId, message, who, sender.image, data.sender_id);
+		chatMessages.saveMessage(roomId, message, who, sender.image, data.senderId);
 	};
 
 	ws.onclose = () => {
