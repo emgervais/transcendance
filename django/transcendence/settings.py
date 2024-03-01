@@ -29,9 +29,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    'authentication',
     'users',
+    'friend',
     'chat',
     'app',
+    'notification',
 ]
 
 MIDDLEWARE = [
@@ -71,7 +74,7 @@ TEMPLATES = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'auth.authenticate.CustomAuthentication',
+        'authentication.authenticate.CustomAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',

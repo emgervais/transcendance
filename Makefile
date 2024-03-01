@@ -7,10 +7,14 @@ stop:
 	yes | docker network prune
 	yes | docker image prune
 
+clean_migrations:
+	find django -path "*/migrations/*.py" -not -name "__init__.py" -delete
+	find django -path "*/migrations/*.pyc"  -delete
+
 delete_volumes:
 	make stop
 	docker volume ls -q | xargs docker volume rm
-	cd django/users/migrations && find . -type f -not -name '__init__.py' -delete
+	make clean_migrations
 
 frontend:
 	@python3 frontend/auto_compile.py

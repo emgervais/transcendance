@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from users.serializers import UserSerializer
 from django.contrib.auth.password_validation import validate_password
-from auth.oauth42 import get_user_token, get_user_data
+from authentication.oauth42 import get_user_token, get_user_data
 from users.utils import generate_username
 from users.models import User
 import requests

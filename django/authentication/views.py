@@ -1,9 +1,9 @@
 from django.http import JsonResponse, HttpRequest
 from users.models import User, UserChannelGroup
-from auth.serializers import RegisterSerializer, LoginSerializer, OAuth42LoginSerializer, LogoutSerializer
+from authentication.serializers import RegisterSerializer, LoginSerializer, OAuth42LoginSerializer, LogoutSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
-from auth.oauth42 import create_oauth_uri
+from authentication.oauth42 import create_oauth_uri
 from datetime import datetime
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import AccessToken
@@ -76,6 +76,7 @@ class LogoutView(generics.GenericAPIView):
                     })
                 except:
                     print('Error closing channel')
+                
         except User.DoesNotExist:
             print('User not found')
         except UserChannelGroup.DoesNotExist:
