@@ -16,7 +16,7 @@ def print_user(response):
 def auth(quantity=1):
     def decorator(func):
         def wrapper(*args, **kwargs):
-            endpoints.reset_db(log=False)
+            endpoints.reset_db(log=True)
             users = [{} for _ in range(quantity)]
             for i in range(quantity):
                 response = register(i)

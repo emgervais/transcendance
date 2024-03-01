@@ -1,5 +1,5 @@
 from django.urls import path
-from auth.views import ResetDatabaseView, RegisterView, LoginView, LogoutView, OAuth42UriView, OAuth42LoginView, CustomTokenRefreshView
+from authentication.views import ResetDatabaseView, RegisterView, LoginView, LogoutView, OAuth42UriView, OAuth42LoginView, CustomTokenRefreshView
 
 urlpatterns = [
     path('refresh-token/', CustomTokenRefreshView.as_view(), name='token_refresh'), # Custom token refresh view | Method: POST

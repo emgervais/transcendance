@@ -1,6 +1,5 @@
 import * as nav from "/js/nav.js";
 import * as account from "/js/account/account.js";
-import * as friends from "/js/account/friends.js";
 import { displayCurrUser } from "/js/user/currUser.js";
 
 const routes = {
@@ -33,8 +32,8 @@ const routes = {
         function: account.hideAll,
     },
     "/account/friends/": {
+        name: "friends",
         template: "/templates/account.html",
-        onQuit: friends.removeFriendButtons,
         function: account.displayFriendsPage,
     },
     "/account/update-info/": {

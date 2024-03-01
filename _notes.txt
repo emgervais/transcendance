@@ -1,3 +1,15 @@
+
+
+Juste se connecter à notifications:
+    .ça startera tous les chats actifs (global inclus)
+
+Stop chat:
+    .envoyer un field dans le json pour dire qu'on veut stopper
+
+juste connecter aux notifications au login
+
+
+
 Chat/Friends:
     Tous les amis connectés. Cliquer sur un start le websocket.
 

@@ -1,10 +1,11 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from users.models import User, UserWebSocket
-# from chat.censor import censor
+from notification.consumers import get_main_channel
 
-from typing import List
+from users.models import User, UserChannelGroup
+from friend.models import Block
+from chat.censor import censor
 
 @database_sync_to_async
 def get_user(user_id):
@@ -14,111 +15,108 @@ def get_user(user_id):
         return None
     
 @database_sync_to_async
-def is_in_room(user, room_name):
+def is_blocked(user, recipient):
     try:
-        user_websocket = UserWebSocket.objects.get(user=user)
-        return room_name in user_websocket.channel_names
-    except UserWebSocket.DoesNotExist:
+        return Block.objects.is_blocked(recipient, user) or Block.objects.is_blocked(user, recipient)
+    except Block.DoesNotExist:
         return False
 
 @database_sync_to_async
-def change_status(user, status):
+def add_channel_group(user, channel_name, group_name):
     try:
-        user.status = status
-        user.save()
-    except Exception as e:
-        # Handle exception
-        pass
+        user_channel_group = UserChannelGroup.objects.get(user=user)
+        user_channel_group.add_channel_group(channel_name, group_name)
+    except UserChannelGroup.DoesNotExist:
+        UserChannelGroup.objects.create(user=user, channel_groups={channel_name: group_name})
 
 @database_sync_to_async
-def add_channel_name(user, channel_name):
+def remove_channel_group(user, channel_name):
     try:
-        user_websocket, _ = UserWebSocket.objects.get_or_create(user=user)
-        if channel_name not in user_websocket.channel_names:
-            user_websocket.channel_names.append(channel_name)
-            user_websocket.save()
-    except Exception as e:
-        # Handle exception
-        pass
-    
+        user_channel_group = UserChannelGroup.objects.get(user=user)
+        user_channel_group.remove_channel_group(channel_name)
+    except UserChannelGroup.DoesNotExist:
+        print(user, "does not have a channel group")
+        
 @database_sync_to_async
-def remove_channel_name(user, channel_name):
+def in_group(user, group_name):
     try:
-        user_websocket = UserWebSocket.objects.get(user=user)
-        if channel_name in user_websocket.channel_names:
-            user_websocket.channel_names.remove(channel_name)
-            user_websocket.save()
-    except Exception as e:
-        # Handle exception
-        pass
+        user_channel_group = UserChannelGroup.objects.get(user=user)
+        return user_channel_group.in_group(group_name)
+    except UserChannelGroup.DoesNotExist:
+        return False
+
+@database_sync_to_async
+def get_channel_name(user, group_name):
+    try:
+        user_channel_group = UserChannelGroup.objects.get(user=user)
+        return user_channel_group.get_channel_name(group_name)
+    except UserChannelGroup.DoesNotExist:
+        return None
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        user = self.scope["user"]
+        user = self.scope["user"] 
         
         if not user.is_authenticated:
             await self.close()
         else:
-            self.room_name = self.scope['url_route']['kwargs']['room_name']
-            self.room_group_name = f"chat_{self.room_name}"
+            self.group_name = self.scope['url_route']['kwargs']['room_name']
+            self.room_name = f"chat_{self.group_name}"
+            if await in_group(user, self.group_name):
+                old_channel = await get_channel_name(user, self.group_name)
+                if old_channel:
+                    try:
+                        await self.channel_layer.send(old_channel, {
+                            'type': 'websocket.disconnect',
+                            'code': 1000,
+                        })
+                    except:
+                        print('Error closing old channel')
+                await remove_channel_group(user, old_channel)
             await self.channel_layer.group_add(
-                self.room_group_name,
+                self.group_name,
                 self.channel_name
             )
-            await add_channel_name(user, self.room_name)
-            if self.room_name == 'global':
-                await self.accept()
-            else:
+            await add_channel_group(user, self.channel_name, self.group_name)
+            if self.group_name != 'global':
                 await self.private_room(user)
-
-    async def private_room(self, user):
-        recipient_ids = self.room_name.split('_')
-        if len(recipient_ids) == 2:
-            recipient_id = recipient_ids[0]
-            if recipient_id == str(user.id):
-                recipient_id = recipient_ids[1]
-            recipient = await get_user(recipient_id)
-            if recipient and not await is_in_room(recipient, self.room_name) and recipient.status == 'online':
-                await self.channel_layer.group_send(
-                    f"notifications_{recipient.id}",
-                    {
-                        'type': 'notify',
-                        'notification': 'chat',
-                        'sender_id': user.id,
-                        'room': self.room_name
-                    }
-                )
             await self.accept()
-        else:
-            await self.close()
-            
+    
     async def disconnect(self, close_code):
         user = self.scope["user"]
 
         if user.is_authenticated:
-            await self.channel_layer.group_discard(
-                self.room_group_name,
+            self.channel_layer.group_discard(
+                self.group_name,
                 self.channel_name
             )
-            await remove_channel_name(user, self.room_name)
-
-    # Receive message from WebSocket
+            await self.close()
+        
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         user = self.scope["user"]
-        # message = f"{user}: {message}"
-                    
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message,
-                'sender_id': user.id
-            }
-        )
+        closing = text_data_json.get('closing', False)
+        
+        if closing:
+            await self.channel_layer.group_discard(
+                self.group_name,
+                self.channel_name
+            )
+            await remove_channel_group(user, self.channel_name)
+            await self.close()
+        else:
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    'type': 'chat_message',
+                    'message': message,
+                    'sender_id': user.id
+                }
+            )
+
     async def chat_message(self, event):
-        message = event['message']
+        message = censor(event['message'])
         sender_id = event['sender_id']
         
         await self.send(text_data=json.dumps({
@@ -126,55 +124,22 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender_id': sender_id
         }))
         
-    async def logout(self, code):
-        self.close()
-
-class NotificationConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        user = self.scope["user"]
+    async def private_room(self, user):
+        recipient_ids = self.group_name.split('_')
         
-        if not user.is_authenticated:
-            await self.close()
+        if len(recipient_ids) == 2:
+            recipient_id = recipient_ids[0] if recipient_ids[0] != str(user.id) else recipient_ids[1]
+            recipient = await get_user(recipient_id)
+            if recipient and recipient.status == 'online' and not await is_blocked(user, recipient):
+                if not await in_group(recipient, self.group_name):
+                    recipient_channel = await get_main_channel(recipient)
+                    if recipient_channel:
+                        await self.channel_layer.send(recipient_channel, {
+                            'type': 'send_notification',
+                            'notification': 'chat',
+                            'room': self.group_name
+                        })
+            else:
+                await self.close()
         else:
-            self.room_name = f"notifications_{user.id}"
-            self.room_group_name = self.room_name
-            await self.channel_layer.group_add(
-                self.room_group_name,
-                self.channel_name
-            )
-            await add_channel_name(user, self.room_name)
-            if user.status == 'offline':
-                await change_status(user, 'online')
-            self.clear_all_user_channels(user)
-            await self.accept()
-                
-    async def disconnect(self, close_code):
-        user = self.scope["user"]
-
-        if user.is_authenticated:
-            await remove_channel_name(user, self.room_name)
-            if user.status == 'online':
-                await change_status(user, 'offline')
-    
-    async def notify(self, event):
-        notification = event['notification']
-        sender_id = event['sender_id']
-        room = event['room']
-        await self.send(text_data=json.dumps({
-            'notification': notification,
-            'sender_id': sender_id,
-            'room': room
-        }))
-        
-    async def logout(self, code):
-        self.close()
-        
-    @database_sync_to_async
-    def clear_all_user_channels(self, user):
-        try:
-            user_websocket = UserWebSocket.objects.get(user=user)
-            user_websocket.channel_names = []
-            user_websocket.save()
-        except Exception as e:
-            # Handle exception
-            pass
+            await self.close()

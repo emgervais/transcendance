@@ -37,8 +37,6 @@ function isConnected() {
 
 function setConnected(connected) {
     if (!connected) {
-        chat.stop();
-        notifications.stop();
         removeCurrUser();
     }
     sessionStorage.setItem("connected", connected);
@@ -57,7 +55,6 @@ function login(user, redirect=true) {
     }
     reconnecting = false;
     notifications.start()
-    chat.start();
 }
 
 var reconnecting = false;

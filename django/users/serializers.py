@@ -1,20 +1,18 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from users.models import User, FriendRequest, Friend, Block
+from users.models import User
 from django.conf import settings
 import re
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'image', 'oauth', 'matches', 'friends', 'friend_requests', 'status']
-        read_only_fields = ['id', 'matches', 'friends', 'friend_requests', 'status']
+        fields = ['id', 'username', 'email', 'image', 'oauth', 'status']
+        read_only_fields = ['id', 'oauth', 'status']
     
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['matches'] = instance.matches.count()
-        ret['friends'] = instance.friends.count()
-        ret['friend_requests'] = instance.friend_requests.count()
+        ret['image'] = "https://" + settings.ALLOWED_HOSTS[0] + instance.image.url
         return ret
 
 class ChangeInfoSerializer(serializers.ModelSerializer):
@@ -84,21 +82,3 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
         if 'password1' in self.validated_data:
             ret['password'] = 'Password updated'
         return ret
-
-class FriendRequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FriendRequest
-        fields = ['id', 'from_user', 'to_user', 'created_at']
-        read_only_fields = ['id', 'from_user', 'created_at']
-
-class FriendSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Friend
-        fields = ['id', 'user', 'friend', 'created_at']
-        read_only_fields = ['id', 'user', 'created_at']
-
-class BlockSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Block
-        fields = ['id', 'blocker', 'blocked', 'created_at']
-        read_only_fields = ['id', 'blocker', 'created_at']

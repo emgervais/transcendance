@@ -38,8 +38,7 @@ class JWTAuthMiddleware:
         return await self.app(scope, receive, send)
 
     def get_payload(self, jwt_token):
-        payload = jwt_decode(
-            jwt_token, settings.SECRET_KEY, algorithms=["HS256"])
+        payload = jwt_decode(jwt_token, settings.SECRET_KEY, algorithms=["HS256"])
         return payload
 
     def get_user_credentials(self, payload):

@@ -1,15 +1,17 @@
 import * as api from "/js/api.js";
 import { displayUser } from "/js/user/user.js";
-import * as util from "/js/util.js";
+import * as router from "/js/router.js";
 
 
 function refresh() {
-    getFriends();
-    getFriendRequests();
-    getBlockedUsers();
+    if (router.getCurrentRoute().name == "friends") {
+        getFriends();
+        getFriendRequests();
+        getBlockedUsers();
+    }
 }
 
-function makeFriendRequest() {
+function makeRequest() {
     const formId = "friend-request-form";
     const input = document.getElementById("friend-request-input");
     const username = input.value;
@@ -56,7 +58,7 @@ function getFriendRequests() {
 }
 
 function getFriends() {
-    const friendManager = (friends) => {
+    const friendsManager = (friends) => {
         const container = document.getElementById("friends-container");
         container.innerHTML = '';
         friends.forEach(friend => {
@@ -65,7 +67,7 @@ function getFriends() {
     };
     api.fetchRoute({
         route: "/api/friends/",
-        dataManager: friendManager
+        dataManager: friendsManager
     });
 }
 
@@ -87,45 +89,33 @@ function getBlockedUsers() {
 // -- display ----
 async function displayFriendRequest(container, request) {
     const div = await displayUser(container, request.from_user);
-    const buttons = [
-        {
-            text: "Accept",
-            id: "friend-request-accept-" + request.id,
-            action: requestAction(request.id, true),
-            container: div,
-        },
-        {
-            text: "Refuse",
-            id: "friend-request-refuse-" + request.id,
-            action: requestAction(request.id, false),
-            container: div,
-        }
-    ]
-    buttons.forEach(util.createButton);
+    
+    const makeButton = (text, accept) => {
+        const button = document.createElement("button");
+        button.innerText = text;
+        button.classList.add('friend-request-button');
+        button.setAttribute("data-accept", accept);
+        button.setAttribute("data-request-id", request.id);
+        return button;
+    };
+    const acceptButton = makeButton("Accept", true);
+    const refuseButton = makeButton("Refuse", false);
+    div.appendChild(acceptButton);
+    div.appendChild(refuseButton);
 }
 
-// -- buttons ----
-function removeFriendButtons() {
-    const container = document.getElementById("account-friends");
-    const buttons = container.querySelectorAll("button");
-
-    buttons.forEach(button => {
-        util.deleteButton(button.id);
+// -- triggers ----
+function answerRequest(target) {
+    const accept = target.getAttribute("data-accept");
+    const method = accept ? "put" : "delete";
+    const requestId = target.getAttribute("data-request-id");
+    api.fetchRoute({
+        route: "/api/friend-requests/" + requestId + "/",
+        options: { method: method },
+        dataManager: (_) => {
+            refresh();
+        }
     });
 }
 
-// -- actions ----
-function requestAction(request_id, accept) {
-    const method = accept ? "put" : "delete";
-    return () => {
-        api.fetchRoute({
-            route: "/api/friend-requests/" + request_id + "/",
-            options: { method: method },
-            dataManager: (_) => {
-                refresh();
-            }
-        });
-    };
-}
-
-export { refresh, removeFriendButtons, makeFriendRequest };
+export { refresh, makeRequest, answerRequest};

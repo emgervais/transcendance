@@ -16,25 +16,26 @@ function start() {
 	ws.onmessage = async (event) => {
         const data = JSON.parse(event.data);
         console.log("ws.onmessage:", data);
-		switch (data.notification) {
+		switch (data.notification) { // TODO: data.type
 			case "chat":
 				chat.start(data.room);
 				break;
 			case "connection":
 				// TODO
-				chatFriends.update(data.id, data.connected);
+				chatFriends.update(data.userId, data.connected);
 				break;
 		}
     }
 
 	ws.onclose = (_) => {
-		console.error('Notifications socket closed unexpectedly');
+		console.log('Notifications websocket closed.');
 	};
 }
 
 function stop() {
     if (!ws) {
-		throw new Error("notifications.stop: no active notifications websocket");
+		console.log("notifications.stop: no active notifications websocket");
+		return;
 	}
 	ws.close();
 	ws = undefined;

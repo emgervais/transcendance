@@ -1,6 +1,8 @@
 import * as api from "/js/api.js";
 import * as chat from "/js/chat/chat.js";
+import * as friends from "/js/account/friends.js";
 import { getCurrUser } from "/js/user/currUser.js";
+import * as router from "/js/router.js";
 import * as util from "/js/util.js";
 
 var users = {};
@@ -39,19 +41,24 @@ async function displayUser(container, userId, blocked=false) {
     const div = document.createElement("div");
     const appendToContainer = (currUserId, user) => {
         div.className = "user";
+        
         const img = document.createElement("img");
         img.src = user.image;
         img.className = "img-fluid rounded-circle small-image";
         div.appendChild(img);
+
         const username = document.createElement("p");
         username.textContent = user.username;
         div.appendChild(username);
+        
         const status = document.createElement("p");
         status.textContent = user.status;
         div.append(status);
         container.appendChild(div);
-        addBlockButton(container, userId, !blocked);
-        addChatButton(container, currUserId, userId);
+
+        const blockButton = makeBlockButton(userId, !blocked);
+        div.append(blockButton);
+
         addStartGameButton(container, currUserId, userId);
     };
     const currUserId = getCurrUser().id;
@@ -61,72 +68,35 @@ async function displayUser(container, userId, blocked=false) {
 }
 
 // -- buttons ----
-function addBlockButton(container, userId, block) {
-    const params = {
-        id: container.id + "-block-user-" + userId,
-        container: container,
-        text: "Block",
-        action: blockAction(userId, block),
-    };
-    if (!block) {
-        params.text = "Unblock";
-    }
-    util.createButton(params);
+function makeBlockButton(userId, block) {
+    const button = document.createElement("button");
+    const text = block ? "Block" : "Unblock";
+    button.innerText = text;
+    button.classList.add('block-user-button');
+    button.setAttribute("data-block", block);
+    button.setAttribute("data-user-id", userId);
+    return button;
 }
 
-function addChatButton(container, currUserId, targetId) {
-    const params = {
-        id: container.id + "-chat-user-" + targetId,
-        container: container,
-        text: "Chat",
-        action: chatAction(currUserId, targetId),
-    };
-    util.createButton(params);
-}
-
-function addStartGameButton(container, currUserId, targetId) {
-    const params = {
-        id: container.id + "-game-user-" + targetId,
-        container: container,
-        text: "Start Game",
-        action: startGameAction(currUserId, targetId),
-    };
-    util.createButton(params);   
-}
-
-// -- actions ----
-function blockAction(userId, block=true) {
+// -- triggers ----
+function block(target) {
+    const blocking = target.getAttribute("data-block") == "true";
+    const method = blocking ? "POST" : "DELETE";
+    const userId = target.getAttribute("data-user-id");
+    console.log(blocking ? "" : "un" + "blocking userId:", userId);
     const options = {
-        method: "POST",
+        method: method,
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ user_id: userId }),
     };
-    if (!block) {
-        options.method = "DELETE";
-    }
-    return () => {
-        console.log(block ? "" : "un" + "blocking userId:", userId);
-        api.fetchRoute({
-            route: "/api/block/",
-            options: options,
-            dataManager: (_) => {
-                refresh();
-            }
-        });
-    };
-}
-
-function chatAction(currUserId, targetId) {
-    const roomId = [currUserId, targetId].sort().join("_");
-    return () => {
-        chat.start(roomId);
-    };
-}
-
-function startGameAction(currUserId, targetId) {
-    return () => {
-        console.log(`Start Game not implemented:\n${currUserId} vs ${targetId}`);
-    };
+    api.fetchRoute({
+        route: "/api/block/",
+        options: options,
+        dataManager: (_) => {
+            friends.refresh();
+        }
+    });
 }
 
 export { getUser, setUser, removeUser, displayUser };
+export { block };

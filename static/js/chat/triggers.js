@@ -1,7 +1,8 @@
 import * as chat from "/js/chat/chat.js";
-import * as chatUtils from "/js/chat/chatUtils.js";
+import * as chatFriends from "/js/chat/friends.js";
 import * as chatMessages from "/js/chat/messages.js";
 import * as util from "/js/util.js";
+import { GLOBAL_ROOM_ID, MATCH_ROOM_ID } from "/js/chat/chat.js";
 
 
 const chatIcon = document.getElementById('chat-icon'); //add connected check
@@ -14,16 +15,20 @@ function toggleChat() {
 // -- tabs ----
 const gameTab = document.getElementById('tab-game');
 function activateGameTab() {
-	activateTab(gameTab, "match");
+	activateTab(gameTab, MATCH_ROOM_ID);
 };
 
 const globalTab = document.getElementById('tab-global');
 function activateGlobalTab() {
-	activateTab(globalTab, "global");
+	activateTab(globalTab, GLOBAL_ROOM_ID);
 }
 
 const friendsTab = document.getElementById('tab-friends');
-function activateFriendsTab(roomId) {
+function activateFriendsTab(target) {
+	const roomId = target.getAttribute('data-room-id');
+	if (!(roomId in chat.chatSockets)) {
+		chat.start(roomId);
+	}
 	activateTab(friendsTab, roomId);
 }
 
@@ -39,7 +44,7 @@ function activateTab(target, roomId) {
 
 const friendsList = document.getElementById('friendlist-tab');
 function activateFriendsList() {
-	chatUtils.generateFriendsList(friendsList);
+	chatFriends.generateFriendsList(friendsList);
 	util.toggleClass(friendsList, 'show');
 };
 

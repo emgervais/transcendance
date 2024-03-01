@@ -23,32 +23,10 @@ function toggleClass(element, _class) {
     }
 }
 
-// -- buttons ----
-const button_actions = {};
-
-function createButton({text, id, action, container}) {
-    const button = document.createElement("button");
-    button.innerText = text;
-    button.id = id;
-    button_actions[id] = action;
-    button.addEventListener("click", button_actions[id]);
-    container.appendChild(button);
-}
-
-function deleteButton(id) {
-    if (id in button_actions) {
-        const button = document.getElementById(id);
-        button.removeEventListener("click", button_actions[id]);
-        delete button_actions["id"];
-        button.remove();
-    }
-}
-
 // -- sleep ----
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export { isDisplayed, display, toggleDisplay, toggleClass };
-export { createButton, deleteButton };
 export { sleep };

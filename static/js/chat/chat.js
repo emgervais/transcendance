@@ -3,44 +3,58 @@ import * as chatMessages from "/js/chat/messages.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js"
 
-var chatSockets = {
-	'global': undefined,
-	'match': undefined,
-};
-var currRoomId = 'global';
+// -- roomId ----
+const GLOBAL_ROOM_ID = "global";
+const MATCH_ROOM_ID = "match";
+
+var currRoomId = GLOBAL_ROOM_ID;
 
 function updateRoomId(id) {
 	currRoomId = id;
 }
 
-function start(roomId="global") {
+function getRoomId(userId) {
+    const currUserId = getCurrUser().id;
+	const roomId = [currUserId, userId].sort().join("_");
+	return roomId;
+}
+
+// -- sockets ----
+var chatSockets = {};
+chatSockets[GLOBAL_ROOM_ID] = undefined;
+chatSockets[MATCH_ROOM_ID] = undefined;
+
+function start(roomId=GLOBAL_ROOM_ID) {
+	if (roomId in chatSockets) {
+		throw new Error(`chat.start: chatSocket "${roomId}" already exists.`);
+	}
 	console.log("start, room:", roomId);
 	let ws = new WebSocket(
 		'wss://'
 		+ window.location.host
 		+ '/ws/chat/'
-		+ roomId + '/'	// Room name according to user's friends
+		+ roomId + '/'
 	);
     chatSockets[roomId] = ws;
 
 	ws.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
+		console.log("chat, onmessage, data:", data);
 		let	who = 'else';
-		const sender = await getUser(data.sender_id);
-		if(data.sender_id === getCurrUser().id)
+		const sender = await getUser(data.senderId);
+		if(data.senderId === getCurrUser().id)
 			who = 'self';
 		const username = sender.username;
 		const message = username + ': ' + data.message;
 		if (roomId === currRoomId) {
-			chatMessages.generateMessage(message, who, sender.image, data.sender_id);
+			chatMessages.generateMessage(message, who, sender.image, data.senderId);
 		}
-		chatMessages.saveMessage(roomId, message, who, sender.image, data.sender_id);
+		chatMessages.saveMessage(roomId, message, who, sender.image, data.senderId);
 	};
 
 	ws.onclose = (_) => {
-		console.error('Chat socket closed unexpectedly');
+		console.log(`Chat websocket "${roomId}" closed.`);
 	};
-
 }
 
 const chatInput = document.getElementById('chat-input');
@@ -58,21 +72,16 @@ function submit() {
 	}));
 }
 
-function stop(roomId=undefined) {
-	if (roomId) {
-		_stop(roomId);
-		return;
-	}
-	for (roomId in chatSockets) {
-		_stop(roomId);
-	}
-}
-
-function _stop(roomId) {
+function stop(roomId) {
     let ws = chatSockets[roomId];
     if (!ws) {
-		throw new Error("chat.stop: no active notifications websocket");
+		console.log(`chat.stop: no active chat with roomId "${roomId}"`);
+		return;
+		// throw new Error(`chat.stop: no active chat with roomId ${roomId}`);
     }
+	ws.send(JSON.stringify({
+		'disconnect': true
+	}));
 	ws.close();
     delete chatSockets[roomId];
 	chatMessages.deleteMessages(roomId);
@@ -81,5 +90,5 @@ function _stop(roomId) {
 }
 // --------------------------------
 
+export { GLOBAL_ROOM_ID, MATCH_ROOM_ID, currRoomId, getRoomId, updateRoomId };
 export { submit, start, stop, chatSockets };
-export { currRoomId, updateRoomId };

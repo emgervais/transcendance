@@ -1,3 +1,5 @@
+import { GLOBAL_ROOM_ID } from "/js/chat/chat.js";
+
 function setMessages() {
     var messages = [];
     var newMessage = {};
@@ -6,7 +8,7 @@ function setMessages() {
         if(i % 2 === 0)
             type = 'else';
         newMessage = {
-            roomId: 'global',
+            roomId: GLOBAL_ROOM_ID,
             message: 'robert' + i,
             type: type,
             image: 'ok',

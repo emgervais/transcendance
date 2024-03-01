@@ -5,6 +5,7 @@ import * as chat from "/js/chat/chat.js";
 import * as friends from "/js/account/friends.js";
 import * as router from "/js/router.js";
 import { updateCurrUser } from "/js/user/currUser.js";
+import * as user from "/js/user/user.js";
 import * as util from "/js/util.js";
 import * as chatTriggers from "/js/chat/triggers.js";
 
@@ -23,14 +24,18 @@ const idFunctions = {
 
     "update-info-button": account.updateInfoButton,
 
-    "friend-request-button": friends.makeFriendRequest,
+    "friend-request-button": friends.makeRequest,
 };
 
 const classFunctions = {
-    'close-friend-chat': (target) => { chat.stop(target.getAttribute('data-roomid')); },
-    'chat-friends-list': (target) => { chatTriggers.activateFriendsTab(target.id); },
+    'friend-request-button': friends.answerRequest,
+    'block-user-button': user.block,
     'chat-box-toggle': (_) => { chatTriggers.toggleChat(); },
-    "profile-picture-chat": chatTriggers.activateMenu,
+    
+    'chat-friends-list': chatTriggers.activateFriendsTab,
+
+    'close-friend-chat': (target) => { chat.stop(target.getAttribute('data-roomid')); },
+    'profile-picture-chat': chatTriggers.activateMenu,
 }
 
 function callTargetFunction(target) {
@@ -95,7 +100,7 @@ function keyEnter(id) {
             chat.submit();
             return;
         case "friend-request-input":
-            friends.makeFriendRequest();
+            friends.makeRequest();
             return;
     }
     if (util.isDisplayed("authentication-container")) {
