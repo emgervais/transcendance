@@ -22,7 +22,7 @@ def get_swear_words():
     global SWEAR_WORDS
     if SWEAR_WORDS:
         return SWEAR_WORDS
-    with open("./media/txt/swearWords.txt", "r", encoding="utf-8") as f:
+    with open("./static/txt/swearWords.txt", "r", encoding="utf-8") as f:
         for line in f:
             SWEAR_WORDS.append(line.strip())
     return SWEAR_WORDS

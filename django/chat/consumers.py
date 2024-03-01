@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from users.models import User, UserWebSocket
-from .censor import censor
+# from chat.censor import censor
 
 from typing import List
 
@@ -107,6 +107,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
         user = self.scope["user"]
+        # message = f"{user}: {message}"
                     
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -117,7 +118,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
     async def chat_message(self, event):
-        message = censor(event['message'])
+        message = event['message']
         sender_id = event['sender_id']
         
         await self.send(text_data=json.dumps({

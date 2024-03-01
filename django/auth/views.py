@@ -25,7 +25,6 @@ class ResetDatabaseView(generics.DestroyAPIView):
     def delete(self, request: HttpRequest) -> JsonResponse:
         try:
             User.objects.all().delete()
-            
             return JsonResponse({'message': 'Database reset successfully'}, status=status.HTTP_200_OK)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
