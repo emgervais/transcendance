@@ -1,6 +1,7 @@
 import * as chat from "/js/chat/chat.js";
 import * as chatFriends from "/js/chat/friends.js";
 import * as chatMessages from "/js/chat/messages.js";
+import * as notifications from "/js/notifications.js";
 import * as util from "/js/util.js";
 import { GLOBAL_ROOM_ID, MATCH_ROOM_ID } from "/js/chat/chat.js";
 
@@ -10,6 +11,11 @@ const chatBox = document.getElementById('chat-box');
 function toggleChat() {
 	util.toggleClass(chatIcon, 'chat-active')
 	util.toggleClass(chatBox, 'chat-active')
+}
+
+function closeChatBox() {
+	util.setClass(chatIcon, 'chat-active', true);
+	util.setClass(chatBox, 'chat-active', false);
 }
 
 // -- tabs ----
@@ -26,10 +32,21 @@ function activateGlobalTab() {
 const friendsTab = document.getElementById('tab-friends');
 function activateFriendsTab(target) {
 	const roomId = target.getAttribute('data-room-id');
+	if (!roomId) {
+		return;
+	}
 	if (!(roomId in chat.chatSockets)) {
 		chat.start(roomId);
 	}
 	activateTab(friendsTab, roomId);
+}
+
+function stopChat(target) {
+	const roomId = target.getAttribute('data-room-id');
+	notifications.submit({
+		type: "close",
+		data: roomId,
+	});
 }
 
 function activateTab(target, roomId) {
@@ -85,6 +102,6 @@ function updateMenu(id) {
 	menu.appendChild(ul);
 }
 
-export { toggleChat }
-export { activateGlobalTab, activateFriendsList, activateFriendsTab, activateGameTab };
+export { toggleChat, closeChatBox }
+export { activateGlobalTab, activateFriendsList, activateFriendsTab, stopChat, activateGameTab };
 export { activateMenu };

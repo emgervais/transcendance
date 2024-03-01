@@ -117,11 +117,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         message = censor(event['message'])
-        sender_id = event['sender_id']
+        sender_id = event['senderId']
         
         await self.send(text_data=json.dumps({
             'message': message,
-            'sender_id': sender_id
+            'senderId': sender_id
         }))
         
     async def private_room(self, user):

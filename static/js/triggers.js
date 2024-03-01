@@ -33,8 +33,8 @@ const classFunctions = {
     'chat-box-toggle': (_) => { chatTriggers.toggleChat(); },
     
     'chat-friends-list': chatTriggers.activateFriendsTab,
+    'close-friend-chat': chatTriggers.stopChat,
 
-    'close-friend-chat': (target) => { chat.stop(target.getAttribute('data-roomid')); },
     'profile-picture-chat': chatTriggers.activateMenu,
 }
 

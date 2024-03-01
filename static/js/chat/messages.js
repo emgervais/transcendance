@@ -55,7 +55,4 @@ async function deleteMessages(roomId) {
 	sessionStorage.setItem('messages', JSON.stringify(filteredMessages));
 }
 
-
-
-
 export { loadMessages, generateMessage, saveMessage, deleteMessages };

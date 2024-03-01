@@ -38,8 +38,6 @@ def get_main_channel(user):
         return user_channel_group.main
     except UserChannelGroup.DoesNotExist:
         return None
-<<<<<<< HEAD
-=======
     
 @database_sync_to_async
 def get_online_friends(user):
@@ -47,7 +45,6 @@ def get_online_friends(user):
         return Friend.objects.online_friends(user)
     except Exception as e:
         print('Error:', e)
->>>>>>> ele-sage
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -65,26 +62,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                     })
                 except:
                     print('Error closing old channel')
-<<<<<<< HEAD
-            await set_main_channel(user, self.channel_name)
-            await change_status(user, 'online')
-            await self.accept()
-            group_list = await get_group_list(user)
-            if group_list:
-                for group in group_list:
-                    if group != 'global':
-                        await self.send(text_data=json.dumps({
-                            'notification': 'chat',
-                            'room': group
-                        }))
-    
-    async def disconnect(self, close_code):
-        user = self.scope["user"]
-
-        if user.is_authenticated:
-            await set_main_channel(user, '')
-            await change_status(user, 'offline')
-=======
             else:
                 if user.status == 'offline':
                     await change_status(user, 'online')
@@ -97,7 +74,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         user = self.scope["user"]
         
         await self.send(text_data=json.dumps({
-            'notification': 'chat',
+            'type': 'chat',
             'room': 'global'
         }))
         group_list = await get_group_list(user)
@@ -105,7 +82,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             for group in group_list:
                 if group != 'global':
                     await self.send(text_data=json.dumps({
-                        'notification': 'chat',
+                        'type': 'chat',
                         'room': group
                     }))
     
@@ -116,18 +93,12 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             if user.status == 'online':
                 await change_status(user, 'offline')
                 await self.online_friends_notify(False)
->>>>>>> ele-sage
             await self.close()
         
     async def send_notification(self, event):
         notification = event['notification']
         room = event['room']
         await self.send(text_data=json.dumps({
-<<<<<<< HEAD
-            'notification': notification,
-            'room': room
-        }))
-=======
             'type': notification,
             'room': room
         }))
@@ -183,4 +154,3 @@ def close_websockets(user):
             print('User channel group not found')
         except Exception as e:
             print('Error:', e)
->>>>>>> ele-sage

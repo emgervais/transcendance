@@ -51,15 +51,11 @@ async function displayUser(container, userId, blocked=false) {
         username.textContent = user.username;
         div.appendChild(username);
         
-        const status = document.createElement("p");
-        status.textContent = user.status;
-        div.append(status);
         container.appendChild(div);
 
         const blockButton = makeBlockButton(userId, !blocked);
         div.append(blockButton);
 
-        addStartGameButton(container, currUserId, userId);
     };
     const currUserId = getCurrUser().id;
     let user = await getUser(userId);

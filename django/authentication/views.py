@@ -63,31 +63,8 @@ class LogoutView(generics.GenericAPIView):
         response = JsonResponse({'message': 'Logout successful'}, status=status.HTTP_200_OK)
         response.delete_cookie('refresh_token')
         response.delete_cookie('access_token')
-<<<<<<< HEAD:django/authentication/views.py
-        # close all user websockets
-        try:
-            user = User.objects.get(pk=request.user.id)
-            channel_layer = get_channel_layer()
-            channels = UserChannelGroup.objects.get(user=user).channel_groups.keys()
-            for channel in channels:
-                try:
-                    async_to_sync(channel_layer.send)(channel, {
-                        'type': 'websocket.disconnect',
-                        'code': 1000,
-                    })
-                except:
-                    print('Error closing channel')
-                
-        except User.DoesNotExist:
-            print('User not found')
-        except UserChannelGroup.DoesNotExist:
-            print('User channel group not found')
-        except Exception as e:
-            print('Error:', e)
-=======
         user = User.objects.get(pk=request.user.id)
         close_websockets(user)
->>>>>>> ele-sage:django/auth/views.py
         return response
 
         

@@ -23,10 +23,18 @@ function toggleClass(element, _class) {
     }
 }
 
+function setClass(element, _class, state) {
+    if (!state && element.classList.contains(_class)) {
+		element.classList.remove(_class);
+    } else if (state && !element.classList.contains(_class)) {
+		element.classList.add(_class);
+    }
+}
+
 // -- sleep ----
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export { isDisplayed, display, toggleDisplay, toggleClass };
+export { isDisplayed, display, toggleDisplay, toggleClass, setClass };
 export { sleep };

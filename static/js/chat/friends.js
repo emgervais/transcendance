@@ -2,7 +2,7 @@ import * as api from "/js/api.js";
 import * as chat from "/js/chat/chat.js";
 import { getUser } from "/js/user/user.js"
 
-var connectedFriends = []; // ids
+var connectedFriends = [];
 
 function update(id, connected) {
     if (connected) {
@@ -21,22 +21,12 @@ function removeConnectedFriend(id) {
 }
 
 // -- friends list ----
-async function __getAllFriends() {
-	connectedFriends = [];
-    const friendsManager = (friends) => {
-		friends.forEach(friend => {
-			connectedFriends.push(friend.friend);
-		});
-    };
-	await api.fetchRoute({
-        route: "/api/friends/",
-        dataManager: friendsManager
-    });
-}
-
 async function generateFriendsList(container) {
 	container.innerHTML = '';
-	await __getAllFriends();
+	if (connectedFriends.length == 0) {
+		container.innerHTML = "<div class='dropdown-item chat-tab-container'><p class='greyed-out chat-friends-list'>No friends.</p></div>"
+		return;
+	}
 	connectedFriends.forEach(userId => {
 		generateFriendsListElement(container, userId);
 	});
@@ -60,11 +50,11 @@ async function generateFriendsListElement(container, userId) {
 	anchor.textContent = username;
 	div.appendChild(anchor);
 	
-	// const closeIcon = document.createElement('i');
-	// closeIcon.classList.add('close-friend-chat', 'fa-solid', 'fa-x');
-	// closeIcon.title = 'Close Chat';
-	// closeIcon.setAttribute('data-roomId', chatSocket);
-	// div.appendChild(closeIcon);
+	const closeIcon = document.createElement('i');
+	closeIcon.classList.add('close-friend-chat', 'fa-solid', 'fa-x');
+	closeIcon.setAttribute('data-room-id', roomId);
+	closeIcon.title = 'Close Chat';
+	div.appendChild(closeIcon);
 	
 	container.appendChild(div);
 }

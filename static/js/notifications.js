@@ -21,30 +21,28 @@ function start() {
 				chat.start(data.room);
 				break;
 			case "connection":
-				// TODO
 				chatFriends.update(data.userId, data.connected);
 				break;
 		}
     }
 
-<<<<<<< HEAD
 	ws.onclose = (_) => {
-		console.log('Notifications websocket closed.');
+		stop();
 	};
-=======
-	ws.onclose = () => {
-		console.log("Notifications closed");
-	}
->>>>>>> ele-sage
+}
+
+function submit({type, data}) {
+	// type: close
+	// data: roomId
 }
 
 function stop() {
-    if (!ws) {
-		console.log("notifications.stop: no active notifications websocket");
+    if (!ws || ws.readyState === WebSocket.CLOSED) {
+		console.log("notifications.stop: notifications websocket already closed.");
 		return;
 	}
+	console.log('Notifications websocket closed.');
 	ws.close();
-	ws = undefined;
 }
 
-export { start, stop };
+export { start, stop, submit };

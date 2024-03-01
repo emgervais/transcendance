@@ -21,14 +21,12 @@ function getRoomId(userId) {
 
 // -- sockets ----
 var chatSockets = {};
-chatSockets[GLOBAL_ROOM_ID] = undefined;
-chatSockets[MATCH_ROOM_ID] = undefined;
 
 function start(roomId=GLOBAL_ROOM_ID) {
 	if (roomId in chatSockets) {
 		throw new Error(`chat.start: chatSocket "${roomId}" already exists.`);
 	}
-	console.log("start, room:", roomId);
+	console.log("chat.start, room:", roomId);
 	let ws = new WebSocket(
 		'wss://'
 		+ window.location.host
@@ -77,7 +75,6 @@ function stop(roomId) {
     if (!ws) {
 		console.log(`chat.stop: no active chat with roomId "${roomId}"`);
 		return;
-		// throw new Error(`chat.stop: no active chat with roomId ${roomId}`);
     }
 	ws.send(JSON.stringify({
 		'disconnect': true
