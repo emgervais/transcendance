@@ -43,13 +43,13 @@ function activateFriendsTab(target) {
 
 function stopChat(target) {
 	const roomId = target.getAttribute('data-room-id');
-	notifications.submit({
-		type: "close",
-		data: roomId,
-	});
+	chat.stop(roomId);
 }
 
 function activateTab(target, roomId) {
+	if (!chat.isFriendRoom(roomId)) {
+		closeFriendsList();
+	}
 	if (chat.currRoomId == roomId) {
 		return;
 	}
@@ -64,6 +64,10 @@ function activateFriendsList() {
 	chatFriends.generateFriendsList(friendsList);
 	util.toggleClass(friendsList, 'show');
 };
+
+function closeFriendsList() {
+	util.setClass(friendsList, 'show', false);
+}
 
 // -- image ----
 const menu = document.getElementById('chat-menu');
@@ -103,5 +107,5 @@ function updateMenu(id) {
 }
 
 export { toggleChat, closeChatBox }
-export { activateGlobalTab, activateFriendsList, activateFriendsTab, stopChat, activateGameTab };
+export { activateGlobalTab, activateFriendsList, closeFriendsList, activateFriendsTab, stopChat, activateGameTab };
 export { activateMenu };

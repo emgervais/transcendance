@@ -23,17 +23,15 @@ function start() {
 			case "connection":
 				chatFriends.update(data.userId, data.connected);
 				break;
+			case "onlineFriends":
+				chatFriends.set(data.userIds);
+				break;
 		}
     }
 
 	ws.onclose = (_) => {
 		stop();
 	};
-}
-
-function submit({type, data}) {
-	// type: close
-	// data: roomId
 }
 
 function stop() {
@@ -45,4 +43,4 @@ function stop() {
 	ws.close();
 }
 
-export { start, stop, submit };
+export { start, stop };

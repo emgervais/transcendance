@@ -1,4 +1,3 @@
-import * as chatUtils from "/js/chat/chatUtils.js";
 import * as chatMessages from "/js/chat/messages.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js"
@@ -19,6 +18,10 @@ function getRoomId(userId) {
 	return roomId;
 }
 
+function isFriendRoom(roomId) {
+	return roomId != GLOBAL_ROOM_ID && roomId != MATCH_ROOM_ID;
+}
+
 // -- sockets ----
 var chatSockets = {};
 
@@ -26,7 +29,7 @@ function start(roomId=GLOBAL_ROOM_ID) {
 	if (roomId in chatSockets) {
 		throw new Error(`chat.start: chatSocket "${roomId}" already exists.`);
 	}
-	console.log("chat.start, room:", roomId);
+	console.log("chat.start:", roomId);
 	let ws = new WebSocket(
 		'wss://'
 		+ window.location.host
@@ -52,6 +55,7 @@ function start(roomId=GLOBAL_ROOM_ID) {
 
 	ws.onclose = (_) => {
 		console.log(`Chat websocket "${roomId}" closed.`);
+		delete chatSockets[roomId];
 	};
 }
 
@@ -79,13 +83,14 @@ function stop(roomId) {
 	ws.send(JSON.stringify({
 		'disconnect': true
 	}));
-	ws.close();
-    delete chatSockets[roomId];
+	console.log(`Closing chat webSocket: ${roomId}`);
 	chatMessages.deleteMessages(roomId);
-	if(currRoomId === roomId)
-		chatUtils.clearLogs();
+	if (ws.readyState !== WebSocket.CLOSED) {
+		ws.close();
+	}
+    delete chatSockets[roomId];
 }
 // --------------------------------
 
-export { GLOBAL_ROOM_ID, MATCH_ROOM_ID, currRoomId, getRoomId, updateRoomId };
+export { GLOBAL_ROOM_ID, MATCH_ROOM_ID, currRoomId, getRoomId, updateRoomId, isFriendRoom };
 export { submit, start, stop, chatSockets };

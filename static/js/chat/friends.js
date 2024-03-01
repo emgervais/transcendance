@@ -20,6 +20,10 @@ function removeConnectedFriend(id) {
     connectedFriends = connectedFriends.filter(item => item !== id);
 }
 
+function set(_connectedFriends) {
+	connectedFriends = _connectedFriends;
+}
+
 // -- friends list ----
 async function generateFriendsList(container) {
 	container.innerHTML = '';
@@ -59,8 +63,4 @@ async function generateFriendsListElement(container, userId) {
 	container.appendChild(div);
 }
 
-function startChat() {
-
-}
-
-export { connectedFriends, update, generateFriendsList };
+export { connectedFriends, update, set, generateFriendsList };

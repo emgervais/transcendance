@@ -1,8 +1,7 @@
-import * as chatUtils from "/js/chat/chatUtils.js";
 import * as chat from "/js/chat/chat.js";
 
 function loadMessages() {
-    chatUtils.clearLogs();
+    clearLogs();
 	var messages = JSON.parse(sessionStorage.getItem("messages"));
 
 	if(!messages)
@@ -53,6 +52,15 @@ async function deleteMessages(roomId) {
 	});
 	console.log('2', filteredMessages);
 	sessionStorage.setItem('messages', JSON.stringify(filteredMessages));
+	if(chat.currRoomId === roomId) {
+		clearLogs();	
+	}
 }
 
+function clearLogs() {
+	document.querySelector('.chat-logs').innerHTML = '';
+}
+
+
 export { loadMessages, generateMessage, saveMessage, deleteMessages };
+export { clearLogs };
