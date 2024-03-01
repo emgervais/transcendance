@@ -28,7 +28,7 @@ db:
 	source .env && docker exec -it postgres psql -U $${POSTGRES_USER} -d $${POSTGRES_DB}
 
 tests:
-	cd tests && docker-compose up --build --force-recreate
+	cd tests && docker-compose up -d --build --force-recreate
 
 run_tests:
 	cd tests && docker-compose up -d --build --force-recreate && docker exec -it tests sh

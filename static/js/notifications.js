@@ -1,9 +1,10 @@
 import * as chat from "/js/chat/chat.js";
+import * as chatFriends from "/js/chat/friends.js";
 import { getCurrUser } from "/js/user/currUser.js";
 
 var ws;
 
-async function notificationMaster() {
+function start() {
 	var userId = getCurrUser().id;
 	ws = new WebSocket(
 		'wss://'
@@ -15,9 +16,15 @@ async function notificationMaster() {
 	ws.onmessage = async (event) => {
         const data = JSON.parse(event.data);
         console.log("ws.onmessage:", data);
-        if (data.notification === "chat") {
-            chat.startChat(data.room);
-        }
+		switch (data.notification) {
+			case "chat":
+				chat.start(data.room);
+				break;
+			case "connection":
+				// TODO
+				chatFriends.update(data.id, data.connected);
+				break;
+		}
     }
 
 	ws.onclose = () => {
@@ -25,4 +32,12 @@ async function notificationMaster() {
 	}
 }
 
-export { notificationMaster };
+function stop() {
+    if (!ws) {
+		throw new Error("notifications.stop: no active notifications websocket");
+	}
+	ws.close();
+	ws = undefined;
+}
+
+export { start, stop };

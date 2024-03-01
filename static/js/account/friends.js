@@ -85,8 +85,8 @@ function getBlockedUsers() {
 
 
 // -- display ----
-function displayFriendRequest(container, request) {
-    const div = displayUser(container, request.from_user);
+async function displayFriendRequest(container, request) {
+    const div = await displayUser(container, request.from_user);
     const buttons = [
         {
             text: "Accept",

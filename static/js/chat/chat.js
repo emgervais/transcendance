@@ -1,27 +1,20 @@
 import * as chatUtils from "/js/chat/chatUtils.js";
-import * as chatListener from "/js/chat/chatListener.js";
-import * as test from "/js/test_messages.js";
+import * as chatMessages from "/js/chat/messages.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js"
 
 var chatSockets = {
-	'global': 1,
-	'match': 2,
+	'global': undefined,
+	'match': undefined,
 };
 var currRoomId = 'global';
 
-function updateCurrRoomId(newRoom) {
-    currRoomId = newRoom;
+function updateRoomId(id) {
+	currRoomId = id;
 }
 
-function initChat() {
-	test.setMessages();
-	chatListener.chatListeners();
-	chatUtils.loadMessages();
-}
-
-function startChat(roomId="global") {
-	console.log("startChat, room:", roomId);
+function start(roomId="global") {
+	console.log("start, room:", roomId);
 	let ws = new WebSocket(
 		'wss://'
 		+ window.location.host
@@ -39,9 +32,9 @@ function startChat(roomId="global") {
 		const username = sender.username;
 		const message = username + ': ' + data.message;
 		if (roomId === currRoomId) {
-			chatUtils.generateMessage(message, who, sender.image, data.sender_id);
+			chatMessages.generateMessage(message, who, sender.image, data.sender_id);
 		}
-		chatUtils.saveMessage(roomId, message, who, sender.image, data.sender_id);
+		chatMessages.saveMessage(roomId, message, who, sender.image, data.sender_id);
 	};
 
 	ws.onclose = () => {
@@ -58,25 +51,35 @@ function submit() {
 	}
     let ws = chatSockets[currRoomId];
     if (!ws) {
-        console.log("chat: submit: unexistant roomId:", currRoomId);
-        return;
+		throw new Error(`chat.submit: unexistant roomId: ${currRoomId}`);
     }
 	ws.send(JSON.stringify({
 		'message': message
 	}));
 }
 
-function closeChat(roomId="global") {
+function stop(roomId=undefined) {
+	if (roomId) {
+		_stop(roomId);
+		return;
+	}
+	for (roomId in chatSockets) {
+		_stop(roomId);
+	}
+}
+
+function _stop(roomId) {
     let ws = chatSockets[roomId];
     if (!ws) {
-        console.log("chat: closeChat: unexistant roomId");
-        return;
-    }    
+		throw new Error("chat.stop: no active notifications websocket");
+    }
+	ws.close();
     delete chatSockets[roomId];
-	chatUtils.deleteMessages(roomId);
+	chatMessages.deleteMessages(roomId);
 	if(currRoomId === roomId)
 		chatUtils.clearLogs();
 }
 // --------------------------------
 
-export { submit, startChat, initChat, closeChat, chatSockets, updateCurrRoomId, currRoomId};
+export { submit, start, stop, chatSockets };
+export { currRoomId, updateRoomId };

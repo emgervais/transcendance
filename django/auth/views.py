@@ -76,8 +76,6 @@ class LogoutView(generics.GenericAPIView):
                     })
                 except:
                     print('Error closing channel')
-            print('Channels:', channels)
-            channels.clear()
         except User.DoesNotExist:
             print('User not found')
         except UserChannelGroup.DoesNotExist:

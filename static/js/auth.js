@@ -1,6 +1,6 @@
 import * as router from "/js/router.js";
 import * as chat from "/js/chat/chat.js";
-import * as notifications from "/js/chat/notifications.js";
+import * as notifications from "/js/notifications.js";
 import { updateNav } from "/js/nav.js";
 import * as api from "/js/api.js";
 import { displayCurrUser, setCurrUser, removeCurrUser } from "/js/user/currUser.js";
@@ -37,7 +37,8 @@ function isConnected() {
 
 function setConnected(connected) {
     if (!connected) {
-        chat.closeChat();
+        chat.stop();
+        notifications.stop();
         removeCurrUser();
     }
     sessionStorage.setItem("connected", connected);
@@ -55,8 +56,8 @@ function login(user, redirect=true) {
         router.route("/");
     }
     reconnecting = false;
-    notifications.notificationMaster()
-    chat.startChat();
+    notifications.start()
+    chat.start();
 }
 
 var reconnecting = false;

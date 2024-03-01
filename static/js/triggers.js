@@ -6,8 +6,9 @@ import * as friends from "/js/account/friends.js";
 import * as router from "/js/router.js";
 import { updateCurrUser } from "/js/user/currUser.js";
 import * as util from "/js/util.js";
-import * as chatUtils from "/js/chat/chatUtils.js";
+import * as chatTriggers from "/js/chat/triggers.js";
 
+// -- click ----
 const idFunctions = {
     "login-button": auth.loginButton,
     "register-button": auth.registerButton,
@@ -16,21 +17,33 @@ const idFunctions = {
     
     "chat-toggle": chat.toggleDisplay,
     "chat-submit": chat.submit,
+    "tab-global": chatTriggers.activateGlobalTab,
+    "tab-friends": chatTriggers.activateFriendsList,
+    "tab-game": chatTriggers.activateGameTab,
 
     "update-info-button": account.updateInfoButton,
 
-    "friend-request-button": friends.makeFriendRequest
+    "friend-request-button": friends.makeFriendRequest,
 };
 
 const classFunctions = {
-    'closeFriendChat': (target) => { chat.closeChat(target.getAttribute('data-roomid')); },
-    'chat-tab-list': (target) => { chatUtils.changeChatTab(target.id); },
+    'close-friend-chat': (target) => { chat.stop(target.getAttribute('data-roomid')); },
+    'chat-friends-list': (target) => { chatTriggers.activateFriendsTab(target.id); },
+    'chat-box-toggle': (_) => { chatTriggers.toggleChat(); },
+    "profile-picture-chat": chatTriggers.activateMenu,
+}
+
+function callTargetFunction(target) {
+    while (
+        target
+        && !callIdFunction(target)
+        && !callClassFunctions(target)
+    ) {
+        target = target.parentElement;
+    }
 }
 
 function callIdFunction(target) {
-    while (target && !target.id in idFunctions) {
-        target = target.parentElement;
-    }
     if (target.id in idFunctions) {
         idFunctions[target.id]();
         return true;
@@ -39,12 +52,6 @@ function callIdFunction(target) {
 }
 
 function callClassFunctions(target) {
-    while (target && !_callClassFunctions(target)) {
-        target = target.parentElement;
-    }
-}
-
-function _callClassFunctions(target) {
     target.classList.forEach(className => {
         if (className in classFunctions) {
             classFunctions[className](target);
@@ -56,17 +63,16 @@ function _callClassFunctions(target) {
 
 function click(event) {
     const { target } = event;
-    console.log("click:", target.id);
     if (target.matches("a[href]")) {
         event.preventDefault();
         router.route(event.target.href);
     } else {
-        callIdFunction(target) || callClassFunctions(target);
+        callTargetFunction(target);
     }
 }
 
+// -- key ----
 function key(event) {
-
     switch (event.key) {
         case "Escape":
             keyEscape();
@@ -101,6 +107,7 @@ function keyEnter(id) {
     }
 }
 
+// -- change ----
 function onChange(event) {
     switch (event.target.id) {
         case "user-img-changer":
