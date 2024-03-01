@@ -5,12 +5,14 @@ from users.models import UserChannelGroup, User
 from friend.models import Friend
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+import time, threading
 
 @database_sync_to_async
 def change_status(user, status):
     try:
         user.status = status
         user.save()
+        print('Status changed:', user.status)
     except Exception as e:
         print('Error:', e)
 
@@ -40,9 +42,10 @@ def get_main_channel(user):
         return None
     
 @database_sync_to_async
-def get_online_friends(user):
+def get_online_friends(user, ids_only=False):
     try:
-        return Friend.objects.online_friends(user)
+        friends = Friend.objects.online_friends(user, ids_only)
+        return friends
     except Exception as e:
         print('Error:', e)
 
@@ -53,21 +56,15 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         if not user.is_authenticated:
             await self.close()
         else:
-            old_channel = await get_main_channel(user)
-            if old_channel:
-                try:
-                    await self.channel_layer.send(old_channel, {
-                        'type': 'websocket.disconnect',
-                        'code': 1000,
-                    })
-                except:
-                    print('Error closing old channel')
-            else:
-                if user.status == 'offline':
-                    await change_status(user, 'online')
-                    await self.online_friends_notify(True)
+            if user.status == 'offline':
+                await change_status(user, 'online')
+                await self.online_friends_notify(True)
             await set_main_channel(user, self.channel_name)
             await self.accept()
+            await self.send(text_data=json.dumps({
+                'type': 'onlineFriends',
+                'userIds': await get_online_friends(user, ids_only=True)
+            }))
             await self.reconnect_chats()
                         
     async def reconnect_chats(self):
@@ -86,14 +83,12 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                         'room': group
                     }))
     
-    async def disconnect(self, close_code):
+    async def disconnect(self, code):
         user = self.scope["user"]
         if user.is_authenticated:
             await set_main_channel(user, '')
-            if user.status == 'online':
-                await change_status(user, 'offline')
-                await self.online_friends_notify(False)
-            await self.close()
+            disconnect_thread = threading.Thread(target=user_disconnect, args=(user,))
+            disconnect_thread.start()
         
     async def send_notification(self, event):
         notification = event['notification']
@@ -107,6 +102,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         notification = event['notification']
         connected = event['connected']
         userId = event['userId']
+
         await self.send(text_data=json.dumps({
             'type': notification,
             'connected': connected,
@@ -127,7 +123,26 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                         'connected': connected,
                         'userId': user.id
                     })
-                    
+
+def user_disconnect(user):               
+    time.sleep(5)
+    main = UserChannelGroup.objects.get(user=user).main
+    should_deconnect = main == ''
+    if should_deconnect and user.status == 'online':
+        user.status = 'offline'
+        user.save()
+        friends = Friend.objects.online_friends(user)
+        if friends:
+            channel_layer = get_channel_layer()
+            for friend in friends:
+                channel_name = UserChannelGroup.objects.get(user=friend).main
+                if channel_name:
+                    async_to_sync(channel_layer.send)(channel_name, {
+                        'type': 'user_online',
+                        'notification': 'connection',
+                        'connected': False,
+                        'userId': user.id
+                    })
 
 def close_websockets(user):
         try:
