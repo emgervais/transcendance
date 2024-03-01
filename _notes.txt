@@ -1,7 +1,10 @@
-Stop chat:
-    .envoyer un field dans le json pour dire qu'on veut stopper
+Quand un chat actif est coupé:
+    (chat, ws.onclose)
+    deleteMessages, change le tab vers global
 
-
+Afficher notifications:
+    .Réception messages (chat icon avec un nombre)
+    .Demandes d'amis (nav)
 
 
 Si un client refresh, les websockets actifs devraient redémarrer.

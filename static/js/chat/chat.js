@@ -81,7 +81,7 @@ function stop(roomId) {
 		return;
     }
 	ws.send(JSON.stringify({
-		'disconnect': true
+		'closing': true
 	}));
 	console.log(`Closing chat webSocket: ${roomId}`);
 	chatMessages.deleteMessages(roomId);

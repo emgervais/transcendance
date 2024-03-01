@@ -87,7 +87,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
         user = self.scope["user"]
         closing = text_data_json.get('closing', False)
         
@@ -99,6 +98,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await remove_channel_group(user, self.channel_name)
             await self.close()
         else:
+            message = text_data_json.get('message')
             await self.channel_layer.group_send(
                 self.group_name,
                 {
