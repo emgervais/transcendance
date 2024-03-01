@@ -16,7 +16,7 @@ function start() {
 	ws.onmessage = async (event) => {
         const data = JSON.parse(event.data);
         console.log("ws.onmessage:", data);
-		switch (data.notification) {
+		switch (data.type) {
 			case "chat":
 				chat.start(data.room);
 				break;
