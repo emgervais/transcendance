@@ -2,7 +2,6 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from notification.consumers import get_main_channel
-
 from users.models import User, UserChannelGroup
 from friend.models import Block
 from chat.censor import censor
@@ -55,67 +54,60 @@ def get_channel_name(user, group_name):
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        user = self.scope["user"] 
+        self.user = self.scope["user"] 
         
-        if not user.is_authenticated:
+        if not self.user.is_authenticated:
             await self.close()
         else:
             self.group_name = self.scope['url_route']['kwargs']['room_name']
-            self.room_name = f"chat_{self.group_name}"
-            if await in_group(user, self.group_name):
-                old_channel = await get_channel_name(user, self.group_name)
-                await remove_channel_group(user, old_channel)
+            if await in_group(self.user, self.group_name):
+                old_channel = await get_channel_name(self.user, self.group_name)
+                await remove_channel_group(self.user, old_channel)
             await self.channel_layer.group_add(
                 self.group_name,
                 self.channel_name
             )
-            await add_channel_group(user, self.channel_name, self.group_name)
+            await add_channel_group(self.user, self.channel_name, self.group_name)
             if self.group_name != 'global':
-                await self.private_room(user)
+                await self.private_room(self.user)
             await self.accept()
     
-    async def disconnect(self, code):
-        user = self.scope["user"]
-
-        if user.is_authenticated:
+    async def disconnect(self, close_code):
+        if self.user.is_authenticated:
             self.channel_layer.group_discard(
                 self.group_name,
                 self.channel_name
             )
-            
-            await self.close()
+        
+    async def websocket_close(self, event):
+        await self.close()
         
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        user = self.scope["user"]
         closing = text_data_json.get('closing', False)
-        
-        if closing:
-            await self.channel_layer.group_discard(
-                self.group_name,
-                self.channel_name
-            )
-            await remove_channel_group(user, self.channel_name)
-            await self.close()
-        else:
-            message = text_data_json.get('message')
-            await self.channel_layer.group_send(
-                self.group_name,
-                {
-                    'type': 'chat_message',
-                    'message': message,
-                    'senderId': user.id
-                }
-            )
+        message = text_data_json.get('message', '')
+
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                'type': 'chat_message',
+                'message': message,
+                'senderId': self.user.id,
+                'closing': closing
+            }
+        )
 
     async def chat_message(self, event):
         message = censor(event['message'])
         sender_id = event['senderId']
+        closing = event.get('closing', False)
         
         await self.send(text_data=json.dumps({
             'message': message,
             'senderId': sender_id
-        }))
+        }), close=closing)
+        if closing:
+            await remove_channel_group(self.user, self.channel_name)
         
     async def private_room(self, user):
         recipient_ids = self.group_name.split('_')

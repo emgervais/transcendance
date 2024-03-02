@@ -1,14 +1,28 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from users.models import User
+from friend.models import Friend
 from django.conf import settings
 import re
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'image', 'oauth', 'status']
-        read_only_fields = ['id', 'oauth', 'status']
+        fields = ['id', 'username', 'email', 'image', 'status']
+        read_only_fields = ['id', 'status']
+    
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['image'] = "https://" + settings.ALLOWED_HOSTS[0] + instance.image.url
+        ret['onlineFriends'] = Friend.objects.friends_count(instance, online_only=True)
+        ret['friendRequests'] = Friend.objects.requests(instance).count()
+        return ret
+    
+class RestrictedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'image', 'status']
+        read_only_fields = ['id', 'username', 'image', 'status']
     
     def to_representation(self, instance):
         ret = super().to_representation(instance)

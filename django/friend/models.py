@@ -5,6 +5,12 @@ from rest_framework import serializers
 
 class FriendShipManager(models.Manager):
     
+    def friends_count(self, user, online_only=False):
+        if online_only:
+            return user.friends.filter(friend__status='online').count()
+        else:
+            return user.friends.count()
+        
     def online_friends(self, user, ids_only=False):
         friends = user.friends.all()
         online_friends = []

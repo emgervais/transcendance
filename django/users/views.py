@@ -1,6 +1,6 @@
 from django.http import JsonResponse, HttpRequest
 from users.models import User
-from users.serializers import UserSerializer, ChangeInfoSerializer
+from users.serializers import UserSerializer, RestrictedUserSerializer, ChangeInfoSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -13,7 +13,7 @@ class UserView(APIView):
         return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
     
 class UserPkView(APIView):
-    serializer_class = UserSerializer
+    serializer_class = RestrictedUserSerializer
 
     def get(self, request: HttpRequest, pk: int) -> JsonResponse:
         try:
@@ -23,7 +23,7 @@ class UserPkView(APIView):
             return JsonResponse({'error': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         
 class UserUsernameView(APIView):
-    serializer_class = UserSerializer
+    serializer_class = RestrictedUserSerializer
 
     def get(self, request: HttpRequest, username: str) -> JsonResponse:
         try:
@@ -33,7 +33,7 @@ class UserUsernameView(APIView):
             return JsonResponse({'username': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
     
 class UsersView(APIView):
-    serializer_class = UserSerializer
+    serializer_class = RestrictedUserSerializer
     
     def get(self, request: HttpRequest) -> JsonResponse:
         users = User.objects.all()
@@ -60,3 +60,10 @@ class ObtainInfoView(APIView):
     def get(self, request: HttpRequest) -> JsonResponse:
         user = User.objects.get(pk=request.user.id)
         return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
+    
+class SearchView(APIView):
+    serializer_class = RestrictedUserSerializer
+    
+    def get(self, request: HttpRequest, query: str) -> JsonResponse:
+        users = User.objects.filter(username__contains=query)
+        return JsonResponse(self.serializer_class(users, many=True).data, status=status.HTTP_200_OK, safe=False)

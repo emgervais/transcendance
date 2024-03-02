@@ -80,13 +80,16 @@ class OAuth42LoginSerializer(UserSerializer):
         code = data.get('code', None)
         
         if code is None:
-            raise serializers.ValidationError({'code': 'Code is required to login through OAuth'})
-        
-        token = get_user_token(code)
-        user_data = get_user_data(token)
+            raise serializers.ValidationError({'code': 'Code is required to login through OAuth'}) 
+        try:
+            token = get_user_token(code)
+            user_data = get_user_data(token)
+        except Exception as e:
+            raise serializers.ValidationError({'code': str(e)})
+            
         email = user_data['email']
-        
         user = User.objects.filter(email=email).first()
+        
         if user is not None and user.oauth is False:
             raise serializers.ValidationError({'email': 'Your email address is used by an existing account'})
         

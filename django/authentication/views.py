@@ -1,6 +1,5 @@
 from django.http import JsonResponse, HttpRequest
-from users.models import User
-from friend.models import Friend
+from users.models import User, UserChannelGroup
 from authentication.serializers import RegisterSerializer, LoginSerializer, OAuth42LoginSerializer, LogoutSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
@@ -8,7 +7,8 @@ from authentication.oauth42 import create_oauth_uri
 from datetime import datetime
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import AccessToken
-from notification.consumers import close_websockets
+from notification.consumers import close_websocket
+from channels.layers import get_channel_layer
     
 def set_cookies(response, user):
     refresh_token = TokenObtainPairSerializer().get_token(user)
@@ -50,6 +50,7 @@ class LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        print(serializer.data)
         return set_cookies(response, user)
 
 class LogoutView(generics.GenericAPIView):
@@ -64,7 +65,11 @@ class LogoutView(generics.GenericAPIView):
         response.delete_cookie('refresh_token')
         response.delete_cookie('access_token')
         user = User.objects.get(pk=request.user.id)
-        close_websockets(user)
+        try:
+            main = UserChannelGroup.objects.get(user=user).main
+            close_websocket(get_channel_layer(), main)
+        except UserChannelGroup.DoesNotExist:
+            print('User channel group not found')
         return response
 
         
@@ -83,6 +88,7 @@ class OAuth42LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        print(serializer.data)
         return set_cookies(response, user)
 
 class CustomTokenRefreshView(generics.GenericAPIView):

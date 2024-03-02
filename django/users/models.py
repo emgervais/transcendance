@@ -32,6 +32,17 @@ class UserChannelGroup(models.Model):
             del self.channel_groups[channel_name]
             self.save()
             
+    def remove_all_channel_groups(self):
+        self.channel_groups = {}
+        self.main = ''
+        self.save()
+        
+    def remove_group(self, group_name):
+        for channel, group in self.channel_groups.items():
+            if group == group_name:
+                del self.channel_groups[channel]
+        self.save()
+            
     def in_group(self, group_name):
         return group_name in self.channel_groups.values()
     
