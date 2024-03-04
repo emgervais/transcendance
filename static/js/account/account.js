@@ -3,36 +3,37 @@ import * as api from "/js/api.js";
 import * as friends from "/js/account/friends.js";
 import { getCurrUser, updateCurrUser } from "/js/user/currUser.js";
 
+const friendsPage = document.getElementById("account-friends");
+const updateInfo = document.getElementById("account-update-info");
+const updatePassword = document.getElementById("change-password");
+const statsPage = document.getElementById("account-stats");
+
 // -- display ----
 function displayFriendsPage() {
-    console.log("displayFriendsPage");
-    util.display("account-friends");
+    util.display(friendsPage);
     friends.refresh();
 }
 
 function hideFriendsPage() {
-    console.log("hideFriendsPage");
-    util.display("account-friends", false);
+    util.display(friends, false);
 }
 
 function displayInfoPage() {
-    console.log("displayInfoPage");
-    util.display("account-update-info");
+    util.display(updateInfo);
     const user = getCurrUser();
-    util.display("change-password", !user.oauth);
+    util.display(updatePassword, !user.oauth);
 }
 
 function hideInfoPage() {
-    util.display("account-update-info", false);
+    util.display(updateInfo, false);
 }
 
 function displayStatsPage() {
-    console.log("displayStatsPage");
-    util.display("account-stats");
+    util.display(statsPage);
 }
 
 function hideStatsPage() {
-    util.display("account-stats", false);
+    util.display(statsPage, false);
 }
 
 function hideAll() {

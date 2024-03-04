@@ -5,10 +5,22 @@ import * as notifications from "/js/notifications.js";
 import * as util from "/js/util.js";
 import { GLOBAL_ROOM_ID, MATCH_ROOM_ID } from "/js/chat/chat.js";
 
-
 const chatIcon = document.getElementById('chat-icon'); //add connected check
 const chatBox = document.getElementById('chat-box');
-function toggleChat() {
+
+const globalTab = document.getElementById('tab-global');
+const gameTab = document.getElementById('tab-game');
+const friendsTab = document.getElementById('tab-friends');
+
+const friendsList = document.getElementById('friendlist-tab');
+var friendsListShown = false;
+
+const menu = document.getElementById('chat-menu');
+const chatbody = document.querySelector('.chat-box-body');
+
+
+// -- chatBox ----
+function toggleChatBox() {
 	util.toggleClass(chatIcon, 'chat-active')
 	util.toggleClass(chatBox, 'chat-active')
 }
@@ -19,17 +31,14 @@ function closeChatBox() {
 }
 
 // -- tabs ----
-const gameTab = document.getElementById('tab-game');
 function activateGameTab() {
 	activateTab(gameTab, MATCH_ROOM_ID);
 };
 
-const globalTab = document.getElementById('tab-global');
 function activateGlobalTab() {
 	activateTab(globalTab, GLOBAL_ROOM_ID);
 }
 
-const friendsTab = document.getElementById('tab-friends');
 function activateFriendsTab(target) {
 	const roomId = target.getAttribute('data-room-id');
 	if (!roomId) {
@@ -41,7 +50,7 @@ function activateFriendsTab(target) {
 	activateTab(friendsTab, roomId);
 }
 
-function stopChat(target) {
+function closeFriendChat(target) {
 	const roomId = target.getAttribute('data-room-id');
 	chat.stop(roomId);
 	activateGlobalTab();
@@ -58,8 +67,7 @@ function activateTab(target, roomId) {
 	chatMessages.loadMessages();
 }
 
-const friendsList = document.getElementById('friendlist-tab');
-var friendsListShown = false;
+// -- friendsList ----
 function toggleFriendsList() {
 	if (friendsListShown) {
 		closeFriendsList();
@@ -79,8 +87,7 @@ function closeFriendsList() {
 	friendsListShown = false;
 }
 
-// -- image ----
-const menu = document.getElementById('chat-menu');
+// -- avatar ----
 function activateMenu(target) {
 	// console.log("profile-picture-chat");
 	updateMenu(target.getAttribute('data-id'));
@@ -93,7 +100,6 @@ function activateMenu(target) {
 	menu.style.display = 'block';
 };
 
-const chatbody = document.querySelector('.chat-box-body');
 document.addEventListener('click', function(event) {
 	if (!chatbody.contains(event.target)) {
 		menu.style.display = 'none';
@@ -116,6 +122,6 @@ function updateMenu(id) {
 	menu.appendChild(ul);
 }
 
-export { toggleChat, closeChatBox }
-export { activateGlobalTab, toggleFriendsList, activateFriendsTab, stopChat, activateGameTab };
+export { toggleChatBox, closeChatBox }
+export { activateGlobalTab, toggleFriendsList, activateFriendsTab, closeFriendChat, activateGameTab };
 export { activateMenu };

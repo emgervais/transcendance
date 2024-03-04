@@ -1,7 +1,7 @@
 import * as router from "/js/router.js";
 import * as chatTriggers from "/js/chat/triggers.js";
 import * as notifications from "/js/notifications.js";
-import { updateNav } from "/js/nav.js";
+import * as nav from "/js/nav.js";
 import * as api from "/js/api.js";
 import { displayCurrUser, setCurrUser, removeCurrUser } from "/js/user/currUser.js";
 
@@ -37,9 +37,9 @@ function isConnected() {
 function setConnected(connected) {
     if (!connected) {
         removeCurrUser();
-        updateNav(false);
         chatTriggers.closeChatBox();
     }
+    nav.setConnected(connected);
     localStorage.setItem("connected", connected);
 }
 
@@ -48,7 +48,6 @@ function login(user, redirect=true) {
     setCurrUser(user);
     setConnected(true);
     displayCurrUser();
-    updateNav(true);
     if (redirect) {
         router.route("/");
     }

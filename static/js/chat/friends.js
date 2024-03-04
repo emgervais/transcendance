@@ -28,7 +28,7 @@ function set(_connectedFriends) {
 async function generateFriendsList(container) {
 	container.innerHTML = '';
 	if (connectedFriends.length == 0) {
-		container.innerHTML = "<div class='dropdown-item chat-tab-container'><p class='greyed-out chat-friends-list'>No friends.</p></div>"
+		container.innerHTML = "<div class='dropdown-item chat-tab-container'><p class='greyed-out activate-friend-chat'>No friends.</p></div>"
 		return;
 	}
 	connectedFriends.forEach(userId => {
@@ -42,7 +42,7 @@ async function generateFriendsListElement(container, userId) {
 	div.classList.add(
 		'dropdown-item',
 		'chat-tab-container',
-		'chat-friends-list'
+		'activate-friend-chat'
 	);
 	
 	const roomId = chat.getRoomId(userId);

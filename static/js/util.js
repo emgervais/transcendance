@@ -1,6 +1,5 @@
 // -- display ----
-function display(id, display=true) {
-    const element = document.getElementById(id);
+function display(element, display=true) {
     if (display)
         element.classList.remove("hidden");
     else
@@ -11,23 +10,23 @@ function isDisplayed(id) {
     return !document.getElementById(id).classList.contains("hidden");
 }
 
-function toggleDisplay(id) {
-    display(id, !isDisplayed(id));
+function toggleDisplay(element) {
+    display(element, !isDisplayed(element));
 }
 
-function toggleClass(element, _class) {
-    if (element.classList.contains(_class)) {
-		element.classList.remove(_class);
+function toggleClass(element, className) {
+    if (element.classList.contains(className)) {
+		element.classList.remove(className);
     } else {
-		element.classList.add(_class);
+		element.classList.add(className);
     }
 }
 
-function setClass(element, _class, state) {
-    if (!state && element.classList.contains(_class)) {
-		element.classList.remove(_class);
-    } else if (state && !element.classList.contains(_class)) {
-		element.classList.add(_class);
+function setClass(element, className, state) {
+    if (!state && element.classList.contains(className)) {
+		element.classList.remove(className);
+    } else if (state && !element.classList.contains(className)) {
+		element.classList.add(className);
     }
 }
 

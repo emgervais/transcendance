@@ -104,14 +104,6 @@
 }
 
 /* utils---------------------- */
-.connected {
-    display: none;
-}
-
-.anonymous {
-    display: block;
-}
-
 .hidden {
     display: none;
 }

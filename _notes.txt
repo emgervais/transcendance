@@ -1,8 +1,5 @@
 .chat message reception if chat never opened yet
 
-.if chat closed by correspondent, make input grey
-.friends chat: don't prepend with username
-
 .visible notifications: friend requests, chat message
 .friend requests in navbar
 .search friends
