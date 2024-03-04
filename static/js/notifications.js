@@ -30,6 +30,7 @@ function start() {
 				nav.updateFriendRequestCount(data.count);
 				break;
 			case "friendRequest":
+				console.log("received friendRequest");
 				nav.incrFriendRequestCount(1);
 				break;
 			default:
