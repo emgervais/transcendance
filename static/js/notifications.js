@@ -25,6 +25,15 @@ function start() {
 			case "onlineFriends":
 				chatFriends.set(data.userIds);
 				break;
+			case "friendRequests":
+				console.log("friendRequests:", data.count);
+				break;
+			case "friendRequest":
+				console.log("friendRequest:", data);
+				break;
+			default:
+				console.log("Unknown notification:", data);
+				break;
 		}
     }
 

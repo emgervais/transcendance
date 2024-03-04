@@ -25,7 +25,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             }))
             await self.send(text_data=json.dumps({
                 'type': 'friendRequests',
-                'count': Friend.objects.requests(self.user).count()
+                'count': await friend_request_count(self.user)
             }))
             await self.reconnect_chats()
     
@@ -156,14 +156,17 @@ def close_websocket(channel_layer, channel):
         print('Error:', e)
         
 def friend_request_notify(user_id, friend):
-    channel_name = UserChannelGroup.objects.get(user=friend).main
-    if channel_name:
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.send)(channel_name, {
-            'type': 'friend.request',
-            'notification': 'friendRequest',
-            'senderId': user_id
-        })
+    try:
+        channel_name = UserChannelGroup.objects.get(user=friend).main
+        if channel_name:
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.send)(channel_name, {
+                'type': 'friend.request',
+                'notification': 'friendRequest',
+                'senderId': user_id
+            })
+    except UserChannelGroup.DoesNotExist:
+        return
         
 # Database operations for the consumer
 @database_sync_to_async
@@ -203,3 +206,11 @@ def get_online_friends(user, ids_only=False):
         return friends
     except Exception as e:
         print('Error:', e)
+
+@database_sync_to_async
+def friend_request_count(user):
+    try:
+        return Friend.objects.requests(user).count()
+    except Exception:
+        return 0
+    

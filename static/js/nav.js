@@ -9,7 +9,7 @@ function setConnected(connected) {
     });
 }
 
-function displayFriendRequests() {
+function displayFriendRequests(friendRequests) {
 
 }
 
@@ -43,4 +43,5 @@ function displayRegister() {
 }
 
 export { setConnected };
+export { displayFriendRequests };
 export { displayLogin, displayRegister, hideAuthContainer };

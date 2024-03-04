@@ -5,7 +5,7 @@ import * as notifications from "/js/notifications.js";
 import * as util from "/js/util.js";
 import { GLOBAL_ROOM_ID, MATCH_ROOM_ID } from "/js/chat/chat.js";
 
-const chatIcon = document.getElementById('chat-icon'); //add connected check
+const chatIcon = document.getElementById('chat-icon');
 const chatBox = document.getElementById('chat-box');
 
 const globalTab = document.getElementById('tab-global');

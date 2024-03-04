@@ -1,30 +1,22 @@
+makeFriendRequest:
+    .if unexistant, display possibilities with 
+
+.42 redirect: display something
+
 .chat message reception if chat never opened yet
 
 .visible notifications: friend requests, chat message
 .friend requests in navbar
 .search friends
 
-.chat user disconnects: "user0:"
+.chat avatar menu:
+ .choisir quand le menu se ferme (mettre à jour le eventListener)
+ .ignore currUser avatar
+
 ----------------------------------------
-
-Quand un chat actif est coupé:
-    (chat, ws.onclose)
-    deleteMessages, change le tab vers global
-
 Afficher notifications:
     .Réception messages (chat icon avec un nombre)
     .Demandes d'amis (nav)
-
-
-Si un client refresh, les websockets actifs devraient redémarrer.
-    Serveur:
-    .conserver les websockets actifs
-    .À la connexion, renvoyer les identificateurs de websockets pour que le client les redémarre
-    Solution:
-    .websocket notifications: envoie les room_names à l'ouverture
-    
-
-manually edited token: fait planter le serveur
 
 
 ----

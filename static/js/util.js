@@ -6,8 +6,8 @@ function display(element, display=true) {
         element.classList.add("hidden");
 }
 
-function isDisplayed(id) {
-    return !document.getElementById(id).classList.contains("hidden");
+function isDisplayed(element) {
+    return !element.classList.contains("hidden");
 }
 
 function toggleDisplay(element) {

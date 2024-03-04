@@ -114,8 +114,6 @@ function formSubmit(
     };
     route = route ? route : form.action;
     const formErrorManager = error => {
-        console.log("error.status:", error.status);
-        console.log("error.data:", error.data);
         if (error.status && error.data) {
             addFormErrors(form, error.data);
             return;
