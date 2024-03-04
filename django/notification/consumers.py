@@ -39,30 +39,31 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         await self.close()
     
     async def send_notification(self, event):
-        type = event['notification']
+        notification = event['notification']
         room = event['room']
         await self.send(text_data=json.dumps({
-            'type': type,
+            'type': notification,
             'room': room
         }))
 
     async def user_online(self, event):
-        type = event['notification']
+        notification = event['notification']
         connected = event['connected']
         userId = event['userId']
 
         await self.send(text_data=json.dumps({
-            'type': type,
+            'type': notification,
             'connected': connected,
             'userId': userId
         }))
         
     async def friend_request(self, event):
-        type = event['notification']
-        senderId = event['senderId']
+        notification = event['notification']
+        userId = event['userId']
+
         await self.send(text_data=json.dumps({
-            'type': type,
-            'userId': senderId
+            'type': notification,
+            'userId': userId
         }))
     
     async def reconnect_chats(self):
@@ -163,10 +164,12 @@ def friend_request_notify(user_id, friend):
             async_to_sync(channel_layer.send)(channel_name, {
                 'type': 'friend.request',
                 'notification': 'friendRequest',
-                'senderId': user_id
+                'userId': user_id
             })
     except UserChannelGroup.DoesNotExist:
-        return
+        print('Friend channel group not found')
+    except Exception as e:
+        print('Error:', e)
         
 # Database operations for the consumer
 @database_sync_to_async
