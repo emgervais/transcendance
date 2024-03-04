@@ -1,7 +1,9 @@
+refuse friend request
+
+remove friend
+
 makeFriendRequest:
     .if unexistant, display possibilities with 
-
-.42 redirect: display something
 
 .chat message reception if chat never opened yet
 

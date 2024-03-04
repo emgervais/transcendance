@@ -1,8 +1,9 @@
-import * as router from "/js/router.js";
-import * as chatTriggers from "/js/chat/triggers.js";
-import * as notifications from "/js/notifications.js";
-import * as nav from "/js/nav.js";
 import * as api from "/js/api.js";
+import * as chatTriggers from "/js/chat/triggers.js";
+import * as nav from "/js/nav.js";
+import * as notifications from "/js/notifications.js";
+import * as router from "/js/router.js";
+import * as util from "/js/util.js";
 import { displayCurrUser, setCurrUser, removeCurrUser } from "/js/user/currUser.js";
 
 // -- buttons ----
@@ -105,6 +106,8 @@ function oauthRedirected() {
     const code = queryParams.get("code");
     if (!code)
         return false;
+    const loading = document.querySelector(".loading-container");
+    util.display(loading);
     api.fetchRoute({
         route: "/api/oauth42-login/",
         options: {
@@ -112,8 +115,11 @@ function oauthRedirected() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ code: code }), 
         },
-        dataManager: login
-    })
+        dataManager: (data) => {
+            login(data);
+            util.display(loading, false);
+        }
+    });
     return true;
 }
 

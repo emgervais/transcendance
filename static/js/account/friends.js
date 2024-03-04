@@ -30,7 +30,11 @@ function makeRequest() {
             },
             errorManager: error => {
                 const form = document.getElementById(formId);
-                const data = {"username": error.data["friend-request"]};
+                let msg = error.data["friend-request"];
+                if (!msg) {
+                    msg = "Unexpected error";
+                }
+                const data = {"username": msg };
                 api.addFormErrors(form, data);
             }
         })

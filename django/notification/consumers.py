@@ -158,6 +158,7 @@ def close_websocket(channel_layer, channel):
 def friend_request_notify(user_id, friend):
     try:
         channel_name = UserChannelGroup.objects.get(user=friend).main
+        print("channel_name:", channel_name)
         if channel_name:
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.send)(channel_name, {
@@ -165,6 +166,7 @@ def friend_request_notify(user_id, friend):
                 'notification': 'friendRequest',
                 'senderId': user_id
             })
+        print("channel_name after:", channel_name)
     except UserChannelGroup.DoesNotExist:
         return
         
