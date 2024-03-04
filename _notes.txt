@@ -1,5 +1,3 @@
-refuse friend request
-
 remove friend
 
 makeFriendRequest:

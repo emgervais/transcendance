@@ -66,7 +66,10 @@ function getFriends() {
         const container = document.getElementById("friends-container");
         container.innerHTML = '';
         friends.forEach(friend => {
-            displayUser(container, friend.friend);
+            displayUser({
+                container: container,
+                userId: friend.friend
+            });
         })
     };
     api.fetchRoute({
@@ -80,7 +83,11 @@ function getBlockedUsers() {
         const container = document.getElementById("blocked-users-container");
         container.innerHTML = '';
         users.forEach(user => {
-            displayUser(container, user.blocked, true);
+            displayUser({
+                container: container,
+                userId: user.blocked,
+                blocked: true
+            });
         })
     };    
     api.fetchRoute({
@@ -92,7 +99,10 @@ function getBlockedUsers() {
 
 // -- display ----
 async function displayFriendRequest(container, request) {
-    const div = await displayUser(container, request.from_user);
+    const div = await displayUser({
+        container: container,
+        userId: request.from_user
+    });
     
     const makeButton = (text, accept) => {
         const button = document.createElement("button");
@@ -110,7 +120,7 @@ async function displayFriendRequest(container, request) {
 
 // -- triggers ----
 function answerRequest(target) {
-    const accept = target.getAttribute("data-accept");
+    const accept = target.getAttribute("data-accept") == "true";
     const method = accept ? "put" : "delete";
     const requestId = target.getAttribute("data-request-id");
     api.fetchRoute({

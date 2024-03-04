@@ -37,7 +37,12 @@ function removeUser(id) {
 }
 
 // -- display ----
-async function displayUser(container, userId, blocked=false) {
+async function displayUser({
+    container,
+    userId,
+    isFriend=false,
+    blocked=false,
+    }) {
     const div = document.createElement("div");
     const appendToContainer = (currUserId, user) => {
         div.className = "user";
@@ -53,9 +58,13 @@ async function displayUser(container, userId, blocked=false) {
         
         container.appendChild(div);
 
+        if (isFriend) {
+            const unfriendButton = makeUnfriendButton(userId);
+            div.append(unfriendButton);
+        }
+
         const blockButton = makeBlockButton(userId, !blocked);
         div.append(blockButton);
-
     };
     const currUserId = getCurrUser().id;
     let user = await getUser(userId);
@@ -70,6 +79,14 @@ function makeBlockButton(userId, block) {
     button.innerText = text;
     button.classList.add('block-user-button');
     button.setAttribute("data-block", block);
+    button.setAttribute("data-user-id", userId);
+    return button;
+}
+
+function makeUnfriendButton(userId) {
+    const button = document.createElement("button");
+    button.innerText = "Unfriend";
+    button.classList.add('unfriend-button');
     button.setAttribute("data-user-id", userId);
     return button;
 }
@@ -93,6 +110,10 @@ function block(target) {
         }
     });
 }
+
+// /api/friends/{id}/ DELETE
+
+
 
 export { getUser, setUser, removeUser, displayUser };
 export { block };
