@@ -31,7 +31,7 @@ function oauthButton() {
 
 // -- singletons ----
 function isConnected() {
-    return JSON.parse(sessionStorage.getItem("connected"));
+    return JSON.parse(localStorage.getItem("connected"));
 }
 
 function setConnected(connected) {
@@ -40,7 +40,7 @@ function setConnected(connected) {
         updateNav(false);
         chatTriggers.closeChatBox();
     }
-    sessionStorage.setItem("connected", connected);
+    localStorage.setItem("connected", connected);
 }
 
 // -- login ----
