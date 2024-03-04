@@ -35,7 +35,7 @@ tests:
 	cd tests && docker-compose up -d --build --force-recreate
 
 run_tests:
-	cd tests && docker-compose up -d --build --force-recreate && docker exec -it tests sh
+	docker exec -it tests sh -c "./main.py"
 
 freeze:
 	python -m pip install -r django/requirements.txt
