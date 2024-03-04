@@ -44,12 +44,11 @@ function activateFriendsTab(target) {
 function stopChat(target) {
 	const roomId = target.getAttribute('data-room-id');
 	chat.stop(roomId);
+	activateGlobalTab();
 }
 
 function activateTab(target, roomId) {
-	if (!chat.isFriendRoom(roomId)) {
-		closeFriendsList();
-	}
+	closeFriendsList();
 	if (chat.currRoomId == roomId) {
 		return;
 	}
@@ -60,19 +59,32 @@ function activateTab(target, roomId) {
 }
 
 const friendsList = document.getElementById('friendlist-tab');
+var friendsListShown = false;
+function toggleFriendsList() {
+	if (friendsListShown) {
+		closeFriendsList();
+	} else {
+		activateFriendsList();
+	}
+};
+
 function activateFriendsList() {
+	// console.log("activateFriendsList");
 	chatFriends.generateFriendsList(friendsList);
-	util.toggleClass(friendsList, 'show');
+	util.setClass(friendsList, 'show', true);
+	friendsListShown = true;
 };
 
 function closeFriendsList() {
+	// console.log("closeFriendsList");
 	util.setClass(friendsList, 'show', false);
+	friendsListShown = false;
 }
 
 // -- image ----
 const menu = document.getElementById('chat-menu');
 function activateMenu(target) {
-	console.log("profile-picture-chat");
+	// console.log("profile-picture-chat");
 	updateMenu(target.getAttribute('data-id'));
 	const imageRect = target.getBoundingClientRect();
 	var imageX = imageRect.left + window.scrollX;
@@ -107,5 +119,5 @@ function updateMenu(id) {
 }
 
 export { toggleChat, closeChatBox }
-export { activateGlobalTab, activateFriendsList, closeFriendsList, activateFriendsTab, stopChat, activateGameTab };
+export { activateGlobalTab, toggleFriendsList, activateFriendsTab, stopChat, activateGameTab };
 export { activateMenu };

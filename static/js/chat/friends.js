@@ -41,15 +41,16 @@ async function generateFriendsListElement(container, userId) {
 	const div = document.createElement('div');
 	div.classList.add(
 		'dropdown-item',
-		'chat-tab-container'
+		'chat-tab-container',
+		'chat-friends-list'
 	);
+	
 	const roomId = chat.getRoomId(userId);
 	if (roomId === chat.currRoomId) {
 		div.classList.add('tab-active');
 	}
+	div.setAttribute('data-room-id', roomId);
 	const anchor = document.createElement('a');
-	anchor.classList.add('chat-friends-list');
-	anchor.setAttribute('data-room-id', roomId);
 	anchor.title = username;
 	anchor.textContent = username;
 	div.appendChild(anchor);

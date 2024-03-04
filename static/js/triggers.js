@@ -19,7 +19,7 @@ const idFunctions = {
     "chat-toggle": chat.toggleDisplay,
     "chat-submit": chat.submit,
     "tab-global": chatTriggers.activateGlobalTab,
-    "tab-friends": chatTriggers.activateFriendsList,
+    "tab-friends": chatTriggers.toggleFriendsList,
     "tab-game": chatTriggers.activateGameTab,
 
     "update-info-button": account.updateInfoButton,
@@ -50,19 +50,20 @@ function callTargetFunction(target) {
 
 function callIdFunction(target) {
     if (target.id in idFunctions) {
-        idFunctions[target.id]();
+            console.log("target id:", target.id);
+            idFunctions[target.id]();
         return true;
     }
     return false;
 }
 
 function callClassFunctions(target) {
-    target.classList.forEach(className => {
+    for (const className of target.classList) {
         if (className in classFunctions) {
             classFunctions[className](target);
             return true;
         }
-    });
+    }
     return false;
 }
 

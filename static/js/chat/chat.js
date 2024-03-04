@@ -29,7 +29,6 @@ function start(roomId=GLOBAL_ROOM_ID) {
 	if (roomId in chatSockets) {
 		throw new Error(`chat.start: chatSocket "${roomId}" already exists.`);
 	}
-	console.log("chat.start:", roomId);
 	let ws = new WebSocket(
 		'wss://'
 		+ window.location.host
@@ -40,7 +39,6 @@ function start(roomId=GLOBAL_ROOM_ID) {
 
 	ws.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
-		console.log("chat, onmessage, data:", data);
 		let	who = 'else';
 		const sender = await getUser(data.senderId);
 		if(data.senderId === getCurrUser().id)

@@ -1,3 +1,16 @@
+load page: not connected despite token?
+
+click friend chat: open friends tab
+
+.chat message reception if chat never opened yet
+
+.visible notifications: friend requests, chat message
+.friends in navbar
+.search friends
+
+.chat user disconnects: "user0:"
+----------------------------------------
+
 Quand un chat actif est coupé:
     (chat, ws.onclose)
     deleteMessages, change le tab vers global

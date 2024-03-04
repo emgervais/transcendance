@@ -50,7 +50,6 @@ async function deleteMessages(roomId) {
 	var filteredMessages = messages.filter(function(message) {
 	  return message.roomId !== roomId;
 	});
-	console.log('2', filteredMessages);
 	sessionStorage.setItem('messages', JSON.stringify(filteredMessages));
 	if(chat.currRoomId === roomId) {
 		clearLogs();	
