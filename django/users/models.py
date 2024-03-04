@@ -3,10 +3,19 @@ from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 
+K = 32
+
 class User(AbstractUser, PermissionsMixin):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='profile_pics', default='default/default.webp')
+    elo = models.IntegerField(default=1000)
     status = models.CharField(max_length=10, default='offline')
+    
+    def calculate_elo(self, opponent_elo, score):
+        expected = 1 / (1 + 10 ** ((opponent_elo - self.elo) / 400))
+        new_elo = self.elo + K * (score - expected)
+        self.elo = new_elo
+        self.save()
     
     def __str__(self):
         return self.username

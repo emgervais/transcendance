@@ -8,13 +8,12 @@ import re
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'image', 'status']
-        read_only_fields = ['id', 'status']
+        fields = ['id', 'username', 'email', 'image', 'status', 'oauth']
+        read_only_fields = ['id', 'status', 'oauth']
     
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['image'] = "https://" + settings.ALLOWED_HOSTS[0] + instance.image.url
-        ret['onlineFriends'] = Friend.objects.friends_count(instance, online_only=True)
         ret['friendRequests'] = Friend.objects.requests(instance).count()
         return ret
     

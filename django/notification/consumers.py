@@ -23,6 +23,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 'type': 'onlineFriends',
                 'userIds': await get_online_friends(self.user, ids_only=True)
             }))
+            await self.send(text_data=json.dumps({
+                'type': 'friendRequests',
+                'count': Friend.objects.requests(self.user).count()
+            }))
             await self.reconnect_chats()
     
     async def disconnect(self, close_code):
@@ -58,7 +62,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         senderId = event['senderId']
         await self.send(text_data=json.dumps({
             'type': type,
-            'senderId': senderId
+            'userId': senderId
         }))
     
     async def reconnect_chats(self):
