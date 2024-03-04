@@ -1,4 +1,5 @@
 import * as chatMessages from "/js/chat/messages.js";
+import * as chatTriggers from "/js/chat/triggers.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js"
 
@@ -43,8 +44,11 @@ function start(roomId=GLOBAL_ROOM_ID) {
 		const sender = await getUser(data.senderId);
 		if(data.senderId === getCurrUser().id)
 			who = 'self';
-		const username = sender.username;
-		const message = username + ': ' + data.message;
+		let message = data.message;
+		if (!isFriendRoom(roomId)) {
+			const username = sender.username;
+			message = username + ': ' + message;
+		}
 		if (roomId === currRoomId) {
 			chatMessages.generateMessage(message, who, sender.image, data.senderId);
 		}
@@ -54,6 +58,9 @@ function start(roomId=GLOBAL_ROOM_ID) {
 	ws.onclose = (_) => {
 		console.log(`Chat websocket "${roomId}" closed.`);
 		delete chatSockets[roomId];
+		if (roomId == currRoomId) {
+			chatTriggers.activateGlobalTab();
+		}
 	};
 }
 

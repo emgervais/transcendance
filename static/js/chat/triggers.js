@@ -69,14 +69,12 @@ function toggleFriendsList() {
 };
 
 function activateFriendsList() {
-	// console.log("activateFriendsList");
 	chatFriends.generateFriendsList(friendsList);
 	util.setClass(friendsList, 'show', true);
 	friendsListShown = true;
 };
 
 function closeFriendsList() {
-	// console.log("closeFriendsList");
 	util.setClass(friendsList, 'show', false);
 	friendsListShown = false;
 }
