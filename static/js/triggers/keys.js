@@ -30,8 +30,8 @@ function keyEnter(id) {
         case "chat-input":
             chat.submit();
             return;
-        case "friend-request-input":
-            friends.makeRequest();
+        case "search-user-input":
+            friends.searchUser();
             return;
     }
     if (util.isDisplayed(authContainer)) {

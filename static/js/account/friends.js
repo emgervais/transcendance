@@ -1,7 +1,7 @@
 import * as api from "/js/api.js";
 import { displayUser } from "/js/user/user.js";
+import { getCurrUser } from "/js/user/currUser.js";
 import * as router from "/js/router.js";
-
 
 function refresh() {
     if (router.getCurrentRoute().name == "friends") {
@@ -11,39 +11,39 @@ function refresh() {
     }
 }
 
-function makeRequest() {
-    const formId = "friend-request-form";
-    const input = document.getElementById("friend-request-input");
-    const username = input.value;
+function searchUser() {
+    const formId = "search-user-form";
+    const input = document.getElementById("search-user-input");
+    const query = input.value;
+    if (!query) {
+        return;
+    }
+    const container = document.getElementById("users-container");
+    container.innerHTML = "";
     api.removeFormErrors();
-    const userIdCallback = data => {
-        const id = data.id;
-        api.fetchRoute({
-            route: "/api/friend-requests/",
-            options: {
-                method: "POST",
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({"to_user": id }), 
-            },
-            dataManager: data => {
-                console.log("successful friend request:", data);
-            },
-            errorManager: error => {
-                const form = document.getElementById(formId);
-                let msg = error.data["friend-request"];
-                if (!msg) {
-                    msg = "Unexpected error";
-                }
-                const data = {"username": msg };
-                api.addFormErrors(form, data);
-            }
-        })
+    const usersCallback = async users => {
+        const friendIds = await getFriendIds();
+        users = users.filter(user => {
+            return user.id != getCurrUser().id
+                && !friendIds.includes(user.id);
+        });
+
+        if (users.length === 0) {
+            container.innerText = `No potential friends found with "${query}".`;
+        }
+        users.forEach(user => {
+            displayUser({
+                container: container,
+                userId: user.id,
+                friendRequestable: true,
+            });
+        });
     };
     api.formSubmit({
         formId: formId,
-        route: "/api/user/" + username + "/",
+        route: "/api/search/" + query + "/",
         body: null,
-        callback: userIdCallback
+        callback: usersCallback
     });
 }
 
@@ -68,7 +68,8 @@ function getFriends() {
         friends.forEach(friend => {
             displayUser({
                 container: container,
-                userId: friend.friend
+                userId: friend.friend,
+                friendshipId: friend.id,
             });
         })
     };
@@ -76,6 +77,15 @@ function getFriends() {
         route: "/api/friends/",
         dataManager: friendsManager
     });
+}
+
+async function getFriendIds() {
+    let friendIds = [];
+    await api.fetchRoute({
+        route: "/api/friends/",
+        dataManager: data => { friendIds = data.map(friend => friend.friend) },
+    });
+    return friendIds;
 }
 
 function getBlockedUsers() {
@@ -132,4 +142,20 @@ function answerRequest(target) {
     });
 }
 
-export { refresh, makeRequest, answerRequest};
+function makeRequest(target) {
+    const userId = target.getAttribute("data-user-id");
+    api.fetchRoute({
+        route: "/api/friend-requests/",
+        options: {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({"to_user": userId }), 
+        },
+        dataManager: data => {
+            console.log("successful friend request:", data);
+        },
+    })
+
+}
+
+export { refresh, searchUser, answerRequest, makeRequest };

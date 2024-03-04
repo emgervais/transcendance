@@ -38,10 +38,11 @@ function removeUser(id) {
 
 // -- display ----
 async function displayUser({
-    container,
-    userId,
-    isFriend=false,
-    blocked=false,
+        container,
+        userId,
+        blocked=false,
+        friendshipId=undefined,
+        friendRequestable=false
     }) {
     const div = document.createElement("div");
     const appendToContainer = (currUserId, user) => {
@@ -58,9 +59,13 @@ async function displayUser({
         
         container.appendChild(div);
 
-        if (isFriend) {
-            const unfriendButton = makeUnfriendButton(userId);
+        if (friendshipId) {
+            const unfriendButton = makeUnfriendButton(friendshipId);
             div.append(unfriendButton);
+        }
+        if (friendRequestable) {
+            const friendRequestButton = makeFriendRequestButton(userId);
+            div.append(friendRequestButton);
         }
 
         const blockButton = makeBlockButton(userId, !blocked);
@@ -83,11 +88,19 @@ function makeBlockButton(userId, block) {
     return button;
 }
 
-function makeUnfriendButton(userId) {
+function makeFriendRequestButton(userId) {
+    const button = document.createElement("button");
+    button.innerText = "Request friendship";
+    button.classList.add('make-friend-request-button');
+    button.setAttribute("data-user-id", userId);
+    return button;
+}
+
+function makeUnfriendButton(friendshipId) {
     const button = document.createElement("button");
     button.innerText = "Unfriend";
     button.classList.add('unfriend-button');
-    button.setAttribute("data-user-id", userId);
+    button.setAttribute("data-friendship-id", friendshipId);
     return button;
 }
 
@@ -111,9 +124,19 @@ function block(target) {
     });
 }
 
-// /api/friends/{id}/ DELETE
+function unfriend(target) {
+    const friendshipId = target.getAttribute("data-friendship-id");
+    const options = { method: "DELETE" };  
+    api.fetchRoute({
+        route: `/api/friends/${friendshipId}/`,
+        options: options,
+        dataManager: (_) => {
+            friends.refresh();
+        }
+    })
+
+}
 
 
-
-export { getUser, setUser, removeUser, displayUser };
+export { getUser, setUser, removeUser, unfriend, displayUser };
 export { block };

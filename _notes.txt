@@ -1,7 +1,17 @@
-remove friend
+tjrs fmartine:
+    .si crée fmartine, ça va devenir frmartin?
+    .pourquoi pas francoma?
 
 makeFriendRequest:
-    .if unexistant, display possibilities with 
+    .Make request: enlever target de la liste
+    .Ne pas afficher les amis actuels
+    .Ne pas s'afficher
+    .Ne pas afficher les utilisateur à qui on a envoyé une requête
+    Proposition:
+        /api/user/id/
+            .isFriend: bool
+            .friend request sent: bool
+    Voir: friends.searchUser()
 
 .chat message reception if chat never opened yet
 

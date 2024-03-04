@@ -46,7 +46,6 @@ function setConnected(connected) {
 
 // -- login ----
 function login(user, redirect=true) {
-    console.log("auth user:", user);
     setCurrUser(user);
     setConnected(true);
     displayCurrUser();
