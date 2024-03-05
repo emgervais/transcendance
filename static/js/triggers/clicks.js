@@ -5,6 +5,7 @@ import * as chatTriggers from "/js/chat/triggers.js";
 import * as friends from "/js/account/friends.js";
 import * as router from "/js/router.js";
 import * as user from "/js/user/user.js";
+import * as util from "/js/util.js";
 
 const idFunctions = {
     "login-button": auth.loginButton,

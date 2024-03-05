@@ -105,8 +105,7 @@ function oauthRedirected() {
     const code = queryParams.get("code");
     if (!code)
         return false;
-    const loading = document.querySelector(".loading-container");
-    util.display(loading);
+    util.showAlert({ text: "Logging you in..." });
     api.fetchRoute({
         route: "/api/oauth42-login/",
         options: {
@@ -116,8 +115,17 @@ function oauthRedirected() {
         },
         dataManager: (data) => {
             login(data);
-            util.display(loading, false);
-        }
+            util.hideAlert();
+        },
+        errorManager: (error) => {
+            router.route("/login/");
+            let errMsg = "";
+            for (let key in error.data) {
+                errMsg += `${key}: ${error.data[key]}\n`;
+            }
+            util.hideAlert();
+            util.showAlert({ text: errMsg, closeButton: true, danger: true });
+        },
     });
     return true;
 }

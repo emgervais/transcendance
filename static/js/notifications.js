@@ -1,7 +1,9 @@
 import * as chat from "/js/chat/chat.js";
 import * as nav from "/js/nav.js";
 import * as chatFriends from "/js/chat/friends.js";
+import * as util from "/js/util.js";
 import { getCurrUser } from "/js/user/currUser.js";
+import { getUser } from "/js/user/user.js";
 
 var ws;
 
@@ -22,6 +24,11 @@ function start() {
 				break;
 			case "connection":
 				chatFriends.update(data.userId, data.connected);
+				util.showAlert({
+					text: `${(await getUser(data.userId)).username} just ${data.connected ? "": "dis"}connected.`,
+					timeout: 2,
+				});
+				console.log("done with connection");
 				break;
 			case "onlineFriends":
 				chatFriends.set(data.userIds);
@@ -30,7 +37,10 @@ function start() {
 				nav.updateFriendRequestCount(data.count);
 				break;
 			case "friendRequest":
-				console.log("received friendRequest");
+				util.showAlert({
+					text: `${(await getUser(data.userId)).username} sent you a friend request.`,
+					timeout: 2,
+				});				
 				nav.incrFriendRequestCount();
 				break;
 			default:

@@ -11,7 +11,10 @@
 .the friend request notification is sent to the wrong user
 .Accept friendship: if users are connected, send connected notification to both
 
-.chat message reception if chat never opened yet
+.plugger le frontend pong (sans backend)
+
+.notification: connected (bootstrap alert)
+    friend requests aussi
 
 .oauth: if user with your email already exists. What happens?
     django/authentication/serializers.py:94

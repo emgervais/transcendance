@@ -1,3 +1,12 @@
+a {
+  text-decoration: none;
+  color: initial;
+}
+a:hover {
+  color: inherit;
+  cursor: pointer;
+}
+
 /* auth--------------- */
 
 .floating-box {
@@ -26,7 +35,7 @@
     cursor: default;
 }
 
-.loading-container {
+#loading-container {
   z-index:1001;
   display: flex;
   justify-content: center;
@@ -38,11 +47,13 @@
   height: 100%;
   background: rgba(100, 100, 100, 0.5);
   cursor: default;
+  padding: 20px;
 }
 
 .centered-text {
   display: inline-block;
   font-size: 4vw;
+  max-width: 100%;
 }
 
 
@@ -121,16 +132,6 @@
     position: absolute;
     top: 0;
     left: 0;
-}
-
-/* utils---------------------- */
-.hidden {
-    display: none;
-}
-
-.greyed-out {
-  color: grey;
-  font-style: italic;
 }
 
 /*-----------------------chat-------------------*/
@@ -396,4 +397,24 @@
 }
 .small-image {
     width: 50px;
+}
+
+.alert {
+  z-index: 1001;
+  width: 25%;
+  position: fixed;
+  top: 100px;
+  right: 0;
+}
+
+
+
+/* utils---------------------- */
+.hidden {
+  display: none !important;
+}
+
+.greyed-out {
+color: grey;
+font-style: italic;
 }

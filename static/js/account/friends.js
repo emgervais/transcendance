@@ -22,12 +22,6 @@ function searchUser() {
     container.innerHTML = "";
     api.removeFormErrors();
     const usersCallback = async users => {
-        const friendIds = await getFriendIds();
-        users = users.filter(user => {
-            return user.id != getCurrUser().id
-                && !friendIds.includes(user.id);
-        });
-
         if (users.length === 0) {
             container.innerText = `No potential friends found with "${query}".`;
         }
@@ -39,9 +33,16 @@ function searchUser() {
             });
         });
     };
+
+    const makeParams = ()  => {
+        const params = new URLSearchParams();
+        params.append('is-friend', 'false');
+        params.append('friend-request-sent', 'false');
+        return "?" + params.toString();
+    };
     api.formSubmit({
         formId: formId,
-        route: "/api/search/" + query + "/",
+        route: "/api/search/" + query + "/" + makeParams(),
         body: null,
         callback: usersCallback
     });

@@ -1,5 +1,6 @@
-import * as nav from "/js/nav.js";
 import * as account from "/js/account/account.js";
+import * as nav from "/js/nav.js";
+import * as util from "/js/util.js";
 import { displayCurrUser } from "/js/user/currUser.js";
 
 const routes = {
