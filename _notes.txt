@@ -13,12 +13,6 @@
 
 .plugger le frontend pong (sans backend)
 
-.notification: connected (bootstrap alert)
-    friend requests aussi
-
-.oauth: if user with your email already exists. What happens?
-    django/authentication/serializers.py:94
-
 .chat avatar menu:
  .choisir quand le menu se ferme (mettre à jour le eventListener)
  .ignore currUser avatar
