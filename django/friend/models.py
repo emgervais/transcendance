@@ -92,19 +92,19 @@ class BlockManager(models.Manager):
         
         if FriendRequest.objects.filter(from_user=blocker, to_user=blocked).exists():
             FriendRequest.objects.filter(from_user=blocker, to_user=blocked).delete()
-            
+
         if FriendRequest.objects.filter(from_user=blocked, to_user=blocker).exists():
             FriendRequest.objects.filter(from_user=blocked, to_user=blocker).delete()
-        
+
         return block
-    
+
     def unblock(self, blocker, blocked):
         if blocker == blocked:
             raise serializers.ValidationError({'block': 'Users cannot unblock themselves'})
-        
+
         if not self.is_blocked(blocker, blocked):
             raise serializers.ValidationError({'block': 'User was not blocked'})
-        
+
         Block.objects.filter(blocker=blocker, blocked=blocked).delete()
     
     def is_blocked(self, blocker, blocked):
@@ -113,19 +113,18 @@ class BlockManager(models.Manager):
 class Block(models.Model):
     blocker = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked')
     blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocked_by')
-    created_at = models.DateTimeField(auto_now_add=True)
-    
+
     objects = BlockManager()
-    
+
     class Meta:
         db_table = 'blocks'
         verbose_name = _('Block')
         verbose_name_plural = _('Blocks')
         unique_together = ('blocker', 'blocked')
-        
+ 
     def __str__(self):
         return f'{self.blocker} blocked {self.blocked}'
-    
+
     def save(self, *args, **kwargs):
         if self.blocker == self.blocked:
             raise serializers.ValidationError({'block': 'Users cannot block themselves'})
@@ -135,7 +134,6 @@ class Block(models.Model):
 class FriendRequest(models.Model):
     from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_requests')
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_requests')
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def accept(self):
         Friend.objects.create(user=self.to_user, friend=self.from_user)
@@ -155,8 +153,7 @@ class FriendRequest(models.Model):
 class Friend(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friends')
     friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend_of')
-    created_at = models.DateTimeField(auto_now_add=True)
-    
+
     objects = FriendShipManager()
     
     class Meta:

@@ -60,10 +60,24 @@ class ObtainInfoView(APIView):
     def get(self, request: HttpRequest) -> JsonResponse:
         user = User.objects.get(pk=request.user.id)
         return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
-    
+
+SEARCH_FILTERS = [
+    'is-friend',
+    'is-blocked',
+    'friend-request-sent',
+    'friend-request-received',
+]
 class SearchView(APIView):
     serializer_class = RestrictedUserSerializer
-    
+
     def get(self, request: HttpRequest, query: str) -> JsonResponse:
-        users = User.objects.filter(username__contains=query)
-        return JsonResponse(self.serializer_class(users, many=True).data, status=status.HTTP_200_OK, safe=False)
+        search_filters = []
+        for key, value in request.query_params.items():
+            if key in SEARCH_FILTERS and value == 'false':
+                search_filters.append(key)
+                print(key)
+        try:
+            users = User.objects.search(query, search_filters, request.user.id)
+            return JsonResponse(self.serializer_class(users, many=True).data, status=status.HTTP_200_OK, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
