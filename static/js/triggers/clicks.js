@@ -19,12 +19,14 @@ const idFunctions = {
 
     "update-info-button": account.updateInfoButton,
 
-    "friend-request-button": friends.makeRequest,
+    "search-user-button": friends.searchUser,
 };
 
 const classFunctions = {
+    'make-friend-request-button': friends.makeRequest,
     'friend-request-button': friends.answerRequest,
     'block-user-button': user.block,
+    'unfriend-button': user.unfriend,
     'chat-box-toggle': (_) => { chatTriggers.toggleChatBox(); },
     
     'activate-friend-chat': chatTriggers.activateFriendsTab,
@@ -63,9 +65,12 @@ function callTargetFunction(target) {
 
 function click(event) {
     const { target } = event;
-    if (target.matches("a[href]")) {
+
+    const closestAnchor = target.closest("a[href]");
+    if (closestAnchor) {
         event.preventDefault();
-        router.route(event.target.href);
+        const href = closestAnchor.getAttribute("href");
+        router.route(href);        
     } else {
         callTargetFunction(target);
     }

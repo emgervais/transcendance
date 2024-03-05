@@ -1,13 +1,20 @@
-makeFriendRequest:
-    .if unexistant, display possibilities with 
-
-.42 redirect: display something
+.makeFriendRequest:
+    .Make request: enlever target de la liste
+    .Ne pas afficher les amis actuels
+    .Ne pas s'afficher
+    .Ne pas afficher les utilisateur à qui on a envoyé une requête
+    Proposition:
+        /api/user/id/
+            .isFriend: bool
+            .friend request sent: bool
+    Voir: friends.searchUser()
+.the friend request notification is sent to the wrong user
+.Accept friendship: if users are connected, send connected notification to both
 
 .chat message reception if chat never opened yet
 
-.visible notifications: friend requests, chat message
-.friend requests in navbar
-.search friends
+.oauth: if user with your email already exists. What happens?
+    django/authentication/serializers.py:94
 
 .chat avatar menu:
  .choisir quand le menu se ferme (mettre à jour le eventListener)

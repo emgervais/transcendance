@@ -37,7 +37,13 @@ function removeUser(id) {
 }
 
 // -- display ----
-async function displayUser(container, userId, blocked=false) {
+async function displayUser({
+        container,
+        userId,
+        blocked=false,
+        friendshipId=undefined,
+        friendRequestable=false
+    }) {
     const div = document.createElement("div");
     const appendToContainer = (currUserId, user) => {
         div.className = "user";
@@ -53,9 +59,17 @@ async function displayUser(container, userId, blocked=false) {
         
         container.appendChild(div);
 
+        if (friendshipId) {
+            const unfriendButton = makeUnfriendButton(friendshipId);
+            div.append(unfriendButton);
+        }
+        if (friendRequestable) {
+            const friendRequestButton = makeFriendRequestButton(userId);
+            div.append(friendRequestButton);
+        }
+
         const blockButton = makeBlockButton(userId, !blocked);
         div.append(blockButton);
-
     };
     const currUserId = getCurrUser().id;
     let user = await getUser(userId);
@@ -71,6 +85,22 @@ function makeBlockButton(userId, block) {
     button.classList.add('block-user-button');
     button.setAttribute("data-block", block);
     button.setAttribute("data-user-id", userId);
+    return button;
+}
+
+function makeFriendRequestButton(userId) {
+    const button = document.createElement("button");
+    button.innerText = "Request friendship";
+    button.classList.add('make-friend-request-button');
+    button.setAttribute("data-user-id", userId);
+    return button;
+}
+
+function makeUnfriendButton(friendshipId) {
+    const button = document.createElement("button");
+    button.innerText = "Unfriend";
+    button.classList.add('unfriend-button');
+    button.setAttribute("data-friendship-id", friendshipId);
     return button;
 }
 
@@ -94,5 +124,19 @@ function block(target) {
     });
 }
 
-export { getUser, setUser, removeUser, displayUser };
+function unfriend(target) {
+    const friendshipId = target.getAttribute("data-friendship-id");
+    const options = { method: "DELETE" };  
+    api.fetchRoute({
+        route: `/api/friends/${friendshipId}/`,
+        options: options,
+        dataManager: (_) => {
+            friends.refresh();
+        }
+    })
+
+}
+
+
+export { getUser, setUser, removeUser, unfriend, displayUser };
 export { block };

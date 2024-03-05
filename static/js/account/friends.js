@@ -1,7 +1,7 @@
 import * as api from "/js/api.js";
 import { displayUser } from "/js/user/user.js";
+import { getCurrUser } from "/js/user/currUser.js";
 import * as router from "/js/router.js";
-
 
 function refresh() {
     if (router.getCurrentRoute().name == "friends") {
@@ -11,35 +11,39 @@ function refresh() {
     }
 }
 
-function makeRequest() {
-    const formId = "friend-request-form";
-    const input = document.getElementById("friend-request-input");
-    const username = input.value;
+function searchUser() {
+    const formId = "search-user-form";
+    const input = document.getElementById("search-user-input");
+    const query = input.value;
+    if (!query) {
+        return;
+    }
+    const container = document.getElementById("users-container");
+    container.innerHTML = "";
     api.removeFormErrors();
-    const userIdCallback = data => {
-        const id = data.id;
-        api.fetchRoute({
-            route: "/api/friend-requests/",
-            options: {
-                method: "POST",
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({"to_user": id }), 
-            },
-            dataManager: data => {
-                console.log("successful friend request:", data);
-            },
-            errorManager: error => {
-                const form = document.getElementById(formId);
-                const data = {"username": error.data["friend-request"]};
-                api.addFormErrors(form, data);
-            }
-        })
+    const usersCallback = async users => {
+        const friendIds = await getFriendIds();
+        users = users.filter(user => {
+            return user.id != getCurrUser().id
+                && !friendIds.includes(user.id);
+        });
+
+        if (users.length === 0) {
+            container.innerText = `No potential friends found with "${query}".`;
+        }
+        users.forEach(user => {
+            displayUser({
+                container: container,
+                userId: user.id,
+                friendRequestable: true,
+            });
+        });
     };
     api.formSubmit({
         formId: formId,
-        route: "/api/user/" + username + "/",
+        route: "/api/search/" + query + "/",
         body: null,
-        callback: userIdCallback
+        callback: usersCallback
     });
 }
 
@@ -62,7 +66,11 @@ function getFriends() {
         const container = document.getElementById("friends-container");
         container.innerHTML = '';
         friends.forEach(friend => {
-            displayUser(container, friend.friend);
+            displayUser({
+                container: container,
+                userId: friend.friend,
+                friendshipId: friend.id,
+            });
         })
     };
     api.fetchRoute({
@@ -71,12 +79,25 @@ function getFriends() {
     });
 }
 
+async function getFriendIds() {
+    let friendIds = [];
+    await api.fetchRoute({
+        route: "/api/friends/",
+        dataManager: data => { friendIds = data.map(friend => friend.friend) },
+    });
+    return friendIds;
+}
+
 function getBlockedUsers() {
     const blockedUsersManager = (users) => {
         const container = document.getElementById("blocked-users-container");
         container.innerHTML = '';
         users.forEach(user => {
-            displayUser(container, user.blocked, true);
+            displayUser({
+                container: container,
+                userId: user.blocked,
+                blocked: true
+            });
         })
     };    
     api.fetchRoute({
@@ -88,7 +109,10 @@ function getBlockedUsers() {
 
 // -- display ----
 async function displayFriendRequest(container, request) {
-    const div = await displayUser(container, request.from_user);
+    const div = await displayUser({
+        container: container,
+        userId: request.from_user
+    });
     
     const makeButton = (text, accept) => {
         const button = document.createElement("button");
@@ -106,7 +130,7 @@ async function displayFriendRequest(container, request) {
 
 // -- triggers ----
 function answerRequest(target) {
-    const accept = target.getAttribute("data-accept");
+    const accept = target.getAttribute("data-accept") == "true";
     const method = accept ? "put" : "delete";
     const requestId = target.getAttribute("data-request-id");
     api.fetchRoute({
@@ -118,4 +142,20 @@ function answerRequest(target) {
     });
 }
 
-export { refresh, makeRequest, answerRequest};
+function makeRequest(target) {
+    const userId = target.getAttribute("data-user-id");
+    api.fetchRoute({
+        route: "/api/friend-requests/",
+        options: {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({"to_user": userId }), 
+        },
+        dataManager: data => {
+            console.log("successful friend request:", data);
+        },
+    })
+
+}
+
+export { refresh, searchUser, answerRequest, makeRequest };

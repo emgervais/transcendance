@@ -1,4 +1,5 @@
 import * as chat from "/js/chat/chat.js";
+import * as nav from "/js/nav.js";
 import * as chatFriends from "/js/chat/friends.js";
 import { getCurrUser } from "/js/user/currUser.js";
 
@@ -26,10 +27,11 @@ function start() {
 				chatFriends.set(data.userIds);
 				break;
 			case "friendRequests":
-				console.log("friendRequests:", data.count);
+				nav.updateFriendRequestCount(data.count);
 				break;
 			case "friendRequest":
-				console.log("friendRequest:", data);
+				console.log("received friendRequest");
+				nav.incrFriendRequestCount();
 				break;
 			default:
 				console.log("Unknown notification:", data);

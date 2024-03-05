@@ -20,7 +20,7 @@ class FriendRequestListView(APIView):
             to_user_id = request.data.get('to_user')
             to_user = User.objects.get(pk=to_user_id)
             friend_request = Friend.objects.add_friend(from_user, to_user)
-            friend_request_notify(from_user.id, to_user)
+            friend_request_notify(to_user.id, from_user)
             return JsonResponse(self.serializer_class(friend_request).data, status=status.HTTP_201_CREATED)
         except serializers.ValidationError as e:
             return JsonResponse(e.detail, status=status.HTTP_400_BAD_REQUEST)

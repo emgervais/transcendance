@@ -17,6 +17,12 @@
         </li>
       </ul>
       <ul class="navbar-nav">
+
+        <a class="connected hidden" href="/account/friends/" id="friend-request-count">
+          <div class="count">n </div>
+          <div class="text">friend requests</div>
+        </a>
+        
         <li class="nav-item anonymous">
           <a class="nav-link" href="/register/">Register</a>
         </li>
@@ -36,6 +42,7 @@
   </div>
 </nav>
 <a class="overlay hidden" href="/" id="shadow"></a></div>
+<div class="loading-container hidden"><div class="centered-text">Logging you in...</div></div>
 <div class="floating-box hidden" id="authentication-container">
 {% include 'auth/login.html' %}
 {% include 'auth/register.html' %}
