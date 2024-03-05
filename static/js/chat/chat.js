@@ -23,6 +23,36 @@ function isFriendRoom(roomId) {
 	return roomId != GLOBAL_ROOM_ID && roomId != MATCH_ROOM_ID;
 }
 
+// -- unreadMessages ----
+var unreadMsgCounts = {};
+
+function incrUnreadMsgCount(roomId, incr=1) {
+	if (!(roomId in unreadMsgCounts)) {
+		unreadMsgCounts[roomId] = 0;
+	}
+	unreadMsgCounts[roomId] += incr;
+	displayUnreadMsgCount();
+}
+
+function clearUnreadMsgCount(roomId) {
+	if (!unreadMsgCounts[roomId]) {
+		return;
+	}
+	unreadMsgCounts[roomId] = 0;
+	displayUnreadMsgCount();
+}
+
+function displayUnreadMsgCount() {
+	const sum = Object.values(unreadMsgCounts)
+		.reduce((acc, val) => acc + val, 0);
+	const unreadMsgCountElements = document.querySelectorAll(".chat-unread-msg-count");
+	const text = sum ? `${sum}` : "";
+	unreadMsgCountElements.forEach(element => {
+		element.innerHTML = text;
+	});
+}
+
+
 // -- sockets ----
 var chatSockets = {};
 
@@ -51,6 +81,9 @@ function start(roomId=GLOBAL_ROOM_ID) {
 		}
 		if (roomId === currRoomId) {
 			chatMessages.generateMessage(message, who, sender.image, data.senderId);
+		}
+		if (!chatTriggers.chatBoxOpened() || roomId != currRoomId) {
+			incrUnreadMsgCount(roomId);
 		}
 		chatMessages.saveMessage(roomId, message, who, sender.image, data.senderId);
 	};
@@ -98,4 +131,5 @@ function stop(roomId) {
 // --------------------------------
 
 export { GLOBAL_ROOM_ID, MATCH_ROOM_ID, currRoomId, getRoomId, updateRoomId, isFriendRoom };
+export { clearUnreadMsgCount };
 export { submit, start, stop, chatSockets };

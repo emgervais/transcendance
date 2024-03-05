@@ -21,8 +21,21 @@ const chatbody = document.querySelector('.chat-box-body');
 
 // -- chatBox ----
 function toggleChatBox() {
-	util.toggleClass(chatIcon, 'chat-active')
-	util.toggleClass(chatBox, 'chat-active')
+	if (!chatBoxOpened()) {
+		openChatBox();
+	} else {
+		closeChatBox();
+	}
+}
+
+function chatBoxOpened() {
+	return chatBox.classList.contains('chat-active');
+}
+
+function openChatBox() {
+	util.setClass(chatIcon, 'chat-active', false);
+	util.setClass(chatBox, 'chat-active', true);
+	chat.clearUnreadMsgCount(chat.currRoomId);
 }
 
 function closeChatBox() {
@@ -65,6 +78,7 @@ function activateTab(target, roomId) {
 	document.querySelector('.tab-active').classList.remove('tab-active');
 	target.classList.add('tab-active');
 	chatMessages.loadMessages();
+	chat.clearUnreadMsgCount(roomId);
 }
 
 // -- friendsList ----
@@ -122,6 +136,6 @@ function updateMenu(id) {
 	menu.appendChild(ul);
 }
 
-export { toggleChatBox, closeChatBox }
+export { toggleChatBox, closeChatBox, chatBoxOpened }
 export { activateGlobalTab, toggleFriendsList, activateFriendsTab, closeFriendChat, activateGameTab };
 export { activateMenu };

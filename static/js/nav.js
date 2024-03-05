@@ -22,7 +22,7 @@ function updateFriendRequestCount(count) {
     }
 }
 
-function incrFriendRequestCount(incr) {
+function incrFriendRequestCount(incr=1) {
     friendRequestCount += incr;
     updateFriendRequestCount(friendRequestCount);
 }

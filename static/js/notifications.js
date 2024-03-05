@@ -31,7 +31,7 @@ function start() {
 				break;
 			case "friendRequest":
 				console.log("received friendRequest");
-				nav.incrFriendRequestCount(1);
+				nav.incrFriendRequestCount();
 				break;
 			default:
 				console.log("Unknown notification:", data);

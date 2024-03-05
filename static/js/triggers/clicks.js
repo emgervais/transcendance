@@ -19,7 +19,7 @@ const idFunctions = {
 
     "update-info-button": account.updateInfoButton,
 
-    "friend-request-button": friends.searchUser,
+    "search-user-button": friends.searchUser,
 };
 
 const classFunctions = {

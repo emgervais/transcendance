@@ -1,5 +1,3 @@
-.visible notifications: chat message
-
 .makeFriendRequest:
     .Make request: enlever target de la liste
     .Ne pas afficher les amis actuels
@@ -10,6 +8,8 @@
             .isFriend: bool
             .friend request sent: bool
     Voir: friends.searchUser()
+.the friend request notification is sent to the wrong user
+.Accept friendship: if users are connected, send connected notification to both
 
 .chat message reception if chat never opened yet
 
