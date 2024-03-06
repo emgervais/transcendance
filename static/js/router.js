@@ -1,6 +1,6 @@
 import * as account from "/js/account/account.js";
 import * as nav from "/js/nav.js";
-import * as util from "/js/util.js";
+import * as pong from "/js/pong/pong.js";
 import { displayCurrUser } from "/js/user/currUser.js";
 
 const routes = {
@@ -14,36 +14,37 @@ const routes = {
         unprotected: true,
     },
     "/register/": {
-        function: nav.displayRegister,
+        onLoad: nav.displayRegister,
         onQuit: nav.hideAuthContainer,
         authContainer: true,
         unprotected: true,
     },
     "/login/": {
-        function: nav.displayLogin,
+        onLoad: nav.displayLogin,
         onQuit: nav.hideAuthContainer,
         authContainer: true,
         unprotected: true,
     },
     "/pong/": {
         template: "/templates/pong.html",
+        onLoad: pong.main,
     },
     "/account/": {
         template: "/templates/account.html",
-        function: account.hideAll,
+        onLoad: account.hideAll,
     },
     "/account/friends/": {
         name: "friends",
         template: "/templates/account.html",
-        function: account.displayFriendsPage,
+        onLoad: account.displayFriendsPage,
     },
     "/account/update-info/": {
         template: "/templates/account.html",
-        function: account.displayInfoPage,
+        onLoad: account.displayInfoPage,
     },
     "/account/stats/": {
         template: "/templates/account.html",
-        function: account.displayStatsPage,
+        onLoad: account.displayStatsPage,
     },
 };
 
@@ -91,20 +92,11 @@ const locationHandler = async () => {
         }
         document.getElementById(containerId).innerHTML = html;
     }
-    if (route.function) {
-        route.function();
+    if (route.onLoad) {
+        route.onLoad();
     }
     displayCurrUser();
 };
-
-function enableScripts(elementId) {
-    const scriptTags = document.getElementById(elementId).querySelectorAll("script");
-    scriptTags.forEach((script) => {
-        const newScript = document.createElement("script");
-        newScript.src = script.src;
-        document.body.appendChild(newScript);
-    });
-}
 
 window.onpopstate = locationHandler;
 window.route = route;

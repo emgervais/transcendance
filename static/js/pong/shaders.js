@@ -1,4 +1,4 @@
-const pongVertShader = `\
+export const pongVert = `\
 #version 300 es
 precision mediump float;
 layout(location = 0) in vec3 position;
@@ -15,7 +15,8 @@ void main()
 	gl_Position = vec4(pos, 0.0, 1.0);
 }
 `;
-const pongFragShader = `\
+
+export const pongFrag = `\
 #version 300 es
 precision mediump float;
 out vec4 color;
@@ -25,7 +26,7 @@ void main()
 }
 `;
 
-const textVertShader = `\
+export const textVert = `\
 #version 300 es
 precision mediump float;
 precision mediump int;
@@ -48,7 +49,8 @@ void main()
 	gl_Position = vec4(pos, 0.0, 1.0);
 }
 `;
-const textFragShader = `\
+
+export const textFrag = `\
 #version 300 es
 precision mediump float;
 precision mediump int;
@@ -76,7 +78,7 @@ void main()
 }
 `;
 
-const screenVertShader = `\
+export const screenVert = `\
 #version 300 es
 precision lowp float;
 layout(location = 0) in vec3 position;
@@ -95,7 +97,8 @@ void main()
 	fraguv = uv[gl_VertexID];
 }
 `;
-const screenFragShader = `\
+
+export const screenFrag = `\
 #version 300 es
 precision lowp float;
 in vec2 fraguv;
@@ -129,21 +132,3 @@ void main()
 	color = vec4(texture(tex, uv).xyz * scanlines.x * scanlines.y * texture(vignette, uv).x * 3.0, 1.0);
 }
 `;
-
-var pongUBO;
-var textUBO;
-var pongVAO;
-var stagelineVAO;
-var screenVAO;
-
-var vignetteTexture;
-
-var digitsTexture;
-
-const ambientSound = new Audio('static/app/sound/ambient.ogg');
-ambientSound.loop = true;
-ambientSound.volume = 0.5;
-const hurtSound = new Audio('static/app/sound/hurt.ogg');
-hurtSound.volume = 0.2;
-const bounceSound = new Audio('static/app/sound/beep.ogg');
-bounceSound.volume = 0.4;

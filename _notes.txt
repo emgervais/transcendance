@@ -1,3 +1,5 @@
+pong migration: can't update vars from other modules
+
 .makeFriendRequest:
     .Make request: enlever target de la liste
     .Ne pas afficher les amis actuels

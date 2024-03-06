@@ -1,7 +1,30 @@
-const canvas = document.getElementById('webgl-canvas');
+import * as shaders from "/js/pong/shaders.js";
+import * as sounds from "/js/pong/sounds.js";
+import { gl } from "/js/pong/webgl.js";
+import { createProgram, createStaticBuffer, createVAO, unbindVAO } from "/js/pong/webgl.js";
+import { createUBO, createTexture, createFramebuffer } from "/js/pong/webgl.js";
+import { initGL } from "/js/pong/webgl.js";
 
-var ws = new WebSocket("wss://" + window.location.host + "/ws/pong/");
-ws.binaryType = "arraybuffer";
+var ws;
+
+var pongUBO;
+var textUBO;
+var pongVAO;
+var stagelineVAO;
+var screenVAO;
+
+var vignetteTexture;
+var digitsTexture;
+
+
+// -- Websocket ----
+function startWs() {
+	ws = new WebSocket("wss://" + window.location.host + "/ws/pong/");
+	ws.binaryType = "arraybuffer";
+    ws.onerror = function(error) {
+        // throw new Error("WebSocket connection error: " + (error && error.message ? error.message : "Unknown error"));
+    };
+}
 
 var wsmovementbuffer = new ArrayBuffer(5);
 var wsmovementdv = new DataView(wsmovementbuffer);
@@ -128,6 +151,9 @@ const stage = {
 
 function setup()
 {
+	startWs();
+
+	const canvas = document.getElementById('webgl-canvas');
 	if(!initGL(canvas))
 		return false;
 
@@ -144,7 +170,7 @@ function setup()
 	}
 	fb.bindTexture();
 
-	program = createProgram(pongVertShader, pongFragShader);
+	program = createProgram(shaders.pongVert, shaders.pongFrag);
 	if(!gl.getProgramParameter(program, gl.LINK_STATUS))
 	{
 		console.error(gl.getProgramInfoLog(program));
@@ -158,7 +184,7 @@ function setup()
 	pongUBO = createUBO('ubo', program, 0);
 	pongUBO.bindToProgram(program);
 
-	textprogram = createProgram(textVertShader, textFragShader);
+	textprogram = createProgram(shaders.textVert, shaders.textFrag);
 	if(!gl.getProgramParameter(textprogram, gl.LINK_STATUS))
 	{
 		console.error(gl.getProgramInfoLog(textprogram));
@@ -188,7 +214,7 @@ function setup()
 
 	fb.bindTexture();
 
-	screenprogram = createProgram(screenVertShader, screenFragShader);
+	screenprogram = createProgram(shaders.screenVert, shaders.screenFrag);
 	if(!gl.getProgramParameter(screenprogram, gl.LINK_STATUS))
 	{
 		console.error(gl.getProgramInfoLog(screenprogram));
@@ -280,7 +306,7 @@ function setup()
 	player1.sety(pongrenderheight/2-paddle.height/2);
 	player2.sety(pongrenderheight/2-paddle.height/2);
 
-	ambientSound.play();
+	sounds.ambient.play();
 
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -317,9 +343,9 @@ function setup()
 				if(playerid == 1)
 				{
 					redtimer = 200;
-					hurtSound.currentTime = 0;
-					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-					hurtSound.play();
+					sounds.hurt.currentTime = 0;
+					sounds.hurt.playbackRate = Math.random() * 0.4 + 0.8;
+					sounds.hurt.play();
 				}
 				break;
 			case 4: // player 2 score
@@ -331,9 +357,9 @@ function setup()
 				if(playerid == 2)
 				{
 					redtimer = 200;
-					hurtSound.currentTime = 0;
-					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-					hurtSound.play();
+					sounds.hurt.currentTime = 0;
+					sounds.hurt.playbackRate = Math.random() * 0.4 + 0.8;
+					sounds.hurt.play();
 				}
 				break;
 			case 5: // ball hit
@@ -344,8 +370,8 @@ function setup()
 				offset += 16;
 				if(!redtimer && (ball.xspeed > 0 && playerid == 2 || ball.xspeed < 0 && playerid == 1))
 				{
-					bounceSound.currentTime = 0;
-					bounceSound.play();
+					sounds.bounce.currentTime = 0;
+					sounds.bounce.play();
 				}
 				break;
 			case 8: // gamestart
@@ -429,8 +455,8 @@ function draw()
 				ball.setx((playerid == 1) ? stage.left + paddle.width : stage.right-ball.width-paddle.width);
 				ball.xspeed *= -1.05;
 				ball.yspeed = (ball.gety()+ball.height/2 - (player.gety() + paddle.height/2))/8 * Math.abs(ball.xspeed);
-				bounceSound.currentTime = 0;
-				bounceSound.play();
+				sounds.bounce.currentTime = 0;
+				sounds.bounce.play();
 				wsballdv.setUint32(1, ball.getx() * ballprecision, true);
 				wsballdv.setUint32(5, ball.gety() * ballprecision, true);
 				wsballdv.setUint32(9, ball.xspeed * ballprecision, true);
@@ -447,9 +473,9 @@ function draw()
 					score.points[1] % 10 << 8 | score.points[1] / 10 << 0
 				]);
 				redtimer = 200;
-				hurtSound.currentTime = 0;
-				hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-				hurtSound.play();
+				sounds.hurt.currentTime = 0;
+				sounds.hurt.playbackRate = Math.random() * 0.4 + 0.8;
+				sounds.hurt.play();
 				wsscoredv.setUint32(1, ball.getx() * ballprecision, true);
 				wsscoredv.setUint32(5, ball.gety() * ballprecision, true);
 				wsscoredv.setUint32(9, ball.xspeed * ballprecision, true);
@@ -466,9 +492,9 @@ function draw()
 					score.points[0] % 10 << 8 | score.points[0] / 10 << 0
 				]);
 				redtimer = 200;
-				hurtSound.currentTime = 0;
-				hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-				hurtSound.play();
+				sounds.hurt.currentTime = 0;
+				sounds.hurt.playbackRate = Math.random() * 0.4 + 0.8;
+				sounds.hurt.play();
 				wsscoredv.setUint32(1, ball.getx() * ballprecision, true);
 				wsscoredv.setUint32(5, ball.gety() * ballprecision, true);
 				wsscoredv.setUint32(9, ball.xspeed * ballprecision, true);
@@ -546,10 +572,19 @@ function draw()
 	requestAnimationFrame(draw);
 }
 
-if(setup())
-{
-	requestAnimationFrame(draw);
+function main() {
+	try {
+		if(setup())
+		{
+			requestAnimationFrame(draw);
+		}
+	} catch (error) {
+		console.log("Game crashed:", error);
+	}
 }
+
+export { main };
+
 // var canvas = document.getElementById("pong-canvas");
 // var ctx = canvas.getContext("2d");
 
@@ -716,3 +751,4 @@ if(setup())
 // 		ws.send(a);
 // 	}
 // }
+

@@ -29,7 +29,7 @@ function createProgram(vertexShaderSource, fragmentShaderSource)
 
 function createStaticBuffer(data)
 {
-	b = gl.createBuffer();
+	var b = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, b);
 	gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 	return b;
@@ -90,6 +90,7 @@ function createUBO(name, program, id)
 
 	return ubo;
 }
+
 function createTexture(imagesrc, internalformat, format, id)
 {
 	const texture = {
@@ -167,3 +168,8 @@ function initGL(canvas)
 	}
 	return true;
 }
+
+export { gl };
+export { createProgram, createStaticBuffer, createVAO, unbindVAO };
+export { createUBO, createTexture, createFramebuffer };
+export { initGL };

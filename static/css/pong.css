@@ -6,7 +6,7 @@
   background-color: #66f04b;
 }
 /* global */
-body {
+#pong-container {
   background-color: #000000;
   font-family: Arial, sans-serif;
   margin: 0;
