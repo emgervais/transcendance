@@ -21,7 +21,7 @@ class RestrictedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'image', 'status']
-        # read_only_fields = ['id', 'username', 'image', 'status']
+        read_only_fields = ['id', 'username', 'image', 'status']
     
     def to_representation(self, instance):
         ret = super().to_representation(instance)

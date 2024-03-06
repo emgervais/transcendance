@@ -1,15 +1,32 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, PermissionsMixin
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import UserManager
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 
 K = 32
 
-class User(AbstractUser, PermissionsMixin):
+class UserManager(UserManager):
+    def search(self, query, filters, user_id):
+        users = self.filter(username__icontains=query).exclude(id=user_id)
+        print(users)
+        for filter in filters:
+            if filter == 'is-friend':
+                users = users.exclude(friends__friend=user_id)
+            elif filter == 'is-blocked':
+                users = users.exclude(blocked__blocker=user_id)
+            elif filter == 'friend-request-sent':
+                users = users.exclude(sent_requests__to_user=user_id)
+            elif filter == 'friend-request-received':
+                users = users.exclude(received_requests__from_user=user_id)
+        return users
+
+class User(AbstractUser):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='profile_pics', default='default/default.webp')
     elo = models.IntegerField(default=1000)
     status = models.CharField(max_length=10, default='offline')
+    objects = UserManager()
     
     def calculate_elo(self, opponent_elo, score):
         expected = 1 / (1 + 10 ** ((opponent_elo - self.elo) / 400))
@@ -24,6 +41,7 @@ class User(AbstractUser, PermissionsMixin):
         db_table = 'users'
         verbose_name = _('User')
         verbose_name_plural = _('Users')
+        
 
 class UserChannelGroup(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

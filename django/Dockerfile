@@ -1,4 +1,4 @@
-FROM python:3.9.18-alpine3.19
+FROM python:3.9.18-alpine
 
 # Install the PostgreSQL and Redis client tools
 RUN apk add --no-cache postgresql-client redis
