@@ -163,7 +163,12 @@ input {
 /*-----------------------chat-------------------*/
 
 #chat-menu {
-  position:relative;
+  position:fixed;
+  width: 100px;
+  height: 100px;
+  background-color: #0d6dfd26;
+  z-index: 10000;
+  overflow: visible;
 }
 #chat-menu li{
   position:absolute;
@@ -220,6 +225,7 @@ input {
     opacity: 0;
     visibility: hidden;
     background: #efefef;
+    overflow-x: visible;
     position:fixed;
     right:30px;
     bottom:50px;  
@@ -237,6 +243,9 @@ input {
   }
   .tab-chat {
     transition: background-color 0.3s ease;
+  }
+  .tab-chat i {
+    padding-left: 10px;
   }
   .tab-chat:hover {
     background-color: #bababa;
@@ -272,7 +281,8 @@ input {
     height:370px;  
     height:auto;
     border:1px solid #ccc;  
-    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: visible;
   }
   .chat-box-body:after {
     content: "";
@@ -584,4 +594,8 @@ input {
 .greyed-out {
 color: grey;
 font-style: italic;
+}
+
+.unread-message {
+  background-color: blue;
 }

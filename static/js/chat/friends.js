@@ -49,12 +49,18 @@ async function generateFriendsListElement(container, userId) {
 	if (roomId === chat.currRoomId) {
 		div.classList.add('tab-active');
 	}
+
 	div.setAttribute('data-room-id', roomId);
 	const anchor = document.createElement('a');
 	anchor.title = username;
 	anchor.textContent = username;
 	div.appendChild(anchor);
-	
+
+	if (chat.unreadMsgCounts[roomId]) {
+		const bell = chat.makeBell();
+		div.appendChild(bell);
+	}
+
 	const closeIcon = document.createElement('i');
 	closeIcon.classList.add('close-friend-chat', 'fa-solid', 'fa-x');
 	closeIcon.setAttribute('data-room-id', roomId);

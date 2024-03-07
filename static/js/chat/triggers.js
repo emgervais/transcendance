@@ -1,7 +1,7 @@
 import * as chat from "/js/chat/chat.js";
 import * as chatFriends from "/js/chat/friends.js";
 import * as chatMessages from "/js/chat/messages.js";
-import * as notifications from "/js/notifications.js";
+import { getCurrUser } from "/js/user/currUser.js";
 import * as util from "/js/util.js";
 import { GLOBAL_ROOM_ID, MATCH_ROOM_ID } from "/js/chat/chat.js";
 
@@ -9,8 +9,8 @@ const chatIcon = document.getElementById('chat-icon');
 const chatBox = document.getElementById('chat-box');
 
 const globalTab = document.getElementById('tab-global');
-const gameTab = document.getElementById('tab-game');
 const friendsTab = document.getElementById('tab-friends');
+const gameTab = document.getElementById('tab-game');
 
 const friendsList = document.getElementById('friendlist-tab');
 var friendsListShown = false;
@@ -103,13 +103,31 @@ function closeFriendsList() {
 
 // -- avatar ----
 function activateMenu(target) {
-	updateMenu(target.getAttribute('data-id'));
-	// const imageRect = target.getBoundingClientRect();
-	// var imageX = imageRect.left + window.scrollX;
-	// var imageY = imageRect.top + window.scrollY;
+	const userId = target.getAttribute('data-id');
+	if (userId == getCurrUser().id) {
+		console.log("currUser clicked. Menu should be different or inexistant.");
+		console.log("gros tas");
+	}
+	updateMenu(userId);
+	const imageRect = target.getBoundingClientRect();
+	const imageX = imageRect.left;
+	const imageY = imageRect.top;
 
-	// menu.style.left = imageX + 'px';
-	// menu.style.top = (imageY - menu.offsetHeight) + 'px';
+	const chatBody = document.getElementsByClassName('chat-box-body')[0];
+	const imageXRelativeToChatBody = imageX - chatBody.getBoundingClientRect().left;
+	const imageYRelativeToChatBody = imageY - chatBody.getBoundingClientRect().top;
+	
+	const imageCenterX = imageXRelativeToChatBody - imageRect.width / 2;
+	const imageCenterY = imageYRelativeToChatBody - imageRect.height / 2;
+	
+	const menuWidth = menu.offsetWidth;
+	const menuHeight = menu.offsetHeight;
+	
+	const menuX = imageCenterX - menuWidth / 2;
+	const menuY = imageCenterY - menuHeight / 2;
+	
+	menu.style.left = imageX + 'px';
+	menu.style.top = imageY + 'px';
 	util.display(menu, true);
 };
 
@@ -137,6 +155,7 @@ function updateMenu(id) {
 	};
 }
 
+export { chatIcon, globalTab, friendsTab, gameTab };
 export { toggleChatBox, closeChatBox, chatBoxOpened }
 export { activateGlobalTab, toggleFriendsList, activateFriendsTab, closeFriendChat, activateGameTab };
 export { activateMenu, disableMenu };

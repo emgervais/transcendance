@@ -14,11 +14,19 @@
 </div>
 <div>
     <ul class="d-flex list-unstyled m-0">
-        <li id="tab-global" class="tab-chat text-center flex-grow-1 tab-active" >Global</li>
-        <li id="tab-friends" class="tab-chat text-center flex-grow-1 dropdown">Friends
-        <div class="dropdown-menu" id="friendlist-tab"></div>
+        <li id="tab-global" class="tab-chat text-center flex-grow-1 tab-active" >
+          <span>Global</span>
+          <i class="fa-solid fa-bell hidden"></i>
         </li>
-        <li id="tab-game" class="tab-chat text-center flex-grow-1" >Game</li>
+        <li id="tab-friends" class="tab-chat text-center flex-grow-1 dropdown">
+          <span>Friends</span>
+          <i class="fa-solid fa-bell hidden"></i>
+          <div class="dropdown-menu" id="friendlist-tab"></div>
+        </li>
+        <li id="tab-game" class="tab-chat text-center flex-grow-1" >
+          <span>Game</span>
+          <i class="fa-solid fa-bell hidden"></i>
+        </li>
     </ul>
 </div>
 <div class="chat-box-body">

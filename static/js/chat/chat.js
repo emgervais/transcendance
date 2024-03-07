@@ -2,6 +2,7 @@ import * as chatMessages from "/js/chat/messages.js";
 import * as chatTriggers from "/js/chat/triggers.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js"
+import * as util from "/js/util.js";
 
 // -- roomId ----
 const GLOBAL_ROOM_ID = "global";
@@ -32,6 +33,7 @@ function incrUnreadMsgCount(roomId, incr=1) {
 	}
 	unreadMsgCounts[roomId] += incr;
 	displayUnreadMsgCount();
+	updateUnreadMessageTab(roomId, true);
 }
 
 function clearUnreadMsgCount(roomId) {
@@ -40,6 +42,7 @@ function clearUnreadMsgCount(roomId) {
 	}
 	unreadMsgCounts[roomId] = 0;
 	displayUnreadMsgCount();
+	updateUnreadMessageTab(roomId, false);
 }
 
 function displayUnreadMsgCount() {
@@ -52,6 +55,47 @@ function displayUnreadMsgCount() {
 	});
 }
 
+function unreadFriendMsgs() { // => bool
+	for (const roomId in unreadMsgCounts) {
+		if (roomId == GLOBAL_ROOM_ID || roomId == MATCH_ROOM_ID) {
+			continue;
+		}
+		if (unreadMsgCounts[roomId]) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function updateUnreadMessageTab(roomId, unreadMessages) {
+	let tab;
+	switch (roomId) {
+		case GLOBAL_ROOM_ID:
+			tab = chatTriggers.globalTab;
+			break;
+		case MATCH_ROOM_ID:
+			tab = chatTriggers.gameTab;
+			break;
+		default:
+			tab = chatTriggers.friendsTab;
+			if (!unreadMessages) {
+				unreadMessages = unreadFriendMsgs();
+			}
+			break;
+	}
+	displayBell(tab, unreadMessages);
+}
+
+function displayBell(element, display=true) {
+	const icon = element.getElementsByTagName("i")[0];
+	util.display(icon, display);
+}
+
+function makeBell() {
+	const icon = document.createElement("i");
+	icon.classList.add("fa-solid", "fa-bell");
+	return icon;
+}
 
 // -- sockets ----
 var chatSockets = {};
@@ -131,5 +175,5 @@ function stop(roomId) {
 // --------------------------------
 
 export { GLOBAL_ROOM_ID, MATCH_ROOM_ID, currRoomId, getRoomId, updateRoomId, isFriendRoom };
-export { clearUnreadMsgCount };
+export { unreadMsgCounts, clearUnreadMsgCount, makeBell };
 export { submit, start, stop, chatSockets };
