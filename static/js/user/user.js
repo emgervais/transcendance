@@ -45,31 +45,40 @@ async function displayUser({
         friendRequestable=false
     }) {
     const div = document.createElement("div");
+    const div1 = document.createElement("div");
+    const div2 = document.createElement("div");
     const appendToContainer = (currUserId, user) => {
         div.className = "user";
-        
+        div1.classList.add('user-infos');
+        div2.classList.add('user-buttons');
+
         const img = document.createElement("img");
         img.src = user.image;
         img.className = "img-fluid rounded-circle small-image";
-        div.appendChild(img);
+        const imgdiv = document.createElement("div");
+        imgdiv.classList.add('user-img-container');
+        imgdiv.appendChild(img);
+        div1.appendChild(imgdiv);
 
         const username = document.createElement("p");
         username.textContent = user.username;
-        div.appendChild(username);
+        div1.appendChild(username);
+        div.appendChild(div1);
         
-        container.appendChild(div);
-
         if (friendshipId) {
             const unfriendButton = makeUnfriendButton(friendshipId);
-            div.append(unfriendButton);
+            div2.append(unfriendButton);
         }
         if (friendRequestable) {
             const friendRequestButton = makeFriendRequestButton(userId);
-            div.append(friendRequestButton);
+            div2.append(friendRequestButton);
         }
-
+        
         const blockButton = makeBlockButton(userId, !blocked);
-        div.append(blockButton);
+        div2.append(blockButton);
+
+        div.appendChild(div2);
+        container.appendChild(div);
     };
     const currUserId = getCurrUser().id;
     let user = await getUser(userId);
@@ -90,7 +99,7 @@ function makeBlockButton(userId, block) {
 
 function makeFriendRequestButton(userId) {
     const button = document.createElement("button");
-    button.innerText = "Request friendship";
+    button.innerText = "Send request";
     button.classList.add('make-friend-request-button');
     button.setAttribute("data-user-id", userId);
     return button;

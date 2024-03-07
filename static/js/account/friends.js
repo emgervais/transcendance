@@ -125,8 +125,9 @@ async function displayFriendRequest(container, request) {
     };
     const acceptButton = makeButton("Accept", true);
     const refuseButton = makeButton("Refuse", false);
-    div.appendChild(acceptButton);
-    div.appendChild(refuseButton);
+    const buttonDiv = div.querySelector('.user-buttons');
+    buttonDiv.appendChild(acceptButton);
+    buttonDiv.appendChild(refuseButton);
 }
 
 // -- triggers ----

@@ -1,3 +1,11 @@
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6, p{
+  margin:0px;
+}
+
+body {
+  background-color: #D1D1D1;
+}
+
 a {
   text-decoration: none;
   color: initial;
@@ -7,6 +15,33 @@ a:hover {
   cursor: pointer;
 }
 
+button {
+  color:white;
+  border-radius: 10px;
+  background: linear-gradient(to right, #9181F4, #5038ED);
+  background-clip: padding-box;
+}
+
+button:hover {
+  color:white;
+  background: linear-gradient(to left, #9181F4, #5038ED);
+  background-clip: padding-box;
+}
+
+input {
+  border-radius: 10px;
+  border: 1px black solid;
+  padding-left: 10px;
+}
+
+#dynamic-section {
+  height: 95vh;
+}
+
+.navbar {
+  height: 5vh;
+  z-index: 1003;
+}
 /* auth--------------- */
 
 .floating-box {
@@ -68,16 +103,6 @@ a:hover {
 
 .form-container button {
   margin-bottom: 10px;
-  color:white;
-  border-radius: 10px;
-  background: linear-gradient(to right, #9181F4, #5038ED);
-  background-clip: padding-box;
-}
-
-.form-container button:hover {
-  color:white;
-  background: linear-gradient(to left, #9181F4, #5038ED);
-  background-clip: padding-box;
 }
 
 .auth-form {
@@ -111,6 +136,7 @@ a:hover {
     align-items: center;
 }
 /* account page-------------- */
+
 .square-img-container {
     display: flex;
     justify-content: center;
@@ -225,6 +251,15 @@ a:hover {
     text-align:center;
     font-size:20px;
     padding-top:17px;
+    display: flex;
+    justify-content: space-between;
+
+  }
+
+  .chat-title {
+    display: flex;
+    justify-content: center;
+    flex-grow: 1; 
   }
   .chat-box-body {
     position: relative;  
@@ -407,8 +442,134 @@ a:hover {
   right: 0;
 }
 
+/* friend page-------------------- */
 
+.friend-page {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-auto-rows: min-content;
+  grid-gap: 10px;
+}
 
+.friend-grid {
+  margin: 25px;
+  padding:10px;
+  border:#9181F4 2px solid;
+  border-radius: 25px;
+  background-color: #FFFFFF;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  min-height: 300px;
+}
+
+.friend-grid button {
+  padding:8px;
+}
+
+.left-column, .right-column {
+  display: grid;
+  grid-template-rows: repeat(auto-fill, minmax(min-content, auto));
+  grid-auto-columns: 1fr;
+}
+
+.user {
+  border:0.5px black solid;
+  margin: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding:10px;
+  border-radius: 10px;
+  min-height: 100px;
+}
+
+.user-img-container {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  border-radius: 50%;
+  min-width: 70px;
+  min-height: 70px;
+}
+
+.user-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border:1px black solid;
+}
+
+.user-infos {
+  display:flex;
+  align-items: center;
+  height: 100%;
+}
+
+.user-infos p {
+  margin-left:10px;
+}
+
+.user-buttons {
+  display: flex;
+  align-items: center;
+}
+.user-buttons button{
+  margin-right:10px;
+}
+
+.user p {
+  text-align: center;
+}
+
+/* update form ----------------- */
+
+.update-section {
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.update-form {
+  border:#9181F4 3px solid;
+  border-radius: 50px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  background-color: white;
+  width: 40%;
+  height:40%;
+  display: flex;
+  justify-content: center;
+}
+
+.update-infos-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 80%;
+}
+
+.update-infos-container div {
+  width:100%;
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.update-infos-container div label {
+  text-align: center;
+}
+.update-form label{
+  margin-bottom: 15px;
+}
 /* utils---------------------- */
 .hidden {
   display: none !important;

@@ -13,13 +13,8 @@ function setConnected(connected) {
 }
 
 function updateFriendRequestCount(count) {
-    const countElement = friendRequestCountElement.querySelector(".count");
-    countElement.innerHTML = count;
-    const textElement = friendRequestCountElement.querySelector(".text");
-    textElement.innerHTML = "friend request";
-    if (count > 1) {
-        textElement.innerHTML += "s";
-    }
+    const countElement = friendRequestCountElement.querySelector("#friend-request-counter");
+    countElement.textContent = count + ' friend' + (count !== 1 ? 's' : '') + ' request';
 }
 
 function incrFriendRequestCount(incr=1) {
