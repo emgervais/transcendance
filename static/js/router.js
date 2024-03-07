@@ -1,5 +1,6 @@
 import * as account from "/js/account/account.js";
 import * as nav from "/js/nav.js";
+import * as pong from "/js/pong/pong.js";
 import { displayCurrUser } from "/js/user/currUser.js";
 
 const routes = {
@@ -27,6 +28,8 @@ const routes = {
     "/pong/": {
         template: "/templates/pong.html",
         // onLoad: pong.main,
+        onLoad: pong.start,
+        onQuit: pong.stop,
     },
     "/account/": {
         template: "/templates/account.html",
