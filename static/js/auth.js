@@ -2,7 +2,7 @@ import * as api from "/js/api.js";
 import * as chatTriggers from "/js/chat/triggers.js";
 import * as nav from "/js/nav.js";
 import * as notifications from "/js/notifications.js";
-import * as router from "/js/router.js";
+import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
 import { displayCurrUser, setCurrUser, removeCurrUser } from "/js/user/currUser.js";
 

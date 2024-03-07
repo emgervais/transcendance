@@ -1,7 +1,7 @@
 import * as api from "/js/api.js";
 import { displayUser } from "/js/user/user.js";
 import { getCurrUser } from "/js/user/currUser.js";
-import * as router from "/js/router.js";
+import * as router from "/js/router/router.js";
 
 function refresh() {
     if (router.getCurrentRoute().name == "friends") {

@@ -1,9 +1,11 @@
 import * as account from "/js/account/account.js";
 import * as nav from "/js/nav.js";
 import * as pong from "/js/pong/pong.js";
+import { handleParams, setParams } from "/js/router/params.js";
+import { getParams } from "/js/router/params.js";
 import { displayCurrUser } from "/js/user/currUser.js";
 
-const routes = {
+const routes = handleParams({
     404: {
         template: "/templates/404.html",
         title: "404",
@@ -27,7 +29,6 @@ const routes = {
     },
     "/pong/": {
         template: "/templates/pong.html",
-        // onLoad: pong.main,
         onLoad: pong.start,
         onQuit: pong.stop,
     },
@@ -48,7 +49,11 @@ const routes = {
         template: "/templates/account.html",
         onLoad: account.displayStatsPage,
     },
-};
+    "/account/stats/<userId>/": {
+        template: "/templates/account.html",
+    },
+});
+console.log("routes:", routes);
 
 const route = (href) => {
     window.history.pushState({}, "", href);
@@ -85,6 +90,12 @@ const locationHandler = async () => {
         prevRoute.onQuit();
     }
     const route = getCurrentRoute();
+    //////////
+    if (route.regex) {
+        setParams(route);
+    }
+    console.log("params:", getParams());
+    //////////
     prevRoute = route;
     if (route.template) {
         const html = await fetchHTMLWithCache(route.template);

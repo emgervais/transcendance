@@ -104,35 +104,20 @@ function closeFriendsList() {
 // -- avatar ----
 function activateMenu(target) {
 	const userId = target.getAttribute('data-id');
-	if (userId == getCurrUser().id) {
-		console.log("currUser clicked. Menu should be different or inexistant.");
-		console.log("gros tas");
-	}
+	// if (userId == getCurrUser().id) {
+	// 	return;
+	// }
 	updateMenu(userId);
 	const imageRect = target.getBoundingClientRect();
-	const imageX = imageRect.left;
-	const imageY = imageRect.top;
-
-	const chatBody = document.getElementsByClassName('chat-box-body')[0];
-	const imageXRelativeToChatBody = imageX - chatBody.getBoundingClientRect().left;
-	const imageYRelativeToChatBody = imageY - chatBody.getBoundingClientRect().top;
 	
-	const imageCenterX = imageXRelativeToChatBody - imageRect.width / 2;
-	const imageCenterY = imageYRelativeToChatBody - imageRect.height / 2;
-	
-	const menuWidth = menu.offsetWidth;
-	const menuHeight = menu.offsetHeight;
-	
-	const menuX = imageCenterX - menuWidth / 2;
-	const menuY = imageCenterY - menuHeight / 2;
-	
-	menu.style.left = imageX + 'px';
-	menu.style.top = imageY + 'px';
-	util.display(menu, true);
+	menu.style.left = imageRect.left - 50 + 'px';
+	menu.style.top = imageRect.top - 50 + 'px';
+	menu.classList.toggle('active');
+	// util.display(menu, true);
 };
 
 function disableMenu() {
-	util.display(menu, false);
+	//util.display(menu, false);
 }
 
 function updateMenu(id) {

@@ -1,4 +1,4 @@
-import * as router from "/js/router.js";
+import * as router from "/js/router/router.js";
 import * as auth from "/js/auth.js";
 import * as triggers from "/js/triggers/triggers.js";
 import * as tests from "/js/test_messages.js";

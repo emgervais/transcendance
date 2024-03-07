@@ -2,7 +2,7 @@ import * as api from "/js/api.js";
 import * as chat from "/js/chat/chat.js";
 import * as friends from "/js/account/friends.js";
 import { getCurrUser } from "/js/user/currUser.js";
-import * as router from "/js/router.js";
+import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
 
 var users = {};

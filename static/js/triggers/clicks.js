@@ -3,7 +3,7 @@ import * as auth from "/js/auth.js";
 import * as chat from "/js/chat/chat.js";
 import * as chatTriggers from "/js/chat/triggers.js";
 import * as friends from "/js/account/friends.js";
-import * as router from "/js/router.js";
+import * as router from "/js/router/router.js";
 import * as user from "/js/user/user.js";
 
 const idFunctions = {
