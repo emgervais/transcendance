@@ -5,7 +5,6 @@ import * as chatTriggers from "/js/chat/triggers.js";
 import * as friends from "/js/account/friends.js";
 import * as router from "/js/router.js";
 import * as user from "/js/user/user.js";
-import * as util from "/js/util.js";
 
 const idFunctions = {
     "login-button": auth.loginButton,
@@ -36,6 +35,11 @@ const classFunctions = {
     'profile-picture-chat': chatTriggers.activateMenu,
 }
 
+const outsideIdFunctions = {
+    "chat-menu": chatTriggers.disableMenu
+};
+
+
 function callIdFunction(target) {
     if (target.id in idFunctions) {
             idFunctions[target.id]();
@@ -44,7 +48,7 @@ function callIdFunction(target) {
     return false;
 }
 
-function callClassFunctions(target) {
+function callClassFunction(target) {
     for (const className of target.classList) {
         if (className in classFunctions) {
             classFunctions[className](target);
@@ -58,15 +62,25 @@ function callTargetFunction(target) {
     while (
         target
         && !callIdFunction(target)
-        && !callClassFunctions(target)
+        && !callClassFunction(target)
     ) {
         target = target.parentElement;
+    }
+}
+
+function callOutsideIdFunction(target) {
+    for (let id in outsideIdFunctions) {
+        const element = document.getElementById(id);
+        if (!element.contains(target)) {
+            outsideIdFunctions[id]();
+        }
     }
 }
 
 function click(event) {
     const { target } = event;
 
+    callOutsideIdFunction(target);
     const closestAnchor = target.closest("a[href]");
     if (closestAnchor) {
         event.preventDefault();

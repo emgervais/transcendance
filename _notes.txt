@@ -1,4 +1,4 @@
-pong migration: can't update vars from other modules
+.Backend: oauth must not be able to change email
 
 .makeFriendRequest:
     .Make request: enlever target de la liste
@@ -12,6 +12,7 @@ pong migration: can't update vars from other modules
     Voir: friends.searchUser()
 .the friend request notification is sent to the wrong user
 .Accept friendship: if users are connected, send connected notification to both
+.Remove friend: "friend disconnected"
 
 .plugger le frontend pong (sans backend)
 

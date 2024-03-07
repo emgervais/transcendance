@@ -103,39 +103,40 @@ function closeFriendsList() {
 
 // -- avatar ----
 function activateMenu(target) {
-	// console.log("profile-picture-chat");
 	updateMenu(target.getAttribute('data-id'));
-	const imageRect = target.getBoundingClientRect();
-	var imageX = imageRect.left + window.scrollX;
-	var imageY = imageRect.top + window.scrollY;
+	// const imageRect = target.getBoundingClientRect();
+	// var imageX = imageRect.left + window.scrollX;
+	// var imageY = imageRect.top + window.scrollY;
 
-	menu.style.left = imageX + 'px';
-	menu.style.top = (imageY - menu.offsetHeight) + 'px';
-	menu.style.display = 'block';
+	// menu.style.left = imageX + 'px';
+	// menu.style.top = (imageY - menu.offsetHeight) + 'px';
+	util.display(menu, true);
 };
 
-document.addEventListener('click', function(event) {
-	if (!chatbody.contains(event.target)) {
-		menu.style.display = 'none';
-	}
-});
+function disableMenu() {
+	util.display(menu, false);
+}
 
 function updateMenu(id) {
-	var menuOptions = ['stats', 'block', 'invite'];
+	var menuOptions = {
+		'stats' : '<i class=\"fa-solid fa-chart-simple\"></i>',
+		'block' : '<i class=\"fa-solid fa-ban\"></i>',
+		'invite' : '<i class=\"fa-solid fa-gamepad\"></i>'
+	};
+	let i = 0;
 	menu.innerHTML = '';
-	var ul = document.createElement('ul');
-	menuOptions.forEach(function(option) {
+	for(var option in menuOptions) {
 		var li = document.createElement('li');
+		li.style = '--i:' + i++ + ';'
 		var a = document.createElement('a');
 		a.href = '#';
 		a.setAttribute('id', id);
-		a.textContent = option;
+		a.innerHTML = menuOptions[option];
 		li.appendChild(a);
-		ul.appendChild(li);
-	});
-	menu.appendChild(ul);
+		menu.appendChild(li);
+	};
 }
 
 export { toggleChatBox, closeChatBox, chatBoxOpened }
 export { activateGlobalTab, toggleFriendsList, activateFriendsTab, closeFriendChat, activateGameTab };
-export { activateMenu };
+export { activateMenu, disableMenu };

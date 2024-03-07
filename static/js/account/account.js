@@ -18,9 +18,9 @@ function hideFriendsPage() {
 function displayInfoPage() {
     const updateInfo = document.getElementById("account-update-info");
     util.display(updateInfo);
+    const nonOAuthElements = updateInfo.querySelector(".non-oauth");
     const user = getCurrUser();
-    const updatePassword = document.getElementById("change-password");
-    util.display(updatePassword, !user.oauth);
+    util.display(nonOAuthElements, !user.oauth);
 }
 
 function hideInfoPage() {

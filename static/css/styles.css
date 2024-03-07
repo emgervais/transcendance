@@ -162,7 +162,13 @@ input {
 
 /*-----------------------chat-------------------*/
 
-
+#chat-menu {
+  position:relative;
+}
+#chat-menu li{
+  position:absolute;
+  list-style: none;
+}
 #chat-icon {
     opacity: 0;
     visibility: hidden;

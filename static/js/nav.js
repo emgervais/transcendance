@@ -14,7 +14,7 @@ function setConnected(connected) {
 
 function updateFriendRequestCount(count) {
     const countElement = friendRequestCountElement.querySelector("#friend-request-counter");
-    countElement.textContent = count + ' friend' + (count !== 1 ? 's' : '') + ' request';
+    countElement.textContent = count + ' friend request' + (count > 1 ? 's' : '');
 }
 
 function incrFriendRequestCount(incr=1) {
