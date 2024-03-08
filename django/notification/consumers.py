@@ -60,7 +60,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def friend_request(self, event):
         type = event['notification']
         userId = event['userId']
-        print("fuck u", userId)
+
         await self.send(text_data=json.dumps({
             'type': type,
             'userId': userId

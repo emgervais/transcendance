@@ -3,6 +3,14 @@ import { displayUser } from "/js/user/user.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import * as router from "/js/router/router.js";
 
+const QUERY_PARAMS = {
+    "is-friend": "false",
+    "friend-request-sent": "false",
+    "friend-request-received": "false",
+    "is-blocked": "false",
+    "got-blocked": "false",
+}
+
 function refresh() {
     if (router.getCurrentRoute().name == "friends") {
         getFriends();
@@ -34,12 +42,13 @@ function searchUser() {
         });
     };
 
-    const makeParams = ()  => {
+    const makeParams = () => {
         const params = new URLSearchParams();
-        params.append('is-friend', 'false');
-        params.append('friend-request-sent', 'false');
+        for (const [key, value] of Object.entries(QUERY_PARAMS)) {
+            params.append(key, value);
+        }
         return "?" + params.toString();
-    };
+    }
     api.formSubmit({
         formId: formId,
         route: "/api/search/" + query + "/" + makeParams(),

@@ -155,7 +155,7 @@ class Friend(models.Model):
     friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend_of')
 
     objects = FriendShipManager()
-    
+
     class Meta:
         db_table = 'friends'
         verbose_name = _('Friend')
@@ -164,3 +164,9 @@ class Friend(models.Model):
     
     def __str__(self):
         return f'{self.user} -> {self.friend}'
+    
+    def save(self, *args, **kwargs):
+        if self.user == self.friend:
+            raise serializers.ValidationError({'friend': 'Users cannot be friends with themselves'})
+        
+        super().save(*args, **kwargs)
