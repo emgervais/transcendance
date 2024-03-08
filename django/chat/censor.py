@@ -3,13 +3,15 @@ import re
 def censor(message):
     tokens = tokenize(message)
     censored_tokens = []
+    swear_count = 0
     for token in tokens:
         if token.lower() in get_swear_words():
+            swear_count += 1
             censored_tokens.append(replace_vowels(token))
         else:
             censored_tokens.append(token)
     censored_message = ''.join(censored_tokens)
-    return censored_message
+    return censored_message, swear_count
 
 def tokenize(message):
     separator_pattern = r'([^a-zA-Z0-9]+)'
