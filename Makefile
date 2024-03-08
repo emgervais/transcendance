@@ -37,6 +37,9 @@ tests:
 run_tests:
 	docker exec -it tests sh -c "./main.py"
 
+init_users:
+	docker exec -it tests sh -c "./init.py"
+
 freeze:
 	python -m pip install -r django/requirements.txt
 	python -m pip freeze > django/requirements.txt

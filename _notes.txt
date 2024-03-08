@@ -1,25 +1,9 @@
-ROUTE:
-    adapter getCurrentRoute pour reconnaitre un path à paramètres.
-    Ensuite vérifier 
-    if (route.regex) {
-        setParams(route);
-    }
-    console.log("params:", getParams());
+.friend requests:
+    sent too
 
 .Pong: use media/ instead of static/audio static/img
 .Backend: oauth must not be able to change email
 
-.makeFriendRequest:
-    .Make request: enlever target de la liste
-    .Ne pas afficher les amis actuels
-    .Ne pas s'afficher
-    .Ne pas afficher les utilisateur à qui on a envoyé une requête
-    Proposition:
-        /api/user/id/
-            .isFriend: bool
-            .friend request sent: bool
-    Voir: friends.searchUser()
-.the friend request notification is sent to the wrong user
 .Accept friendship: if users are connected, send connected notification to both
 .Remove friend: "friend disconnected"
 

@@ -1,5 +1,6 @@
 import * as chat from "/js/chat/chat.js";
 import * as nav from "/js/nav.js";
+import * as friends from "/js/account/friends.js";
 import * as chatFriends from "/js/chat/friends.js";
 import * as util from "/js/util.js";
 import { getCurrUser } from "/js/user/currUser.js";
@@ -37,11 +38,7 @@ function start() {
 				nav.updateFriendRequestCount(data.count);
 				break;
 			case "friendRequest":
-				util.showAlert({
-					text: `${(await getUser(data.userId)).username} sent you a friend request.`,
-					timeout: 2,
-				});				
-				nav.incrFriendRequestCount();
+				friends.receiveFriendRequest(data);
 				break;
 			default:
 				console.log("Unknown notification:", data);
@@ -50,6 +47,7 @@ function start() {
     }
 
 	ws.onclose = (_) => {
+		console.log("Notifications socket closed.");
 		stop();
 	};
 }
@@ -63,4 +61,13 @@ function stop() {
 	ws.close();
 }
 
-export { start, stop };
+function startMatch(roomId, cancel=false) {
+	console.log("startMatch");
+	ws.send(JSON.stringify({
+		type: "matchmaking",
+		room: roomId,
+		cancel: cancel,
+	}));
+}
+
+export { start, stop, startMatch };

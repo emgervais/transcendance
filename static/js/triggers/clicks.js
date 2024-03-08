@@ -1,8 +1,9 @@
-import * as account from "/js/account/account.js";
+import * as accountInfo from "/js/account/info.js";
 import * as auth from "/js/auth.js";
 import * as chat from "/js/chat/chat.js";
 import * as chatTriggers from "/js/chat/triggers.js";
 import * as friends from "/js/account/friends.js";
+import * as notifications from "/js/notifications.js";
 import * as router from "/js/router/router.js";
 import * as user from "/js/user/user.js";
 
@@ -17,7 +18,7 @@ const idFunctions = {
     "tab-friends": chatTriggers.toggleFriendsList,
     "tab-game": chatTriggers.activateGameTab,
 
-    "update-info-button": account.updateInfoButton,
+    "update-info-button": accountInfo.updateInfoButton,
 
     "search-user-button": friends.searchUser,
 };
@@ -33,6 +34,8 @@ const classFunctions = {
     'close-friend-chat': chatTriggers.closeFriendChat,
 
     'profile-picture-chat': chatTriggers.activateMenu,
+
+    'start-match': notifications.startMatch
 }
 
 const outsideIdFunctions = {

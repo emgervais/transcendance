@@ -124,7 +124,7 @@ function updateMenu(id) {
 	var menuOptions = {
 		'stats' : '<i class=\"fa-solid fa-chart-simple\"></i>',
 		'block' : '<i class=\"fa-solid fa-ban\"></i>',
-		'invite' : '<i class=\"fa-solid fa-gamepad\"></i>'
+		'invite' : '<i class=\"fa-solid fa-gamepad\" class="start-match"></i>'
 	};
 	let i = 0;
 	menu.innerHTML = '';
