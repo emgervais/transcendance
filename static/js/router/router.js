@@ -2,7 +2,6 @@ import * as account from "/js/account/account.js";
 import * as nav from "/js/nav.js";
 import * as pong from "/js/pong/pong.js";
 import { equipParamRoutes, setParams } from "/js/router/params.js";
-import { getParams } from "/js/router/params.js";
 import { displayCurrUser } from "/js/user/currUser.js";
 
 const routes = equipParamRoutes({
@@ -51,6 +50,7 @@ const routes = equipParamRoutes({
     },
     "/account/stats/<username>/": {
         template: "/templates/account.html",
+        onLoad: account.displayStatsPage,
     },
 });
 

@@ -12,6 +12,11 @@ def get_user(user_id):
         return User.objects.get(id=user_id)
     except User.DoesNotExist:
         return None
+
+@database_sync_to_async
+def update_swear_count(user, new_count):
+    user.swear_count += new_count
+    user.save()
     
 @database_sync_to_async
 def is_blocked(user, recipient):
@@ -98,8 +103,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def chat_message(self, event):
-        message = censor(event['message'])
         sender_id = event['senderId']
+        sender = await get_user(sender_id)
+        message, swear_count = censor(event['message'])
+        if sender == self.user:
+            await update_swear_count(sender, swear_count)
         closing = event.get('closing', False)
         
         await self.send(text_data=json.dumps({

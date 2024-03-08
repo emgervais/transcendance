@@ -31,6 +31,7 @@ class User(AbstractUser):
     elo = models.IntegerField(default=1000)
     status = models.CharField(max_length=10, default='offline')
     objects = UserManager()
+    swear_count = models.IntegerField(default=0)
     
     def calculate_elo(self, opponent_elo, score):
         expected = 1 / (1 + 10 ** ((opponent_elo - self.elo) / 400))

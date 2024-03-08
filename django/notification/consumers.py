@@ -60,10 +60,11 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def friend_request(self, event):
         type = event['notification']
         userId = event['userId']
-
+        id = event['id']
         await self.send(text_data=json.dumps({
             'type': type,
-            'userId': userId
+            'userId': userId,
+            'id': id,
         }))
     
     async def reconnect_chats(self):
@@ -156,7 +157,7 @@ def close_websocket(channel_layer, channel):
     except Exception as e:
         print('Error:', e)
         
-def friend_request_notify(user_id, friend):
+def friend_request_notify(user_id, friend, friend_request_id):
     try:
         channel_name = UserChannelGroup.objects.get(user=friend).main
         if channel_name:
@@ -164,8 +165,35 @@ def friend_request_notify(user_id, friend):
             async_to_sync(channel_layer.send)(channel_name, {
                 'type': 'friend.request',
                 'notification': 'friendRequest',
-                'userId': user_id
+                'userId': user_id,
+                'id': friend_request_id,
             })
+    except UserChannelGroup.DoesNotExist:
+        print('Friend channel group not found')
+    except Exception as e:
+        print('Error:', e)
+        
+
+def accept_friend_request_notify(user, friend):
+    try:
+        if friend.status == 'online':
+            channel_name = UserChannelGroup.objects.get(user=friend).main
+            if channel_name:
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.send)(channel_name, {
+                    'type': 'user.online',
+                    'notification': 'connection',
+                    'connected': True,
+                    'userId': user.id
+                })
+            channel_name = UserChannelGroup.objects.get(user=user).main
+            if channel_name:
+                async_to_sync(channel_layer.send)(channel_name, {
+                    'type': 'user.online',
+                    'notification': 'connection',
+                    'connected': True,
+                    'userId': friend.id
+                })
     except UserChannelGroup.DoesNotExist:
         print('Friend channel group not found')
     except Exception as e:

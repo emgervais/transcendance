@@ -1,5 +1,6 @@
-.friend requests:
-    sent too
+stats.load()
+    with the username search userId using api.fetchRoute
+
 
 .Pong: use media/ instead of static/audio static/img
 .Backend: oauth must not be able to change email
