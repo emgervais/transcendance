@@ -59,103 +59,6 @@ create_oauth_uri:
 .tests (selenium?)
 .Secrets (Docker, Github)
 
-------------------------------------------------------------------------
-non:
-◦ Module majeur : Stocker les pointages d’un tournoi dans la Blockchain.
-◦ Module majeur : Gestion utilisateur standard, authentification, utilisateurs
-en tournois.
-
-
-ptete:
-◦ Module majeur : Multijoueurs (plus de 2 dans la même partie)
-
-
-
-◦ Module mineur : Option de personnalisation du jeu.
-◦ Module majeur : Clavardage en direct (live chat).
-• IA-Algo
-◦ Module majeur : Implémenter un adversaire contrôlé par IA.
-◦ Module mineur : Panneaux d’affichage (dashboards) d’utilisateurs et statistiques des parties.
-• Cybersécurité
-◦ Module majeur : Mettez en place un pare-feu d’application Web (WAF) ou
-ModSecurity avec une configuration renforcée et utilisez HashiCorp Vault pour
-la gestion des secrets.
-◦ Module mineur : Options de conformité au RGPD avec anonymisation des
-utilisateurs, gestion des données locales et suppression de comptes.
-◦ Module majeur : Implémenter l’authentification à 2 facteurs (2FA) et JWT
-(JSON Web Tokens).
-• Devops
-9
-ft_transcendence Surprise.
-◦ Module majeur : Configuration de l’infrastructure pour la gestion des journaux (logs).
-◦ Module mineur : Système de monitoring.
-
-• Graphiques
-◦ Module majeur : Utilisation de techniques avancées 3D.
-
-• Orienté objet
-◦ Module majeur : Remplacer le Pong de base par un Pong côté serveur et
-implémentation d’une API.
-◦ Module majeur : Activation du gameplay via ligne de commande (CLI)
-contre les utilisateurs Web avec intégration API.
-------------------------------------------------------------------------
-https://cdn.intra.42.fr/pdf/pdf/114482/fr.subject.pdf
--- Modules ----------
-14 nécessaires
-... En vert: "choix technologiques qui vont évoluer dans le temps"
-
-.M	Backend en Django
-.M	microservices
-.m	Base de donnée Postgre (accounts, tournament scores)
-.M	jouer à distance
-.M	chat
-.M	gestion utilisateurs
-    .Historique parties:
-        .Partie: winner, loser, longest streak
-    .Statut en ligne
-.M	OAuth 2.0 avec 42
-.m	Bootstrap
-12
-
-.m	Bootstrap
-12
-
-
-.M	3D
-.M	second jeu (Elijah)
-.M	joueurs mutliples (à voir...)
-.M	IA
-.M	Pare feu d'app web WAF
-
-ptete:
-.m	support différents appareils
-.m	support différents appareils
-.m	statistiques jeu
-.M 	gestion utilisateur
-.m	personnalisation jeu
-.m	support navigateurs web
-
-non:
-.m	support navigateurs web
-
-non:
-.m	langue
-.m	aveugles (alt, text)
-
--- Exigences --------
-.Compétition en ligne de pong
-.Single page app
-.Démarrage: docker-compose up --build
-.Compatible with latest Google Chrome
-
-.Tournoi
-.Comptes utilisateur
-.Mots de passe chiffrés
-.Protégé contre injections SQL (parse strings, etc)
-.HTTPS, WSS (secure websocket)
-. 	.env .gitignore
-
-
 -- Début ------------
 .Choisir les modules (certains ont des dépendances mutuelles)
 .Choisir les technologies
@@ -165,3 +68,21 @@ Choix des librairies:
 .Existe-t-il une librairie pour ce qu'on fait?
 .Est-ce que coder à la main est vraiment meilleur?
 .Une librairie est-elle vraiment utile?
+
+
+async def notify_target(room_name, user_id):
+    target_ids = room_name.split('_')
+    target_id = target_ids[0] if target_ids[0] != str(user_id) else target_ids[1]
+    target = await get_user(target_id)
+    if target is not None:
+        if not await in_group(target, room_name):
+            main_channel = await get_main_channel(target)
+            if main_channel is not None:
+                channel_layer = get_channel_layer()
+                await channel_layer.send(main_channel, {
+                    'type': 'notification',
+                    'message': 'matchmaking',
+                    'room_name': room_name
+                })
+        return True
+    return False

@@ -6,10 +6,21 @@ from friend.models import Friend
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 import time, threading
+import redis
+from django.conf import settings
+
+matchmaking_redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
+
+async def search_match(user_id):
+    matchmaking_redis.zadd('global', {user_id: time.time()})
+
+async def cancel_search(user_id):
+    matchmaking_redis.zrem('global', user_id)
 
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
+        self.pong_queue = ''
         
         if not self.user.is_authenticated:
             await self.close()
@@ -34,7 +45,48 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await set_main_channel(self.user, '')
             disconnect_thread = threading.Thread(target=user_disconnect, args=(self.user,))
             disconnect_thread.start()
-    
+  
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        type = data['type']
+        room = data.get('room', 'global')
+        
+        if type == 'matchmaking':
+            if data.get('cancel', False) and self.pong_queue != '':
+                self.pong_queue = ''
+                await cancel_search(self.user.id)
+            else:
+                if self.pong_queue != '' and self.pong_queue == room:
+                    self.pong_queue = ''
+                    await self.send(text_data=json.dumps({
+                        'type': 'pong',
+                        'room': room
+                    }))
+                elif self.pong_queue == '':
+                    self.pong_queue = room
+                    if room == 'global':
+                        await search_match(self.user.id)
+                    else:
+                        await self.send_game_request(room)
+
+    async def send_game_request(self, room):
+        recipients = room.split('_')
+        recipient_id = recipients[0] if recipients[0] != str(self.user.id) else recipients[1]
+        try:
+            recipient = User.objects.get(id=recipient_id)
+            main_channel = await get_main_channel(recipient)
+            if main_channel:
+                await self.channel_layer.send(main_channel, {
+                    'type': 'pong.request',
+                    'room': room
+                })
+        except User.DoesNotExist:
+            print('Recipient not found')
+        except UserChannelGroup.DoesNotExist:
+            print('Recipient channel group not found')
+        except Exception as e:
+            print('Error:', e)
+        
     async def websocket_close(self, event):
         await self.close()
     
@@ -43,6 +95,13 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         room = event['room']
         await self.send(text_data=json.dumps({
             'type': notification,
+            'room': room
+        }))
+        
+    async def pong_request(self, event):
+        room = event['room']
+        await self.send(text_data=json.dumps({
+            'type': 'pong_request',
             'room': room
         }))
 
@@ -156,7 +215,7 @@ def close_websocket(channel_layer, channel):
     except Exception as e:
         print('Error:', e)
         
-def friend_request_notify(user_id, friend):
+def friend_request_notify(user_id, friend, friend_request_id):
     try:
         channel_name = UserChannelGroup.objects.get(user=friend).main
         if channel_name:
@@ -164,8 +223,34 @@ def friend_request_notify(user_id, friend):
             async_to_sync(channel_layer.send)(channel_name, {
                 'type': 'friend.request',
                 'notification': 'friendRequest',
-                'userId': user_id
+                'userId': user_id,
+                'id': friend_request_id
             })
+    except UserChannelGroup.DoesNotExist:
+        print('Friend channel group not found')
+    except Exception as e:
+        print('Error:', e)
+        
+def accept_friend_request_notify(user, friend):
+    try:
+        if friend.status == 'online':
+            channel_name = UserChannelGroup.objects.get(user=friend).main
+            if channel_name:
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.send)(channel_name, {
+                    'type': 'user.online',
+                    'notification': 'connection',
+                    'connected': True,
+                    'userId': user.id
+                })
+            channel_name = UserChannelGroup.objects.get(user=user).main
+            if channel_name:
+                async_to_sync(channel_layer.send)(channel_name, {
+                    'type': 'user.online',
+                    'notification': 'connection',
+                    'connected': True,
+                    'userId': friend.id
+                })
     except UserChannelGroup.DoesNotExist:
         print('Friend channel group not found')
     except Exception as e:
