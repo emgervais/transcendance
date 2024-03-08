@@ -1,4 +1,4 @@
-import * as account from "/js/account/account.js";
+import * as accountInfo from "/js/account/info.js";
 import * as auth from "/js/auth.js";
 import * as chat from "/js/chat/chat.js";
 import * as chatTriggers from "/js/chat/triggers.js";
@@ -17,7 +17,7 @@ const idFunctions = {
     "tab-friends": chatTriggers.toggleFriendsList,
     "tab-game": chatTriggers.activateGameTab,
 
-    "update-info-button": account.updateInfoButton,
+    "update-info-button": accountInfo.updateInfoButton,
 
     "search-user-button": friends.searchUser,
 };

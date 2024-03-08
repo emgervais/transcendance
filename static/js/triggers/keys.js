@@ -3,10 +3,9 @@ import * as chat from "/js/chat/chat.js";
 import * as friends from "/js/account/friends.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
+import * as accountInfo from "/js/account/info.js";
 
 const authContainer = document.getElementById("authentication-container");
-const loginContainer = document.getElementById("login");
-const registerContainer = document.getElementById("register");
 
 function key(event) {
     switch (event.key) {
@@ -14,7 +13,7 @@ function key(event) {
             keyEscape();
             break;
         case "Enter":
-            keyEnter(event.target.id);
+            keyEnter(event.target);
             break;
     }
 }
@@ -25,8 +24,8 @@ function keyEscape() {
     }
 }
 
-function keyEnter(id) {
-    switch (id) {
+function keyEnter(target) {
+    switch (target.id) {
         case "chat-input":
             chat.submit();
             return;
@@ -34,13 +33,19 @@ function keyEnter(id) {
             friends.searchUser();
             return;
     }
-    if (util.isDisplayed(authContainer)) {
-        if (util.isDisplayed(loginContainer)) {
-            auth.loginButton();
-        } else if (util.isDisplayed(registerContainer)) {
-            auth.registerButton();
+    for (const className of target.classList) {
+        switch (className) {
+            case "login-input":
+                auth.loginButton();
+                return;
+            case "register-input":
+                auth.registerButton();
+                return;
+            case "update-info-input":
+                accountInfo.updateInfoButton();
+                return;
         }
-    }
+    }    
 }
 
 export { key };

@@ -1,10 +1,5 @@
-ROUTE:
-    adapter getCurrentRoute pour reconnaitre un path à paramètres.
-    Ensuite vérifier 
-    if (route.regex) {
-        setParams(route);
-    }
-    console.log("params:", getParams());
+.friend requests:
+    sent too
 
 .Pong: use media/ instead of static/audio static/img
 .Backend: oauth must not be able to change email
