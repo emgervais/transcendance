@@ -63,4 +63,11 @@ function stop() {
 	ws.close();
 }
 
+
+/*
+start match:
+	action: matchmaking
+	room: global | même syntaxe que roomIds
+*/
+
 export { start, stop };

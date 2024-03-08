@@ -1,6 +1,5 @@
 import * as api from "/js/api.js";
 import { displayUser } from "/js/user/user.js";
-import { getCurrUser } from "/js/user/currUser.js";
 import * as router from "/js/router/router.js";
 
 const QUERY_PARAMS = {
