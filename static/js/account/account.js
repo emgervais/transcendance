@@ -1,5 +1,6 @@
 import * as util from "/js/util.js";
 import * as friends from "/js/account/friends.js";
+import * as stats from "/js/account/stats.js";
 import { getCurrUser } from "/js/user/currUser.js";
 
 // -- display ----
@@ -28,6 +29,7 @@ function hideInfoPage() {
 }
 
 function displayStatsPage() {
+    stats.load();
     const statsPage = document.getElementById("account-stats");
     util.display(statsPage);
 }

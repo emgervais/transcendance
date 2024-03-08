@@ -50,6 +50,7 @@ const routes = equipParamRoutes({
     },
     "/account/stats/<username>/": {
         template: "/templates/account.html",
+        onLoad: account.displayStatsPage,
     },
 });
 

@@ -8,8 +8,8 @@ import friend
 import user
 
 if __name__ == "__main__":
-    print("\n-- Friend tests --")
     try:
+        print("\n-- Friend tests --")
         friend.search_user()
     except AssertionError as e:
         print("AssertionError:", e)

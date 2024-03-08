@@ -5,7 +5,7 @@ from rest_framework import serializers
 from friend.models import Friend, FriendRequest, Block
 from friend.serializers import FriendRequestSerializer, FriendSerializer, BlockSerializer
 from users.models import User
-from notification.consumers import friend_request_notify
+from notification.consumers import friend_request_notify, accept_friend_request_notify
 
 class FriendRequestListView(APIView):
     serializer_class = FriendRequestSerializer
@@ -20,7 +20,10 @@ class FriendRequestListView(APIView):
             to_user_id = request.data.get('to_user')
             to_user = User.objects.get(pk=to_user_id)
             friend_request = Friend.objects.add_friend(from_user, to_user)
-            friend_request_notify(from_user.id, to_user)
+            print("friend_request:", friend_request)
+            print("friend_request.id:", friend_request.id)
+
+            friend_request_notify(from_user.id, to_user, friend_request.id)
             return JsonResponse(self.serializer_class(friend_request).data, status=status.HTTP_201_CREATED)
         except serializers.ValidationError as e:
             return JsonResponse(e.detail, status=status.HTTP_400_BAD_REQUEST)
@@ -48,6 +51,7 @@ class FriendRequestDetailView(APIView):
             if friend_request.to_user != request.user:
                 raise serializers.ValidationError({'friend-request': 'You are not the recipient of this friend request'})
             friend_request.accept()
+            accept_friend_request_notify(request.user, friend_request.from_user)
             return JsonResponse({'message': 'Friend request accepted successfully'}, status=status.HTTP_200_OK)
         except FriendRequest.DoesNotExist:
             return JsonResponse({'error': 'Friend request does not exist'}, status=status.HTTP_400_BAD_REQUEST)
