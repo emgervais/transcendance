@@ -95,3 +95,14 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
         if 'password1' in self.validated_data:
             ret['password'] = 'Password updated'
         return ret
+
+class StatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'swear_count']
+    
+    # def to_representation(self, instance):
+    #     ret = super().to_representation(instance)
+    #     ret['image'] = "https://" + settings.ALLOWED_HOSTS[0] + instance.image.url
+    #     ret['friendRequests'] = Friend.objects.requests(instance).count()
+    #     return ret
