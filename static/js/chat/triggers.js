@@ -138,10 +138,10 @@ function disableMenu() {
 //<button class="make-friend-request-button" data-user-id="3">Send request</button>
 function updateMenu(id) {
 	var menuOptions = {
-		'stats' : '<button> <i class=\"fa-solid fa-chart-simple\"></i></button>',
-		'block' : '<button class=\"block-user-button\" data-block=\"true\" data-user-id=\"' + id + '\"> <i class=\"fa-solid fa-ban\"></i></button>',
-		'invite' : '<button> <i class=\"fa-solid fa-gamepad\"></i></button>',
-		'add': '<button class=\"make-friend-request-button\" data-user-id=\"' + id + '\"><i class=\"fa-solid fa-plus\"></i></button>'
+		'stats' : `<a href="/account/stats/${id}/"> <i class="fa-solid fa-chart-simple"></i></a>`,
+		'block' : `<button class="block-user-button" data-block="true" data-user-id="${id}"> <i class="fa-solid fa-ban"></i></button>`,
+		'invite' : `<button> <i class="fa-solid fa-gamepad"></i></button>`,
+		'add': `<button class="make-friend-request-button" data-user-id="${id}"><i class="fa-solid fa-plus"></i></button>`,
 	};
 	let i = 0;
 	menu.innerHTML = '';

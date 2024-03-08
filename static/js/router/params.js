@@ -28,8 +28,12 @@ function equipParamRoutes(routes) {
 }
 
 // -- route ----
-function setParams(route) {
+function clearParams() {
     params = {};
+}
+
+function setParams(route) {
+    clearParams();
     const match = window.location.pathname.match(route.regex);
     if (!match) {
         return null;
@@ -45,4 +49,4 @@ function getParams() {
 }
 
 export { isParamRoute, equipParamRoutes };
-export { setParams, getParams };
+export { clearParams, setParams, getParams };

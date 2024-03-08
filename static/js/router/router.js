@@ -1,7 +1,7 @@
 import * as account from "/js/account/account.js";
 import * as nav from "/js/nav.js";
 import * as pong from "/js/pong/pong.js";
-import { equipParamRoutes, setParams } from "/js/router/params.js";
+import { equipParamRoutes, clearParams, setParams } from "/js/router/params.js";
 import { displayCurrUser } from "/js/user/currUser.js";
 
 const routes = equipParamRoutes({
@@ -48,7 +48,7 @@ const routes = equipParamRoutes({
         template: "/templates/account.html",
         onLoad: account.displayStatsPage,
     },
-    "/account/stats/<username>/": {
+    "/account/stats/<userId>/": {
         template: "/templates/account.html",
         onLoad: account.displayStatsPage,
     },
@@ -80,6 +80,7 @@ function getCurrentRoute() {
     if (location.length == 0) {
         location = "/";
     }
+    clearParams();
     if (location in routes) {
         return routes[location];
     }
