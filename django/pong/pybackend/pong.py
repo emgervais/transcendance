@@ -15,6 +15,7 @@ class Ball:
 		self.y = 0.0
 		self.vx = 0.0
 		self.vy = 0.0
+		self.lasthit = 0
 
 ball = Ball()
 
@@ -50,7 +51,8 @@ def receive(bytestr: bytes, player):
 				player.y = int.from_bytes(bytestr[offset:(offset + 4)], endieness)
 				filthmap[player.pongid - 1] = 1
 			offset += 4
-		elif(type == 2):
+		elif(type == 2): # player score
+			print("player score: " + str(player.pongid))
 			if(player != 0):
 				player.score += 1
 				filthmap[player.pongid + 1] = 1
@@ -60,7 +62,8 @@ def receive(bytestr: bytes, player):
 				ball.vy = int.from_bytes(bytestr[(offset + 12):(offset + 16)], endieness) / ballprecision
 				filthmap[4] = 1
 			offset += 16
-		elif(type == 3):
+		elif(type == 3): # ball hit
+			ball.lasthit = player.pongid
 			ball.x = int.from_bytes(bytestr[offset:(offset + 4)], endieness) / ballprecision
 			ball.y = int.from_bytes(bytestr[(offset + 4):(offset + 8)], endieness) / ballprecision
 			ball.vx = int.from_bytes(bytestr[(offset + 8):(offset + 12)], endieness) / ballprecision
@@ -105,6 +108,16 @@ def get_event(event, player):
 	return 0
 
 def end_game():
+	global filthmap
+	global pbplayers
+	global player1
+	global player2
+	global ball
+	ball.x = 0
+	ball.y = 0
+	ball.vx = 0
+	ball.vy = 0
+	filthmap[4] = 1
 	return
 
 def update() -> bytes:
@@ -129,6 +142,6 @@ def update() -> bytes:
 		bytestr += b'\x03' + player2.score.to_bytes(4, endieness)
 		filthmap[3] = 0
 	if(filthmap[4] == 1):
-		bytestr += b'\x05' + int(ball.x * ballprecision).to_bytes(4, endieness) + int(ball.y * ballprecision).to_bytes(4, endieness) + int(ball.vx * ballprecision).to_bytes(4, endieness) + int(ball.vy * ballprecision).to_bytes(4, endieness)
+		bytestr += b'\x05' + ball.lasthit.to_bytes(1, endieness) + int(ball.x * ballprecision).to_bytes(4, endieness) + int(ball.y * ballprecision).to_bytes(4, endieness) + int(ball.vx * ballprecision).to_bytes(4, endieness) + int(ball.vy * ballprecision).to_bytes(4, endieness)
 		filthmap[4] = 0
 	return bytestr

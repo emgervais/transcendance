@@ -78,9 +78,17 @@ void main()
 
 const screenVertShader = `\
 #version 300 es
-precision lowp float;
+precision mediump float;
 layout(location = 0) in vec3 position;
 out vec2 fraguv;
+layout(std140) uniform mvp
+{
+	mat4 modelT;
+	mat4 modelR;
+	mat4 modelS;
+	mat4 view;
+	mat4 projection;
+};
 vec2 uv[6] = vec2[6](
 	vec2(0.0, 0.0),
 	vec2(0.0, 1.0),
@@ -91,13 +99,13 @@ vec2 uv[6] = vec2[6](
 );
 void main()
 {
-	gl_Position = vec4(position, 1.0);
+	gl_Position = projection * view * modelT * modelR * modelS * vec4(position, 1.0);
 	fraguv = uv[gl_VertexID];
 }
 `;
 const screenFragShader = `\
 #version 300 es
-precision lowp float;
+precision mediump float;
 in vec2 fraguv;
 out vec4 color;
 uniform float glitch;
@@ -108,7 +116,7 @@ uniform vec2 screensize;
 vec2 scanline(vec2 uv)
 {
 	vec2 intensity = vec2(sin(uv.x * screensize.x * PI * 2.0 - 1.5), sin(uv.y * screensize.y * PI * 2.0 - 1.5));
-	vec2 s = vec2(pow(((0.5 * intensity.x) + 0.5) * 0.9 + 0.1, 0.1), pow(((0.5 * intensity.y) + 0.5) * 0.9 + 0.1, 0.4));
+	vec2 s = vec2(1.0, pow(((0.5 * intensity.y) + 0.5) * 0.9 + 0.1, 0.5));
 	return s;
 }
 void main()
@@ -130,12 +138,50 @@ void main()
 }
 `;
 
+const modelVertShader = `\
+#version 300 es
+precision mediump float;
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec2 uv;
+layout(location = 2) in vec3 normal;
+layout(std140) uniform mvp
+{
+	mat4 modelT;
+	mat4 modelR;
+	mat4 modelS;
+	mat4 view;
+	mat4 projection;
+};
+out vec2 fraguv;
+out float shade;
+vec3 lightdir = normalize(vec3(0.0, 1.0, 0.0));
+void main()
+{
+	gl_Position = projection * view * modelT * modelR * modelS * vec4(position, 1.0);
+	fraguv = uv;
+	shade = max(dot(normal, lightdir), 0.0) * 0.5 + 0.5;
+}
+`;
+const modelFragShader = `\
+#version 300 es
+precision mediump float;
+in vec2 fraguv;
+in float shade;
+out vec4 color;
+uniform sampler2D tex;
+vec3 lightdir = normalize(vec3(0.0, 1.0, 0.0));
+void main()
+{
+	color = vec4(texture(tex, fraguv).xyz * shade, 1.0);
+}
+`;
+
 const ambientSound = new Audio('/audio/ambient.ogg');
 ambientSound.loop = true;
 ambientSound.volume = 0.5;
 const hurtSound = new Audio('/audio/hurt.ogg');
 hurtSound.volume = 0.2;
 const bounceSound = new Audio('/audio/beep.ogg');
-bounceSound.volume = 0.4;
+bounceSound.volume = 0.62;
 
-export { pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, hurtSound, bounceSound}
+export {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, hurtSound, bounceSound}

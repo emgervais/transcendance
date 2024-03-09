@@ -1,5 +1,8 @@
-import {initGL, createProgram, createStaticBuffer, createVAO, createUBO, createFramebuffer, createTexture, gl} from "/js/pong/webgl.js";
-import {pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, bounceSound, hurtSound} from "/js/pong/res.js";
+import {newModel, createProgram, newProjectionMatrix, newViewMatrix, newTranslationMatrix, newRotationMatrix, newScaleMatrix, createStaticBuffer, createVAO, unbindVAO, createUBO, createTexture, createFramebuffer, initGL, gl} from "/js/pong/webgl.js";
+import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, bounceSound, hurtSound} from "/js/pong/res.js";
+
+var ws;
+var canvas;
 
 var pongUBO;
 var textUBO;
@@ -7,36 +10,38 @@ var pongVAO;
 var stagelineVAO;
 var screenVAO;
 
+var digitsTexture;
 var vignetteTexture;
 
-var digitsTexture;
+var mainUBO;
 
-var canvas;
+var tvmodel;
+var legmodel;
+var sandalmodel;
 
-var ws;
-
-var wsmovementbuffer = new ArrayBuffer(5);
-var wsmovementdv = new DataView(wsmovementbuffer);
+const wsmovementbuffer = new ArrayBuffer(5);
+const wsmovementdv = new DataView(wsmovementbuffer);
 wsmovementdv.setUint8(0, 1);
 
-var wsscorebuffer = new ArrayBuffer(17);
-var wsscoredv = new DataView(wsscorebuffer);
+const wsscorebuffer = new ArrayBuffer(17);
+const wsscoredv = new DataView(wsscorebuffer);
 wsscoredv.setUint8(0, 2);
 
-var wsballbuffer = new ArrayBuffer(17);
-var wsballdv = new DataView(wsballbuffer);
+const wsballbuffer = new ArrayBuffer(17);
+const wsballdv = new DataView(wsballbuffer);
 wsballdv.setUint8(0, 3);
 
-var ballprecision = 1000.0;
+const ballprecision = 1000.0;
 
 const paddle = {
 	width: 2,
-	height: 10
+	height: 8
 }
 
 var program;
 var textprogram
 var screenprogram;
+var modelprogram;
 
 var playerid = 0;
 
@@ -46,10 +51,34 @@ const pongrenderwidth = 80;
 const pongrenderheight = 55;
 
 var fb;
-var fbtexture;
-var fbdepthbuffer;
 
-var inputs = [0, 0];
+const camera = {
+	pitch: 0,
+	yaw: -Math.PI/2,
+	x: 0,
+	y: 0,
+	z: 5,
+	_viewmatrix: 0,
+	_projectionmatrix: 0,
+	uploadV: function() {mainUBO.update(this._viewmatrix._matrix, 192);},
+	uploadP: function() {mainUBO.update(this._projectionmatrix._matrix, 256);},
+	move: function(x, y, z, pitch, yaw) {this._viewmatrix.update(x, y, z, pitch, yaw);},
+	proj: function(fov, aspect, near, far) {this._projectionmatrix.update(fov, aspect, near, far);}
+}
+
+const screenobject = {
+	_uboT: 0,
+	_uboR: 0,
+	_uboS: 0,
+	move: function(x, y, z) {this._uboT.update(x, y, z);},
+	rotate: function(pitch, yaw, roll) {this._uboR.update(pitch, yaw, roll);},
+	scale: function(x, y, z) {this._uboS.update(x, y, z);},
+	uploadT: function() {mainUBO.update(this._uboT._matrix);},
+	uploadR: function() {mainUBO.update(this._uboR._matrix, 64);},
+	uploadS: function() {mainUBO.update(this._uboS._matrix, 128);}
+}
+
+const inputs = [0, 0, 0, 0, 0, 0, 0, 0];
 var scoredata1 = new Uint32Array([
 	0, 0, // position
 	0, // char count in string
@@ -206,8 +235,8 @@ function setup()
 		console.error(gl.getProgramInfoLog(screenprogram));
 		return false;
 	}
- 
-	gl.clearColor(0.6, 0.1, 0.14, 1.0);
+
+	gl.clearColor(0.1, 0.1, 0.14, 1.0);
 	
 	pongVAO = createVAO();
 	pongVAO.addBuffer(createStaticBuffer(new Float32Array([
@@ -221,12 +250,12 @@ function setup()
 	
 	screenVAO = createVAO();
 	screenVAO.addBuffer(createStaticBuffer(new Float32Array([
-		-1.0, -1.0, 0.0,
-		-1.0, 1.0, 0.0,
-		1.0, -1.0, 0.0,
-		1.0, -1.0, 0.0,
-		-1.0, 1.0, 0.0,
-		1.0, 1.0, 0.0
+		-1.0, -1.0, -1.0,
+		-1.0, 1.0, -1.0,
+		1.0, -1.0, -1.0,
+		1.0, -1.0, -1.0,
+		-1.0, 1.0, -1.0,
+		1.0, 1.0, -1.0
 	])), 0, 3, gl.FLOAT, false, 0, 0);
 	
 	stagelineVAO = createVAO();
@@ -251,7 +280,50 @@ function setup()
 	gl.uniform1i(texUniform, 0);
 	gl.uniform1i(vignetteUniform, 1);
 
-	vignetteTexture = createTexture('/static/app/img/vignette.png', gl.R8, gl.RED, 1);
+	mainUBO = createUBO('mvp', screenprogram, 2);
+	mainUBO.bindToProgram(screenprogram);
+
+	screenobject._uboT = newTranslationMatrix(0, 0, 8);
+	screenobject._uboR = newRotationMatrix(0, 0, 0);
+	screenobject._uboS = newScaleMatrix(1.3, 1, 1);
+	screenobject.move(0, 0, 1.25);
+	screenobject.uploadT();
+	screenobject.uploadR();
+	screenobject.uploadS();
+
+	modelprogram = createProgram(modelVertShader, modelFragShader);
+	if(!gl.getProgramParameter(modelprogram, gl.LINK_STATUS))
+	{
+		console.error(gl.getProgramInfoLog(modelprogram));
+		return false;
+	}
+	gl.useProgram(modelprogram);
+	mainUBO.bindToProgram(modelprogram);
+	const texuni = gl.getUniformLocation(modelprogram, 'tex');
+	if(!texuni)
+	{
+		console.error('Could not get uniform location for tex');
+		return false;
+	}
+	gl.uniform1i(texuni, 0);
+
+	tvmodel = newModel('/obj/tv.obj', '/img/tv.png');
+	legmodel = newModel('/obj/leg.obj', '/img/leg.png');
+	sandalmodel = newModel('/obj/sandal.obj', '/img/sandal.png');
+
+	tvmodel.move(0, 0, 0.0);
+	legmodel.move(0, 0, 0.0);
+	sandalmodel.move(0, 0, 0.0);
+	tvmodel.scale(2.0, 2.0, 2.0);
+	legmodel.scale(2.0, 2.0, 2.0);
+	sandalmodel.scale(2.0, 2.0, 2.0);
+
+	camera._viewmatrix = newViewMatrix(0, 0, 5, 0, Math.PI*2);
+	camera._projectionmatrix = newProjectionMatrix(Math.PI / 2, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
+	camera.uploadV();
+	camera.uploadP();
+
+	vignetteTexture = createTexture('/img/vignette.png', gl.R8, gl.RED, 1);
 
 	// gl.useProgram(program);
 	// stagelinebuffer = createStaticBuffer(stagelines);
@@ -259,24 +331,40 @@ function setup()
 	window.onkeydown = function(e)
 	{
 		if(e.key == 'w')
-		{
 			inputs[0] = 1;
-		}
 		else if(e.key == 's')
-		{
 			inputs[1] = 1;
-		}
+		else if(e.key == 'a')
+			inputs[2] = 1;
+		else if(e.key == 'd')
+			inputs[3] = 1;
+		else if(e.key == 'ArrowUp')
+			inputs[4] = 1;
+		else if(e.key == 'ArrowDown')
+			inputs[5] = 1;
+		else if(e.key == 'ArrowLeft')
+			inputs[6] = 1;
+		else if(e.key == 'ArrowRight')
+			inputs[7] = 1;
 	}
 	window.onkeyup = function(e)
 	{
 		if(e.key == 'w')
-		{
 			inputs[0] = 0;
-		}
 		else if(e.key == 's')
-		{
 			inputs[1] = 0;
-		}
+		else if(e.key == 'a')
+			inputs[2] = 0;
+		else if(e.key == 'd')
+			inputs[3] = 0;
+		else if(e.key == 'ArrowUp')
+			inputs[4] = 0;
+		else if(e.key == 'ArrowDown')
+			inputs[5] = 0;
+		else if(e.key == 'ArrowLeft')
+			inputs[6] = 0;
+		else if(e.key == 'ArrowRight')
+			inputs[7] = 0;
 	}
 
 	ball.setx(pongrenderwidth/2.0 - ball.width/2.0);
@@ -297,6 +385,13 @@ function setup()
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
+	ws = new WebSocket("wss://" + window.location.host + "/ws/pong/");
+	if(!ws)
+	{
+		console.error('Failed to connect to websocket');
+		return false;
+	}
+	ws.binaryType = "arraybuffer";
 	ws.onopen = function (event) {
 		console.log("Websocket connection opened.");
 	}
@@ -349,25 +444,32 @@ function setup()
 				}
 				break;
 			case 5: // ball hit
-				ball.setx(dv.getUint32(offset, true) / ballprecision);
-				ball.sety(dv.getUint32(offset + 4, true) / ballprecision);
-				ball.xspeed = dv.getInt32(offset + 8, true) / ballprecision;
-				ball.yspeed = dv.getInt32(offset + 12, true) / ballprecision;
-				offset += 16;
-				if(!redtimer && (ball.xspeed > 0 && playerid == 2 || ball.xspeed < 0 && playerid == 1))
+				const pl = dv.getUint8(offset);
+				ball.setx(dv.getUint32(offset + 1, true) / ballprecision);
+				ball.sety(dv.getUint32(offset + 5, true) / ballprecision);
+				ball.xspeed = dv.getInt32(offset + 9, true) / ballprecision;
+				ball.yspeed = dv.getInt32(offset + 13, true) / ballprecision;
+				offset += 17;
+				if(pl != playerid)
 				{
 					bounceSound.currentTime = 0;
 					bounceSound.play();
 				}
 				break;
-			case 8: // gamestart
+			case 8: // gamestate
 				if(dv.getUint8(offset) == 1) {
 					playerid = 1;
 					player = player1;
+					console.log("You are player 1.");
 				}
 				else if(dv.getUint8(offset) == 2){
 					playerid = 2;
 					player = player2;
+					console.log("You are player 2.");
+				}
+				else if(dv.getUint8(offset) == 3) {
+					state = 1;
+					console.log("Game started.");
 				}
 				else {
 					playerid = 0;
@@ -376,8 +478,6 @@ function setup()
 					break;
 				}
 				offset += 1;
-				state = 1;
-				console.log("Game started.");
 				break;
 			default:
 				offset = dv.byteLength; // stop processing
@@ -404,11 +504,11 @@ function senddata(sendbytes)
 	}
 }
 
-var stopgame = 0;
 var lastTime = 0;
 var redtimer = 0;
 var ratio = 0.0;
 var sendtimer = 0.0;
+var stopgame = 0;
 function draw()
 {
 	if(stopgame)
@@ -425,6 +525,7 @@ function draw()
 			if(player.gety() < stage.top)
 				player.sety(stage.top);
 			sendbytes[0] = 1;
+			camera.pitch += 0.001 * dt;
 		}
 		if(inputs[1] == 1)
 		{
@@ -432,6 +533,33 @@ function draw()
 			if(player.gety() > stage.bottom-paddle.height)
 				player.sety(stage.bottom-paddle.height);
 			sendbytes[0] = 1;
+			camera.pitch -= 0.001 * dt;
+		}
+		if(inputs[2] == 1)
+		{
+			camera.yaw -= 0.001 * dt;
+			// camera.x -= 0.001 * dt;
+		}
+		if(inputs[3] == 1)
+		{
+			camera.yaw += 0.001 * dt;
+			// camera.x += 0.001 * dt;
+		}
+		if(inputs[4] == 1)
+		{
+			camera.z -= 0.001 * dt;
+		}
+		if(inputs[5] == 1)
+		{
+			camera.z += 0.001 * dt;
+		}
+		if(inputs[6] == 1)
+		{
+			camera.x -= 0.001 * dt;
+		}
+		if(inputs[7] == 1)
+		{
+			camera.x += 0.001 * dt;
 		}
 
 		ball.setx(ball.getx() + ball.xspeed * dt);
@@ -443,7 +571,7 @@ function draw()
 			{ // ball bounce
 				ball.setx((playerid == 1) ? stage.left + paddle.width : stage.right-ball.width-paddle.width);
 				ball.xspeed *= -1.05;
-				ball.yspeed = (ball.gety()+ball.height/2 - (player.gety() + paddle.height/2))/8 * Math.abs(ball.xspeed);
+				ball.yspeed = (ball.gety()+ball.height/2 - (player.gety() + paddle.height/2))*0.5 * Math.abs(ball.xspeed);
 				bounceSound.currentTime = 0;
 				bounceSound.play();
 				wsballdv.setUint32(1, ball.getx() * ballprecision, true);
@@ -510,6 +638,8 @@ function draw()
 			sendtimer = 0;
 		}
 	}
+	camera.move(camera.x, camera.y, camera.z, camera.pitch, camera.yaw);
+	camera.uploadV();
 
 	if(redtimer > 0)
 	{
@@ -527,19 +657,22 @@ function draw()
 	}
 
 	// draw the paddles
+	unbindVAO();
+	gl.activeTexture(gl.TEXTURE0);
 	fb.bind();
-	// fb.bindTexture();
+	fb.bindTexture();
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.viewport(0, 0, pongrenderwidth, pongrenderheight);
 
 	// draw the scores
+	digitsTexture.bind();
 	pongVAO.bind();
 	gl.useProgram(textprogram);
 	textUBO.update(score.ubo1._ubodata);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 	textUBO.update(score.ubo2._ubodata);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
-
+	// draw the pong game
 	gl.useProgram(program);
 	pongUBO.update(player1._ubodata);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -550,13 +683,27 @@ function draw()
 	stagelineVAO.bind();
 	pongUBO.update(stage._ubodata);
 	gl.drawArrays(gl.LINES, 0, 8);
-
+	// draw the pong screen
+	mainUBO.bind();
 	gl.useProgram(screenprogram);
+	screenobject.uploadT();
+	screenobject.uploadR();
+	screenobject.uploadS();
+	mainUBO.update(camera._viewmatrix._matrix, 192);
+	mainUBO.update(camera._projectionmatrix._matrix, 256);
 	gl.uniform1f(glitchUniform, ratio * ratio * 0.2);
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.viewport(0, 0, canvas.width, canvas.height);
+	// camera.move(0, 0, -2, camera.pitch, camera.yaw);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	screenVAO.bind();
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
+	// draw the models
+	gl.useProgram(modelprogram);
+	gl.enable(gl.DEPTH_TEST);
+	tvmodel.draw(mainUBO);
+	legmodel.draw(mainUBO);
+	sandalmodel.draw(mainUBO);
 
 	requestAnimationFrame(draw);
 }
@@ -564,8 +711,6 @@ function draw()
 function start()
 {
 	stopgame = 0;
-	ws = new WebSocket("wss://" + window.location.host + "/ws/pong/");
-	ws.binaryType = "arraybuffer";
 	canvas = document.getElementById('webgl-canvas');
 	if(!setup())
 	{
