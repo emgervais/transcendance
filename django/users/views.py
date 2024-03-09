@@ -1,6 +1,6 @@
 from django.http import JsonResponse, HttpRequest
 from users.models import User
-from users.serializers import UserSerializer, RestrictedUserSerializer, ChangeInfoSerializer
+from users.serializers import UserSerializer, RestrictedUserSerializer, ChangeInfoSerializer, StatsSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -64,20 +64,33 @@ class ObtainInfoView(APIView):
 SEARCH_FILTERS = [
     'is-friend',
     'is-blocked',
+    'got-blocked',
     'friend-request-sent',
     'friend-request-received',
 ]
+
 class SearchView(APIView):
     serializer_class = RestrictedUserSerializer
 
     def get(self, request: HttpRequest, query: str) -> JsonResponse:
-        search_filters = []
+        search_filters = {}
         for key, value in request.query_params.items():
             if key in SEARCH_FILTERS and value == 'false':
-                search_filters.append(key)
-                print(key)
+                search_filters[key] = False
+            elif key in SEARCH_FILTERS and value == 'true':
+                search_filters[key] = True
         try:
             users = User.objects.search(query, search_filters, request.user.id)
             return JsonResponse(self.serializer_class(users, many=True).data, status=status.HTTP_200_OK, safe=False)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class StatsView(APIView):
+    serializer_class = StatsSerializer
+    def get(self, request: HttpRequest, pk: int) -> JsonResponse:
+        try:
+            user = User.objects.get(pk=pk)
+            return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        

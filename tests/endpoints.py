@@ -1,6 +1,5 @@
-import requests
+from urllib.parse import urlencode
 import util
-
 
 def endpoint(func):
     def wrapper(*args, **kwargs):
@@ -155,6 +154,19 @@ def user(cookies, user_id=None):
 @endpoint
 def users(cookies):
     url = "/api/users/"
+    method = "get"
+    response = util.request(url, method, cookies)
+    return response
+
+@endpoint
+def search(cookies, query, **kwargs):
+    keys = ["is_friend", "friend_request_sent", "friend_request_received", "is_blocked", "got_blocked"]
+    params = {
+        key.replace("_", "-"): ("true" if kwargs[key] else "false")
+        for key in keys
+        if key in kwargs
+    }
+    url = f"/api/search/{query}/?{urlencode(params)}"
     method = "get"
     response = util.request(url, method, cookies)
     return response

@@ -1,5 +1,5 @@
 from django.urls import path
-from users.views import UsersView, UserView, UserPkView, UserUsernameView, ChangeInfoView, SearchView
+from users.views import UsersView, UserView, UserPkView, UserUsernameView, ChangeInfoView, SearchView, StatsView
 
 urlpatterns = [
     path('users/', UsersView.as_view(), name='users'), #list of all users | Method: GET
@@ -8,4 +8,5 @@ urlpatterns = [
     path('user/', UserView.as_view(), name='user'), #get user info | Method: GET
     path('change-info/', ChangeInfoView.as_view(), name='change_info'), #change user info (username, email, image, password) | Method: PUT
     path('search/<str:query>/', SearchView.as_view(), name='search'), #search for users by username | Method: GET
+    path('stats/<int:pk>/', StatsView.as_view(), name='search'), #search for users by username | Method: GET
 ]

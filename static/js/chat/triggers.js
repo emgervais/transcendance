@@ -15,7 +15,12 @@ const gameTab = document.getElementById('tab-game');
 const friendsList = document.getElementById('friendlist-tab');
 var friendsListShown = false;
 
+var currMenu = 0;
 const menu = document.getElementById('chat-menu');
+const logs = document.querySelector('.chat-logs');
+logs.addEventListener('scroll', function() {
+	menuOff();
+  });
 const chatbody = document.querySelector('.chat-box-body');
 
 
@@ -107,35 +112,44 @@ function activateMenu(target) {
 	// if (userId == getCurrUser().id) {
 	// 	return;
 	// }
+	if(currMenu == target) {
+		menu.classList.toggle('active');
+		currMenu = 0;
+		return;
+	}
 	updateMenu(userId);
 	const imageRect = target.getBoundingClientRect();
-	
 	menu.style.left = imageRect.left - 50 + 'px';
 	menu.style.top = imageRect.top - 50 + 'px';
-	menu.classList.toggle('active');
-	// util.display(menu, true);
+	if(!currMenu)
+		menu.classList.toggle('active');
+	currMenu = target;
 };
 
-function disableMenu() {
-	//util.display(menu, false);
+function menuOff() {
+	menu.classList.remove('active');
+	currMenu = 0;
 }
-
+function disableMenu() {
+	// console.log('in');
+	// menu.classList.remove('active');
+	// util.display(menu, false);
+}
+//<button class="make-friend-request-button" data-user-id="3">Send request</button>
 function updateMenu(id) {
 	var menuOptions = {
-		'stats' : '<i class=\"fa-solid fa-chart-simple\"></i>',
-		'block' : '<i class=\"fa-solid fa-ban\"></i>',
-		'invite' : '<i class=\"fa-solid fa-gamepad\"></i>'
+		'stats' : `<a href="/account/stats/${id}/"> <i class="fa-solid fa-chart-simple"></i></a>`,
+		'block' : `<button class="block-user-button" data-block="true" data-user-id="${id}"> <i class="fa-solid fa-ban"></i></button>`,
+		'invite' : `<button> <i class="fa-solid fa-gamepad"></i></button>`,
+		'add': `<button class="make-friend-request-button" data-user-id="${id}"><i class="fa-solid fa-plus"></i></button>`,
 	};
 	let i = 0;
 	menu.innerHTML = '';
 	for(var option in menuOptions) {
 		var li = document.createElement('li');
 		li.style = '--i:' + i++ + ';'
-		var a = document.createElement('a');
-		a.href = '#';
-		a.setAttribute('id', id);
-		a.innerHTML = menuOptions[option];
-		li.appendChild(a);
+		li.title = option;
+		li.innerHTML = menuOptions[option];
 		menu.appendChild(li);
 	};
 }
@@ -143,4 +157,4 @@ function updateMenu(id) {
 export { chatIcon, globalTab, friendsTab, gameTab };
 export { toggleChatBox, closeChatBox, chatBoxOpened }
 export { activateGlobalTab, toggleFriendsList, activateFriendsTab, closeFriendChat, activateGameTab };
-export { activateMenu, disableMenu };
+export { activateMenu, disableMenu, menuOff };

@@ -1,7 +1,7 @@
 import * as util from "/js/util.js";
-import * as api from "/js/api.js";
 import * as friends from "/js/account/friends.js";
-import { getCurrUser, updateCurrUser } from "/js/user/currUser.js";
+import * as stats from "/js/account/stats.js";
+import { getCurrUser } from "/js/user/currUser.js";
 
 // -- display ----
 function displayFriendsPage() {
@@ -29,6 +29,7 @@ function hideInfoPage() {
 }
 
 function displayStatsPage() {
+    stats.load();
     const statsPage = document.getElementById("account-stats");
     util.display(statsPage);
 }
@@ -44,15 +45,4 @@ function hideAll() {
     hideStatsPage();
 }
 
-// ----
-
-function updateInfoButton() {
-    api.formSubmit({
-        formId: "update-info-form",
-        callback: updateCurrUser,
-        method: "put"
-    });
-}
-
 export { displayFriendsPage, displayInfoPage, displayStatsPage, hideAll };
-export { updateInfoButton };

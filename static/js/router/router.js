@@ -1,11 +1,10 @@
 import * as account from "/js/account/account.js";
 import * as nav from "/js/nav.js";
 import * as pong from "/js/pong/pong.js";
-import { handleParams, setParams } from "/js/router/params.js";
-import { getParams } from "/js/router/params.js";
+import { equipParamRoutes, clearParams, setParams } from "/js/router/params.js";
 import { displayCurrUser } from "/js/user/currUser.js";
 
-const routes = handleParams({
+const routes = equipParamRoutes({
     404: {
         template: "/templates/404.html",
         title: "404",
@@ -51,9 +50,9 @@ const routes = handleParams({
     },
     "/account/stats/<userId>/": {
         template: "/templates/account.html",
+        onLoad: account.displayStatsPage,
     },
 });
-console.log("routes:", routes);
 
 const route = (href) => {
     window.history.pushState({}, "", href);
@@ -81,8 +80,19 @@ function getCurrentRoute() {
     if (location.length == 0) {
         location = "/";
     }
-    const route = routes[location] || routes["404"];
-    return route;
+    clearParams();
+    if (location in routes) {
+        return routes[location];
+    }
+    for (let route in routes) {
+        if (!routes[route].regex)
+            continue;
+        if (location.match(route.regex)) {
+            setParams(routes[route]);
+            return routes[route];
+        }
+    }
+    return routes["404"];
 }
 
 const locationHandler = async () => {
@@ -90,12 +100,6 @@ const locationHandler = async () => {
         prevRoute.onQuit();
     }
     const route = getCurrentRoute();
-    //////////
-    if (route.regex) {
-        setParams(route);
-    }
-    console.log("params:", getParams());
-    //////////
     prevRoute = route;
     if (route.template) {
         const html = await fetchHTMLWithCache(route.template);

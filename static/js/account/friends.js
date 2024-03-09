@@ -1,7 +1,16 @@
 import * as api from "/js/api.js";
-import { displayUser } from "/js/user/user.js";
-import { getCurrUser } from "/js/user/currUser.js";
+import * as nav from "/js/nav.js";
 import * as router from "/js/router/router.js";
+import * as util from "/js/util.js";
+import { displayUser, getUser } from "/js/user/user.js";
+
+const QUERY_PARAMS = {
+    "is-friend": "false",
+    "friend-request-sent": "false",
+    "friend-request-received": "false",
+    "is-blocked": "false",
+    "got-blocked": "false",
+}
 
 function refresh() {
     if (router.getCurrentRoute().name == "friends") {
@@ -34,12 +43,13 @@ function searchUser() {
         });
     };
 
-    const makeParams = ()  => {
+    const makeParams = () => {
         const params = new URLSearchParams();
-        params.append('is-friend', 'false');
-        params.append('friend-request-sent', 'false');
+        for (const [key, value] of Object.entries(QUERY_PARAMS)) {
+            params.append(key, value);
+        }
         return "?" + params.toString();
-    };
+    }
     api.formSubmit({
         formId: formId,
         route: "/api/search/" + query + "/" + makeParams(),
@@ -80,15 +90,6 @@ function getFriends() {
     });
 }
 
-async function getFriendIds() {
-    let friendIds = [];
-    await api.fetchRoute({
-        route: "/api/friends/",
-        dataManager: data => { friendIds = data.map(friend => friend.friend) },
-    });
-    return friendIds;
-}
-
 function getBlockedUsers() {
     const blockedUsersManager = (users) => {
         const container = document.getElementById("blocked-users-container");
@@ -110,6 +111,7 @@ function getBlockedUsers() {
 
 // -- display ----
 async function displayFriendRequest(container, request) {
+    console.log("request.id:", request.id);
     const div = await displayUser({
         container: container,
         userId: request.from_user
@@ -160,4 +162,22 @@ function makeRequest(target) {
 
 }
 
+// -- notifications ----
+async function receiveFriendRequest(data) {
+    util.showAlert({
+        text: `${(await getUser(data.userId)).username} sent you a friend request.`,
+        timeout: 2,
+    });				
+    nav.incrFriendRequestCount();
+    if (router.getCurrentRoute().name == "friends") {
+        const container = document.getElementById("friends-requests-container");
+        console.log("data:", data);
+        displayFriendRequest(container, {
+            from_user: data.userId,
+            id: data.id
+        });
+    }
+}
+
 export { refresh, searchUser, answerRequest, makeRequest };
+export { receiveFriendRequest };

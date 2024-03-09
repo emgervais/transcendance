@@ -6,20 +6,24 @@ from django.contrib.postgres.fields import ArrayField
 
 K = 32
 
+SEARCH_FILTERS = {
+    'is-friend': 'friends__friend',
+    'is-blocked': 'blocked_by__blocker',
+    'got-blocked': 'blocked__blocked',
+    'friend-request-sent': 'received_requests__from_user',
+    'friend-request-received': 'sent_requests__to_user',
+}
+
 class UserManager(UserManager):
     def search(self, query, filters, user_id):
         users = self.filter(username__icontains=query).exclude(id=user_id)
-        print(users)
-        for filter in filters:
-            if filter == 'is-friend':
-                users = users.exclude(friends__friend=user_id)
-            elif filter == 'is-blocked':
-                users = users.exclude(blocked__blocker=user_id)
-            elif filter == 'friend-request-sent':
-                users = users.exclude(sent_requests__to_user=user_id)
-            elif filter == 'friend-request-received':
-                users = users.exclude(received_requests__from_user=user_id)
+        for filter_name, filter_value in filters.items():
+            if filter_value:
+                users = users.filter(**{SEARCH_FILTERS[filter_name]: user_id})
+            else:
+                users = users.exclude(**{SEARCH_FILTERS[filter_name]: user_id})
         return users
+                
 
 class User(AbstractUser):
     oauth = models.BooleanField(default=False)
@@ -27,6 +31,7 @@ class User(AbstractUser):
     elo = models.IntegerField(default=1000)
     status = models.CharField(max_length=10, default='offline')
     objects = UserManager()
+    swear_count = models.IntegerField(default=0)
     
     def calculate_elo(self, opponent_elo, score):
         expected = 1 / (1 + 10 ** ((opponent_elo - self.elo) / 400))

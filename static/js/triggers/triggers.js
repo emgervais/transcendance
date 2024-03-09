@@ -2,6 +2,7 @@ import * as api from "/js/api.js";
 import { updateCurrUser } from "/js/user/currUser.js";
 import { key } from "/js/triggers/keys.js";
 import { click } from "/js/triggers/clicks.js";
+import { menuOff } from "/js/chat/triggers.js"
 
 function onChange(event) {
     switch (event.target.id) {
