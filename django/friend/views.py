@@ -6,6 +6,7 @@ from friend.models import Friend, FriendRequest, Block
 from friend.serializers import FriendRequestSerializer, FriendSerializer, BlockSerializer
 from users.models import User
 from notification.consumers import friend_request_notify, accept_friend_request_notify
+from chat.consumers import close_blocked_user_chat
 
 class FriendRequestListView(APIView):
     serializer_class = FriendRequestSerializer
@@ -82,6 +83,7 @@ class BlockView(APIView):
         try:
             blocked = User.objects.get(pk=request.data['user_id'])
             Block.objects.block(request.user, blocked)
+            close_blocked_user_chat(request.user, blocked)
             return JsonResponse({'message': 'User blocked successfully'}, status=status.HTTP_201_CREATED)
         except serializers.ValidationError as e:
             return JsonResponse(e.detail, status=status.HTTP_400_BAD_REQUEST)

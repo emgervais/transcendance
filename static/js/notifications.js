@@ -65,7 +65,7 @@ function startMatch(roomId, cancel=false) {
 	console.log("startMatch");
 	ws.send(JSON.stringify({
 		type: "matchmaking",
-		room: roomId,
+		room: 'global',
 		cancel: cancel,
 	}));
 }

@@ -52,21 +52,3 @@ Choix des librairies:
 .Existe-t-il une librairie pour ce qu'on fait?
 .Est-ce que coder à la main est vraiment meilleur?
 .Une librairie est-elle vraiment utile?
-
-
-async def notify_target(room_name, user_id):
-    target_ids = room_name.split('_')
-    target_id = target_ids[0] if target_ids[0] != str(user_id) else target_ids[1]
-    target = await get_user(target_id)
-    if target is not None:
-        if not await in_group(target, room_name):
-            main_channel = await get_main_channel(target)
-            if main_channel is not None:
-                channel_layer = get_channel_layer()
-                await channel_layer.send(main_channel, {
-                    'type': 'notification',
-                    'message': 'matchmaking',
-                    'room_name': room_name
-                })
-        return True
-    return False

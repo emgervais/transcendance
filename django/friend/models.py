@@ -76,6 +76,9 @@ class BlockManager(models.Manager):
     
     def blocked_by(self, user):
         return user.blocked_by.all()
+    
+    def blocked_ids(self, user):
+        return user.blocked.values_list('id', flat=True)
        
     def block(self, blocker, blocked):
         if blocker == blocked:
