@@ -1,8 +1,9 @@
 import * as chat from "/js/chat/chat.js";
 
 function loadMessages() {
-    clearLogs();
-	var messages = JSON.parse(sessionStorage.getItem("messages"));
+	clearLogs();
+	var messages = JSON.parse(localStorage.getItem("messages"));
+	console.log("loadMessages", messages);
 
 	if(!messages)
 		return;
@@ -33,7 +34,8 @@ async function generateMessage(msg, type, img, userId) {
 }
 
 async function saveMessage(roomId, msg, type, img, userId) {
-	let messages = JSON.parse(sessionStorage.getItem("messages")) || [];
+	console.log("saveMessage:", roomId, msg);
+	let messages = JSON.parse(localStorage.getItem("messages")) || [];
 	const newMessage = {
 		roomId: roomId,
 		message: msg,
@@ -42,15 +44,15 @@ async function saveMessage(roomId, msg, type, img, userId) {
 		userId: userId,
 	};
 	messages.push(newMessage);
-	sessionStorage.setItem("messages", JSON.stringify(messages));
+	localStorage.setItem("messages", JSON.stringify(messages));
 }
 
 async function deleteMessages(roomId) {
-	var messages = JSON.parse(sessionStorage.getItem('messages')) || [];
+	var messages = JSON.parse(localStorage.getItem('messages')) || [];
 	var filteredMessages = messages.filter(function(message) {
 	  return message.roomId !== roomId;
 	});
-	sessionStorage.setItem('messages', JSON.stringify(filteredMessages));
+	localStorage.setItem('messages', JSON.stringify(filteredMessages));
 	if(chat.currRoomId === roomId) {
 		clearLogs();	
 	}
