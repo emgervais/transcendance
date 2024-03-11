@@ -24,8 +24,9 @@ def matchmaker(room):
         try:
             while True:
                 print('In Queue...')
-                matchmaking_redis.zremrangebyscore(room, '-inf', time.time() - 600)
+                # matchmaking_redis.zremrangebyscore(room, '-inf', time.time() - 600)
                 if matchmaking_redis.zcard(room) > 1:
+                    print('Match found')
                     users = matchmaking_redis.zrange(room, 0, 1)
                     room_name = '_'.join(sorted([users[0].decode('utf-8'), users[1].decode('utf-8')]))
                     channel_layer = get_channel_layer()
@@ -91,8 +92,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             elif not self.in_queue:
                 self.in_queue = True
                 await self.search_match(room)
-                matchmaker_thread = threading.Thread(target=matchmaker, args=(room,))
-                matchmaker_thread.start()
             
     async def websocket_close(self, event):
         await self.close()
@@ -102,6 +101,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         params['type'] = params.pop('notification')
 
         await self.send(text_data=json.dumps(params))
+        if params['type'] == 'matchFound':
+            self.in_queue = False
     
     async def reconnect_chats(self):
         await self.send(text_data=json.dumps({
@@ -143,6 +144,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                         'userId': self.user.id
                     })
         matchmaking_redis.zadd(room, {self.user.id: time.time()})
+        matchmaker_thread = threading.Thread(target=matchmaker, args=(room,))
+        matchmaker_thread.start()
 
     async def cancel_search(self, room):
         matchmaking_redis.zrem(room, self.user.id)
@@ -163,14 +166,7 @@ def user_disconnect(user):
         if friends:
             channel_layer = get_channel_layer()
             for friend in friends:
-                channel_name = UserChannelGroup.objects.get(user=friend).main
-                if channel_name:
-                    async_to_sync(channel_layer.send)(channel_name, {
-                        'type': 'send.notification',
-                        'notification': 'connection',
-                        'connected': False,
-                        'userId': user.id
-                    })
+                notify_online(user, friend, False, channel_layer)
         clear_user_channels(user)
 
 def close_recipient_channel(user_id, group, channel_layer):
@@ -231,25 +227,22 @@ def friend_request_notify(user_id, friend, friend_request_id):
         print('Error:', e)
         
 def accept_friend_request_notify(user, friend):
+    channel_layer = get_channel_layer()
+    if friend.status == 'online':
+        notify_online(user, friend, True, channel_layer)
+    if user.status == 'online':
+        notify_online(friend, user, True, channel_layer)
+        
+def notify_online(user, friend, connected, channel_layer):
     try:
-        if friend.status == 'online':
-            channel_name = UserChannelGroup.objects.get(user=friend).main
-            if channel_name:
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.send)(channel_name, {
-                    'type': 'send.notification',
-                    'notification': 'connection',
-                    'connected': True,
-                    'userId': user.id
-                })
-            channel_name = UserChannelGroup.objects.get(user=user).main
-            if channel_name:
-                async_to_sync(channel_layer.send)(channel_name, {
-                    'type': 'send.notification',
-                    'notification': 'connection',
-                    'connected': True,
-                    'userId': friend.id
-                })
+        channel_name = UserChannelGroup.objects.get(user=friend).main
+        if channel_name:
+            async_to_sync(channel_layer.send)(channel_name, {
+                'type': 'send.notification',
+                'notification': 'connection',
+                'connected': connected,
+                'userId': user.id
+            })
     except UserChannelGroup.DoesNotExist:
         print('Friend channel group not found')
     except Exception as e:

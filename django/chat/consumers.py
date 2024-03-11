@@ -76,6 +76,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
         else:
             self.group_name = self.scope['url_route']['kwargs']['room_name']
+            if self.scope['path'].startswith('/ws/pong/chat/'):
+                self.group_name = 'pong_' + self.group_name
             if await in_group(self.user, self.group_name):
                 old_channel = await get_channel_name(self.user, self.group_name)
                 await remove_channel_group(self.user, old_channel)
@@ -84,7 +86,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.channel_name
             )
             await add_channel_group(self.user, self.channel_name, self.group_name)
-            if self.group_name != 'global':
+            if self.group_name != 'global' and not self.group_name.startswith('pong_'):
                 await self.private_room(self.user)
             # self.blocked_users = await get_all_blocked_user_ids(self.user)
             await self.accept()
@@ -154,17 +156,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 def close_blocked_user_chat(user, recipient):
     group_name = '_'.join(sorted([str(user.id), str(recipient.id)]))
     channel_layer = get_channel_layer()
-    channel_name = UserChannelGroup.objects.get(user=recipient).get_channel_name(group_name)
+    close_chat(user, recipient, group_name, channel_layer)
+    close_chat(recipient, user, group_name, channel_layer)
+        
+def close_chat(user, recipient, room, channel_layer):
+    channel_name = UserChannelGroup.objects.get(user=recipient).get_channel_name(room)
     if channel_name:
         async_to_sync(channel_layer.send)(channel_name, {
-            'type': 'chat.message',
-            'message': 'This user has blocked you',
-            'senderId': user.id,
-            'closing': True
+            'type': 'send.notification',
+            'notification': 'connection',
+            'connected': False,
+            'userId': user.id
         })
         close_websocket(channel_layer, channel_name)
-    channel_name = UserChannelGroup.objects.get(user=user).get_channel_name(group_name)
-    if channel_name:
-        close_websocket(channel_layer, channel_name)
-        UserChannelGroup.objects.get(user=user).remove_channel_group(channel_name)
-    
+        UserChannelGroup.objects.get(user=recipient).remove_channel_group(channel_name)
