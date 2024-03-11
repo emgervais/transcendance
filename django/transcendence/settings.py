@@ -90,11 +90,14 @@ SIMPLE_JWT = {
     'AUTH_COOKIE': 'access_token',
 }
 
+REDIS_HOST = os.environ.get("REDIS_HOST")
+REDIS_PORT = os.environ.get("REDIS_PORT")
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(os.environ.get("REDIS_HOST"), os.environ.get("REDIS_PORT"))],
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
         },
     },
 }

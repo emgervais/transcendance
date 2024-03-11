@@ -50,7 +50,13 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
         oldPassword = data.get('oldPassword', None)
         password1 = data.get('password1', None)
         password2 = data.get('password2', None)
+        oauth = self.instance.oauth
         
+        if oauth:
+            if email is not None:
+                raise serializers.ValidationError({'email': 'Email cannot be changed for oauth users'})
+            if oldPassword is not None or password1 is not None or password2 is not None:
+                raise serializers.ValidationError({'oldPassword': 'Oauth users do not have passwords'})
         if oldPassword is not None and password1 is not None and password2 is not None:
             if not self.instance.check_password(oldPassword):
                 raise serializers.ValidationError({'oldPassword': 'Old password is incorrect'})
