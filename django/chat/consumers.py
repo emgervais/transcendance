@@ -76,7 +76,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
         else:
             self.group_name = self.scope['url_route']['kwargs']['room_name']
-            if self.scope['url_route']['route'] == 'ws/pong/chat':
+            if self.scope['path'].startswith('/ws/pong/chat/'):
                 self.group_name = 'pong_' + self.group_name
             if await in_group(self.user, self.group_name):
                 old_channel = await get_channel_name(self.user, self.group_name)

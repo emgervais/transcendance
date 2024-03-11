@@ -26,6 +26,7 @@ def matchmaker(room):
                 print('In Queue...')
                 # matchmaking_redis.zremrangebyscore(room, '-inf', time.time() - 600)
                 if matchmaking_redis.zcard(room) > 1:
+                    print('Match found')
                     users = matchmaking_redis.zrange(room, 0, 1)
                     room_name = '_'.join(sorted([users[0].decode('utf-8'), users[1].decode('utf-8')]))
                     channel_layer = get_channel_layer()
