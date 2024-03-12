@@ -1,7 +1,8 @@
 import * as chat from "/js/chat/chat.js";
-import * as nav from "/js/nav.js";
-import * as friends from "/js/account/friends.js";
 import * as chatFriends from "/js/chat/friends.js";
+import * as friends from "/js/account/friends.js";
+import * as match from "/js/pong/match.js";
+import * as nav from "/js/nav.js";
 import * as util from "/js/util.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js";
@@ -29,7 +30,6 @@ function start() {
 					text: `${(await getUser(data.userId)).username} just ${data.connected ? "": "dis"}connected.`,
 					timeout: 2,
 				});
-				console.log("done with connection");
 				break;
 			case "onlineFriends":
 				chatFriends.set(data.userIds);
@@ -39,6 +39,12 @@ function start() {
 				break;
 			case "friendRequest":
 				friends.receiveFriendRequest(data);
+				break;
+			case "matchFound":
+				match.start(data);
+				break;
+			case "matchRequest":
+				match.receiveInvite(data);
 				break;
 			default:
 				console.log("Unknown notification:", data);
@@ -62,10 +68,13 @@ function stop() {
 }
 
 function startMatch(roomId, cancel=false) {
-	console.log("startMatch");
+	if (!ws) {
+		throw new Error("notifications.startMatch: notifications websocket not started");
+	}
+	console.log();
 	ws.send(JSON.stringify({
 		type: "matchmaking",
-		room: 'global',
+		room: roomId,
 		cancel: cancel,
 	}));
 }

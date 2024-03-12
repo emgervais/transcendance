@@ -1,5 +1,5 @@
 import * as api from "/js/api.js";
-import * as chatTriggers from "/js/chat/triggers.js";
+import * as chatDisplay from "/js/chat/display.js";
 import * as nav from "/js/nav.js";
 import * as notifications from "/js/notifications.js";
 import * as router from "/js/router/router.js";
@@ -38,16 +38,14 @@ function isConnected() {
 function setConnected(connected) {
     if (!connected) {
         removeCurrUser();
-        chatTriggers.closeChatBox();
     }
-    nav.setConnected(connected);
     localStorage.setItem("connected", connected);
 }
 
 // -- login ----
 function login(user, redirect=true) {
-    setCurrUser(user);
     setConnected(true);
+    setCurrUser(user);
     displayCurrUser();
     if (redirect) {
         router.route("/");
@@ -129,7 +127,6 @@ function oauthRedirected() {
     });
     return true;
 }
-
 
 export { loginButton, registerButton, oauthButton };
 export { isConnected, setConnected };

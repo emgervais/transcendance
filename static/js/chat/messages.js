@@ -1,45 +1,47 @@
 import * as chat from "/js/chat/chat.js";
 
-function loadMessages() {
+const SELF = "self";
+const OTHER = "other";
+
+function loadMessages(roomId) {
 	clearLogs();
 	var messages = JSON.parse(localStorage.getItem("messages"));
-	console.log("loadMessages", messages);
 
 	if(!messages)
 		return;
-	messages = messages.filter(room => room.roomId === chat.currRoomId)
+	messages = messages.filter(room => room.roomId === roomId)
 	messages.forEach(msg => {
-		generateMessage(msg.message, msg.type, msg.image, msg.userId);
+		generateMessage(msg.message, msg.isCurrUser, msg.image, msg.userId);
 	});
 }
 
-async function generateMessage(msg, type, img, userId) {
+async function generateMessage(msg, isCurrUser, img, userId) {
 	const chatInput = document.getElementById('chat-input');
 	const chatLogs = document.querySelector('.chat-logs');
 
 	var str = "";
-	str += "<div class=\"chat-msg " + type + "\">";
-	str += "          <span class=\"msg-avatar\">";
-	str += "            <img src=\"" + img + "\" class=\"profile-picture-chat\" data-id=\"" + userId + "\">";
-	str += "          <\/span>";
-	str += "          <div class=\"cm-msg-text\">";
+	str += `<div class="chat-msg ${isCurrUser ? "self" : "other"}">`;
+	str += `          <span class="msg-avatar">`;
+	str += `            <img src="${img}" class="profile-picture-chat" data-id="${userId} ">`;
+	str += `          </span>`;
+	str += `          <div class="cm-msg-text">`;
 	str += msg;
-	str += "          <\/div>";
-	str += "        <\/div>";
+	str += "          </div>";
+	str += "        </div>";
 	chatLogs.insertAdjacentHTML('beforeend', str);
-	if (type === 'self') {
+	if (isCurrUser) {
 	  chatInput.value = '';
 	}
 	chatLogs.scrollTop = chatLogs.scrollHeight;
 }
 
-async function saveMessage(roomId, msg, type, img, userId) {
+async function saveMessage(roomId, msg, isCurrUser, img, userId) {
 	console.log("saveMessage:", roomId, msg);
 	let messages = JSON.parse(localStorage.getItem("messages")) || [];
 	const newMessage = {
 		roomId: roomId,
 		message: msg,
-		type: type,
+		isCurrUser,
 		image: img,
 		userId: userId,
 	};
@@ -62,6 +64,6 @@ function clearLogs() {
 	document.querySelector('.chat-logs').innerHTML = '';
 }
 
-
+export { SELF, OTHER };
 export { loadMessages, generateMessage, saveMessage, deleteMessages };
 export { clearLogs };

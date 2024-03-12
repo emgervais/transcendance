@@ -1,6 +1,8 @@
 import * as account from "/js/account/account.js";
+import * as auth from "/js/auth.js";
 import * as nav from "/js/nav.js";
 import * as pong from "/js/pong/pong.js";
+import * as util from "/js/util.js";
 import { equipParamRoutes, clearParams, setParams } from "/js/router/params.js";
 import { displayCurrUser } from "/js/user/currUser.js";
 
@@ -13,6 +15,7 @@ const routes = equipParamRoutes({
     "/": {
         template: "/templates/home.html",
         unprotected: true,
+        onLoad: util.displayConnected,
     },
     "/register/": {
         onLoad: nav.displayRegister,
@@ -53,6 +56,14 @@ const routes = equipParamRoutes({
         onLoad: account.displayStatsPage,
     },
 });
+
+const routeQuitFunctions = [
+    util.clearFloatingBoxes,
+]
+
+const routeLoadFunctions = [
+    displayCurrUser,
+]
 
 const route = (href) => {
     window.history.pushState({}, "", href);
@@ -96,6 +107,7 @@ function getCurrentRoute() {
 }
 
 const locationHandler = async () => {
+    routeQuitFunctions.forEach(f => f());
     if (prevRoute && prevRoute.onQuit) {
         prevRoute.onQuit();
     }
@@ -112,7 +124,7 @@ const locationHandler = async () => {
     if (route.onLoad) {
         route.onLoad();
     }
-    displayCurrUser();
+    routeLoadFunctions.forEach(f => f());
 };
 
 window.onpopstate = locationHandler;

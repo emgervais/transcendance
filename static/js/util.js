@@ -1,3 +1,5 @@
+import * as auth from "/js/auth.js";
+
 // -- display ----
 function display(element, display=true) {
     if (display)
@@ -28,6 +30,25 @@ function setClass(element, className, state) {
     } else if (state && !element.classList.contains(className)) {
 		element.classList.add(className);
     }
+}
+
+const shadow = document.getElementById("shadow");
+function clearFloatingBoxes() {
+  display(shadow, false);
+  const floatingBoxes = document.querySelectorAll(".floating-box");
+  for (const floatingBox of floatingBoxes) {
+    display(floatingBox, false);
+  }
+}
+
+function displayConnected() {
+  const connected = auth.isConnected();
+  document.querySelectorAll('.connected').forEach((element) => {
+      display(element, connected);
+  });
+  document.querySelectorAll('.anonymous').forEach((element) => {
+      display(element, !connected);
+  });
 }
 
 // -- alert ----
@@ -84,5 +105,6 @@ function sleep(ms) {
 }
 
 export { isDisplayed, display, toggleDisplay, toggleClass, setClass };
+export { clearFloatingBoxes, displayConnected };
 export { showAlert, hideAlert };
 export { sleep };

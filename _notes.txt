@@ -1,3 +1,29 @@
+notifications:
+    type: pong:
+    room:
+    id:
+    description:
+        searchingMatch
+        matchRequest
+        matchRefused
+        opponentIngame
+        opponentOffline
+
+
+Notification, type: matchFound
+
+.proposer game à user  (voir startMatch(), mais avec id_id)
+.bouton jouer (id non proposé (global))
+
+Notification, type: matchRequest
+    .notifications: type: matchmaking, et renvoyer la room reçue
+                                    (cancel true/false)
+
+chat:
+                     add: pas si friend
+                  invite: pas si in game with
+----------------------------------------------------
+
 stats.load()
     with the username search userId using api.fetchRoute
 

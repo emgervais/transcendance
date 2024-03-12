@@ -3,18 +3,13 @@ import * as util from "/js/util.js";
 const friendRequestCountElement = document.querySelector("#friend-request-count");
 let friendRequestCount = 0;
 
-function setConnected(connected) {
-    document.querySelectorAll('.connected').forEach((element) => {
-        util.display(element, connected);
-    });
-    document.querySelectorAll('.anonymous').forEach((element) => {
-        util.display(element, !connected);
-    });
-}
-
 function updateFriendRequestCount(count) {
     const countElement = friendRequestCountElement.querySelector("#friend-request-counter");
-    countElement.textContent = count + ' friend request' + (count > 1 ? 's' : '');
+    if (count) {
+        countElement.textContent = count + ' friend request' + (count > 1 ? 's' : '');
+    } else {
+        countElement.textContent = "";
+    }
 }
 
 function incrFriendRequestCount(incr=1) {
@@ -51,6 +46,5 @@ function displayRegister() {
     displayAuthContainer();  
 }
 
-export { setConnected };
 export { updateFriendRequestCount, incrFriendRequestCount };
 export { displayLogin, displayRegister, hideAuthContainer };

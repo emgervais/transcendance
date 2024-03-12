@@ -338,11 +338,11 @@ function newModel(objurl, textureurl)
 			}
 		}
 	}
-	console.log("Model loaded: " + objurl);
-	console.log(vertices);
-	console.log(normals);
-	console.log(uvs);
-	console.log(faces);
+	// console.log("Model loaded: " + objurl);
+	// console.log(vertices);
+	// console.log(normals);
+	// console.log(uvs);
+	// console.log(faces);
 
 	const vertbuf = new Float32Array(map.size * 3);
 	const normbuf = new Float32Array(map.size * 3);

@@ -1,5 +1,5 @@
-import * as api from "/js/api.js";
 import * as chat from "/js/chat/chat.js";
+import * as chatUnreadMessages from "/js/chat/unreadMessages.js";
 import { getUser } from "/js/user/user.js"
 
 var connectedFriends = [];
@@ -56,8 +56,8 @@ async function generateFriendsListElement(container, userId) {
 	anchor.textContent = username;
 	div.appendChild(anchor);
 
-	if (chat.unreadMsgCounts[roomId]) {
-		const bell = chat.makeBell();
+	if (chatUnreadMessages.roomCounts[roomId]) {
+		const bell = chatUnreadMessages.makeBell();
 		div.appendChild(bell);
 	}
 

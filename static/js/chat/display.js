@@ -1,16 +1,17 @@
 import * as chat from "/js/chat/chat.js";
 import * as chatFriends from "/js/chat/friends.js";
 import * as chatMessages from "/js/chat/messages.js";
-import { getCurrUser } from "/js/user/currUser.js";
+import * as chatUnreadMessages from "/js/chat/unreadMessages.js";
+import * as currUser from "/js/user/currUser.js";
 import * as util from "/js/util.js";
-import { GLOBAL_ROOM_ID, MATCH_ROOM_ID } from "/js/chat/chat.js";
+import { GLOBAL_ROOM_ID, matchRoomId } from "/js/chat/chat.js";
 
 const chatIcon = document.getElementById('chat-icon');
 const chatBox = document.getElementById('chat-box');
 
 const globalTab = document.getElementById('tab-global');
 const friendsTab = document.getElementById('tab-friends');
-const gameTab = document.getElementById('tab-game');
+const matchTab = document.getElementById('tab-game');
 
 const friendsList = document.getElementById('friendlist-tab');
 var friendsListShown = false;
@@ -19,7 +20,7 @@ var currMenu = 0;
 const menu = document.getElementById('chat-menu');
 const logs = document.querySelector('.chat-logs');
 logs.addEventListener('scroll', function() {
-	menuOff();
+	disableMenu();
   });
 const chatbody = document.querySelector('.chat-box-body');
 
@@ -40,7 +41,7 @@ function chatBoxOpened() {
 function openChatBox() {
 	util.setClass(chatIcon, 'chat-active', false);
 	util.setClass(chatBox, 'chat-active', true);
-	chat.clearUnreadMsgCount(chat.currRoomId);
+	chatUnreadMessages.clear(chat.currRoomId);
 }
 
 function closeChatBox() {
@@ -49,8 +50,8 @@ function closeChatBox() {
 }
 
 // -- tabs ----
-function activateGameTab() {
-	activateTab(gameTab, MATCH_ROOM_ID);
+function activateMatchTab() {
+	activateTab(matchTab, matchRoomId);
 };
 
 function activateGlobalTab() {
@@ -82,8 +83,8 @@ function activateTab(target, roomId) {
 	chat.updateRoomId(roomId);
 	document.querySelector('.tab-active').classList.remove('tab-active');
 	target.classList.add('tab-active');
-	chatMessages.loadMessages();
-	chat.clearUnreadMsgCount(roomId);
+	chatMessages.loadMessages(roomId);
+	chatUnreadMessages.clear(roomId);
 }
 
 // -- friendsList ----
@@ -109,9 +110,9 @@ function closeFriendsList() {
 // -- avatar ----
 function activateMenu(target) {
 	const userId = target.getAttribute('data-id');
-	// if (userId == getCurrUser().id) {
-	// 	return;
-	// }
+	if (userId == currUser.getCurrUser().id) {
+		return;
+	}
 	if(currMenu == target) {
 		menu.classList.toggle('active');
 		currMenu = 0;
@@ -126,21 +127,17 @@ function activateMenu(target) {
 	currMenu = target;
 };
 
-function menuOff() {
+function disableMenu() {
 	menu.classList.remove('active');
 	currMenu = 0;
 }
-function disableMenu() {
-	// console.log('in');
-	// menu.classList.remove('active');
-	// util.display(menu, false);
-}
+
 //<button class="make-friend-request-button" data-user-id="3">Send request</button>
 function updateMenu(id) {
 	var menuOptions = {
 		'stats' : `<a href="/account/stats/${id}/"> <i class="fa-solid fa-chart-simple"></i></a>`,
 		'block' : `<button class="block-user-button" data-block="true" data-user-id="${id}"> <i class="fa-solid fa-ban"></i></button>`,
-		'invite' : `<button> <i class="fa-solid fa-gamepad"></i></button>`,
+		'invite' : `<button class="start-match" data-user-id="${id}"> <i class="fa-solid fa-gamepad"></i></button>`,
 		'add': `<button class="make-friend-request-button" data-user-id="${id}"><i class="fa-solid fa-plus"></i></button>`,
 	};
 	let i = 0;
@@ -154,7 +151,7 @@ function updateMenu(id) {
 	};
 }
 
-export { chatIcon, globalTab, friendsTab, gameTab };
-export { toggleChatBox, closeChatBox, chatBoxOpened }
-export { activateGlobalTab, toggleFriendsList, activateFriendsTab, closeFriendChat, activateGameTab };
-export { activateMenu, disableMenu, menuOff };
+export { chatIcon, globalTab, friendsTab, matchTab };
+export { toggleChatBox, openChatBox, closeChatBox, chatBoxOpened }
+export { activateGlobalTab, toggleFriendsList, activateFriendsTab, closeFriendChat, activateMatchTab };
+export { activateMenu, disableMenu };

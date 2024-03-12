@@ -35,11 +35,11 @@ function searchUser() {
             container.innerText = `No potential friends found with "${query}".`;
         }
         users.forEach(user => {
-            displayUser({
-                container: container,
+            const div = displayUser({
                 userId: user.id,
                 friendRequestable: true,
             });
+            container.appendChild(div);
         });
     };
 
@@ -77,11 +77,11 @@ function getFriends() {
         const container = document.getElementById("friends-container");
         container.innerHTML = '';
         friends.forEach(friend => {
-            displayUser({
-                container: container,
+            const div = displayUser({
                 userId: friend.friend,
                 friendshipId: friend.id,
             });
+            container.appendChild(div);
         })
     };
     api.fetchRoute({
@@ -95,11 +95,11 @@ function getBlockedUsers() {
         const container = document.getElementById("blocked-users-container");
         container.innerHTML = '';
         users.forEach(user => {
-            displayUser({
-                container: container,
+            const div = displayUser({
                 userId: user.blocked,
                 blocked: true
             });
+            container.appendChild(div);
         })
     };    
     api.fetchRoute({
@@ -113,9 +113,9 @@ function getBlockedUsers() {
 async function displayFriendRequest(container, request) {
     console.log("request.id:", request.id);
     const div = await displayUser({
-        container: container,
         userId: request.from_user
     });
+    container.appendChild(div);
     
     const makeButton = (text, accept) => {
         const button = document.createElement("button");

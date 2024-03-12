@@ -38,16 +38,16 @@ function removeUser(id) {
 
 // -- display ----
 async function displayUser({
-        container,
         userId,
         blocked=false,
         friendshipId=undefined,
-        friendRequestable=false
+        friendRequestable=false,
+        includeBlockButton=true,
     }) {
     const div = document.createElement("div");
     const div1 = document.createElement("div");
     const div2 = document.createElement("div");
-    const appendToContainer = (currUserId, user) => {
+    const createElements = (user) => {
         div.className = "user";
         div1.classList.add('user-infos');
         div2.classList.add('user-buttons');
@@ -74,15 +74,15 @@ async function displayUser({
             div2.append(friendRequestButton);
         }
         
-        const blockButton = makeBlockButton(userId, !blocked);
-        div2.append(blockButton);
+        if (includeBlockButton) {
+            const blockButton = makeBlockButton(userId, !blocked);
+            div2.append(blockButton);
+        }
 
         div.appendChild(div2);
-        container.appendChild(div);
     };
-    const currUserId = getCurrUser().id;
     let user = await getUser(userId);
-    appendToContainer(currUserId, user);
+    createElements(user);
     return div;
 }
 

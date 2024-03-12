@@ -1,9 +1,10 @@
 import * as accountInfo from "/js/account/info.js";
 import * as auth from "/js/auth.js";
 import * as chat from "/js/chat/chat.js";
-import * as chatTriggers from "/js/chat/triggers.js";
+import * as chatDisplay from "/js/chat/display.js";
 import * as friends from "/js/account/friends.js";
 import * as notifications from "/js/notifications.js";
+import * as match from "/js/pong/match.js";
 import * as router from "/js/router/router.js";
 import * as user from "/js/user/user.js";
 
@@ -14,13 +15,14 @@ const idFunctions = {
     "oauth-button": auth.oauthButton,
     
     "chat-submit": chat.submit,
-    "tab-global": chatTriggers.activateGlobalTab,
-    "tab-friends": chatTriggers.toggleFriendsList,
-    "tab-game": chatTriggers.activateGameTab,
+    "tab-global": chatDisplay.activateGlobalTab,
+    "tab-friends": chatDisplay.toggleFriendsList,
+    "tab-game": chatDisplay.activateMatchTab,
 
     "update-info-button": accountInfo.updateInfoButton,
 
     "search-user-button": friends.searchUser,
+    'invite-notification': match.displayInvite,
 };
 
 const classFunctions = {
@@ -28,18 +30,19 @@ const classFunctions = {
     'friend-request-button': friends.answerRequest,
     'block-user-button': user.block,
     'unfriend-button': user.unfriend,
-    'chat-box-toggle': (_) => { chatTriggers.toggleChatBox(); },
+    'chat-box-toggle': (_) => { chatDisplay.toggleChatBox(); },
     
-    'activate-friend-chat': chatTriggers.activateFriendsTab,
-    'close-friend-chat': chatTriggers.closeFriendChat,
+    'activate-friend-chat': chatDisplay.activateFriendsTab,
+    'close-friend-chat': chatDisplay.closeFriendChat,
 
-    'profile-picture-chat': chatTriggers.activateMenu,
+    'profile-picture-chat': chatDisplay.activateMenu,
 
-    'start-match': notifications.startMatch
+    'start-match': match.invite,
+    'respond-invite': match.respondInvite,
 }
 
 const outsideIdFunctions = {
-    "chat-menu": chatTriggers.disableMenu
+    "chat-menu": chatDisplay.disableMenu
 };
 
 
