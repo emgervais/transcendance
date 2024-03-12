@@ -7,7 +7,7 @@ from authentication.oauth42 import create_oauth_uri
 from datetime import datetime
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import AccessToken
-from notification.consumers import close_websocket
+from notification.utils import close_websocket
 from channels.layers import get_channel_layer
     
 def set_cookies(response, user):
@@ -64,8 +64,8 @@ class LogoutView(generics.GenericAPIView):
         response = JsonResponse({'message': 'Logout successful'}, status=status.HTTP_200_OK)
         response.delete_cookie('refresh_token')
         response.delete_cookie('access_token')
-        user = User.objects.get(pk=request.user.id)
         try:
+            user = User.objects.get(pk=request.user.id)
             main = UserChannelGroup.objects.get(user=user).main
             close_websocket(get_channel_layer(), main)
         except UserChannelGroup.DoesNotExist:
