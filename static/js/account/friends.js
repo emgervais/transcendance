@@ -34,8 +34,8 @@ function searchUser() {
         if (users.length === 0) {
             container.innerText = `No potential friends found with "${query}".`;
         }
-        users.forEach(user => {
-            const div = displayUser({
+        users.forEach(async user => {
+            const div = await displayUser({
                 userId: user.id,
                 friendRequestable: true,
             });
@@ -76,8 +76,8 @@ function getFriends() {
     const friendsManager = (friends) => {
         const container = document.getElementById("friends-container");
         container.innerHTML = '';
-        friends.forEach(friend => {
-            const div = displayUser({
+        friends.forEach(async friend => {
+            const div = await displayUser({
                 userId: friend.friend,
                 friendshipId: friend.id,
             });
@@ -94,8 +94,8 @@ function getBlockedUsers() {
     const blockedUsersManager = (users) => {
         const container = document.getElementById("blocked-users-container");
         container.innerHTML = '';
-        users.forEach(user => {
-            const div = displayUser({
+        users.forEach(async user => {
+            const div = await displayUser({
                 userId: user.blocked,
                 blocked: true
             });

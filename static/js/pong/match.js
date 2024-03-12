@@ -15,14 +15,12 @@ const shadow = document.getElementById("shadow");
 // --
 function invite(target) {
     const userId = target.getAttribute("data-user-id");
-    console.log(`invite, userId: |${userId}|`);
     let roomId;
     if (userId) {
         roomId = chat.getRoomId(userId);
     } else {
         roomId = "global";
     }
-    console.log("invite:", roomId);
     notifications.startMatch(roomId);
 }
 
