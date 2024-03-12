@@ -19,7 +19,8 @@ function start() {
 	);
 
 	ws.onmessage = async (event) => {
-        const data = JSON.parse(event.data);
+		const data = JSON.parse(event.data);
+		console.log("notifications:", data);
 		switch (data.type) {
 			case "chat":
 				chat.start(data.room);
@@ -40,11 +41,8 @@ function start() {
 			case "friendRequest":
 				friends.receiveFriendRequest(data);
 				break;
-			case "matchFound":
-				match.start(data);
-				break;
-			case "matchRequest":
-				match.receiveInvite(data);
+			case "pong":
+				pongNotifications(data);
 				break;
 			default:
 				console.log("Unknown notification:", data);
@@ -56,6 +54,29 @@ function start() {
 		console.log("Notifications socket closed.");
 		stop();
 	};
+}
+
+function pongNotifications(data) {
+	switch (data.description) {
+		case "searchingMatch":
+			break;
+		case "matchRequest":
+			match.receiveInvite(data);
+			break;
+		case "matchRefused":
+			break;
+		case "opponentIngame":
+			break;
+		case "opponentOffline":
+			break;
+		case "matchFound":
+			match.start(data);
+			break;
+		default:
+			console.log("Unknown notification:", data);
+			break;			
+	}
+
 }
 
 function stop() {

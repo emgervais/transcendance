@@ -26,8 +26,6 @@ function invite(target) {
 }
 
 async function receiveInvite(data) {
-    console.log("You got a match request:", data);
-    
     util.display(inviteNotification, true);
     const userElement = await user.displayUser({
         userId: data.userId,
@@ -61,7 +59,6 @@ function displayInvite() {
 function respondInvite(target) {
     const roomId = target.getAttribute("data-room-id");
     const cancel = target.getAttribute("data-cancel") == "true";
-    console.log("cancel:", cancel, "!cancel:", !cancel);
     notifications.startMatch(roomId, cancel);
 }
 

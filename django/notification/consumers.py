@@ -10,7 +10,6 @@ import redis
 import redis.lock
 import json
 from django.conf import settings
-from chat.consumers import get_user
 
 matchmaking_redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
 matchmaking_lock = redis.lock.Lock(matchmaking_redis, 'matchmaking_lock', timeout=1)
@@ -140,6 +139,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def search_match(self, room):
         if room != 'global':
             if await self.send_match_request(room):
+                print("cancel")
                 return
         await self.send(text_data=json.dumps({
             'type': 'pong',
@@ -169,7 +169,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                         'description': 'matchRefused',
                         'room': room
                     })
-                return True
+                    return True
         return False
     
     async def send_match_request(self, room):
@@ -342,3 +342,9 @@ def friend_request_count(user):
     except Exception:
         return 0
     
+@database_sync_to_async
+def get_user(user_id):
+    try:
+        return User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return None
