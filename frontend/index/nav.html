@@ -1,0 +1,50 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light" id="dynamic_nav">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">ft_transcendence</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Games
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="nav-link" href="/pong/">Pong</a></li>
+            <li><a class="nav-link" href="/another-game/">Another Game</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="navbar-nav">
+
+        <a class="connected hidden d-flex align-items-center" href="/account/friends/" id="friend-request-count">
+          <span id="friend-request-counter"></span>
+        </a>
+        <button class="hidden" id="invite-notification">New game invite!</button>
+        
+        <li class="nav-item anonymous">
+          <a class="nav-link" href="/register/">Register</a>
+        </li>
+        <li class="nav-item anonymous">
+          <a class="nav-link" href="/login/">Login</a>
+        </li>
+        <h6 class="p-3 connected user-username hidden" id='usernameNav'></h6>
+        <li class="nav-item dropdown connected hidden">
+            <img src="" alt="Dropdown Image" class="user-img img-fluid dropdown-toggle rounded-circle" id="imgDropdown" style="height: 50px; width: 50px;" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="imgDropdown">
+              <a class="nav-link" href="/account/" >Account</a>
+              <a class="nav-link" id="logout-button">Logout</a>
+            </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<a class="overlay hidden" href="/" id="shadow"></a></div>
+<div id="alert-container"></div>
+</div>
+<div class="floating-box hidden" id="authentication-container">
+{% include 'auth/login.html' %}
+{% include 'auth/register.html' %}
+</div>

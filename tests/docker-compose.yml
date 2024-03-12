@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  tests:
+    build:
+      context: ./
+    container_name: tests
+    volumes:
+      - ./:/usr/src/tests   
+    networks:
+      - transcendence_network
+
+networks:
+  transcendence_network:
+    name: transcendence_network
+    external: true

@@ -2,15 +2,15 @@
 
 .DS_Store
 
+media/
 __pycache__/
 *venv/
 admin/
 *.sqlite3
 
-*.png
 *.jpg
 
-**/pongbackend/build/
-**/pongbackend/dist/
-**/pongbackend/pongbackend.egg-info/
-**/pongbackend/include/
+**/migrations/**
+!**/migrations/__init__.py
+
+httpReponseCode.txt
