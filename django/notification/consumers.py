@@ -169,7 +169,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                         'description': 'matchRefused',
                         'room': room
                     })
-                    return True
+                return True
         return False
     
     async def send_match_request(self, room):
@@ -177,7 +177,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         opponent = await get_user(opponent_id)
         if opponent:
             opponent_channel = await get_main_channel(opponent_id, True)
-            if opponent.status == 'online':
+            if opponent.status == 'online' and matchmaking_redis.zrank(room, opponent_id) is None:
                 if opponent_channel:
                     await self.channel_layer.send(opponent_channel, {
                         'type': 'send.notification',
@@ -193,13 +193,15 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                     'description': 'opponentInGame',
                     'userId': opponent_id
                 }))
+                return False
             else:
                 await self.send(text_data=json.dumps({
                     'type': 'pong',
                     'description': 'opponentOffline',
                     'userId': opponent_id
                 }))
-        return False
+                return False
+        return True
         
 # Helper functions
 def user_disconnect(user):

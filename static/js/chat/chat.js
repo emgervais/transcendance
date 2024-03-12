@@ -17,6 +17,8 @@ function updateRoomId(id) {
 function getRoomId(userId) {
     const currUserId = getCurrUser().id;
 	const roomId = [currUserId, userId].sort().join("_");
+	console.log(`currUserId: |${currUserId}|`);
+	console.log(`userId: |${userId}|`);
 	return roomId;
 }
 

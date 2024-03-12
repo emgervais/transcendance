@@ -20,7 +20,6 @@ function start() {
 
 	ws.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
-		console.log("notifications:", data);
 		switch (data.type) {
 			case "chat":
 				chat.start(data.room);
@@ -57,6 +56,7 @@ function start() {
 }
 
 function pongNotifications(data) {
+	console.log("pong notifications:", data);
 	switch (data.description) {
 		case "searchingMatch":
 			break;

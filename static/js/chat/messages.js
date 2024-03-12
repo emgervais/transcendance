@@ -22,7 +22,7 @@ async function generateMessage(msg, isCurrUser, img, userId) {
 	var str = "";
 	str += `<div class="chat-msg ${isCurrUser ? "self" : "other"}">`;
 	str += `          <span class="msg-avatar">`;
-	str += `            <img src="${img}" class="profile-picture-chat" data-id="${userId} ">`;
+	str += `            <img src="${img}" class="profile-picture-chat" data-id="${userId}">`;
 	str += `          </span>`;
 	str += `          <div class="cm-msg-text">`;
 	str += msg;
