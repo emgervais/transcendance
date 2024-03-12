@@ -1,0 +1,13 @@
+[Unit]
+Description=daphne daemon
+Requires=daphne.socket
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/usr/src/app
+ExecStart=/usr/local/bin/daphne -u /run/daphne/daphne.sock --fd 0 --access-log - --proxy-headers app.asgi:application
+
+[Install]
+WantedBy=multi-user.target
