@@ -1,7 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from notification.consumers import get_main_channel, close_websocket
+from notification.consumers import get_main_channel, close_websocket, notify_online
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from users.models import User, UserChannelGroup
@@ -27,14 +27,14 @@ def is_blocked(user, recipient):
     except Block.DoesNotExist:
         return False
 
-# @database_sync_to_async
-# def get_all_blocked_user_ids(user):
-#     try:
-#         blocked_ids = Block.objects.blocked_ids(user)
-#         print(blocked_ids)
-#         return blocked_ids
-#     except Block.DoesNotExist:
-#         return []
+@database_sync_to_async
+def get_all_blocked_user_ids(user):
+    try:
+        blocked_ids = Block.objects.blocked_ids(user)
+        blocked_ids = [user_id for user_id in blocked_ids]
+        return blocked_ids
+    except Block.DoesNotExist:
+        return []
 
 @database_sync_to_async
 def add_channel_group(user, channel_name, group_name):
@@ -86,7 +86,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await add_channel_group(self.user, self.channel_name, self.group_name)
             if self.group_name != 'global' and not self.group_name.startswith('pong_'):
                 await self.private_room(self.user)
-            # self.blocked_users = await get_all_blocked_user_ids(self.user)
+            self.blocked_ids = await get_all_blocked_user_ids(self.user)
             await self.accept()
             
     
@@ -114,6 +114,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'closing': closing
             }
         )
+    
+    async def update_blocked_ids(self, event):
+        self.blocked_ids = await get_all_blocked_user_ids(self.user)
 
     async def chat_message(self, event):
         sender_id = event['senderId']
@@ -122,11 +125,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if sender == self.user:
             await update_swear_count(sender, swear_count)
         closing = event.get('closing', False)
-        
-        await self.send(text_data=json.dumps({
-            'message': message,
-            'senderId': sender_id
-        }), close=closing)
+        print(type(sender_id), type(self.blocked_ids))
+        if sender_id not in self.blocked_ids:
+            await self.send(text_data=json.dumps({
+                'message': message,
+                'senderId': sender_id
+            }), close=closing)
         if closing:
             await remove_channel_group(self.user, self.channel_name)
         
@@ -156,15 +160,11 @@ def close_blocked_user_chat(user, recipient):
     channel_layer = get_channel_layer()
     close_chat(user, recipient, group_name, channel_layer)
     close_chat(recipient, user, group_name, channel_layer)
+    async_to_sync(channel_layer.send)(UserChannelGroup.objects.get(user=user).main, {'type': 'update.blocked.ids'})
         
 def close_chat(user, recipient, room, channel_layer):
+    notify_online(user, recipient, False, channel_layer)
     channel_name = UserChannelGroup.objects.get(user=recipient).get_channel_name(room)
     if channel_name:
-        async_to_sync(channel_layer.send)(channel_name, {
-            'type': 'send.notification',
-            'notification': 'connection',
-            'connected': False,
-            'userId': user.id
-        })
         close_websocket(channel_layer, channel_name)
         UserChannelGroup.objects.get(user=recipient).remove_channel_group(channel_name)

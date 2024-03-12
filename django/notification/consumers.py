@@ -10,6 +10,7 @@ import redis
 import redis.lock
 import json
 from django.conf import settings
+from chat.consumers import get_user
 
 matchmaking_redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
 matchmaking_lock = redis.lock.Lock(matchmaking_redis, 'matchmaking_lock', timeout=1)
@@ -36,7 +37,8 @@ def matchmaker(room):
                             if opponent_channel:
                                 async_to_sync(channel_layer.send)(opponent_channel, {
                                     'type': 'send.notification',
-                                    'notification': 'matchFound',
+                                    'notification': 'pong',
+                                    'description': 'matchFound',
                                     'room': room_name
                                 })
                         except UserChannelGroup.DoesNotExist:
@@ -55,6 +57,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
         self.in_queue = False
+        self.current_queue = ''
 
         if not self.user.is_authenticated:
             await self.close()
@@ -86,11 +89,12 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         room = data.get('room', 'global')
 
         if type == 'matchmaking':
-            if data.get('cancel', False) and self.in_queue:
-                self.in_queue = False
-                await self.cancel_search(room)
-            elif not self.in_queue:
-                self.in_queue = True
+            if data.get('cancel', False) and self.current_queue == room:
+                if not await self.is_refusing_match(room) and self.in_queue:
+                    await self.cancel_search()
+            else:
+                if self.current_queue != room:
+                    await self.cancel_search()
                 await self.search_match(room)
             
     async def websocket_close(self, event):
@@ -103,6 +107,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(params))
         if params['type'] == 'matchFound':
             self.in_queue = False
+        elif params['type'] == 'matchRefused':
+            await self.cancel_search()
     
     async def reconnect_chats(self):
         await self.send(text_data=json.dumps({
@@ -133,26 +139,67 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
     async def search_match(self, room):
         if room != 'global':
+            if await self.send_match_request(room):
+                return
+        await self.send(text_data=json.dumps({
+            'type': 'pong',
+            'description': 'searchingMatch',
+            'room': room
+        }))
+        matchmaking_redis.zadd(room, {self.user.id: time.time()})
+        self.in_queue = True
+        self.current_queue = room
+        matchmaker_thread = threading.Thread(target=matchmaker, args=(room,))
+        matchmaker_thread.start()
+
+    async def cancel_search(self):
+        matchmaking_redis.zrem(self.current_queue, self.user.id)
+        self.in_queue = False
+        self.current_queue = ''
+        
+    async def is_refusing_match(self, room):
+        if room != 'global':
             opponent_id = await get_opponent_id(room, self.user.id)
-            if opponent_id and matchmaking_redis.zrank(room, opponent_id) is None:
+            if opponent_id and matchmaking_redis.zrank(room, opponent_id) is not None:
                 opponent_channel = await get_main_channel(opponent_id, True)
                 if opponent_channel:
                     await self.channel_layer.send(opponent_channel, {
                         'type': 'send.notification',
-                        'notification': 'matchRequest',
+                        'notification': 'pong',
+                        'description': 'matchRefused',
+                        'room': room
+                    })
+                return True
+        return False
+    
+    async def send_match_request(self, room):
+        opponent_id = await get_opponent_id(room, self.user.id)
+        opponent = await get_user(opponent_id)
+        if opponent:
+            opponent_channel = await get_main_channel(opponent_id, True)
+            if opponent.status == 'online':
+                if opponent_channel:
+                    await self.channel_layer.send(opponent_channel, {
+                        'type': 'send.notification',
+                        'notification': 'pong',
+                        'description': 'matchRequest',
                         'room': room,
                         'userId': self.user.id
                     })
-        matchmaking_redis.zadd(room, {self.user.id: time.time()})
-        matchmaker_thread = threading.Thread(target=matchmaker, args=(room,))
-        matchmaker_thread.start()
-
-    async def cancel_search(self, room):
-        matchmaking_redis.zrem(room, self.user.id)
-        await self.send(text_data=json.dumps({
-            'type': 'searchCancelled',
-            'room': room
-        }))
+                    return True
+            elif opponent.status == 'in-game':
+                await self.send(text_data=json.dumps({
+                    'type': 'pong',
+                    'description': 'opponentInGame',
+                    'userId': opponent_id
+                }))
+            else:
+                await self.send(text_data=json.dumps({
+                    'type': 'pong',
+                    'description': 'opponentOffline',
+                    'userId': opponent_id
+                }))
+        return False
         
 # Helper functions
 def user_disconnect(user):
