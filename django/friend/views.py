@@ -5,7 +5,7 @@ from rest_framework import serializers
 from friend.models import Friend, FriendRequest, Block
 from friend.serializers import FriendRequestSerializer, FriendSerializer, BlockSerializer
 from users.models import User
-from notification.consumers import friend_request_notify, accept_friend_request_notify
+from notification.utils import friend_request_notify, accept_friend_request_notify
 from chat.consumers import close_blocked_user_chat
 
 class FriendRequestListView(APIView):

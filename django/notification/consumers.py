@@ -1,22 +1,14 @@
-import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
-from users.models import UserChannelGroup, User
-from friend.models import Friend
+from users.models import UserChannelGroup
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-import time, threading
-import redis
-import redis.lock
-import json
+import time, threading, redis, json
 from django.conf import settings
+from notification.utils import get_opponent_id, user_disconnect
+from notification.utils_db import change_status, set_main_channel, get_group_list, get_main_channel, get_online_friends, friend_request_count, get_user
 
 matchmaking_redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
 matchmaking_lock = redis.lock.Lock(matchmaking_redis, 'matchmaking_lock', timeout=1)
-
-async def get_opponent_id(room, user_id):
-    users = room.split('_')
-    return users[0] if users[0] != str(user_id) else users[1]
 
 def matchmaker(room):
     if not matchmaking_lock.locked():
@@ -202,151 +194,3 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                     'userId': opponent_id
                 }))
         return False
-        
-# Helper functions
-def user_disconnect(user):
-    time.sleep(5)
-    main = UserChannelGroup.objects.get(user=user).main
-    should_disconnect = main == '' and user.status == 'online'
-    if should_disconnect:
-        user.status = 'offline'
-        user.save()
-        friends = Friend.objects.online_friends(user)
-        if friends:
-            channel_layer = get_channel_layer()
-            for friend in friends:
-                notify_online(user, friend, False, channel_layer)
-        clear_user_channels(user)
-
-def close_recipient_channel(user_id, group, channel_layer):
-    users = group.split('_')
-    recipient_id = users[0] if users[0] != str(user_id) else users[1]
-    
-    try:
-        recipient = User.objects.get(id=recipient_id)
-        recipient_channel_groups = UserChannelGroup.objects.get(user=recipient)
-        recipient_channel = recipient_channel_groups.get_channel_name(group)
-        if recipient_channel:
-            async_to_sync(channel_layer.send)(recipient_channel, {
-                'type': 'chat.message',
-                'message': 'User is offline',
-                'senderId': user_id,
-                'closing': True
-            })
-    except User.DoesNotExist:
-        print('Recipient not found')
-        
-def clear_user_channels(user):
-    try:
-        channel_groups = UserChannelGroup.objects.get(user=user)
-        channel_layer = get_channel_layer()
-        channel_groups_pairs = channel_groups.channel_groups
-        channel_groups.remove_all_channel_groups()
-
-        for channel, group in channel_groups_pairs.items():
-            close_websocket(channel_layer, channel)
-            if group != 'global':
-                close_recipient_channel(user.id, group, channel_layer)
-
-    except UserChannelGroup.DoesNotExist:
-        print('User channel group not found')
-    except Exception as e:
-        print('Error:', e)
-
-def close_websocket(channel_layer, channel):
-    try:
-        async_to_sync(channel_layer.send)(channel, {'type': 'websocket.close'})
-    except Exception as e:
-        print('Error:', e)
-        
-def friend_request_notify(user_id, friend, friend_request_id):
-    try:
-        channel_name = UserChannelGroup.objects.get(user=friend).main
-        if channel_name:
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.send)(channel_name, {
-                'type': 'send.notification',
-                'notification': 'friendRequest',
-                'userId': user_id,
-                'id': friend_request_id
-            })
-    except UserChannelGroup.DoesNotExist:
-        print('Friend channel group not found')
-    except Exception as e:
-        print('Error:', e)
-        
-def accept_friend_request_notify(user, friend):
-    channel_layer = get_channel_layer()
-    if friend.status == 'online':
-        notify_online(user, friend, True, channel_layer)
-    if user.status == 'online':
-        notify_online(friend, user, True, channel_layer)
-        
-def notify_online(user, friend, connected, channel_layer):
-    try:
-        channel_name = UserChannelGroup.objects.get(user=friend).main
-        if channel_name:
-            async_to_sync(channel_layer.send)(channel_name, {
-                'type': 'send.notification',
-                'notification': 'connection',
-                'connected': connected,
-                'userId': user.id
-            })
-    except UserChannelGroup.DoesNotExist:
-        print('Friend channel group not found')
-    except Exception as e:
-        print('Error:', e)
-        
-# Database operations for the consumer
-@database_sync_to_async
-def change_status(user, status):
-    user.status = status
-    user.save()
-
-@database_sync_to_async
-def set_main_channel(user, channel_name):
-    try:
-        user_channel_group = UserChannelGroup.objects.get(user=user)
-        user_channel_group.main = channel_name
-        user_channel_group.save()
-    except UserChannelGroup.DoesNotExist:
-        UserChannelGroup.objects.create(user=user, main=channel_name)
-    
-@database_sync_to_async
-def get_group_list(user):
-    try:
-        user_channel_group = UserChannelGroup.objects.get(user=user)
-        return user_channel_group.get_group_names()
-    except UserChannelGroup.DoesNotExist:
-        return None
-    
-@database_sync_to_async
-def get_main_channel(user, id=False):
-    try:
-        if id:
-            return UserChannelGroup.objects.get(user__id=user).main
-        return UserChannelGroup.objects.get(user=user).main
-    except UserChannelGroup.DoesNotExist:
-        return None
-    
-@database_sync_to_async
-def get_online_friends(user, ids_only=False):
-    try:
-        friends = Friend.objects.online_friends(user, ids_only)
-        return friends
-    except Exception as e:
-        print('Error:', e)
-
-@database_sync_to_async
-def friend_request_count(user):
-    try:
-        return Friend.objects.requests(user).count()
-    except Exception:
-        return 0
-    
-@database_sync_to_async
-def get_user(user_id):
-    try:
-        return User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return None

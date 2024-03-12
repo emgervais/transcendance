@@ -1,72 +1,11 @@
-import json
+from notification.utils_db import get_user, get_all_blocked_user_ids, in_group, add_channel_group, remove_channel_group, get_main_channel, is_blocked, update_swear_count, get_channel_name
+from notification.utils import notify_online, close_websocket
 from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
-from notification.consumers import get_main_channel, close_websocket, notify_online
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from users.models import User, UserChannelGroup
-from friend.models import Block
+from users.models import UserChannelGroup
 from chat.censor import censor
-
-@database_sync_to_async
-def get_user(user_id):
-    try:
-        return User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return None
-
-@database_sync_to_async
-def update_swear_count(user, new_count):
-    user.swear_count += new_count
-    user.save()
-    
-@database_sync_to_async
-def is_blocked(user, recipient):
-    try:
-        return Block.objects.is_blocked(recipient, user) or Block.objects.is_blocked(user, recipient)
-    except Block.DoesNotExist:
-        return False
-
-@database_sync_to_async
-def get_all_blocked_user_ids(user):
-    try:
-        blocked_ids = Block.objects.blocked_ids(user)
-        blocked_ids = [user_id for user_id in blocked_ids]
-        return blocked_ids
-    except Block.DoesNotExist:
-        return []
-
-@database_sync_to_async
-def add_channel_group(user, channel_name, group_name):
-    try:
-        user_channel_group = UserChannelGroup.objects.get(user=user)
-        user_channel_group.add_channel_group(channel_name, group_name)
-    except UserChannelGroup.DoesNotExist:
-        UserChannelGroup.objects.create(user=user, channel_groups={channel_name: group_name})
-
-@database_sync_to_async
-def remove_channel_group(user, channel_name):
-    try:
-        user_channel_group = UserChannelGroup.objects.get(user=user)
-        user_channel_group.remove_channel_group(channel_name)
-    except UserChannelGroup.DoesNotExist:
-        print(user, "does not have a channel group")
-        
-@database_sync_to_async
-def in_group(user, group_name):
-    try:
-        user_channel_group = UserChannelGroup.objects.get(user=user)
-        return user_channel_group.in_group(group_name)
-    except UserChannelGroup.DoesNotExist:
-        return False
-
-@database_sync_to_async
-def get_channel_name(user, group_name):
-    try:
-        user_channel_group = UserChannelGroup.objects.get(user=user)
-        return user_channel_group.get_channel_name(group_name)
-    except UserChannelGroup.DoesNotExist:
-        return None
+import json
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
