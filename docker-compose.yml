@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   postgres:
-    image: postgres:16.2-alpine
+    image: postgres:12.17-alpine3.19
     container_name: postgres
     env_file:
       - .env
@@ -10,8 +10,11 @@ services:
       - db:/var/lib/postgresql/data
     expose:
       - ${POSTGRES_PORT}
-    networks:
-      - transcendence_network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
 
   web:
     container_name: web
@@ -21,15 +24,12 @@ services:
       context: ./django/
     volumes:
       - ./django/:/usr/src/app/
-      - ./media/:/usr/src/app/media/
     expose:
       - ${DJANGO_PORT}
     depends_on:
-      - postgres
-      - redis
-    networks:
-      - transcendence_network
-
+      postgres:
+        condition: service_healthy
+      
   nginx:
     container_name: nginx
     build:
@@ -37,29 +37,9 @@ services:
     ports:
       - 443:443
     volumes:
-      - ./static/:/home/app/static/
-      - ./media/:/home/app/media/
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./static:/home/app/static/
     depends_on:
       - web
-    networks:
-      - transcendence_network
-
-  redis:
-    container_name: redis
-    image: redis:7.2.4-alpine
-    volumes:
-      - static:/data
-    expose:
-      - ${REDIS_PORT}
-    networks:
-      - transcendence_network
 
 volumes:
-  static:
   db:
-
-networks:
-  transcendence_network:
-    name: transcendence_network
-    driver: bridge
