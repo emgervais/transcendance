@@ -52,7 +52,6 @@ async function isAuthorized(error) {
                 console.log("Renewed Access Token");
             })
             .catch((_) => {
-                auth.setConnected(false);
                 console.log("Couldn't Renew Access Token");
                 if (!router.getCurrentRoute().unprotected) {
                     auth.reConnect();

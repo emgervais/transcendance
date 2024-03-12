@@ -1,6 +1,4 @@
 import * as api from "/js/api.js";
-import * as chatDisplay from "/js/chat/display.js";
-import * as nav from "/js/nav.js";
 import * as notifications from "/js/notifications.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
@@ -40,18 +38,19 @@ function setConnected(connected) {
         removeCurrUser();
     }
     localStorage.setItem("connected", connected);
+    util.displayConnected();
 }
 
 // -- login ----
-function login(user, redirect=true) {
-    setConnected(true);
+async function login(user, redirect=true) {
     setCurrUser(user);
-    displayCurrUser();
     if (redirect) {
-        router.route("/");
+        await router.route("/");
     }
+    setConnected(true);
+    displayCurrUser();
     reconnecting = false;
-    notifications.start()
+    notifications.start();
 }
 
 var reconnecting = false;
@@ -89,11 +88,11 @@ function logout() {
     api.fetchRoute({
         route: "/api/logout/",
         options: { method: "POST" },
-        dataManager: data => {
+        dataManager: async data => {
             console.log("Successful logout\n", data);
-            setConnected(false);
             sessionStorage.removeItem("messages");
-            router.route("/");
+            await router.route("/");
+            setConnected(false);
         }
     });
 }
@@ -129,5 +128,5 @@ function oauthRedirected() {
 }
 
 export { loginButton, registerButton, oauthButton };
-export { isConnected, setConnected };
+export { isConnected };
 export { confirmLogin, logout, oauthRedirected, reConnect };

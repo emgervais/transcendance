@@ -15,7 +15,6 @@ const routes = equipParamRoutes({
     "/": {
         template: "/templates/home.html",
         unprotected: true,
-        onLoad: util.displayConnected,
     },
     "/register/": {
         onLoad: nav.displayRegister,
@@ -65,9 +64,9 @@ const routeLoadFunctions = [
     displayCurrUser,
 ]
 
-const route = (href) => {
+const route = async (href) => {
     window.history.pushState({}, "", href);
-    locationHandler();
+    await locationHandler();
 };
 
 // -- fetch document ----
@@ -125,6 +124,8 @@ const locationHandler = async () => {
         route.onLoad();
     }
     routeLoadFunctions.forEach(f => f());
+    console.log("locationHandler after");
+
 };
 
 window.onpopstate = locationHandler;

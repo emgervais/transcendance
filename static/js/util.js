@@ -44,6 +44,7 @@ function clearFloatingBoxes() {
 function displayConnected() {
   const connected = auth.isConnected();
   document.querySelectorAll('.connected').forEach((element) => {
+      console.log("display:", element);
       display(element, connected);
   });
   document.querySelectorAll('.anonymous').forEach((element) => {
