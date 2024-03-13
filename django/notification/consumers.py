@@ -78,6 +78,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         if self.user.is_authenticated:
             await set_main_channel(self.user, '')
+            self.cancel_search()
             disconnect_thread = threading.Thread(target=user_disconnect, args=(self.user,))
             disconnect_thread.start()
   
@@ -126,7 +127,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         friends = await get_online_friends(self.user)
         if friends:
             for friend in friends:
-                await async_send_to_websocket( self.channel_layer, await get_main_channel(friend, True), {
+                await async_send_to_websocket(self.channel_layer, await get_main_channel(friend), {
                     'type': 'send.notification', 'notification': 'connection', 'connected': connected, 'userId': self.user.id
                 })
 
