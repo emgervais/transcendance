@@ -25,16 +25,12 @@ def close_recipient_channel(user_id, group, channel_layer):
     recipient_id = users[0] if users[0] != str(user_id) else users[1]
     
     try:
-        recipient = User.objects.get(id=recipient_id)
-        recipient_channel_groups = UserChannelGroup.objects.get(user=recipient)
-        recipient_channel = recipient_channel_groups.get_channel_name(group)
-        if recipient_channel:
-            async_to_sync(channel_layer.send)(recipient_channel, {
-                'type': 'chat.message',
-                'message': 'User is offline',
-                'senderId': user_id,
-                'closing': True
-            })
+        send_to_websocket(channel_layer,  UserChannelGroup.objects.get(user__id=recipient_id).get_channel_name(group), {
+            'type': 'chat.message',
+            'message': 'User is offline',
+            'senderId': user_id,
+            'closing': True
+        })
     except User.DoesNotExist:
         print('Recipient not found')
         
@@ -67,17 +63,12 @@ def close_websocket(channel_layer, channel):
         
 def friend_request_notify(user_id, friend, friend_request_id):
     try:
-        channel_name = UserChannelGroup.objects.get(user=friend).main
-        if channel_name:
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.send)(channel_name, {
-                'type': 'send.notification',
-                'notification': 'friendRequest',
-                'userId': user_id,
-                'id': friend_request_id
-            })
-    except UserChannelGroup.DoesNotExist:
-        print('Friend channel group not found')
+        send_to_websocket(get_channel_layer(), UserChannelGroup.objects.get(user=friend).main, {
+            'type': 'send.notification',
+            'notification': 'friendRequest',
+            'userId': user_id,
+            'id': friend_request_id
+        })
     except Exception as e:
         print('Error:', e)
         
@@ -90,15 +81,17 @@ def accept_friend_request_notify(user, friend):
         
 def notify_online(user, friend, connected, channel_layer):
     try:
-        channel_name = UserChannelGroup.objects.get(user=friend).main
-        if channel_name:
-            async_to_sync(channel_layer.send)(channel_name, {
-                'type': 'send.notification',
-                'notification': 'connection',
-                'connected': connected,
-                'userId': user.id
-            })
-    except UserChannelGroup.DoesNotExist:
-        print('Friend channel group not found')
+        send_to_websocket(channel_layer, UserChannelGroup.objects.get(user=friend).main, {
+            'type': 'send.notification',
+            'notification': 'connection',
+            'connected': connected,
+            'userId': user.id
+        })
     except Exception as e:
         print('Error:', e)
+        
+def send_to_websocket(channel_layer, channel_name, event):
+    if channel_name:
+            async_to_sync(channel_layer.send)(channel_name, event)
+    else:
+        print('Channel name not found')
