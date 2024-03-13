@@ -124,7 +124,6 @@ const locationHandler = async () => {
         route.onLoad();
     }
     routeLoadFunctions.forEach(f => f());
-    console.log("locationHandler after");
 
 };
 

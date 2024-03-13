@@ -6,9 +6,10 @@ import * as user from "/js/user/user.js";
 import * as util from "/js/util.js";
 
 // -- elements ----
-const inviteContainer = document.getElementById("game-invite");
-const inviteUserContainer = inviteContainer.querySelector(".user-container");
-const inviteButtonsContainer = inviteContainer.querySelector(".invite-buttons");
+const invitesContainer = document.getElementById("game-invites");
+console.log("invitesContainer:", invitesContainer);
+const invitesHeader = document.getElementById("game-invites-header");
+
 const inviteNotification = document.getElementById("invite-notification");
 const shadow = document.getElementById("shadow");
 
@@ -24,43 +25,86 @@ function invite(target) {
     notifications.startMatch(roomId);
 }
 
+//
+let invites = [];
+
 async function receiveInvite(data) {
     util.display(inviteNotification, true);
+    if (invites.includes(data.room)) {
+        removeInvite(data.room);
+    }
+    invites.push(data.room);
+    makeInviteHeaderMessage();
+    const inviteContainer = await createInviteContainer(data);
+    invitesContainer.appendChild(inviteContainer);
+}
+
+function makeInviteHeaderMessage() {
+    invitesHeader.innerText = `You have${invites.length < 2 ? " a" : ""} game invite${invites.length > 1 ? "s" : ""}!`;
+}
+
+async function createInviteContainer(data) {
+    const inviteContainer = document.createElement("div");
+    inviteContainer.setAttribute("data-room-id", data.room);
+    inviteContainer.classList.add("invite");
     const userElement = await user.displayUser({
         userId: data.userId,
         includeBlockButton: false
     });
-    inviteUserContainer.appendChild(userElement);
+    inviteContainer.appendChild(userElement);
+    includeInviteButtons(inviteContainer, data.room);
+    return inviteContainer;
+}
 
-    inviteButtonsContainer.innerHTML = "";
-    
+function includeInviteButtons(container, room) {
     const acceptButton = document.createElement("button");
     acceptButton.innerText = "Accept";
     acceptButton.classList.add("respond-invite");
-    acceptButton.setAttribute("data-room-id", data.room);
-    acceptButton.setAttribute("data-cancel", false);    
-    inviteButtonsContainer.appendChild(acceptButton);
+    acceptButton.setAttribute("data-room-id", room);
+    acceptButton.setAttribute("data-accept", true);    
+    container.appendChild(acceptButton);
 
     const declineButton = document.createElement("button");
     declineButton.innerText = "Decline";
     declineButton.classList.add("respond-invite");
-    declineButton.setAttribute("data-room-id", data.room);    
-    declineButton.setAttribute("data-cancel", true);
-    inviteButtonsContainer.appendChild(declineButton);
+    declineButton.setAttribute("data-room-id", room);    
+    declineButton.setAttribute("data-accept", false);
+    container.appendChild(declineButton);
 }
 
+function removeInvite(room) {
+    const inviteContainers = invitesContainer.querySelectorAll(".invite");
+    for (const inviteContainer of inviteContainers) {
+        const currRoom = inviteContainer.getAttribute("data-room-id");
+        if (currRoom == room) {
+            inviteContainer.remove();
+            break;
+        }
+    }
+    invites = invites.filter(currRoom => {
+        console.log(`currRoom ${currRoom} !== room ${room}:`, currRoom !== room)
+        return currRoom !== room;
+    });
+
+}
+
+
 function displayInvite() {
-    util.display(inviteNotification, false);
     util.display(shadow);
-    util.display(inviteContainer);
+    util.display(invitesContainer);
 }
 
 function respondInvite(target) {
     const roomId = target.getAttribute("data-room-id");
-    const cancel = target.getAttribute("data-cancel") == "true";
+    const cancel = target.getAttribute("data-accept") == "false";
+    removeInvite(roomId);
+    if (invites.length == 0) {
+        util.display(inviteNotification, false);
+    }
     notifications.startMatch(roomId, cancel);
+    console.log("invites.length:", invites.length);
     util.display(shadow, false);
-    util.display(inviteContainer, false);
+    util.display(invitesContainer, false);
 }
 
 function start(data) {
