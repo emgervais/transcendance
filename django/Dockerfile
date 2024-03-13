@@ -1,8 +1,7 @@
 FROM python:3.9.18-alpine
 
 # Install the PostgreSQL and Redis client tools
-RUN apk add --no-cache postgresql-client redis openrc
-VOLUME ["sys/fs/cgroup"]
+RUN apk add --no-cache postgresql-client redis
 
 RUN pip install --upgrade pip
 
@@ -14,11 +13,6 @@ COPY cron /etc/cron.d/cron
 RUN chmod 0644 /etc/cron.d/cron
 RUN crontab /etc/cron.d/cron
 RUN touch /var/log/cron.log
-
-# COPY daphne.socket /etc/runlevels/default/daphne.socket
-# COPY daphne.service /etc/runlevels/default/daphne.service
-
-
 
 # COPY . .
 COPY init_checks.py .
