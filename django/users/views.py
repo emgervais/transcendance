@@ -9,6 +9,7 @@ class UserView(APIView):
     serializer_class = UserSerializer
     
     def get(self, request: HttpRequest) -> JsonResponse:
+        print("request.get_host()", request.get_host())
         user = User.objects.get(pk=request.user.id)
         return JsonResponse(self.serializer_class(user).data, status=status.HTTP_200_OK)
     

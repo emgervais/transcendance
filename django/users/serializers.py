@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['image'] = "https://" + settings.ALLOWED_HOSTS[0] + instance.image.url
+        ret['image'] = instance.image.url
         ret['friendRequests'] = Friend.objects.requests(instance).count()
         return ret
     
@@ -25,7 +25,7 @@ class RestrictedUserSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['image'] = "https://" + settings.ALLOWED_HOSTS[0] + instance.image.url
+        ret['image'] = instance.image.url
         return ret
 
 class ChangeInfoSerializer(serializers.ModelSerializer):
@@ -97,7 +97,7 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
         if 'email' in self.validated_data:
             ret['email'] = self.validated_data['email']
         if 'image' in self.validated_data:
-            ret['image'] = "https://" + settings.ALLOWED_HOSTS[0] + instance.image.url
+            ret['image'] = instance.image.url
         if 'password1' in self.validated_data:
             ret['password'] = 'Password updated'
         return ret
@@ -109,6 +109,6 @@ class StatsSerializer(serializers.ModelSerializer):
     
     # def to_representation(self, instance):
     #     ret = super().to_representation(instance)
-    #     ret['image'] = "https://" + settings.ALLOWED_HOSTS[0] + instance.image.url
+    #     ret['image'] = instance.image.url
     #     ret['friendRequests'] = Friend.objects.requests(instance).count()
     #     return ret

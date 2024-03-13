@@ -10,6 +10,7 @@ function setCurrUser(user) {
     if (!user) {
         throw new Error("setCurrUser: Invalid user object provided.");
     }
+    /// TODO
     let key = "user";
     sessionStorage.setItem(key, JSON.stringify(user));
 }

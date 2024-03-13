@@ -1,3 +1,9 @@
+.plusieurs game requests
+ accept/decline (remove request)
+.online friends list
+
+
+
 notifications:
     type: pong:
     room:
@@ -22,6 +28,26 @@ Notification, type: matchRequest
 chat:
                      add: pas si friend
                   invite: pas si in game with
+
+make error:
+    docker-compose up --build
+    [+] Building 12.9s (6/6) FINISHED                                        
+    => [github-web internal] load build definition from Dockerfile     0.8s
+    => => transferring dockerfile: 32B                                 0.0s
+    => [github-nginx internal] load build definition from Dockerfile   0.9s
+    => => transferring dockerfile: 32B                                 0.0s
+    => [github-web internal] load .dockerignore                        0.9s
+    => => transferring context: 2B                                     0.0s
+    => [github-nginx internal] load .dockerignore                      1.0s
+    => => transferring context: 2B                                     0.0s
+    => ERROR [github-web internal] load metadata for docker.io/libra  11.7s
+    => CANCELED [github-nginx internal] load metadata for docker.io/  10.1s
+    ------
+    > [github-web internal] load metadata for docker.io/library/python:3.9.18-alpine:
+    ------
+    failed to solve: rpc error: code = Unknown desc = failed to solve with frontend dockerfile.v0: failed to create LLB definition: failed to do request: Head "https://registry-1.docker.io/v2/library/python/manifests/3.9.18-alpine": net/http: TLS handshake timeout
+    make: *** [start] Error 17
+Après ça marche.
 ----------------------------------------------------
 
 stats.load()
