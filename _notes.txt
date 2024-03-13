@@ -1,3 +1,5 @@
+bouton global: notifications: tournament
+
 .plusieurs game requests
  accept/decline (remove request)
 .online friends list
@@ -9,7 +11,7 @@ notifications:
     room:
     id:
     description:
-        searchingMatch
+        searchingMatch: montrer que t'es entrain de search un match (pas afficher de recherche de matchs)
         matchRequest
         matchRefused
         opponentIngame

@@ -92,7 +92,7 @@ function startMatch(roomId, cancel=false) {
 	if (!ws) {
 		throw new Error("notifications.startMatch: notifications websocket not started");
 	}
-	console.log();
+	console.log("startMatch, cancel:", cancel, "roomId:", roomId);
 	ws.send(JSON.stringify({
 		type: "matchmaking",
 		room: roomId,

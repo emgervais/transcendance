@@ -80,7 +80,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         room = data.get('room', 'global')
 
         if type == 'matchmaking':
-            if data.get('cancel', False) and self.current_queue == room:
+            if data.get('cancel', False):
                 if not await self.is_refusing_match(room) and self.in_queue:
                     await self.cancel_search()
             else:

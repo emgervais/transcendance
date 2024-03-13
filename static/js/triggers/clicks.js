@@ -38,6 +38,7 @@ const classFunctions = {
     'profile-picture-chat': chatDisplay.activateMenu,
 
     'start-match': match.invite,
+    'start-tournament': (_) => { notifications.startMatch("tournament"); },
     'respond-invite': match.respondInvite,
 }
 
