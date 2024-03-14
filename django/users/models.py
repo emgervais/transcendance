@@ -4,8 +4,6 @@ from django.contrib.auth.models import UserManager
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 
-K = 32
-
 SEARCH_FILTERS = {
     'is-friend': 'friends__friend',
     'is-blocked': 'blocked_by__blocker',
@@ -28,17 +26,11 @@ class UserManager(UserManager):
 class User(AbstractUser):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='profile_pics', default='default/default.webp')
-    elo = models.IntegerField(default=1000)
     status = models.CharField(max_length=10, default='offline')
-    objects = UserManager()
     swear_count = models.IntegerField(default=0)
     
-    def calculate_elo(self, opponent_elo, score):
-        expected = 1 / (1 + 10 ** ((opponent_elo - self.elo) / 400))
-        new_elo = self.elo + K * (score - expected)
-        self.elo = new_elo
-        self.save()
-    
+    objects = UserManager()
+        
     def __str__(self):
         return self.username
     
@@ -47,7 +39,6 @@ class User(AbstractUser):
         verbose_name = _('User')
         verbose_name_plural = _('Users')
         
-
 class UserChannelGroup(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     channel_groups = models.JSONField(default=dict)

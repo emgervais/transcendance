@@ -1,6 +1,5 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from users.models import UserChannelGroup
-from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 import time, threading, redis, json
 from django.conf import settings
@@ -36,11 +35,8 @@ def matchmaker(room):
                         except UserChannelGroup.DoesNotExist:
                             break
                     matchmaking_redis.zremrangebyrank(room, 0, min_players - 1)
-                elif matchmaking_redis.zcard(room) == 1:
-                    print('One user in queue')
-                    break
                 else:
-                    print('No users in queue')
+                    print('Not enough players')
                     break
         finally:
             matchmaking_lock.release()
@@ -85,16 +81,20 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         type = data['type']
-        room = data.get('room', 'global')
 
         if type == 'matchmaking':
-            if data.get('cancel', False):
-                if not await self.is_refusing_match(room) and self.in_queue:
-                    await self.cancel_search()
-            else:
-                if self.current_queue != room:
-                    await self.cancel_search()
-                await self.search_match(room)
+            await self.handle_matchmaking(data)
+        
+    async def handle_matchmaking(self, data):
+        room = data.get('room', 'global')
+        
+        if data.get('cancel', False):
+            if not await self.is_refusing_match(room) and self.in_queue:
+                await self.cancel_search()
+        else:
+            if self.current_queue != room:
+                await self.cancel_search()
+            await self.search_match(room)
             
     async def websocket_close(self, event):
         await self.close()
@@ -134,7 +134,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def search_match(self, room):
         if room != 'global' and room != 'tournament':
             if not await self.send_match_request(room):
-                print("cancel")
                 return
         await self.send(text_data=json.dumps({
             'type': 'pong',
@@ -168,7 +167,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         if opponent:
             if opponent.status == 'online':
                 if matchmaking_redis.zrank(room, opponent_id) is None:
-                    print('Sending match request')
                     await async_send_to_websocket(self.channel_layer, await get_main_channel(opponent_id, True), {
                         'type': 'send.notification', 'notification': 'pong', 'description': 'matchRequest', 'room': room, 'userId': self.user.id
                     })
