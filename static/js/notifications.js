@@ -20,6 +20,7 @@ function start() {
 
 	ws.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
+		console.log("pong notifications:", data);
 		switch (data.type) {
 			case "chat":
 				chat.start(data.room);
@@ -59,17 +60,23 @@ function pongNotifications(data) {
 	console.log("pong notifications:", data);
 	switch (data.description) {
 		case "searchingMatch":
+			match.setSearchingMatch();
 			break;
 		case "matchRequest":
 			match.receiveInvite(data);
 			break;
 		case "matchRefused":
+			match.setSearchingMatch(false);
+			util.showAlert({text: "Opponent refused to play."});
 			break;
 		case "opponentIngame":
+			util.showAlert({text: "Opponent is already in game."});
 			break;
 		case "opponentOffline":
+			util.showAlert({text: "Opponent is offline."});
 			break;
 		case "matchFound":
+			match.setSearchingMatch(false);
 			match.start(data);
 			break;
 		default:

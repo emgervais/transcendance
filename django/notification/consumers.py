@@ -117,7 +117,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         group_list = await get_group_list(self.user)
         if group_list:
             for group in group_list:
-                if group != 'global' and is_recipient_online(group, self.user.id):
+                if group != 'global' and not group.startswith("pong") and await is_recipient_online(self.user.id, group):
                     await self.send(text_data=json.dumps({
                         'type': 'chat',
                         'room': group
@@ -168,19 +168,23 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             if opponent.status == 'online':
                 if matchmaking_redis.zrank(room, opponent_id) is None:
                     await async_send_to_websocket(self.channel_layer, await get_main_channel(opponent_id, True), {
-                        'type': 'send.notification', 'notification': 'pong', 'description': 'matchRequest', 'room': room, 'userId': self.user.id
+                        'type': 'send.notification',
+                        'notification': 'pong',
+                        'description': 'matchRequest',
+                        'room': room,
+                        'userId': self.user.id
                     })
                 return True
             elif opponent.status == 'in-game':
                 await self.send(text_data=json.dumps({
                     'type': 'pong',
                     'description': 'opponentInGame',
-                    'userId': opponent_id
+                    'userId': opponent_id,
                 }))
             else:
                 await self.send(text_data=json.dumps({
                     'type': 'pong',
                     'description': 'opponentOffline',
-                    'userId': opponent_id
+                    'userId': opponent_id,
                 }))
         return False

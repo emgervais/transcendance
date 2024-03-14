@@ -1,8 +1,15 @@
-bouton global: notifications: tournament
+.auto login with cookie:
+ home buttons don't show up
 
-.plusieurs game requests
- accept/decline (remove request)
 .online friends list
+ Update online status: garder une classe pour online avec data-user-id
+ (in displayUser) (also, click on image to trigger spinning menu)
+
+.connected elements
+ searching-match elements
+ not-searching-match
+
+ connected
 
 
 
@@ -17,15 +24,6 @@ notifications:
         opponentIngame
         opponentOffline
 
-
-Notification, type: matchFound
-
-.proposer game à user  (voir startMatch(), mais avec id_id)
-.bouton jouer (id non proposé (global))
-
-Notification, type: matchRequest
-    .notifications: type: matchmaking, et renvoyer la room reçue
-                                    (cancel true/false)
 
 chat:
                      add: pas si friend

@@ -38,7 +38,7 @@ function setConnected(connected) {
         removeCurrUser();
     }
     localStorage.setItem("connected", connected);
-    util.displayConnected();
+    util.displayState();
 }
 
 // -- login ----
@@ -91,8 +91,8 @@ function logout() {
         dataManager: async data => {
             console.log("Successful logout\n", data);
             sessionStorage.removeItem("messages");
-            await router.route("/");
             setConnected(false);
+            await router.route("/");
         }
     });
 }

@@ -13,7 +13,7 @@ const invitesHeader = document.getElementById("game-invites-header");
 const inviteNotification = document.getElementById("invite-notification");
 const shadow = document.getElementById("shadow");
 
-// --
+// -- send invite ----
 function invite(target) {
     const userId = target.getAttribute("data-user-id");
     let roomId;
@@ -25,7 +25,14 @@ function invite(target) {
     notifications.startMatch(roomId);
 }
 
-//
+// -- 
+let searchingMatch = false;
+function setSearchingMatch(searching=true) {
+    searchingMatch = searching;
+    util.displayState();
+}
+
+// -- receive invite ----
 let invites = [];
 
 async function receiveInvite(data) {
@@ -88,12 +95,12 @@ function removeInvite(room) {
 
 }
 
-
 function displayInvite() {
     util.display(shadow);
     util.display(invitesContainer);
 }
 
+// -- repond invite ----
 function respondInvite(target) {
     const roomId = target.getAttribute("data-room-id");
     const cancel = target.getAttribute("data-accept") == "false";
@@ -107,6 +114,7 @@ function respondInvite(target) {
     util.display(invitesContainer, false);
 }
 
+// -- start ----
 function start(data) {
     console.log("match.start, data:", data);
     chat.start(`pong_${data.room}`);
@@ -115,4 +123,6 @@ function start(data) {
     router.route("/pong/");
 }
 
-export { invite, receiveInvite, displayInvite, respondInvite, start };
+export { invite, receiveInvite, displayInvite, respondInvite };
+export { searchingMatch, setSearchingMatch };
+export { start };
