@@ -109,3 +109,12 @@ def get_channel_name(user, group_name):
         return user_channel_group.get_channel_name(group_name)
     except UserChannelGroup.DoesNotExist:
         return None
+    
+@database_sync_to_async
+def is_recipient_online(user_id, group):
+    users = group.split('_')
+    recipient_id = users[0] if users[0] != str(user_id) else users[1]
+    try:
+        return User.objects.get(id=recipient_id).status == 'online'
+    except User.DoesNotExist:
+        return False
