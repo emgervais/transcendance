@@ -1,5 +1,6 @@
-.auto login with cookie:
- home buttons don't show up
+.notifications searchingMatch:
+    keep roomId as current search
+    stop searching: startMatch(roomId, cancel);
 
 .online friends list
  Update online status: garder une classe pour online avec data-user-id

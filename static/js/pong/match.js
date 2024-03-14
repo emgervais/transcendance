@@ -22,14 +22,24 @@ function invite(target) {
     } else {
         roomId = "global";
     }
-    notifications.startMatch(roomId);
+    notifications.matchMaking(roomId);
 }
 
 // -- 
 let searchingMatch = false;
-function setSearchingMatch(searching=true) {
+let searchingMatchId;
+function setSearchingMatch({
+    roomId,
+    searching=true
+}) {
+    searchingMatchId = roomId;
     searchingMatch = searching;
     util.displayState();
+}
+
+function cancelSearchingMatch() {
+    notifications.matchMaking(searchingMatchId, true);
+    setSearchingMatch({searching: false});
 }
 
 // -- receive invite ----
@@ -108,7 +118,7 @@ function respondInvite(target) {
     if (invites.length == 0) {
         util.display(inviteNotification, false);
     }
-    notifications.startMatch(roomId, cancel);
+    notifications.matchMaking(roomId, cancel);
     console.log("invites.length:", invites.length);
     util.display(shadow, false);
     util.display(invitesContainer, false);
@@ -124,5 +134,5 @@ function start(data) {
 }
 
 export { invite, receiveInvite, displayInvite, respondInvite };
-export { searchingMatch, setSearchingMatch };
+export { searchingMatch, setSearchingMatch, cancelSearchingMatch };
 export { start };
