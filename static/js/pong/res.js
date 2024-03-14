@@ -45,7 +45,7 @@ void main()
 	fraguv = vec2(pos.x, pos.y);
 	pos.xy = (pos.xy * 7.0 + vec2(uposition)) / screensize.xy * 2.0 - vec2(1.0, 1.0);
 	// pos.y = -pos.y;
-	gl_Position = vec4(pos, 0.0, 1.0);
+	gl_Position = vec4(pos, 0.9, 1.0);
 }
 `;
 const textFragShader = `\
