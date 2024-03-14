@@ -1,5 +1,5 @@
 from notification.utils_db import get_user, get_all_blocked_user_ids, in_group, add_channel_group, remove_channel_group, get_main_channel, is_blocked, update_swear_count, get_channel_name
-from notification.utils import notify_online, close_websocket
+from notification.utils import notify_online, send_to_websocket
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -105,5 +105,5 @@ def close_chat(user, recipient, room, channel_layer):
     notify_online(user, recipient, False, channel_layer)
     channel_name = UserChannelGroup.objects.get(user=recipient).get_channel_name(room)
     if channel_name:
-        close_websocket(channel_layer, channel_name)
+        send_to_websocket(channel_layer, channel_name, {'type': 'websocket.close'})
         UserChannelGroup.objects.get(user=recipient).remove_channel_group(channel_name)

@@ -5,9 +5,8 @@ var users = {};
 
 // -- singletons ----
 async function getUser(id) {
-    let key = "user-" + id;
-    if (key in users) {
-        return users[key];
+    if (id in users) {
+        return users[id];
     }
     await api.fetchRoute({
         route: `/api/user/${id}/`,
@@ -15,21 +14,36 @@ async function getUser(id) {
             setUser(id, user);
         },
     });
-    return users[key];
+    return users[id];
 }
 
 function setUser(id, user) {
-    let key = "user-" + id;
-    users[key] = {
+    users[id] = {
         username: user.username,
         image: user.image,
-        status: user.status,
+        status: user.status == "online",
     };
+
+}
+
+function setUserStatus(id, status) {
+    if (users[id]) {
+        users[id].status = status;
+        const statusElements = document.querySelectorAll(".online-status");
+        for (const statusElement of statusElements) {
+            if (statusElement.getAttribute("data-user-id") == id) {
+                status ? statusElement.style.backgroundColor = 'green' : statusElement.style.backgroundColor = 'transparent';
+                const userContainer = statusElement.closest(".user");
+                userContainer.setAttribute("data-status", status);
+            }
+        }
+        const friendsContainer = document.getElementById("friends-container");
+        sortUsers(friendsContainer);
+    }
 }
 
 function removeUser(id) {
-    let key = "user-" + id;
-    delete users[key];
+    delete users[id];
 }
 
 // -- display ----
@@ -39,6 +53,8 @@ async function displayUser({
         friendshipId=undefined,
         friendRequestable=false,
         includeBlockButton=true,
+        includeStatus=true,
+        gameButton=false,
     }) {
     const div = document.createElement("div");
     const div1 = document.createElement("div");
@@ -74,7 +90,19 @@ async function displayUser({
             const blockButton = makeBlockButton(userId, !blocked);
             div2.append(blockButton);
         }
-
+        if(gameButton) {
+            const gameButton = makeGameButton(userId);
+            div2.append(gameButton);
+        }
+        if (includeStatus) {
+            const status = document.createElement("div");
+            status.classList.add("online-status");
+            status.setAttribute("data-user-id", userId);
+            if(user.status)
+                status.style.backgroundColor = 'green';
+            div1.appendChild(status);
+            div.setAttribute("data-status", user.status);
+        }
         div.appendChild(div2);
     };
     let user = await getUser(userId);
@@ -83,6 +111,15 @@ async function displayUser({
 }
 
 // -- buttons ----
+
+function makeGameButton(Id) {
+    const button = document.createElement("button");
+    button.innerText = 'Play';
+    button.classList.add('start-match');
+    button.setAttribute("data-user-id", Id);
+    return button;
+}
+
 function makeBlockButton(userId, block) {
     const button = document.createElement("button");
     const text = block ? "Block" : "Unblock";
@@ -142,6 +179,23 @@ function unfriend(target) {
 
 }
 
+// -- 
+function sortUsers(container) {
+    if (!container) {
+        return;
+    }
+    const userDivs = Array.from(container.querySelectorAll('.user'));
+    userDivs.sort((a, b) => {
+        const statusA = a.getAttribute("data-status") === "true";
+        const statusB = b.getAttribute("data-status") === "true";
+        return statusB - statusA;
+    });
+    container.innerHTML = "";
+    userDivs.forEach(div => {
+        container.appendChild(div)
+    });
+}
 
-export { getUser, setUser, removeUser, unfriend, displayUser };
+export { getUser, setUser, setUserStatus, removeUser, unfriend, displayUser };
 export { block };
+export { sortUsers };

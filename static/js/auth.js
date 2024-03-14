@@ -38,7 +38,7 @@ function setConnected(connected) {
         removeCurrUser();
     }
     localStorage.setItem("connected", connected);
-    util.displayConnected();
+    util.displayState();
 }
 
 // -- login ----
@@ -91,8 +91,8 @@ function logout() {
         dataManager: async data => {
             console.log("Successful logout\n", data);
             sessionStorage.removeItem("messages");
-            await router.route("/");
             setConnected(false);
+            await router.route("/");
         }
     });
 }
@@ -102,7 +102,7 @@ function oauthRedirected() {
     const code = queryParams.get("code");
     if (!code)
         return false;
-    util.showAlert({ text: "Logging you in..." });
+    util.showAlert({ text: "Logging you in...", timeout: null});
     api.fetchRoute({
         route: "/api/oauth42-login/",
         options: {

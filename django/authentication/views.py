@@ -7,7 +7,7 @@ from authentication.oauth42 import create_oauth_uri
 from datetime import datetime
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import AccessToken
-from notification.utils import close_websocket
+from notification.utils import send_to_websocket
 from channels.layers import get_channel_layer
     
 def set_cookies(response, user):
@@ -25,7 +25,6 @@ class ResetDatabaseView(generics.DestroyAPIView):
     def delete(self, request: HttpRequest) -> JsonResponse:
         try:
             User.objects.all().delete()
-            
             return JsonResponse({'message': 'Database reset successfully'}, status=status.HTTP_200_OK)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -50,7 +49,6 @@ class LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        print(serializer.data)
         return set_cookies(response, user)
 
 class LogoutView(generics.GenericAPIView):
@@ -66,8 +64,8 @@ class LogoutView(generics.GenericAPIView):
         response.delete_cookie('access_token')
         try:
             user = User.objects.get(pk=request.user.id)
-            main = UserChannelGroup.objects.get(user=user).main
-            close_websocket(get_channel_layer(), main)
+            channel_name = UserChannelGroup.objects.get(user=user).main
+            send_to_websocket(get_channel_layer(), channel_name, {'type': 'websocket.close'})
         except UserChannelGroup.DoesNotExist:
             print('User channel group not found')
         return response
@@ -88,7 +86,6 @@ class OAuth42LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        print(serializer.data)
         return set_cookies(response, user)
 
 class CustomTokenRefreshView(generics.GenericAPIView):

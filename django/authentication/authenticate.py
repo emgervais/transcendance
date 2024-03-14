@@ -1,8 +1,16 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.conf import settings
 
-# https://www.procoding.org/jwt-token-as-httponly-cookie-in-django
-# CSRF?
+from rest_framework.authentication import CSRFCheck
+from rest_framework import exceptions
+
+def enforce_csrf(request):
+    check = CSRFCheck()
+    check.process_request(request)
+    reason = check.process_view(request, None, (), {})
+    if reason:
+        raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)
+
 class CustomAuthentication(JWTAuthentication):
     def authenticate(self, request):
         ignore_paths = ['/api/register/', '/api/login/', '/api/oauth42-login/', '/api/oauth42-uri/', '/api/refresh/']

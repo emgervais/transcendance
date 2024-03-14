@@ -5,7 +5,7 @@ import * as match from "/js/pong/match.js";
 import * as nav from "/js/nav.js";
 import * as util from "/js/util.js";
 import { getCurrUser } from "/js/user/currUser.js";
-import { getUser } from "/js/user/user.js";
+import { setUserStatus, getUser } from "/js/user/user.js";
 
 var ws;
 
@@ -26,6 +26,7 @@ function start() {
 				break;
 			case "connection":
 				chatFriends.update(data.userId, data.connected);
+				setUserStatus(data.userId, data.connected);
 				util.showAlert({
 					text: `${(await getUser(data.userId)).username} just ${data.connected ? "": "dis"}connected.`,
 					timeout: 2,
@@ -59,17 +60,23 @@ function pongNotifications(data) {
 	console.log("pong notifications:", data);
 	switch (data.description) {
 		case "searchingMatch":
+			match.setSearchingMatch({roomId: data.room});
 			break;
 		case "matchRequest":
 			match.receiveInvite(data);
 			break;
 		case "matchRefused":
+			match.setSearchingMatch({searching: false});
+			util.showAlert({text: "Opponent refused to play."});
 			break;
 		case "opponentIngame":
+			util.showAlert({text: "Opponent is already in game."});
 			break;
 		case "opponentOffline":
+			util.showAlert({text: "Opponent is offline."});
 			break;
 		case "matchFound":
+			match.setSearchingMatch({searching: false});
 			match.start(data);
 			break;
 		default:
@@ -88,11 +95,10 @@ function stop() {
 	ws.close();
 }
 
-function startMatch(roomId, cancel=false) {
+function matchMaking(roomId, cancel=false) {
 	if (!ws) {
-		throw new Error("notifications.startMatch: notifications websocket not started");
+		throw new Error("notifications.matchMaking: notifications websocket not started");
 	}
-	console.log("startMatch, cancel:", cancel, "roomId:", roomId);
 	ws.send(JSON.stringify({
 		type: "matchmaking",
 		room: roomId,
@@ -100,4 +106,4 @@ function startMatch(roomId, cancel=false) {
 	}));
 }
 
-export { start, stop, startMatch };
+export { start, stop, matchMaking };

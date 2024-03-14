@@ -62,6 +62,7 @@ const routeQuitFunctions = [
 
 const routeLoadFunctions = [
     displayCurrUser,
+    util.displayState,
 ]
 
 const route = async (href) => {
@@ -124,7 +125,6 @@ const locationHandler = async () => {
         route.onLoad();
     }
     routeLoadFunctions.forEach(f => f());
-
 };
 
 window.onpopstate = locationHandler;

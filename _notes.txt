@@ -1,8 +1,10 @@
-bouton global: notifications: tournament
+nav: n friends online: href=/account/friends/
+    (how? get friends on display nav?)
 
-.plusieurs game requests
- accept/decline (remove request)
 .online friends list
+ resort on update
+ Update online status: garder une classe pour online avec data-user-id
+ (in displayUser) (also, click on image to trigger spinning menu)
 
 
 
@@ -17,15 +19,6 @@ notifications:
         opponentIngame
         opponentOffline
 
-
-Notification, type: matchFound
-
-.proposer game à user  (voir startMatch(), mais avec id_id)
-.bouton jouer (id non proposé (global))
-
-Notification, type: matchRequest
-    .notifications: type: matchmaking, et renvoyer la room reçue
-                                    (cancel true/false)
 
 chat:
                      add: pas si friend

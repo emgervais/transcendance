@@ -1,4 +1,6 @@
 import * as auth from "/js/auth.js";
+import * as match from "/js/pong/match.js";
+import * as util from "/js/util.js";
 
 // -- display ----
 function display(element, display=true) {
@@ -41,13 +43,26 @@ function clearFloatingBoxes() {
   }
 }
 
-function displayConnected() {
-  const connected = auth.isConnected();
-  document.querySelectorAll('.connected').forEach((element) => {
-      display(element, connected);
-  });
-  document.querySelectorAll('.anonymous').forEach((element) => {
-      display(element, !connected);
+function displayState(cherryPick=undefined) {
+  let classes = {
+    'connected': auth.isConnected(),
+    'searching-match': match.searchingMatch
+  };
+  if (cherryPick) {
+    classes = { [cherryPick]: classes[cherryPick] };
+  }
+  for (const [key, val] of Object.entries(classes)) {
+    classes[key] = val;
+    classes["not-" + key] = !val;
+  }
+
+  const querySelector = Object.keys(classes).map(cls => "." + cls).join(',');
+  document.querySelectorAll(querySelector).forEach(element => {
+    const display = Object.entries(classes).reduce(
+      (acc, [key, val]) => element.classList.contains(key) ? acc && val : acc,
+      true
+    );
+    util.display(element, display);
   });
 }
 
@@ -57,7 +72,7 @@ let bsAlert;
 
 async function showAlert({
   text,
-  timeout=undefined,
+  timeout=2,
   danger=false,
   closeButton=false,
 }) {
@@ -105,6 +120,6 @@ function sleep(ms) {
 }
 
 export { isDisplayed, display, toggleDisplay, toggleClass, setClass };
-export { clearFloatingBoxes, displayConnected };
+export { clearFloatingBoxes, displayState };
 export { showAlert, hideAlert };
 export { sleep };
