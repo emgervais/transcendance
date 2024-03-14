@@ -4,7 +4,7 @@ from channels.layers import get_channel_layer
 import time, threading, redis, json
 from django.conf import settings
 from notification.utils import get_opponent_id, user_disconnect, send_to_websocket
-from notification.utils_db import change_status, set_main_channel, get_group_list, get_main_channel, get_online_friends, friend_request_count, get_user
+from notification.utils_db import change_status, set_main_channel, get_group_list, get_main_channel, get_online_friends, friend_request_count, get_user, is_recipient_online
 
 
 TOURNAMENT_NB_PLAYERS = 4
@@ -117,7 +117,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         group_list = await get_group_list(self.user)
         if group_list:
             for group in group_list:
-                if group != 'global':
+                if group != 'global' and is_recipient_online(group, self.user.id):
                     await self.send(text_data=json.dumps({
                         'type': 'chat',
                         'room': group
