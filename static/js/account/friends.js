@@ -2,7 +2,7 @@ import * as api from "/js/api.js";
 import * as nav from "/js/nav.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
-import { displayUser, getUser } from "/js/user/user.js";
+import { displayUser, getUser, sortUsers } from "/js/user/user.js";
 
 const QUERY_PARAMS = {
     "is-friend": "false",
@@ -73,16 +73,20 @@ function getFriendRequests() {
 }
 
 function getFriends() {
-    const friendsManager = (friends) => {
+    const friendsManager = async friends => {
         const container = document.getElementById("friends-container");
         container.innerHTML = '';
-        friends.forEach(async friend => {
-            const div = await displayUser({
-                userId: friend.friend,
-                friendshipId: friend.id,
-            });
-            container.appendChild(div);
-        })
+        await Promise.all(
+            friends.map(async friend => {
+                const div = await displayUser({
+                    userId: friend.friend,
+                    friendshipId: friend.id,
+                    gameButton: true,
+                });
+                container.appendChild(div);
+            })
+        );
+        sortUsers(container);
     };
     api.fetchRoute({
         route: "/api/friends/",

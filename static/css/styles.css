@@ -594,6 +594,12 @@ input {
   text-align: center;
 }
 
+.online-status {
+  border: 1px black solid;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+}
 /* update form ----------------- */
 
 .update-section {

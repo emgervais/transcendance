@@ -1,16 +1,10 @@
-.notifications searchingMatch:
-    keep roomId as current search
-    stop searching: startMatch(roomId, cancel);
+nav: n friends online: href=/account/friends/
+    (how? get friends on display nav?)
 
 .online friends list
+ resort on update
  Update online status: garder une classe pour online avec data-user-id
  (in displayUser) (also, click on image to trigger spinning menu)
-
-.connected elements
- searching-match elements
- not-searching-match
-
- connected
 
 
 

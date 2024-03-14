@@ -102,7 +102,7 @@ function oauthRedirected() {
     const code = queryParams.get("code");
     if (!code)
         return false;
-    util.showAlert({ text: "Logging you in..." });
+    util.showAlert({ text: "Logging you in...", timeout: null});
     api.fetchRoute({
         route: "/api/oauth42-login/",
         options: {
