@@ -57,7 +57,7 @@ const camera = {
 	yaw: -Math.PI/2,
 	x: 0,
 	y: 0,
-	z: 5,
+	z: 1.5,
 	_viewmatrix: 0,
 	_projectionmatrix: 0,
 	uploadV: function() {mainUBO.update(this._viewmatrix._matrix, 192);},
@@ -286,7 +286,7 @@ function setup()
 	screenobject._uboT = newTranslationMatrix(0, 0, 8);
 	screenobject._uboR = newRotationMatrix(0, 0, 0);
 	screenobject._uboS = newScaleMatrix(1.3, 1, 1);
-	screenobject.move(0, 0, 1.25);
+	screenobject.move(0, 0, 1.36);
 	screenobject.uploadT();
 	screenobject.uploadR();
 	screenobject.uploadS();
@@ -314,11 +314,12 @@ function setup()
 	tvmodel.move(0, 0, 0.0);
 	legmodel.move(0, 0, 0.0);
 	sandalmodel.move(0, 0, 0.0);
-	tvmodel.scale(2.0, 2.0, 2.0);
-	legmodel.scale(2.0, 2.0, 2.0);
-	sandalmodel.scale(2.0, 2.0, 2.0);
+	let modelscales = 2.15;
+	tvmodel.scale(modelscales, modelscales + 0.2, modelscales);
+	legmodel.scale(modelscales, modelscales + 0.2, modelscales);
+	sandalmodel.scale(modelscales, modelscales + 0.2, modelscales);
 
-	camera._viewmatrix = newViewMatrix(0, 0, 5, 0, Math.PI*2);
+	camera._viewmatrix = newViewMatrix(0, 0, 2, 0, Math.PI*2);
 	camera._projectionmatrix = newProjectionMatrix(Math.PI / 2, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
 	camera.uploadV();
 	camera.uploadP();
@@ -472,8 +473,6 @@ function setup()
 					console.log("Game started.");
 				}
 				else {
-					playerid = 0;
-					player = 0;
 					state = 0;
 					break;
 				}
@@ -516,16 +515,14 @@ function draw()
 	const sendbytes = new Uint32Array(1); // 0: player1 movement, rest is sent instantly
 	let dt = (performance.now() - lastTime);
 	lastTime = performance.now();
-	if(state)
+	if(player)
 	{
-		// const opponent = (playerid == 1) ? player2 : player1;
 		if(inputs[0] == 1)
 		{
 			player.sety(player.gety() - 0.04 * dt);
 			if(player.gety() < stage.top)
 				player.sety(stage.top);
 			sendbytes[0] = 1;
-			camera.pitch += 0.001 * dt;
 		}
 		if(inputs[1] == 1)
 		{
@@ -533,35 +530,10 @@ function draw()
 			if(player.gety() > stage.bottom-paddle.height)
 				player.sety(stage.bottom-paddle.height);
 			sendbytes[0] = 1;
-			camera.pitch -= 0.001 * dt;
 		}
-		if(inputs[2] == 1)
-		{
-			camera.yaw -= 0.001 * dt;
-			// camera.x -= 0.001 * dt;
-		}
-		if(inputs[3] == 1)
-		{
-			camera.yaw += 0.001 * dt;
-			// camera.x += 0.001 * dt;
-		}
-		if(inputs[4] == 1)
-		{
-			camera.z -= 0.001 * dt;
-		}
-		if(inputs[5] == 1)
-		{
-			camera.z += 0.001 * dt;
-		}
-		if(inputs[6] == 1)
-		{
-			camera.x -= 0.001 * dt;
-		}
-		if(inputs[7] == 1)
-		{
-			camera.x += 0.001 * dt;
-		}
-
+	}
+	if(state)
+	{
 		ball.setx(ball.getx() + ball.xspeed * dt);
 		ball.sety(ball.gety() + ball.yspeed * dt);
 
@@ -674,10 +646,16 @@ function draw()
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 	// draw the pong game
 	gl.useProgram(program);
-	pongUBO.update(player1._ubodata);
-	gl.drawArrays(gl.TRIANGLES, 0, 6);
-	pongUBO.update(player2._ubodata);
-	gl.drawArrays(gl.TRIANGLES, 0, 6);
+	if(state || playerid == 1 || lastTime % 1000 < 500)
+	{
+		pongUBO.update(player1._ubodata);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+	}
+	if(state || playerid == 2 || lastTime % 1000 < 500)
+	{
+		pongUBO.update(player2._ubodata);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+	}
 	pongUBO.update(ball._ubodata);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 	stagelineVAO.bind();
@@ -695,7 +673,7 @@ function draw()
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	// camera.move(0, 0, -2, camera.pitch, camera.yaw);
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	screenVAO.bind();
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 	// draw the models
@@ -728,170 +706,3 @@ function stop()
 }
 
 export {start, stop};
-
-// var canvas = document.getElementById("pong-canvas");
-// var ctx = canvas.getContext("2d");
-
-// var rplayer = {y: 0, x: 0};
-// var ropponent = {y: 0, x: 0};
-
-// var player = rplayer;
-// var opponent = ropponent;
-
-// var inputs = [0, 0];
-
-// var stockplayery = 0;
-
-// var started = false;
-
-// var playerid = 0;
-
-// var serverball = {x: 400, y: 300, vx: 0, vy: 0};
-// var ball = {x: 400, y: 300, vx: 0, vy: 0};
-
-// var count = 0;
-
-// async function gamestart() {
-// 	window.addEventListener("keydown", function (event) {
-// 		switch(event.key) {
-// 			case "ArrowUp":
-// 				inputs[0] = 1;
-// 				break;
-// 			case "ArrowDown":
-// 				inputs[1] = 1;
-// 				break;
-// 			default:
-// 		}
-// 	});
-// 	window.addEventListener("keyup", function (event) {
-// 		switch(event.key) {
-// 			case "ArrowUp":
-// 				inputs[0] = 0;
-// 				break;
-// 			case "ArrowDown":
-// 				inputs[1] = 0;
-// 				break;
-// 			default:
-// 		}
-// 	});
-// 	setInterval(gameloop, 1000 / 30);
-// }
-
-// function gameloop() {
-// 	if(inputs[0] == 1) {
-// 		player.y -= 5;
-// 		if(player.y > canvas.height - 128) {
-// 			player.y = canvas.height - 128;
-// 		}
-// 		else if(player.y < 0) {
-// 			player.y = 0;
-// 		}
-// 	}
-// 	if(inputs[1] == 1) {
-// 		player.y += 5;
-// 		if(player.y > canvas.height - 128) {
-// 			player.y = canvas.height - 128;
-// 		}
-// 		else if(player.y < 0) {
-// 			player.y = 0;
-// 		}
-// 	}
-	
-// 	ball.x += ball.vx;
-// 	ball.y += ball.vy;
-// 	if(ball.y < 8) {
-// 		ball.y = 8 + (8 - ball.y);
-// 		ball.vy = -ball.vy;
-// 	}
-// 	else if(ball.y > canvas.height - 8) {
-// 		ball.y = canvas.height - 8 - (ball.y - canvas.height + 8);
-// 		ball.vy = -ball.vy;
-// 	}
-// 	if(ball.x < 16 && ball.x > 8 && ball.y > player.y && ball.y < player.y + 128) {
-// 		ball.x = 16 + (16 - ball.x);
-// 		ball.vx = -ball.vx;
-// 	}
-
-// 	ctx.fillStyle = "#000000";
-// 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-// 	ctx.fillStyle = "#ffffff";
-// 	ctx.fillRect(0, rplayer.y, 16, 128);
-// 	ctx.fillRect(canvas.width - 16, ropponent.y, 16, 128);
-// 	ctx.beginPath();
-// 	ctx.arc(ball.x, ball.y, 8, 0, Math.PI * 2);
-// 	ctx.fill();
-// 	senddata();
-// }
-
-// ws.onopen = function (event) {
-// 	console.log("Websocket connection opened.");
-// }
-
-// ws.onmessage = function (event) {
-// 	let dv = new DataView(event.data);
-// 	let offset = 0;
-// 	console.log("Received data: " + dv.getUint8(0));
-// 	while(offset < dv.byteLength) {
-// 		let type = dv.getUint8(offset);
-// 		offset += 1;
-// 		// console.log("Received data: " + type + ' ' + dv.getUint8(1));
-// 		switch(type) {
-// 		case 1: // player movement
-// 			if(playerid != 1) {
-// 				rplayer.y = dv.getUint32(offset, true);
-// 			}
-// 			offset += 4;
-// 			break;
-// 		case 2: // opponent movement
-// 			if(playerid != 2) {
-// 				ropponent.y = dv.getUint32(offset, true);
-// 			}
-// 			offset += 4;
-// 			break;
-// 		case 3: // ball movement
-// 			serverball.x = dv.getUint32(offset, true);
-// 			serverball.y = dv.getUint32(offset + 4, true);
-// 			offset += 8;
-// 			break;
-// 		case 4: // ball hit
-// 			serverball.x = dv.getUint32(offset, true);
-// 			serverball.y = dv.getUint32(offset + 4, true);
-// 			serverball.vx = dv.getInt32(offset + 8, true);
-// 			serverball.vy = dv.getInt32(offset + 12, true);
-// 			offset += 16;
-// 			ball.x = serverball.x;
-// 			ball.y = serverball.y;
-// 			ball.vx = serverball.vx;
-// 			ball.vy = serverball.vy;
-// 			break;
-// 		case 5: // gamestart
-// 			if(dv.getUint8(offset) == 1) {
-// 				playerid = 1;
-// 			}
-// 			else {
-// 				player = ropponent;
-// 				opponent = rplayer;
-// 				playerid = 2;
-// 			}
-// 			offset += 1;
-// 			gamestart();
-// 			console.log("Game started.");
-// 			break;
-// 		default:
-// 			offset = dv.byteLength; // stop processing
-// 			break;
-// 		}
-// 	}
-// }
-
-// function senddata() {
-// 	if(player.y != stockplayery)
-// 	{
-// 		let a = new ArrayBuffer(5);
-// 		let v = new DataView(a);
-// 		v.setUint8(0, playerid);
-// 		v.setUint32(1, player.y, true);
-// 		stockplayery = player.y;
-// 		ws.send(a);
-// 	}
-// }

@@ -23,6 +23,7 @@ const idFunctions = {
 
     "search-user-button": friends.searchUser,
     'invite-notification': match.displayInvite,
+    'cancel-searching-match': match.cancelSearchingMatch,
 };
 
 const classFunctions = {
@@ -30,7 +31,9 @@ const classFunctions = {
     'friend-request-button': friends.answerRequest,
     'block-user-button': user.block,
     'unfriend-button': user.unfriend,
-    'chat-box-toggle': (_) => { chatDisplay.toggleChatBox(); },
+    'chat-box-toggle': (_) => {
+        chatDisplay.toggleChatBox();
+    },
     
     'activate-friend-chat': chatDisplay.activateFriendsTab,
     'close-friend-chat': chatDisplay.closeFriendChat,
@@ -38,7 +41,9 @@ const classFunctions = {
     'profile-picture-chat': chatDisplay.activateMenu,
 
     'start-match': match.invite,
-    'start-tournament': (_) => { notifications.startMatch("tournament"); },
+    'start-tournament': (_) => {
+        notifications.matchMaking("tournament");
+    },
     'respond-invite': match.respondInvite,
 }
 

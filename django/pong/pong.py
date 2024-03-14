@@ -4,49 +4,51 @@ from .pybackend import pong
 import asyncio
 
 class PongInstance:
-	websockets = []
-	task = None
+	games = {}
 
-	def __init__(self):
-		self.player = 0
+	def __init__(self, id):
+		self.id = id
 
 	async def connect(self, send):
 		print('connect')
-		print(send)
-		self.player = pong.new_player()
-		self.websockets.append(send)
-		self.send = send
-		await send({
-				'type': 'websocket.accept',
-			})
-		if self.player.pongid == 1:
+		if pong.player_count(self.id) < 2:
+			self.player = pong.new_player(self.id, send)
+			self.websockets.append(send)
+			self.send = send
 			await send({
-				'type': 'websocket.send',
-				'bytes': b'\x08\x01'
-			})
-		elif self.player.pongid == 2:
-			await send({
-				'type': 'websocket.send',
-				'bytes': b'\x08\x02'
-			})
+					'type': 'websocket.accept',
+				})
+			if self.player.pongid == 1:
+				await send({
+					'type': 'websocket.send',
+					'bytes': b'\x08\x01'
+				})
+			elif self.player.pongid == 2:
+				await send({
+					'type': 'websocket.send',
+					'bytes': b'\x08\x02'
+				})
+			else:
+				await send({
+					'type': 'websocket.send',
+					'bytes': b'\x08\x00'
+				})
+			if pong.player_count() == 2:
+				if self.task != None:
+					await self.task
+					self.task = None
+				print('start game')
+				self.task = asyncio.create_task(self.gameloop())
 		else:
 			await send({
-				'type': 'websocket.send',
-				'bytes': b'\x08\x00'
+				'type': 'websocket.close',
 			})
-		if pong.player_count() == 2:
-			if self.task != None:
-				await self.task
-				self.task = None
-			print('start game')
-			self.task = asyncio.create_task(self.gameloop())
 
 	async def disconnect(self):
 		print('disconnect')
 		self.websockets.remove(self.send)
 		if pong.player_count() < 3:
 			for ws in self.websockets:
-				print(ws)
 				await ws({
 					'type': 'websocket.send',
 					'bytes': b'\x08\x00'
