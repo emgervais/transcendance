@@ -25,7 +25,6 @@ class ResetDatabaseView(generics.DestroyAPIView):
     def delete(self, request: HttpRequest) -> JsonResponse:
         try:
             User.objects.all().delete()
-            
             return JsonResponse({'message': 'Database reset successfully'}, status=status.HTTP_200_OK)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -50,7 +49,6 @@ class LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        print(serializer.data)
         return set_cookies(response, user)
 
 class LogoutView(generics.GenericAPIView):
@@ -88,7 +86,6 @@ class OAuth42LoginView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
         response = JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        print(serializer.data)
         return set_cookies(response, user)
 
 class CustomTokenRefreshView(generics.GenericAPIView):
