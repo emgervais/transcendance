@@ -6,7 +6,6 @@ from django.conf import settings
 from notification.utils import get_opponent_id, user_disconnect, send_to_websocket
 from notification.utils_db import change_status, set_main_channel, get_group_list, get_main_channel, get_online_friends, friend_request_count, get_user, is_recipient_online
 
-
 TOURNAMENT_NB_PLAYERS = 4
 
 matchmaking_redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
@@ -52,7 +51,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         self.user = self.scope["user"]
         self.in_queue = False
         self.current_queue = ''
-
+        self.disconnect_thread = threading.Thread(target=user_disconnect, args=(self.user,))
+        
         if not self.user.is_authenticated:
             await self.close()
         else:
@@ -74,9 +74,11 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         if self.user.is_authenticated:
             await set_main_channel(self.user, '')
-            self.cancel_search()
-            disconnect_thread = threading.Thread(target=user_disconnect, args=(self.user,))
-            disconnect_thread.start()
+            if not self.disconnect_thread.is_alive():
+                self.disconnect_thread.start()
+            else:
+                print('Disconnect thread already running')
+
   
     async def receive(self, text_data):
         data = json.loads(text_data)

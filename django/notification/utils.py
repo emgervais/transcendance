@@ -19,6 +19,7 @@ def user_disconnect(user):
             for friend in friends:
                 notify_online(user, friend, False, channel_layer)
         clear_user_channels(user)
+        print('User disconnected')
 
 def close_recipient_channel(user_id, group, channel_layer):
     users = group.split('_')
