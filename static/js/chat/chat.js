@@ -73,7 +73,7 @@ function submit() {
 		return;
 	}
     let ws = chatSockets[currRoomId];
-    if (!ws || ws.readyState === WebSocket.CLOSED) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
 		return;
     }
 	ws.send(JSON.stringify({
@@ -83,14 +83,13 @@ function submit() {
 
 function stop(roomId) {
     let ws = chatSockets[roomId];
-    if (!ws) {
-		console.log(`chat.stop: no active chat with roomId "${roomId}"`);
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+		delete chatSockets[roomId];
 		return;
     }
 	ws.send(JSON.stringify({
 		'closing': true
 	}));
-	console.log(`Closing chat webSocket: ${roomId}`);
 	chatMessages.deleteMessages(roomId);
 	if (ws.readyState !== WebSocket.CLOSED) {
 		ws.close();

@@ -89,7 +89,7 @@ function pongNotifications(data) {
 }
 
 function stop() {
-    if (!ws || ws.readyState === WebSocket.CLOSED) {
+    if (!ws || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED) {
 		console.log("notifications.stop: notifications websocket already closed.");
 		return;
 	}
@@ -98,8 +98,7 @@ function stop() {
 }
 
 function matchMaking(roomId, cancel=false) {
-	if (!ws || ws.readyState !== WebSocket.OPEN) {
-		console.log("notifications.matchMaking: notifications websocket not started");
+	if (!ws || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED)  {
 		return;
 	}
 	ws.send(JSON.stringify({

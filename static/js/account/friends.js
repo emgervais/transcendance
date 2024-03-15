@@ -97,6 +97,7 @@ function getFriends() {
 // -- online friends count ----
 let onlineFriendsCount = 0;
 function setOnlineFriendsCount(count) {
+    count = count < 0 ? 0 : count;
     onlineFriendsCount = count;
     const element = document.getElementById("online-friends-count");
     element.innerHTML = `${count} connected friend${count > 1 ? "s" : ""}`;

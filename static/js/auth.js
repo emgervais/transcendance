@@ -1,5 +1,4 @@
 import * as api from "/js/api.js";
-import * as friends from "/js/account/friends.js";
 import * as match from "/js/pong/match.js";
 import * as notifications from "/js/notifications.js";
 import * as router from "/js/router/router.js";
@@ -91,7 +90,6 @@ function logout() {
         route: "/api/logout/",
         options: { method: "POST" },
         dataManager: async data => {
-            console.log("Successful logout\n", data);
             sessionStorage.removeItem("messages");
             setConnected(false);
             match.cancelSearchingMatch();

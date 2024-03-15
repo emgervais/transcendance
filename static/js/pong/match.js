@@ -7,7 +7,6 @@ import * as util from "/js/util.js";
 
 // -- elements ----
 const invitesContainer = document.getElementById("game-invites");
-console.log("invitesContainer:", invitesContainer);
 const invitesHeader = document.getElementById("game-invites-header");
 
 const inviteNotification = document.getElementById("invite-notification");
@@ -119,7 +118,6 @@ function respondInvite(target) {
         util.display(inviteNotification, false);
     }
     notifications.matchMaking(roomId, cancel);
-    console.log("invites.length:", invites.length);
     util.display(shadow, false);
     util.display(invitesContainer, false);
 }
