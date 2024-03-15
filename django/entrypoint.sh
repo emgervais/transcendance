@@ -28,4 +28,5 @@ crond -L /var/log/cron.log && tail -f /var/log/cron.log &
 ./init_checks.py &&
 python manage.py makemigrations &&
 python manage.py migrate &&
+python manage.py changestatus offline &&
 python manage.py runserver 0.0.0.0:$DJANGO_PORT
