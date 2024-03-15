@@ -1,17 +1,8 @@
-.notifications searchingMatch:
-    keep roomId as current search
-    stop searching: startMatch(roomId, cancel);
+bootstrap alert: when its removed before timeout, error
 
-.online friends list
- Update online status: garder une classe pour online avec data-user-id
- (in displayUser) (also, click on image to trigger spinning menu)
-
-.connected elements
- searching-match elements
- not-searching-match
-
- connected
-
+Logout:
+    clear invites because they could become outdated.
+    cancelSearchingMatch()
 
 
 notifications:

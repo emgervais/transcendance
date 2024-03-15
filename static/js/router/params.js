@@ -43,7 +43,6 @@ function setParams(route) {
     });
 }
 
-
 function getParams() {
     return params;
 }

@@ -2,7 +2,7 @@ import * as api from "/js/api.js";
 import * as nav from "/js/nav.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
-import { displayUser, getUser } from "/js/user/user.js";
+import { displayUser, getUser, sortUsers } from "/js/user/user.js";
 
 const QUERY_PARAMS = {
     "is-friend": "false",
@@ -73,22 +73,48 @@ function getFriendRequests() {
 }
 
 function getFriends() {
-    const friendsManager = (friends) => {
+    const friendsManager = async friends => {
         const container = document.getElementById("friends-container");
         container.innerHTML = '';
-        friends.forEach(async friend => {
-            const div = await displayUser({
-                userId: friend.friend,
-                friendshipId: friend.id,
-            });
-            container.appendChild(div);
-        })
+        await Promise.all(
+            friends.map(async friend => {
+                const div = await displayUser({
+                    userId: friend.friend,
+                    friendshipId: friend.id,
+                    includeGameButton: true,
+                });
+                container.appendChild(div);
+            })
+        );
+        sortUsers(container);
     };
     api.fetchRoute({
         route: "/api/friends/",
         dataManager: friendsManager
     });
 }
+
+// -- online friends count ----
+let onlineFriendsCount = 0;
+function getOnlineFriendsCount() {
+    api.fetchRoute({
+        route: "/api/online-friends-count/",
+        dataManager: data => {
+            setOnlineFriendsCount(data.count);
+        }
+    });
+}
+
+function setOnlineFriendsCount(count) {
+    onlineFriendsCount = count;
+    const element = document.getElementById("online-friends-count");
+    element.innerHTML = `${count} connected friend${count > 1 ? "s" : ""}`;
+}
+
+function incrOnlineFriendsCount(incr=1) {
+    setOnlineFriendsCount(onlineFriendsCount + incr);
+}
+// --
 
 function getBlockedUsers() {
     const blockedUsersManager = (users) => {
@@ -111,7 +137,6 @@ function getBlockedUsers() {
 
 // -- display ----
 async function displayFriendRequest(container, request) {
-    console.log("request.id:", request.id);
     const div = await displayUser({
         userId: request.from_user
     });
@@ -180,4 +205,5 @@ async function receiveFriendRequest(data) {
 }
 
 export { refresh, searchUser, answerRequest, makeRequest };
+export { getOnlineFriendsCount, incrOnlineFriendsCount };
 export { receiveFriendRequest };

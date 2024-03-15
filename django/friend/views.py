@@ -1,3 +1,4 @@
+import functools
 from django.http import HttpRequest, JsonResponse
 from rest_framework import status
 from rest_framework.views import APIView
@@ -62,6 +63,15 @@ class FriendListView(APIView):
     def get(self, request: HttpRequest) -> JsonResponse:
         friends = Friend.objects.friends(request.user)
         return JsonResponse(self.serializer_class(friends, many=True).data, status=status.HTTP_200_OK, safe=False)
+    
+class OnlineFriendsCount(APIView):
+    def get(self, request: HttpRequest) -> JsonResponse:
+        friends = Friend.objects.friends(request.user)
+        count = functools.reduce(
+            lambda count, friend: count + (friend.friend.status == "online"),
+            friends, 0
+        )
+        return JsonResponse({"count": count}, status=status.HTTP_200_OK, safe=False)
     
 class FriendDetailView(APIView):
     serializer_class = FriendSerializer

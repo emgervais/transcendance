@@ -62,6 +62,7 @@ const routeQuitFunctions = [
 
 const routeLoadFunctions = [
     displayCurrUser,
+    util.displayState,
 ]
 
 const route = async (href) => {

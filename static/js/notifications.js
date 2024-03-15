@@ -5,7 +5,7 @@ import * as match from "/js/pong/match.js";
 import * as nav from "/js/nav.js";
 import * as util from "/js/util.js";
 import { getCurrUser } from "/js/user/currUser.js";
-import { getUser } from "/js/user/user.js";
+import { setUserStatus, getUser } from "/js/user/user.js";
 
 var ws;
 
@@ -25,7 +25,9 @@ function start() {
 				chat.start(data.room);
 				break;
 			case "connection":
+				friends.incrOnlineFriendsCount(data.connected ? 1 : -1);
 				chatFriends.update(data.userId, data.connected);
+				setUserStatus(data.userId, data.connected);
 				util.showAlert({
 					text: `${(await getUser(data.userId)).username} just ${data.connected ? "": "dis"}connected.`,
 					timeout: 2,

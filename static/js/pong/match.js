@@ -46,7 +46,6 @@ function cancelSearchingMatch() {
 let invites = [];
 
 async function receiveInvite(data) {
-    util.display(inviteNotification, true);
     if (invites.includes(data.room)) {
         removeInvite(data.room);
     }
@@ -54,6 +53,7 @@ async function receiveInvite(data) {
     makeInviteHeaderMessage();
     const inviteContainer = await createInviteContainer(data);
     invitesContainer.appendChild(inviteContainer);
+    util.displayState('has-invites');
 }
 
 function makeInviteHeaderMessage() {
@@ -124,6 +124,10 @@ function respondInvite(target) {
     util.display(invitesContainer, false);
 }
 
+function clearInvites() {
+    invites = [];
+}
+
 // -- start ----
 function start(data) {
     console.log("match.start, data:", data);
@@ -133,6 +137,6 @@ function start(data) {
     router.route("/pong/");
 }
 
-export { invite, receiveInvite, displayInvite, respondInvite };
+export { invite, receiveInvite, displayInvite, respondInvite, invites, clearInvites };
 export { searchingMatch, setSearchingMatch, cancelSearchingMatch };
 export { start };
