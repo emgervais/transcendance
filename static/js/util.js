@@ -46,7 +46,8 @@ function clearFloatingBoxes() {
 function displayState(cherryPick=undefined) {
   let classes = {
     'connected': auth.isConnected(),
-    'searching-match': match.searchingMatch
+    'searching-match': match.searchingMatch,
+    'has-invites': !!match.invites.length
   };
   if (cherryPick) {
     classes = { [cherryPick]: classes[cherryPick] };

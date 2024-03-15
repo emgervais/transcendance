@@ -1,5 +1,8 @@
 bootstrap alert: when its removed before timeout, error
 
+Logout:
+    clear invites because they could become outdated.
+    cancelSearchingMatch()
 
 
 notifications:
