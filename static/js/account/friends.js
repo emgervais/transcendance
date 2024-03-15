@@ -94,6 +94,28 @@ function getFriends() {
     });
 }
 
+// -- online friends count ----
+let onlineFriendsCount = 0;
+function getOnlineFriendsCount() {
+    api.fetchRoute({
+        route: "/api/online-friends-count/",
+        dataManager: data => {
+            setOnlineFriendsCount(data.count);
+        }
+    });
+}
+
+function setOnlineFriendsCount(count) {
+    onlineFriendsCount = count;
+    const element = document.getElementById("online-friends-count");
+    element.innerHTML = `${count} connected friend${count > 1 ? "s" : ""}`;
+}
+
+function incrOnlineFriendsCount(incr=1) {
+    setOnlineFriendsCount(onlineFriendsCount + incr);
+}
+// --
+
 function getBlockedUsers() {
     const blockedUsersManager = (users) => {
         const container = document.getElementById("blocked-users-container");
@@ -184,4 +206,5 @@ async function receiveFriendRequest(data) {
 }
 
 export { refresh, searchUser, answerRequest, makeRequest };
+export { getOnlineFriendsCount, incrOnlineFriendsCount };
 export { receiveFriendRequest };

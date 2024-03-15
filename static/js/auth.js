@@ -1,4 +1,5 @@
 import * as api from "/js/api.js";
+import * as friends from "/js/account/friends.js";
 import * as notifications from "/js/notifications.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
@@ -49,6 +50,7 @@ async function login(user, redirect=true) {
     }
     setConnected(true);
     displayCurrUser();
+    friends.getOnlineFriendsCount();
     reconnecting = false;
     notifications.start();
 }

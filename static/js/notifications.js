@@ -25,6 +25,7 @@ function start() {
 				chat.start(data.room);
 				break;
 			case "connection":
+				friends.incrOnlineFriendsCount(data.connected ? 1 : -1);
 				chatFriends.update(data.userId, data.connected);
 				setUserStatus(data.userId, data.connected);
 				util.showAlert({
