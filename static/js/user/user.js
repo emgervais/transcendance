@@ -1,5 +1,6 @@
 import * as api from "/js/api.js";
 import * as friends from "/js/account/friends.js";
+import * as util from "/js/util.js";
 
 var users = {};
 
@@ -35,6 +36,10 @@ function setUserStatus(id, status) {
                 status ? statusElement.style.backgroundColor = 'green' : statusElement.style.backgroundColor = 'transparent';
                 const userContainer = statusElement.closest(".user");
                 userContainer.setAttribute("data-status", status);
+                const gameButton = userContainer.querySelector(".start-match");
+                if (gameButton) {
+                    util.display(gameButton, status);
+                }
             }
         }
         const friendsContainer = document.getElementById("friends-container");
@@ -54,7 +59,7 @@ async function displayUser({
         friendRequestable=false,
         includeBlockButton=true,
         includeStatus=true,
-        gameButton=false,
+        includeGameButton=false,
     }) {
     const div = document.createElement("div");
     const div1 = document.createElement("div");
@@ -90,17 +95,21 @@ async function displayUser({
             const blockButton = makeBlockButton(userId, !blocked);
             div2.append(blockButton);
         }
-        if(gameButton) {
+        if (includeGameButton) {
             const gameButton = makeGameButton(userId);
+            if (!user.status) {
+                util.display(gameButton, false);
+            }
             div2.append(gameButton);
         }
         if (includeStatus) {
-            const status = document.createElement("div");
-            status.classList.add("online-status");
-            status.setAttribute("data-user-id", userId);
-            if(user.status)
-                status.style.backgroundColor = 'green';
-            div1.appendChild(status);
+            const statusElement = document.createElement("div");
+            statusElement.classList.add("online-status");
+            statusElement.setAttribute("data-user-id", userId);
+            if (user.status) {
+                statusElement.style.backgroundColor = 'green';
+            }
+            div1.appendChild(statusElement);
             div.setAttribute("data-status", user.status);
         }
         div.appendChild(div2);

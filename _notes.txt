@@ -1,10 +1,4 @@
-nav: n friends online: href=/account/friends/
-    (how? get friends on display nav?)
-
-.online friends list
- resort on update
- Update online status: garder une classe pour online avec data-user-id
- (in displayUser) (also, click on image to trigger spinning menu)
+bootstrap alert: when its removed before timeout, error
 
 
 

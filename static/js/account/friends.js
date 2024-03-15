@@ -81,7 +81,7 @@ function getFriends() {
                 const div = await displayUser({
                     userId: friend.friend,
                     friendshipId: friend.id,
-                    gameButton: true,
+                    includeGameButton: true,
                 });
                 container.appendChild(div);
             })
@@ -137,7 +137,6 @@ function getBlockedUsers() {
 
 // -- display ----
 async function displayFriendRequest(container, request) {
-    console.log("request.id:", request.id);
     const div = await displayUser({
         userId: request.from_user
     });
