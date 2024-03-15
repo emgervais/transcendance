@@ -1,7 +1,7 @@
 import {newModel, createProgram, newProjectionMatrix, newViewMatrix, newTranslationMatrix, newRotationMatrix, newScaleMatrix, createStaticBuffer, createVAO, unbindVAO, createUBO, createTexture, createFramebuffer, initGL, gl} from "/js/pong/webgl.js";
 import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, bounceSound, hurtSound} from "/js/pong/res.js";
 
-var ws;
+var ws = null;
 var canvas;
 
 var pongUBO;
@@ -386,7 +386,12 @@ function setup()
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-	ws = new WebSocket("wss://" + window.location.host + "/ws/pong/");
+	return true;
+}
+
+function connect(id)
+{
+	ws = new WebSocket("wss://" + window.location.host + "/ws/pong/" + id + "/");
 	if(!ws)
 	{
 		console.error('Failed to connect to websocket');
@@ -484,8 +489,6 @@ function setup()
 			}
 		}
 	}
-
-	return true;
 }
 
 function collisionCheck(player, ball)
@@ -537,7 +540,7 @@ function draw()
 		ball.setx(ball.getx() + ball.xspeed * dt);
 		ball.sety(ball.gety() + ball.yspeed * dt);
 
-		if((playerid == 1 && (ball.getx() <= stage.left + paddle.width)) || (playerid == 2 && (ball.getx() > stage.right-ball.width-paddle.width)))
+		if((playerid == 1 && (ball.xspeed < 0.0) && (ball.getx() <= stage.left + paddle.width)) || (playerid == 2 && (ball.xspeed > 0.0) && (ball.getx() > stage.right-ball.width-paddle.width)))
 		{
 			if(collisionCheck(player, ball))
 			{ // ball bounce
@@ -554,7 +557,7 @@ function draw()
 			}
 			else if(playerid == 1 && ball.getx() < stage.left)
 			{ // ouch owie
-				ball.setx(stage.left);
+				ball.setx(stage.left + 0.1);
 				ball.yspeed = (0.03 / -ball.xspeed) * ball.yspeed;
 				ball.xspeed = 0.03;
 				score.points[1] += 1;
@@ -573,7 +576,7 @@ function draw()
 			}
 			else if(playerid == 2 && ball.getx() > stage.right-ball.width)
 			{
-				ball.setx(stage.right-ball.width);
+				ball.setx(stage.right-ball.width - 0.1);
 				ball.yspeed = (0.03 / ball.xspeed) * ball.yspeed;
 				ball.xspeed = -0.03;
 				score.points[0] += 1;
@@ -594,7 +597,7 @@ function draw()
 
 		if(ball.gety() <= stage.top)
 		{
-			ball.sety(stage.top);
+			ball.sety(stage.top + 0.1);
 			ball.yspeed *= -1;
 		}
 		else if(ball.gety() > stage.bottom-ball.height)
@@ -629,6 +632,7 @@ function draw()
 	}
 
 	// draw the paddles
+	// gl.disable(gl.DEPTH_TEST);
 	unbindVAO();
 	gl.activeTexture(gl.TEXTURE0);
 	fb.bind();
@@ -686,7 +690,7 @@ function draw()
 	requestAnimationFrame(draw);
 }
 
-function start()
+function start(id)
 {
 	stopgame = 0;
 	canvas = document.getElementById('webgl-canvas');
@@ -695,6 +699,9 @@ function start()
 		console.error('Failed to set up pong');
 		return;
 	}
+	if(id)
+		connect(id);
+
 	requestAnimationFrame(draw);
 }
 
@@ -703,6 +710,7 @@ function stop()
 	ambientSound.pause();
 	ws.close();
 	stopgame = 1;
+	state = 0
 }
 
 export {start, stop};
