@@ -104,7 +104,7 @@ async function showAlert({
   if (timeout) {
     bsAlert = new bootstrap.Alert(alert)
     await sleep(timeout * 1000);
-    bsAlert.close();
+    hideAlert();
   }
 }
 

@@ -51,7 +51,6 @@ async function login(user, redirect=true) {
     }
     setConnected(true);
     displayCurrUser();
-    friends.getOnlineFriendsCount();
     reconnecting = false;
     notifications.start();
 }

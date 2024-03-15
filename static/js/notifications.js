@@ -35,6 +35,7 @@ function start() {
 				break;
 			case "onlineFriends":
 				chatFriends.set(data.userIds);
+				friends.setOnlineFriendsCount(data.userIds.length);
 				break;
 			case "friendRequests":
 				nav.updateFriendRequestCount(data.count);
@@ -97,8 +98,9 @@ function stop() {
 }
 
 function matchMaking(roomId, cancel=false) {
-	if (!ws) {
-		throw new Error("notifications.matchMaking: notifications websocket not started");
+	if (!ws || ws.readyState !== WebSocket.OPEN) {
+		console.log("notifications.matchMaking: notifications websocket not started");
+		return;
 	}
 	ws.send(JSON.stringify({
 		type: "matchmaking",

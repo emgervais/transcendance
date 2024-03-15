@@ -1,21 +1,7 @@
+ws.send:
+WebSocket.OPEN ?
+
 bootstrap alert: when its removed before timeout, error
-
-Logout:
-    clear invites because they could become outdated.
-    cancelSearchingMatch()
-
-
-notifications:
-    type: pong:
-    room:
-    id:
-    description:
-        searchingMatch: montrer que t'es entrain de search un match (pas afficher de recherche de matchs)
-        matchRequest
-        matchRefused
-        opponentIngame
-        opponentOffline
-
 
 chat:
                      add: pas si friend

@@ -96,15 +96,6 @@ function getFriends() {
 
 // -- online friends count ----
 let onlineFriendsCount = 0;
-function getOnlineFriendsCount() {
-    api.fetchRoute({
-        route: "/api/online-friends-count/",
-        dataManager: data => {
-            setOnlineFriendsCount(data.count);
-        }
-    });
-}
-
 function setOnlineFriendsCount(count) {
     onlineFriendsCount = count;
     const element = document.getElementById("online-friends-count");
@@ -205,5 +196,5 @@ async function receiveFriendRequest(data) {
 }
 
 export { refresh, searchUser, answerRequest, makeRequest };
-export { getOnlineFriendsCount, incrOnlineFriendsCount };
+export { setOnlineFriendsCount, incrOnlineFriendsCount };
 export { receiveFriendRequest };

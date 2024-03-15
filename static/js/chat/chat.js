@@ -73,7 +73,7 @@ function submit() {
 		return;
 	}
     let ws = chatSockets[currRoomId];
-    if (!ws) {
+    if (!ws || ws.readyState === WebSocket.CLOSED) {
 		return;
     }
 	ws.send(JSON.stringify({

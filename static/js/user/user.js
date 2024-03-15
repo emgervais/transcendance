@@ -24,7 +24,6 @@ function setUser(id, user) {
         image: user.image,
         status: user.status == "online",
     };
-
 }
 
 function setUserStatus(id, status) {
