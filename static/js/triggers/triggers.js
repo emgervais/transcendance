@@ -1,4 +1,5 @@
 import * as api from "/js/api.js";
+import * as router from "/js/router/router.js";
 import { updateCurrUser } from "/js/user/currUser.js";
 import { key } from "/js/triggers/keys.js";
 import { click } from "/js/triggers/clicks.js";
@@ -20,6 +21,11 @@ function startEventListeners() {
     document.addEventListener("click", click);
     document.addEventListener("keydown", key);
     document.addEventListener("change", onChange);
+    window.addEventListener("beforeunload", (_) => {
+        const route = router.getCurrentRoute();
+        if (route.onQuit)
+            route.onQuit();
+    });    
 }
 
 export { startEventListeners };
