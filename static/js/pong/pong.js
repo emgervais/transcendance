@@ -347,6 +347,8 @@ function setup()
 			inputs[6] = 1;
 		else if(e.key == 'ArrowRight')
 			inputs[7] = 1;
+		else if(e.key == 'Space')
+			console.log('SPACE');
 	}
 	window.onkeyup = function(e)
 	{
