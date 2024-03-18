@@ -704,16 +704,15 @@ async function start()
 		return;
 	}
 	requestAnimationFrame(draw);
-	const id = params.getParams().roomId;
-	await Promise.all([waitForKeyPress()]);
-	if(id)
-		connect(id);
 }
 
 function stop()
 {
 	ambientSound.pause();
-	ws.close();
+	if (ws && ws.readyState &&
+		(ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
+		ws.close();
+	}
 	stopgame = 1;
 	state = 0
 }
@@ -728,4 +727,4 @@ function waitForKeyPress() {
     });
 }
 
-export {start, stop, stopgame};
+export {start, stop, stopgame, connect};
