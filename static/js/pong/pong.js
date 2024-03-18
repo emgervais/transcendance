@@ -484,6 +484,16 @@ function connect(id)
 					state = 1;
 					console.log("Game started.");
 				}
+				else if(dv.getUint8(offset) == 4)
+				{
+					state = dv.getUint8(offset + 1) + 1;
+					console.log("Game ended, Winner: P" + (state - 1));
+					offset += 1;
+					ball.setx(pongrenderwidth/2.0 - ball.width/2.0)
+					ball.sety(pongrenderheight/2.0 - ball.height/2.0)
+					ball.xspeed = 0
+					ball.yspeed = 0
+				}
 				else {
 					state = 0;
 					break;
@@ -542,7 +552,7 @@ function draw()
 			sendbytes[0] = 1;
 		}
 	}
-	if(state)
+	if(state == 1)
 	{
 		ball.setx(ball.getx() + ball.xspeed * dt);
 		ball.sety(ball.gety() + ball.yspeed * dt);
@@ -694,11 +704,11 @@ function miss() {
 	ws.send(wsscorebuffer);
 }
 
-async function start()
+function start()
 {
 	stopgame = 0;
 	canvas = document.getElementById('webgl-canvas');
-	if(!setup())
+	if(gl == null && !setup())
 	{
 		console.error('Failed to set up pong');
 		return;
@@ -715,16 +725,6 @@ function stop()
 	}
 	stopgame = 1;
 	state = 0
-}
-
-function waitForKeyPress() {
-    return new Promise(resolve => {
-        function handleKeyPress(event) {
-                document.removeEventListener('keydown', handleKeyPress);
-                resolve();
-        }
-        document.addEventListener('keydown', handleKeyPress);
-    });
 }
 
 export {start, stop, stopgame, connect};
