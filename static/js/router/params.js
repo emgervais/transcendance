@@ -2,7 +2,7 @@
 let params = {};
 const paramRegex = /<([^>]+)>/g;
 
-// -- equipParamRoutes ----
+// -- upgradeParamRoutes ----
 function isParamRoute(route) {
     return !!route.match(paramRegex);
 }
@@ -18,7 +18,7 @@ function routeToRegex(route) {
     return { regex, names };
 }
 
-function equipParamRoutes(routes) {
+function upgradeParamRoutes(routes) {
     for (const route in routes) {
         if (isParamRoute(route)) {
             routes[route] = {...routes[route], ...routeToRegex(route)};
@@ -47,5 +47,5 @@ function getParams() {
     return params;
 }
 
-export { isParamRoute, equipParamRoutes };
+export { isParamRoute, upgradeParamRoutes };
 export { clearParams, setParams, getParams };
