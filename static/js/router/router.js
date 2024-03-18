@@ -28,7 +28,7 @@ const routes = equipParamRoutes({
         authContainer: true,
         unprotected: true,
     },
-    "/pong/": {
+    "/pong/<roomId>": {
         template: "/templates/pong.html",
         onLoad: pong.start,
         onQuit: pong.stop,

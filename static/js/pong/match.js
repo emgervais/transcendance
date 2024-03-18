@@ -132,7 +132,7 @@ function start(data) {
     chat.start(`pong_${data.room}`);
     chatDisplay.openChatBox();
     chatDisplay.activateMatchTab();
-    router.route("/pong/");
+    router.route(`/pong/${data.room}/`);
 }
 
 export { invite, receiveInvite, displayInvite, respondInvite, invites, clearInvites };

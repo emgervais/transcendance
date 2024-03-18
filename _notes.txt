@@ -1,12 +1,10 @@
+webgl.js:
+    use of deprecated function XMLHttpRequest
+
 start game:
     (attend pas toujours que l'autre accepte?)
     (côté backend: emile s'en charge)
 
-chat:
-                     add: pas si friend
-                  invite: pas si in game with
-
-.local game, local tournament.
 ----------------------------------------------------
 
 stats.load()

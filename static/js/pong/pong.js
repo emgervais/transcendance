@@ -1,6 +1,6 @@
 import {newModel, createProgram, newProjectionMatrix, newViewMatrix, newTranslationMatrix, newRotationMatrix, newScaleMatrix, createStaticBuffer, createVAO, unbindVAO, createUBO, createTexture, createFramebuffer, initGL, gl} from "/js/pong/webgl.js";
 import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, bounceSound, hurtSound} from "/js/pong/res.js";
-
+import * as params from "/js/router/params.js";
 var ws = null;
 var canvas;
 
@@ -510,7 +510,7 @@ var lastTime = 0;
 var redtimer = 0;
 var ratio = 0.0;
 var sendtimer = 0.0;
-var stopgame = 0;
+var stopgame = 1;
 function draw()
 {
 	if(stopgame)
@@ -690,8 +690,15 @@ function draw()
 	requestAnimationFrame(draw);
 }
 
-function start(id)
+// function miss() {
+
+// }
+
+function start()
 {
+	const id = params.getParams().roomId;
+	console.log("params:", params.getParams());
+	console.log("id:", id);
 	stopgame = 0;
 	canvas = document.getElementById('webgl-canvas');
 	if(!setup())
@@ -713,4 +720,4 @@ function stop()
 	state = 0
 }
 
-export {start, stop};
+export {start, stop, stopgame};

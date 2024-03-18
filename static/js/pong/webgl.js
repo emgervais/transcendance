@@ -300,7 +300,7 @@ function createFramebuffer(width, height)
 
 }
 
-function newModel(objurl, textureurl)
+async function newModel(objurl, textureurl)
 {
 	// parse obj file
 	const xhr = new XMLHttpRequest();

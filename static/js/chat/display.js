@@ -3,6 +3,7 @@ import * as chatFriends from "/js/chat/friends.js";
 import * as chatMessages from "/js/chat/messages.js";
 import * as chatUnreadMessages from "/js/chat/unreadMessages.js";
 import * as currUser from "/js/user/currUser.js";
+import * as pong from "/js/pong/pong.js";
 import * as util from "/js/util.js";
 import { GLOBAL_ROOM_ID, matchRoomId } from "/js/chat/chat.js";
 
@@ -133,17 +134,18 @@ function disableMenu() {
 	currMenu = 0;
 }
 
-//<button class="make-friend-request-button" data-user-id="3">Send request</button>
 function updateMenu(id) {
 	var menuOptions = {
 		'stats' : `<a href="/account/stats/${id}/"> <i class="fa-solid fa-chart-simple"></i></a>`,
 		'block' : `<button class="block-user-button" data-block="true" data-user-id="${id}"> <i class="fa-solid fa-ban"></i></button>`,
 		'invite' : `<button class="start-match" data-user-id="${id}"> <i class="fa-solid fa-gamepad"></i></button>`,
-		'add': `<button class="make-friend-request-button" data-user-id="${id}"><i class="fa-solid fa-plus"></i></button>`,
+		// 'add': `<button class="make-friend-request-button" data-user-id="${id}"><i class="fa-solid fa-plus"></i></button>`,
 	};
 	let i = 0;
 	menu.innerHTML = '';
 	for(var option in menuOptions) {
+		if (!pong.stopgame && option == 'invite')
+			continue;
 		var li = document.createElement('li');
 		li.style = '--i:' + i++ + ';'
 		li.title = option;
