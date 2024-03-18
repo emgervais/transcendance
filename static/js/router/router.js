@@ -3,10 +3,10 @@ import * as auth from "/js/auth.js";
 import * as nav from "/js/nav.js";
 import * as pong from "/js/pong/pong.js";
 import * as util from "/js/util.js";
-import { equipParamRoutes, clearParams, setParams } from "/js/router/params.js";
+import { upgradeParamRoutes, clearParams, setParams } from "/js/router/params.js";
 import { displayCurrUser } from "/js/user/currUser.js";
 
-const routes = equipParamRoutes({
+const routes = upgradeParamRoutes({
     404: {
         template: "/templates/404.html",
         title: "404",
@@ -28,7 +28,7 @@ const routes = equipParamRoutes({
         authContainer: true,
         unprotected: true,
     },
-    "/pong/<roomId>": {
+    "/pong/<roomId>/": {
         template: "/templates/pong.html",
         onLoad: pong.start,
         onQuit: pong.stop,
@@ -98,7 +98,7 @@ function getCurrentRoute() {
     for (let route in routes) {
         if (!routes[route].regex)
             continue;
-        if (location.match(route.regex)) {
+        if (location.match(routes[route].regex)) {
             setParams(routes[route]);
             return routes[route];
         }
