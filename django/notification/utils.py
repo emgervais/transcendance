@@ -6,19 +6,26 @@ from users.models import User
 import time
 
 # Helper functions
-def user_disconnect(user):
+def user_disconnect(user_id):
     time.sleep(5)
-    main = UserChannelGroup.objects.get(user=user).main
-    should_disconnect = main == '' and user.status == 'online'
-    if should_disconnect:
-        user.status = 'offline'
-        user.save()
-        friends = Friend.objects.online_friends(user)
-        if friends:
-            channel_layer = get_channel_layer()
-            for friend in friends:
-                notify_online(user, friend, False, channel_layer)
-        clear_user_channels(user)
+    try:
+        user = User.objects.get(id=user_id)
+        main = UserChannelGroup.objects.get(user=user).main
+        should_disconnect = main == '' and user.status == 'online'
+        if should_disconnect:
+            user.status = 'offline'
+            user.save()
+            friends = Friend.objects.online_friends(user)
+            if friends:
+                channel_layer = get_channel_layer()
+                for friend in friends:
+                    notify_online(user, friend, False, channel_layer)
+            clear_user_channels(user)
+            print('User disconnected')
+    except User.DoesNotExist:
+        print('User not found')
+    except UserChannelGroup.DoesNotExist:
+        print('User channel group not found')
 
 def close_recipient_channel(user_id, group, channel_layer):
     users = group.split('_')

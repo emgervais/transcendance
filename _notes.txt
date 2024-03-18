@@ -66,3 +66,22 @@ Choix des librairies:
 .Existe-t-il une librairie pour ce qu'on fait?
 .Est-ce que coder à la main est vraiment meilleur?
 .Une librairie est-elle vraiment utile?
+
+
+----------------------------------------------------------------------------------------------------------------
+Enlever “bind-mount volumes”
+Both players will use the same keyboard. (a verifier)
+Attack prevention: https://docs.djangoproject.com/en/5.0/topics/security/
+
+1   ✅ Major module: Use a Framework as backend.
+1.5 ❓ Minor module: Use a front-end framework or toolkit. (a verifier)
+2   ✅ Minor module: Use a database for the backend -and more.
+3   ❌ Major module: Standard user management, authentication, users across tournaments.
+        A faire : User profiles display stats, such as wins and losses + view their online status.
+                + Match History including 1v1 games, dates, and relevant details, accessible to logged-in users.
+4   ✅ Major module: Implementing a remote authentication.
+5   ✅ Major module: Remote players
+6   ❌ Major module: Live Chat.
+        A faire : The tournament system should be able to warn users expected for the next game.
+7   ✅ Major module: Implementing Advanced 3D Techniques
+7.5 ❓ Minor module: Expanding Browser Compatibility

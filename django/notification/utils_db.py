@@ -118,3 +118,12 @@ def is_recipient_online(user_id, group):
         return User.objects.get(id=recipient_id).status == 'online'
     except User.DoesNotExist:
         return False
+    
+@database_sync_to_async
+def is_opponent_in_game(user_id, group):
+    user_ids = group.sub('game_', '').split('_')
+    opponent_id = user_ids[0] if user_ids[0] != str(user_id) else user_ids[1]
+    try:
+        return UserChannelGroup.objects.get(user__id=opponent_id).in_group(group)
+    except UserChannelGroup.DoesNotExist:
+        return False
