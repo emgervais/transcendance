@@ -13,6 +13,7 @@ var stagelineVAO;
 var screenVAO;
 
 var digitsTexture;
+// var fontTexture;
 var vignetteTexture;
 
 var mainUBO;
@@ -230,6 +231,10 @@ function setup()
 	gl.uniform1i(digitstexuniform, 2);
 
 	fb.bindTexture();
+
+	// fontTexture = createTexture('/img/font.png', gl.RGBA, gl.RGBA, 0);
+	// const fontTexUniform = gl.getUniformLocation(textprogram, 'tex');
+	// gl.uniform1i(fontTexUniform, 3);
 
 	screenprogram = createProgram(screenVertShader, screenFragShader);
 	if(!gl.getProgramParameter(screenprogram, gl.LINK_STATUS))
@@ -627,6 +632,7 @@ function draw()
 	gl.viewport(0, 0, pongrenderwidth, pongrenderheight);
 
 	// draw the scores
+	// drawText('press space', x, y);
 	digitsTexture.bind();
 	pongVAO.bind();
 	gl.useProgram(textprogram);
@@ -688,7 +694,7 @@ function miss() {
 	ws.send(wsscorebuffer);
 }
 
-function start()
+async function start()
 {
 	stopgame = 0;
 	canvas = document.getElementById('webgl-canvas');
@@ -699,6 +705,7 @@ function start()
 	}
 	requestAnimationFrame(draw);
 	const id = params.getParams().roomId;
+	await Promise.all([waitForKeyPress()]);
 	if(id)
 		connect(id);
 }
@@ -709,6 +716,16 @@ function stop()
 	ws.close();
 	stopgame = 1;
 	state = 0
+}
+
+function waitForKeyPress() {
+    return new Promise(resolve => {
+        function handleKeyPress(event) {
+                document.removeEventListener('keydown', handleKeyPress);
+                resolve();
+        }
+        document.addEventListener('keydown', handleKeyPress);
+    });
 }
 
 export {start, stop, stopgame};
