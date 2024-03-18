@@ -1,6 +1,3 @@
-global chat not saved / loaded.
-    .not loaded on first open chat.
-
 start game:
     (attend pas toujours que l'autre accepte?)
     (côté backend: emile s'en charge)
@@ -9,6 +6,7 @@ chat:
                      add: pas si friend
                   invite: pas si in game with
 
+.local game, local tournament.
 ----------------------------------------------------
 
 stats.load()

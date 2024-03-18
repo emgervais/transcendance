@@ -39,6 +39,7 @@ function chatBoxOpened() {
 }
 
 function openChatBox() {
+	chatMessages.loadMessages(chat.currRoomId);
 	util.setClass(chatIcon, 'chat-active', false);
 	util.setClass(chatBox, 'chat-active', true);
 	chatUnreadMessages.clear(chat.currRoomId);
