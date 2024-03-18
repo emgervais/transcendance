@@ -1,5 +1,4 @@
 import * as account from "/js/account/account.js";
-import * as auth from "/js/auth.js";
 import * as nav from "/js/nav.js";
 import * as pong from "/js/pong/pong.js";
 import * as util from "/js/util.js";

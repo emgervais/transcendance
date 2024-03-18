@@ -1,6 +1,8 @@
 import {newModel, createProgram, newProjectionMatrix, newViewMatrix, newTranslationMatrix, newRotationMatrix, newScaleMatrix, createStaticBuffer, createVAO, unbindVAO, createUBO, createTexture, createFramebuffer, initGL, gl} from "/js/pong/webgl.js";
 import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, bounceSound, hurtSound} from "/js/pong/res.js";
 import * as params from "/js/router/params.js";
+import * as router from "/js/router/router.js";
+import * as util from "/js/util.js";
 var ws = null;
 var canvas;
 
@@ -564,15 +566,7 @@ function draw()
 				score.ubo2.setdata([
 					score.points[1] % 10 << 8 | score.points[1] / 10 << 0
 				]);
-				redtimer = 200;
-				hurtSound.currentTime = 0;
-				hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-				hurtSound.play();
-				wsscoredv.setUint32(1, ball.getx() * ballprecision, true);
-				wsscoredv.setUint32(5, ball.gety() * ballprecision, true);
-				wsscoredv.setUint32(9, ball.xspeed * ballprecision, true);
-				wsscoredv.setUint32(13, ball.yspeed * ballprecision, true);
-				ws.send(wsscorebuffer);
+				miss();
 			}
 			else if(playerid == 2 && ball.getx() > stage.right-ball.width)
 			{
@@ -583,15 +577,7 @@ function draw()
 				score.ubo1.setdata([
 					score.points[0] % 10 << 8 | score.points[0] / 10 << 0
 				]);
-				redtimer = 200;
-				hurtSound.currentTime = 0;
-				hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-				hurtSound.play();
-				wsscoredv.setUint32(1, ball.getx() * ballprecision, true);
-				wsscoredv.setUint32(5, ball.gety() * ballprecision, true);
-				wsscoredv.setUint32(9, ball.xspeed * ballprecision, true);
-				wsscoredv.setUint32(13, ball.yspeed * ballprecision, true);
-				ws.send(wsscorebuffer);
+				miss();
 			}
 		}
 
@@ -690,15 +676,20 @@ function draw()
 	requestAnimationFrame(draw);
 }
 
-// function miss() {
-
-// }
+function miss() {
+	redtimer = 200;
+	hurtSound.currentTime = 0;
+	hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
+	hurtSound.play();
+	wsscoredv.setUint32(1, ball.getx() * ballprecision, true);
+	wsscoredv.setUint32(5, ball.gety() * ballprecision, true);
+	wsscoredv.setUint32(9, ball.xspeed * ballprecision, true);
+	wsscoredv.setUint32(13, ball.yspeed * ballprecision, true);
+	ws.send(wsscorebuffer);
+}
 
 function start()
 {
-	const id = params.getParams().roomId;
-	console.log("params:", params.getParams());
-	console.log("id:", id);
 	stopgame = 0;
 	canvas = document.getElementById('webgl-canvas');
 	if(!setup())
@@ -706,10 +697,10 @@ function start()
 		console.error('Failed to set up pong');
 		return;
 	}
+	requestAnimationFrame(draw);
+	const id = params.getParams().roomId;
 	if(id)
 		connect(id);
-
-	requestAnimationFrame(draw);
 }
 
 function stop()

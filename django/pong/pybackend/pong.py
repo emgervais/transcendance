@@ -18,6 +18,7 @@ class Player:
 
 class Pong:
 	def __init__(self):
+		print("Pong.__init__")
 		self.filthmap = [0,0,0,0,0]
 		self.pbplayers = []
 		self.player1 = 0
@@ -26,10 +27,14 @@ class Pong:
 		self.websockets = []
 		self.task = None
 
+	def __del__(self):
+		print("Pong.__del__")
+
 	def player_count(self) -> int:
 		return len(self.pbplayers)
 	
 	def start_game(self):
+		print('start game')
 		self.filthmap = [0,0,0,0,0]
 		self.ball.x = 39
 		self.ball.y = 26.5

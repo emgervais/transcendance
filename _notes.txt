@@ -1,6 +1,11 @@
 webgl.js:
     use of deprecated function XMLHttpRequest
 
+start game: press space, décompte
+stop game: tell the server it's stopping
+end of game: 3 points?
+game roomId: detect if wrong room (currently possible to play on custom roomId), route("/")
+
 start game:
     (attend pas toujours que l'autre accepte?)
     (côté backend: emile s'en charge)

@@ -85,7 +85,6 @@ class PongInstance:
 				'bytes': b'\x08\x03'
 			})
 		self.game.start_game()
-		print('start game')
 		message = {'type': 'websocket.send', 'bytes': ''}
 		while self.game.player_count() >= 2:
 			data = self.game.update()
