@@ -51,6 +51,10 @@ class Pong:
 		self.player1.score = 0
 		self.player2.score = 0
 		self.lasthit = 1
+		self.filthmap[Filths.P1Score] = 1
+		self.filthmap[Filths.P2Score] = 1
+		self.filthmap[Filths.P1Y] = 0
+		self.filthmap[Filths.P2Y] = 0
 
 	def new_player(self, send) -> Player:
 		player = Player()
@@ -79,17 +83,22 @@ class Pong:
 				self.filthmap[player.pongid - 1] = 1
 				offset += 4
 			elif(type == 2): # player score
-				print("player score: " + str(player.pongid))
-				player.score += 1
-				self.filthmap[player.pongid + 1] = 1
+				pplayer = 0
+				if(player.pongid == 1):
+					pplayer = self.player2
+				else:
+					pplayer = self.player1
+				pplayer.score += 1
+				print("player score: " + str(pplayer.pongid))
+				self.filthmap[pplayer.pongid + 1] = 1
 				self.ball.x = int.from_bytes(bytestr[offset:(offset + 4)], endieness, signed=True) / ballprecision
 				self.ball.y = int.from_bytes(bytestr[(offset + 4):(offset + 8)], endieness, signed=True) / ballprecision
 				self.ball.vx = int.from_bytes(bytestr[(offset + 8):(offset + 12)], endieness, signed=True) / ballprecision
 				self.ball.vy = int.from_bytes(bytestr[(offset + 12):(offset + 16)], endieness, signed=True) / ballprecision
 				self.filthmap[Filths.Ball] = 1
 				offset += 16
-				if(player.score >= winpoints and not self.filthmap[Filths.PWin]):
-					self.filthmap[Filths.PWin] = player.pongid
+				if(pplayer.score >= winpoints and not self.filthmap[Filths.PWin]):
+					self.filthmap[Filths.PWin] = pplayer.pongid
 			elif(type == 3): # ball hit
 				self.ball.lasthit = player.pongid
 				self.ball.x = int.from_bytes(bytestr[offset:(offset + 4)], endieness, signed=True) / ballprecision
@@ -114,10 +123,10 @@ class Pong:
 			bytestr += b'\x02' + self.player2.y.to_bytes(4, endieness)
 			self.filthmap[Filths.P2Y] = 0
 		if(self.filthmap[Filths.P1Score] == 1):
-			bytestr += b'\x04' + self.player1.score.to_bytes(4, endieness)
+			bytestr += b'\x03' + self.player1.score.to_bytes(4, endieness)
 			self.filthmap[Filths.P1Score] = 0
 		if(self.filthmap[Filths.P2Score] == 1):
-			bytestr += b'\x03' + self.player2.score.to_bytes(4, endieness)
+			bytestr += b'\x04' + self.player2.score.to_bytes(4, endieness)
 			self.filthmap[Filths.P2Score] = 0
 		try:
 			if(self.filthmap[Filths.Ball] == 1):

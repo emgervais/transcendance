@@ -13,6 +13,8 @@ var stagelineVAO;
 var screenVAO;
 
 var digitsTexture;
+var winTexture;
+var digitstexuniform;
 // var fontTexture;
 var vignetteTexture;
 
@@ -82,12 +84,28 @@ const screenobject = {
 }
 
 const inputs = [0, 0, 0, 0, 0, 0, 0, 0];
-var scoredata1 = new Uint32Array([
-	0, 0, // position
-	0, // char count in string
-	0, // number of chars in texture
-	0, 0, 0, 0 // string data
-]);
+
+var wintext = {
+	ubo: {
+		_ubodata: new Uint32Array([
+			0, 0, // position
+			0, // char count in string
+			0, // number of chars in texture
+			0, 0, 0, 0 // string data
+		]),
+		setpos: function(x, y) {this._ubodata[0] = x; this._ubodata[1] = y;},
+		setstrlen: function(len) {this._ubodata[2] = len;},
+		settexlen: function(len) {this._ubodata[3] = len;},
+		setdata: function(data) {
+			for(var i = 0; i < data.length; i++)
+				this._ubodata[4 + i] = data[i];
+		},
+		setwinnder: function(winner) {
+			let w = 1 + 5 * (winner - 1);
+			this._ubodata[4] = 0 | w << 8 | 2 << 16 | 3 << 24;
+		}
+	}
+}
 
 var score = {
 	points: [0, 0],
@@ -103,9 +121,7 @@ var score = {
 		settexlen: function(len) {this._ubodata[3] = len;},
 		setdata: function(data) {
 			for(var i = 0; i < data.length; i++)
-			{
 				this._ubodata[4 + i] = data[i];
-			}
 		}
 	},
 	ubo2: {
@@ -120,9 +136,7 @@ var score = {
 		settexlen: function(len) {this._ubodata[3] = len;},
 		setdata: function(data) {
 			for(var i = 0; i < data.length; i++)
-			{
 				this._ubodata[4 + i] = data[i];
-			}
 		}
 	}
 }
@@ -227,8 +241,17 @@ function setup()
 	textUBO.update(score.ubo2._ubodata);
 
 	digitsTexture = createTexture('/img/digits.png', gl.R8, gl.RED, 2);
-	const digitstexuniform = gl.getUniformLocation(textprogram, 'tex');
+	winTexture = createTexture('/img/win.png', gl.R8, gl.RED, 3);
+	digitstexuniform = gl.getUniformLocation(textprogram, 'tex');
 	gl.uniform1i(digitstexuniform, 2);
+
+	wintext.ubo.setpos(pongrenderwidth / 2 - 21, pongrenderheight / 2 - 10);
+	wintext.ubo.setstrlen(6);
+	wintext.ubo.settexlen(7);
+	wintext.ubo.setdata([
+		0 | 1 << 8 | 2 << 16 | 3 << 24,
+		4 | 5 << 8
+	]);
 
 	fb.bindTexture();
 
@@ -395,11 +418,15 @@ function setup()
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
+	connect('0');
+
 	return true;
 }
 
 function connect(id)
 {
+	if(ws && ws.readyState == ws.OPEN)
+		ws.close();
 	ws = new WebSocket("wss://" + window.location.host + "/ws/pong/" + id + "/");
 	if(!ws)
 	{
@@ -431,32 +458,32 @@ function connect(id)
 				offset += 4;
 				break;
 			case 3: // player1 score
+				if(playerid == 1 && dv.getUint32(offset, true) > score.points[0])
+				{
+					redtimer = 200;
+					hurtSound.currentTime = 0;
+					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
+					hurtSound.play();
+				}
 				score.points[0] = dv.getUint32(offset, true);
 				score.ubo1.setdata([
 					score.points[0] % 10 << 8 | score.points[0] / 10 << 0
 				]);
 				offset += 4;
-				if(playerid == 1)
+				break;
+			case 4: // player 2 score
+				if(playerid == 2 && dv.getUint32(offset, true) > score.points[1])
 				{
 					redtimer = 200;
 					hurtSound.currentTime = 0;
 					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
 					hurtSound.play();
 				}
-				break;
-			case 4: // player 2 score
 				score.points[1] = dv.getUint32(offset, true);
 				score.ubo2.setdata([
 					score.points[1] % 10 << 8 | score.points[1] / 10 << 0
 				]);
 				offset += 4;
-				if(playerid == 2)
-				{
-					redtimer = 200;
-					hurtSound.currentTime = 0;
-					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-					hurtSound.play();
-				}
 				break;
 			case 5: // ball hit
 				const pl = dv.getUint8(offset);
@@ -476,30 +503,34 @@ function connect(id)
 					playerid = 1;
 					player = player1;
 					console.log("You are player 1.");
+					wsmovementdv.setUint32(1, player.gety(), true);
+					ws.send(wsmovementbuffer);
 				}
 				else if(dv.getUint8(offset) == 2){
 					playerid = 2;
 					player = player2;
 					console.log("You are player 2.");
+					wsmovementdv.setUint32(1, player.gety(), true);
+					ws.send(wsmovementbuffer);
 				}
 				else if(dv.getUint8(offset) == 3) {
 					state = 1;
 					console.log("Game started.");
+					wsmovementdv.setUint32(1, player.gety(), true);
+					ws.send(wsmovementbuffer);
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
 					state = dv.getUint8(offset + 1) + 1;
 					console.log("Game ended, Winner: P" + (state - 1));
 					offset += 1;
-					ball.setx(pongrenderwidth/2.0 - ball.width/2.0)
-					ball.sety(pongrenderheight/2.0 - ball.height/2.0)
-					ball.xspeed = 0
-					ball.yspeed = 0
+					ball.setx(pongrenderwidth/2.0 - ball.width/2.0);
+					ball.sety(pongrenderheight/2.0 - ball.height/2.0);
+					ball.xspeed = 0;
+					ball.yspeed = 0;
 				}
-				else {
+				else
 					state = 0;
-					break;
-				}
 				offset += 1;
 				break;
 			default:
@@ -608,16 +639,15 @@ function draw()
 			ball.sety(stage.bottom-ball.height);
 			ball.yspeed *= -1;
 		}
-	
-		sendtimer += dt;
-		if(sendtimer > 1000/30)
-		{
-			senddata(sendbytes);
-			sendtimer = 0;
-		}
 	}
 	camera.move(camera.x, camera.y, camera.z, camera.pitch, camera.yaw);
 	camera.uploadV();
+	sendtimer += dt;
+	if(sendtimer > 1000/30)
+	{
+		senddata(sendbytes);
+		sendtimer = 0;
+	}
 
 	if(redtimer > 0)
 	{
@@ -652,6 +682,14 @@ function draw()
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
 	textUBO.update(score.ubo2._ubodata);
 	gl.drawArrays(gl.TRIANGLES, 0, 6);
+	if((state == 2 || state == 3) && lastTime % 1000 < 800)
+	{
+		wintext.ubo.setwinnder(state - 1);
+		textUBO.update(wintext.ubo._ubodata);
+		gl.uniform1i(digitstexuniform, 3);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+		gl.uniform1i(digitstexuniform, 2);
+	}
 	// draw the pong game
 	gl.useProgram(program);
 	if(state || playerid == 1 || lastTime % 1000 < 500)
