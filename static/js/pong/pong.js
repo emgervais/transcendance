@@ -486,6 +486,10 @@ function connect(id)
 					state = 1;
 					console.log("Game started.");
 				}
+				else if(dv.getUint8(offset) == 4) {
+					state = dv.getUint8(offset + 1);
+					console.log("Game ended. Winner: P" + state);
+				}
 				else {
 					state = 0;
 					break;
@@ -544,7 +548,7 @@ function draw()
 			sendbytes[0] = 1;
 		}
 	}
-	if(state)
+	if(state == 1)
 	{
 		ball.setx(ball.getx() + ball.xspeed * dt);
 		ball.sety(ball.gety() + ball.yspeed * dt);
@@ -700,7 +704,7 @@ async function start()
 {
 	stopgame = 0;
 	canvas = document.getElementById('webgl-canvas');
-	if(!setup())
+	if(!gl && !setup())
 	{
 		console.error('Failed to set up pong');
 		return;
@@ -715,7 +719,8 @@ async function start()
 function stop()
 {
 	ambientSound.pause();
-	ws.close();
+	if(ws && ws.readyState == ws.OPEN)
+		ws.close();
 	stopgame = 1;
 	state = 0
 }

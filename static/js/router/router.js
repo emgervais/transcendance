@@ -27,7 +27,7 @@ const routes = upgradeParamRoutes({
         authContainer: true,
         unprotected: true,
     },
-    "/pong/<roomId>/": {
+    "/pong/": {
         template: "/templates/pong.html",
         onLoad: pong.start,
         onQuit: pong.stop,
