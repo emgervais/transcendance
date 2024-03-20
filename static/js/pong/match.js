@@ -1,6 +1,7 @@
 import * as chat from "/js/chat/chat.js";
 import * as chatDisplay from "/js/chat/display.js";
 import * as notifications from "/js/notifications.js";
+import * as pong from "/js/pong/pong.js";
 import * as router from "/js/router/router.js";
 import * as user from "/js/user/user.js";
 import * as util from "/js/util.js";
@@ -22,6 +23,10 @@ function invite(target) {
         roomId = "global";
     }
     notifications.matchMaking(roomId);
+
+    chatDisplay.openChatBox();
+    chatDisplay.activateMatchTab();
+    router.route("/pong/");
 }
 
 // -- 
@@ -39,6 +44,7 @@ function setSearchingMatch({
 function cancelSearchingMatch() {
     notifications.matchMaking(searchingMatchId, true);
     setSearchingMatch({searching: false});
+    router.route("/");
 }
 
 // -- receive invite ----
@@ -128,11 +134,9 @@ function clearInvites() {
 
 // -- start ----
 function start(data) {
-    console.log("match.start, data:", data);
+    // if not in /pong/, go to /pong/
     chat.start(`pong_${data.room}`);
-    chatDisplay.openChatBox();
-    chatDisplay.activateMatchTab();
-    router.route(`/pong/${data.room}/`);
+    pong.connect(data.room);
 }
 
 export { invite, receiveInvite, displayInvite, respondInvite, invites, clearInvites };
