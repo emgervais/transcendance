@@ -131,4 +131,4 @@ function oauthRedirected() {
 
 export { loginButton, registerButton, oauthButton };
 export { isConnected };
-export { confirmLogin, logout, oauthRedirected, reConnect };
+export { confirmLogin, logout, oauthRedirected, reConnect, setConnected };

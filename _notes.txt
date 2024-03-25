@@ -6,6 +6,7 @@ stop game: (at score)
 game roomId: detect if wrong room (currently possible to play on custom roomId), route("/")
 tournament:
 
+backend: logout when already logged out
 
 start game:
     (attend pas toujours que l'autre accepte?)
