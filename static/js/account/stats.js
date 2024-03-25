@@ -52,7 +52,6 @@ async function load() {
                 stat.innerText = userStats[key] + statsUnit[key];//replace userstats by fetched stats
                 stat.style.color = '#9181F4';
                 div.appendChild(stat);
-                console.log(div);
                 statsGrid.appendChild(div);
             }
             container.appendChild(statsGrid);
