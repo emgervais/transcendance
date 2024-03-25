@@ -26,7 +26,6 @@ function invite(target) {
 
     chatDisplay.openChatBox();
     chatDisplay.activateMatchTab();
-    router.route("/pong/");
 }
 
 // -- 
@@ -39,6 +38,8 @@ function setSearchingMatch({
     searchingMatchId = roomId;
     searchingMatch = searching;
     util.displayState();
+    if (searching)
+        router.route("/pong/");
 }
 
 function cancelSearchingMatch() {

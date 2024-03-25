@@ -1,17 +1,18 @@
+from channels.db import database_sync_to_async
 # from . import pybackend
 from .pybackend import pong
 from notification.utils_db import change_status
-import threading
+from users.models import User
 
 import asyncio
 
 class PongInstance:
 	games = {}
 
-	def __init__(self, id, playerid):
+	def __init__(self, id, user):
 		if(not (id in self.games)):
 			self.games[id] = pong.Pong()
-		self.playerid = playerid
+		self.user = user
 		self.id = id
 		self.game = self.games[id]
 		self.player = None
@@ -57,6 +58,7 @@ class PongInstance:
 		print('disconnect')
 		if(self.player != None):
 			self.game.remove_player(self.player, self.send)
+			await update_stats(self.user, self.player, self.game)
 			self.player = None
 			self.send = None
 		if self.game.player_count() < 2:
@@ -107,7 +109,8 @@ async def wsapp(scope, receive, send):
 		return
 	change_status(user, 'in-game')
 	gameid = scope['url_route']['kwargs']['gameid']
-	pi = PongInstance(gameid, user.id)
+
+	pi = PongInstance(gameid, user)
 	while True:
 		event = await receive()
 		e = pong.get_event(event, pi.player, pi.game)
@@ -134,3 +137,12 @@ async def wsapp(scope, receive, send):
 		# 		'type': 'websocket.close',
 		# 	})
 		# 	break
+
+@database_sync_to_async
+def update_stats(user, player, game):
+	user.ball_hit_count += player.ball_hit_count
+	if (game.longest_exchange > user.longest_exchange):
+		user.longest_exchange = game.longest_exchange
+	user.win_count += player.win_count
+	user.loss_count += player.loss_count
+	user.save()

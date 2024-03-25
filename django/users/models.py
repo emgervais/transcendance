@@ -28,6 +28,10 @@ class User(AbstractUser):
     image = models.ImageField(upload_to='profile_pics', default='default/default.webp')
     status = models.CharField(max_length=10, default='offline')
     swear_count = models.IntegerField(default=0)
+    ball_hit_count = models.IntegerField(default=0)
+    longest_exchange = models.IntegerField(default=0)
+    win_count = models.IntegerField(default=0)
+    loss_count = models.IntegerField(default=0)
     
     objects = UserManager()
         

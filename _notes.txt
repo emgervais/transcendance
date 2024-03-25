@@ -1,6 +1,8 @@
 webgl.js:
     use of deprecated function XMLHttpRequest
 
+can't play pong twice (green screen)
+
 start game: (key press, allow sounds)
 stop game: (at score)
 game roomId: detect if wrong room (currently possible to play on custom roomId), route("/")

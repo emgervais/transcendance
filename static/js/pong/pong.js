@@ -3,6 +3,8 @@ import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVe
 import * as params from "/js/router/params.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
+import * as match from "/js/pong/match.js";
+
 var ws = null;
 var canvas;
 
@@ -746,6 +748,10 @@ function miss() {
 
 function start()
 {
+	if (!match.searchingMatch) {
+		router.route("/");
+		return;
+	}
 	stopgame = 0;
 	canvas = document.getElementById('webgl-canvas');
 	if(gl == null && !setup())

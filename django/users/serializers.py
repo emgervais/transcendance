@@ -105,7 +105,7 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
 class StatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'swear_count']
+        fields = ['username', 'swear_count', 'ball_hit_count', 'longest_exchange', 'win_count', 'loss_count']
     
     # def to_representation(self, instance):
     #     ret = super().to_representation(instance)
