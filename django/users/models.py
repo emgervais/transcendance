@@ -32,6 +32,7 @@ class User(AbstractUser):
     longest_exchange = models.IntegerField(default=0)
     win_count = models.IntegerField(default=0)
     loss_count = models.IntegerField(default=0)
+    ball_travel_length = models.IntegerField(default=0)
     
     objects = UserManager()
         

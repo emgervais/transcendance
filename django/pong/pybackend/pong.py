@@ -42,6 +42,7 @@ class Pong:
 		self.player2 = 0
 		self.longest_exchange = 0
 		self.curr_exchange_length = 0
+		self.ball_travel_length = -.5
 		self.ball = Ball()
 		self.websockets = []
 		self.task = None
@@ -93,6 +94,7 @@ class Pong:
 				self.filthmap[player.pongid - 1] = 1
 				offset += 4
 			elif(type == Events.player_score):
+				self.ball_travel_length += 1
 				self.curr_exchange_length = 0
 				pplayer = 0
 				if(player.pongid == 1):
@@ -111,12 +113,12 @@ class Pong:
 				if(pplayer.score >= winpoints and not self.filthmap[Filths.PWin]):
 					self.filthmap[Filths.PWin] = pplayer.pongid
 			elif(type == Events.ball_hit):
+				self.ball_travel_length += 1
 				self.ball.lasthit = player.pongid
 				player.ball_hit_count += 1
 				self.curr_exchange_length += 1
 				if self.curr_exchange_length > self.longest_exchange:
 					self.longest_exchange = self.curr_exchange_length
-					print("update longest_exhange:", self.longest_exchange)
 				self.ball.x = int.from_bytes(bytestr[offset:(offset + 4)], endieness, signed=True) / ballprecision
 				self.ball.y = int.from_bytes(bytestr[(offset + 4):(offset + 8)], endieness, signed=True) / ballprecision
 				self.ball.vx = int.from_bytes(bytestr[(offset + 8):(offset + 12)], endieness, signed=True) / ballprecision

@@ -140,9 +140,11 @@ async def wsapp(scope, receive, send):
 
 @database_sync_to_async
 def update_stats(user, player, game):
+	print("_______update_stats________", user.username)
 	user.ball_hit_count += player.ball_hit_count
-	if (game.longest_exchange > user.longest_exchange):
+	if(game.longest_exchange > user.longest_exchange):
 		user.longest_exchange = game.longest_exchange
 	user.win_count += player.win_count
 	user.loss_count += player.loss_count
+	user.ball_travel_length += max(0, game.ball_travel_length)
 	user.save()

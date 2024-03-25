@@ -1,18 +1,19 @@
+can't play pong twice (green screen)
+
+stats:
+    won against (count)
+        Games Model: (when am I updating it? 2 PongInstances for 1 game. Pick one of the pong instances?)
+    chat count with (users) (au pire on s'en calisse)
+
+start game: (key press, allow sounds)
+
 webgl.js:
     use of deprecated function XMLHttpRequest
 
-can't play pong twice (green screen)
 
-start game: (key press, allow sounds)
-stop game: (at score)
-game roomId: detect if wrong room (currently possible to play on custom roomId), route("/")
 tournament:
-
 backend: logout when already logged out
 
-start game:
-    (attend pas toujours que l'autre accepte?)
-    (côté backend: emile s'en charge)
 
 ----------------------------------------------------
 
