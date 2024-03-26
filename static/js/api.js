@@ -1,5 +1,6 @@
-import * as router from "/js/router/router.js";
 import * as auth from "/js/auth.js";
+import * as router from "/js/router/router.js";
+import * as util from "/js/util.js";
 
 // -- fetch ----
 async function fetchRoute(params, retrying=false){
@@ -53,6 +54,7 @@ async function isAuthorized(error) {
             })
             .catch((_) => {
                 console.log("Couldn't Renew Access Token");
+                auth.setConnected(false);
                 if (!router.getCurrentRoute().unprotected) {
                     auth.reConnect();
                 }

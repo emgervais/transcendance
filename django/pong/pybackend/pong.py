@@ -12,6 +12,11 @@ class Filths:
 	Ball = 4
 	PWin = 5
 
+class Events:
+	player_movement = 1
+	player_score = 2
+	ball_hit = 3
+
 class Ball:
 	def __init__(self):
 		self.x = 0.0
@@ -25,6 +30,9 @@ class Player:
 		self.score = 0
 		self.y = 0
 		self.pongid = 0
+		self.ball_hit_count = 0
+		self.win_count = 0
+		self.loss_count = 0
 
 class Pong:
 	def __init__(self):
@@ -32,6 +40,9 @@ class Pong:
 		self.pbplayers = []
 		self.player1 = 0
 		self.player2 = 0
+		self.longest_exchange = 0
+		self.curr_exchange_length = 0
+		self.ball_travel_length = -.5
 		self.ball = Ball()
 		self.websockets = []
 		self.task = None
@@ -78,11 +89,13 @@ class Pong:
 		while(offset < len(bytestr)):
 			type = bytestr[offset]
 			offset += 1
-			if(type == 1): # player movement
+			if(type == Events.player_movement):
 				player.y = int.from_bytes(bytestr[offset:(offset + 4)], endieness)
 				self.filthmap[player.pongid - 1] = 1
 				offset += 4
-			elif(type == 2): # player score
+			elif(type == Events.player_score):
+				self.ball_travel_length += 1
+				self.curr_exchange_length = 0
 				pplayer = 0
 				if(player.pongid == 1):
 					pplayer = self.player2
@@ -99,8 +112,13 @@ class Pong:
 				offset += 16
 				if(pplayer.score >= winpoints and not self.filthmap[Filths.PWin]):
 					self.filthmap[Filths.PWin] = pplayer.pongid
-			elif(type == 3): # ball hit
+			elif(type == Events.ball_hit):
+				self.ball_travel_length += 1
 				self.ball.lasthit = player.pongid
+				player.ball_hit_count += 1
+				self.curr_exchange_length += 1
+				if self.curr_exchange_length > self.longest_exchange:
+					self.longest_exchange = self.curr_exchange_length
 				self.ball.x = int.from_bytes(bytestr[offset:(offset + 4)], endieness, signed=True) / ballprecision
 				self.ball.y = int.from_bytes(bytestr[(offset + 4):(offset + 8)], endieness, signed=True) / ballprecision
 				self.ball.vx = int.from_bytes(bytestr[(offset + 8):(offset + 12)], endieness, signed=True) / ballprecision
@@ -141,6 +159,13 @@ class Pong:
 		if(self.filthmap[Filths.PWin]):
 			bytestr += b'\x08\x04' + self.filthmap[Filths.PWin].to_bytes(1, endieness)
 			self.filthmap[Filths.PWin] = 0
+			if(self.player1.score > self.player2.score):
+				self.player1.win_count += 1
+				self.player2.loss_count += 1
+			else:
+				self.player1.loss_count += 1
+				self.player2.win_count += 1
+			
 		return bytestr
 
 	def end_game(self):
