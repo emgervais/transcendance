@@ -157,9 +157,10 @@ out float shade;
 vec3 lightdir = normalize(vec3(0.0, 1.0, 0.0));
 void main()
 {
-	gl_Position = projection * view * modelT * modelR * modelS * vec4(position, 1.0);
+	vec4 gp = modelT * modelR * modelS * vec4(position, 1.0);
+	gl_Position = projection * view * gp;
 	fraguv = uv;
-	shade = max(dot(normal, lightdir), 0.0) * 0.5 + 0.5;
+	shade = max(dot(normal, lightdir), 0.0) * 0.5 + 1.0 - min(distance(gp.xyz, vec3(0.0, 0.0, 1.36)) * 0.07, 1.3);
 }
 `;
 const modelFragShader = `\
@@ -170,9 +171,12 @@ in float shade;
 out vec4 color;
 uniform sampler2D tex;
 vec3 lightdir = normalize(vec3(0.0, 1.0, 0.0));
+float posterize = 8.0;
 void main()
 {
-	color = vec4(texture(tex, fraguv).xyz * shade, 1.0);
+	// color = vec4(texture(tex, fraguv).xyz * shade, 1.0);
+	vec3 c = texture(tex, fraguv).xyz;
+	color = vec4(floor(c.x * shade * posterize) / posterize, floor(c.y * shade * posterize) / posterize, floor(c.z * shade * posterize) / posterize, 1.0);
 }
 `;
 

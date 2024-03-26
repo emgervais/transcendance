@@ -1,8 +1,9 @@
 import {newModel, createProgram, newProjectionMatrix, newViewMatrix, newTranslationMatrix, newRotationMatrix, newScaleMatrix, createStaticBuffer, createVAO, unbindVAO, createUBO, createTexture, createFramebuffer, initGL, gl} from "/js/pong/webgl.js";
 import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, bounceSound, hurtSound} from "/js/pong/res.js";
-import * as params from "/js/router/params.js";
-import * as router from "/js/router/router.js";
-import * as util from "/js/util.js";
+// import * as params from "/js/router/params.js";
+// import * as router from "/js/router/router.js";
+// import * as util from "/js/util.js";
+import { cancelSearchingMatch } from "/js/pong/match.js";
 var ws = null;
 var canvas;
 
@@ -23,6 +24,7 @@ var mainUBO;
 var tvmodel;
 var legmodel;
 var sandalmodel;
+var boxmodel;
 
 const wsmovementbuffer = new ArrayBuffer(5);
 const wsmovementdv = new DataView(wsmovementbuffer);
@@ -60,9 +62,14 @@ var fb;
 const camera = {
 	pitch: 0,
 	yaw: -Math.PI/2,
+	targetpitch: 0,
+	targetyaw: -Math.PI/2,
 	x: 0,
 	y: 0,
 	z: 1.5,
+	fov: Math.PI / 2,
+	targetfov: Math.PI / 2,
+	targetz: 1.5,
 	_viewmatrix: 0,
 	_projectionmatrix: 0,
 	uploadV: function() {mainUBO.update(this._viewmatrix._matrix, 192);},
@@ -142,7 +149,8 @@ var score = {
 }
 
 var player = 0;
-var state = 0;
+var state = 0; // states: 0=pong waiting to start, 1=pong playing, 2=pong player 1 win, 3=pong player 2 win
+// 4=game select
 
 const player1 = {
 	_ubodata: new Float32Array([0.0, 0.0, paddle.width, paddle.height]),
@@ -186,6 +194,7 @@ const stage = {
 
 function setup()
 {
+	canvas = document.getElementById('webgl-canvas');
 	if(!initGL(canvas))
 		return false;
 
@@ -340,17 +349,20 @@ function setup()
 	tvmodel = newModel('/obj/tv.obj', '/img/tv.png');
 	legmodel = newModel('/obj/leg.obj', '/img/leg.png');
 	sandalmodel = newModel('/obj/sandal.obj', '/img/sandal.png');
+	boxmodel = newModel('/obj/box.obj', '/img/co.png');
 
 	tvmodel.move(0, 0, 0.0);
 	legmodel.move(0, 0, 0.0);
 	sandalmodel.move(0, 0, 0.0);
+	boxmodel.move(0, 0, 0.0);
 	let modelscales = 2.15;
 	tvmodel.scale(modelscales, modelscales + 0.2, modelscales);
 	legmodel.scale(modelscales, modelscales + 0.2, modelscales);
 	sandalmodel.scale(modelscales, modelscales + 0.2, modelscales);
+	boxmodel.scale(modelscales, modelscales + 0.2, modelscales);
 
 	camera._viewmatrix = newViewMatrix(0, 0, 2, 0, Math.PI*2);
-	camera._projectionmatrix = newProjectionMatrix(Math.PI / 2, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
+	camera._projectionmatrix = newProjectionMatrix(camera.fov, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
 	camera.uploadV();
 	camera.uploadP();
 
@@ -377,8 +389,28 @@ function setup()
 			inputs[6] = 1;
 		else if(e.key == 'ArrowRight')
 			inputs[7] = 1;
-		else if(e.key == 'Space')
-			console.log('SPACE');
+		else if(e.key == ' ' && state != 1)
+		{
+			if(state != 4)
+			{
+				// game select state
+				state = 4;
+				if(ws)
+					ws.close();
+				cancelSearchingMatch();
+				camera.targetfov = Math.PI * 0.4;
+				camera.targetz = 3;
+			}
+			else
+			{
+				state = 0;
+				camera.targetfov = Math.PI / 2;
+				camera.targetz = 1.5;
+				camera.targetpitch = 0;
+				camera.targetyaw = -Math.PI/2;
+			}
+		}
+			
 	}
 	window.onkeyup = function(e)
 	{
@@ -425,8 +457,9 @@ function setup()
 
 function connect(id)
 {
-	if(ws && ws.readyState == ws.OPEN)
+	if(ws)
 		ws.close();
+	console.log("Connecting to websocket ID " + id);
 	ws = new WebSocket("wss://" + window.location.host + "/ws/pong/" + id + "/");
 	if(!ws)
 	{
@@ -504,20 +537,23 @@ function connect(id)
 					player = player1;
 					console.log("You are player 1.");
 					wsmovementdv.setUint32(1, player.gety(), true);
-					ws.send(wsmovementbuffer);
+					if(ws.readyState == ws.OPEN)
+						ws.send(wsmovementbuffer);
 				}
 				else if(dv.getUint8(offset) == 2){
 					playerid = 2;
 					player = player2;
 					console.log("You are player 2.");
 					wsmovementdv.setUint32(1, player.gety(), true);
-					ws.send(wsmovementbuffer);
+					if(ws.readyState == ws.OPEN)
+						ws.send(wsmovementbuffer);
 				}
 				else if(dv.getUint8(offset) == 3) {
 					state = 1;
 					console.log("Game started.");
 					wsmovementdv.setUint32(1, player.gety(), true);
-					ws.send(wsmovementbuffer);
+					if(ws.readyState == ws.OPEN)
+						ws.send(wsmovementbuffer);
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
@@ -548,7 +584,7 @@ function collisionCheck(player, ball)
 
 function senddata(sendbytes)
 {
-	if(sendbytes[0] == 1)
+	if(sendbytes[0] == 1 && ws.readyState == ws.OPEN)
 	{
 		wsmovementdv.setUint32(1, player.gety(), true);
 		ws.send(wsmovementbuffer);
@@ -560,7 +596,7 @@ var lastTime = 0;
 var redtimer = 0;
 var ratio = 0.0;
 var sendtimer = 0.0;
-var stopgame = 1;
+var stopgame = 0;
 function draw()
 {
 	if(stopgame)
@@ -568,25 +604,11 @@ function draw()
 	const sendbytes = new Uint32Array(1); // 0: player1 movement, rest is sent instantly
 	let dt = (performance.now() - lastTime);
 	lastTime = performance.now();
-	if(player)
+	switch(state)
 	{
-		if(inputs[0] == 1)
-		{
-			player.sety(player.gety() - 0.04 * dt);
-			if(player.gety() < stage.top)
-				player.sety(stage.top);
-			sendbytes[0] = 1;
-		}
-		if(inputs[1] == 1)
-		{
-			player.sety(player.gety() + 0.04 * dt);
-			if(player.gety() > stage.bottom-paddle.height)
-				player.sety(stage.bottom-paddle.height);
-			sendbytes[0] = 1;
-		}
-	}
-	if(state == 1)
-	{
+	case 1:
+	case 2:
+	case 3:
 		ball.setx(ball.getx() + ball.xspeed * dt);
 		ball.sety(ball.gety() + ball.yspeed * dt);
 
@@ -639,95 +661,200 @@ function draw()
 			ball.sety(stage.bottom-ball.height);
 			ball.yspeed *= -1;
 		}
-	}
-	camera.move(camera.x, camera.y, camera.z, camera.pitch, camera.yaw);
-	camera.uploadV();
-	sendtimer += dt;
-	if(sendtimer > 1000/30)
-	{
-		senddata(sendbytes);
-		sendtimer = 0;
-	}
-
-	if(redtimer > 0)
-	{
-		redtimer -= dt;
-		if(redtimer < 0)
+		if(redtimer > 0)
 		{
-			gl.clearColor(0.1, 0.1, 0.14, 1.0);
-			ratio = 0.0;
+			redtimer -= dt;
+			if(redtimer < 0)
+			{
+				gl.clearColor(0.1, 0.1, 0.14, 1.0);
+				ratio = 0.0;
+			}
+			else
+			{
+				ratio = redtimer/200;
+				gl.clearColor(0.8 * ratio + 0.1 * (1.0 - ratio), 0.1, 0.14, 1.0);
+			}
 		}
-		else
+	case 0:
+		if(player)
 		{
-			ratio = redtimer/200;
-			gl.clearColor(0.8 * ratio + 0.1 * (1.0 - ratio), 0.1, 0.14, 1.0);
+			if(inputs[0] == 1)
+			{
+				player.sety(player.gety() - 0.04 * dt);
+				if(player.gety() < stage.top)
+					player.sety(stage.top);
+				sendbytes[0] = 1;
+			}
+			if(inputs[1] == 1)
+			{
+				player.sety(player.gety() + 0.04 * dt);
+				if(player.gety() > stage.bottom-paddle.height)
+					player.sety(stage.bottom-paddle.height);
+				sendbytes[0] = 1;
+			}
 		}
-	}
+		if(camera.fov != camera.targetfov)
+		{
+			camera.fov += (camera.targetfov - camera.fov) * 0.002 * dt;
+			if(Math.abs(camera.fov - camera.targetfov) < 0.001)
+				camera.fov = camera.targetfov;
+			camera.proj(camera.fov, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
+			camera.uploadP();
+		}
+		if(camera.z != camera.targetz)
+		{
+			camera.z += (camera.targetz - camera.z) * 0.002 * dt;
+			if(Math.abs(camera.z - camera.targetz) < 0.001)
+				camera.z = camera.targetz;
+		}
+		if(camera.pitch != camera.targetpitch)
+		{
+			camera.pitch += (camera.targetpitch - camera.pitch) * 0.004 * dt;
+			if(Math.abs(camera.pitch - camera.targetpitch) < 0.003)
+				camera.pitch = camera.targetpitch;
+		}
+		if(camera.yaw != camera.targetyaw)
+		{
+			camera.yaw += (camera.targetyaw - camera.yaw) * 0.004 * dt;
+			if(Math.abs(camera.yaw - camera.targetyaw) < 0.003)
+				camera.yaw = camera.targetyaw;
+		}
+		camera.move(camera.x, camera.y, camera.z, camera.pitch, camera.yaw);
+		camera.uploadV();
+		sendtimer += dt;
+		if(sendtimer > 1000/30)
+		{
+			senddata(sendbytes);
+			sendtimer = 0;
+		}
+		// draw the paddles
+		// gl.disable(gl.DEPTH_TEST);
+		unbindVAO();
+		gl.activeTexture(gl.TEXTURE0);
+		fb.bind();
+		fb.bindTexture();
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		gl.viewport(0, 0, pongrenderwidth, pongrenderheight);
 
-	// draw the paddles
-	// gl.disable(gl.DEPTH_TEST);
-	unbindVAO();
-	gl.activeTexture(gl.TEXTURE0);
-	fb.bind();
-	fb.bindTexture();
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	gl.viewport(0, 0, pongrenderwidth, pongrenderheight);
-
-	// draw the scores
-	// drawText('press space', x, y);
-	digitsTexture.bind();
-	pongVAO.bind();
-	gl.useProgram(textprogram);
-	textUBO.update(score.ubo1._ubodata);
-	gl.drawArrays(gl.TRIANGLES, 0, 6);
-	textUBO.update(score.ubo2._ubodata);
-	gl.drawArrays(gl.TRIANGLES, 0, 6);
-	if((state == 2 || state == 3) && lastTime % 1000 < 800)
-	{
-		wintext.ubo.setwinnder(state - 1);
-		textUBO.update(wintext.ubo._ubodata);
-		gl.uniform1i(digitstexuniform, 3);
+		// draw the scores
+		// drawText('press space', x, y);
+		digitsTexture.bind();
+		pongVAO.bind();
+		gl.useProgram(textprogram);
+		textUBO.update(score.ubo1._ubodata);
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
-		gl.uniform1i(digitstexuniform, 2);
-	}
-	// draw the pong game
-	gl.useProgram(program);
-	if(state || playerid == 1 || lastTime % 1000 < 500)
-	{
-		pongUBO.update(player1._ubodata);
+		textUBO.update(score.ubo2._ubodata);
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
-	}
-	if(state || playerid == 2 || lastTime % 1000 < 500)
-	{
-		pongUBO.update(player2._ubodata);
+		if((state == 2 || state == 3) && lastTime % 1000 < 800)
+		{
+			wintext.ubo.setwinnder(state - 1);
+			textUBO.update(wintext.ubo._ubodata);
+			gl.uniform1i(digitstexuniform, 3);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+			gl.uniform1i(digitstexuniform, 2);
+		}
+		// draw the pong game
+		gl.useProgram(program);
+		if(state || playerid == 1 || lastTime % 1000 < 500)
+		{
+			pongUBO.update(player1._ubodata);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		}
+		if(state || playerid == 2 || lastTime % 1000 < 500)
+		{
+			pongUBO.update(player2._ubodata);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		}
+		pongUBO.update(ball._ubodata);
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
+		stagelineVAO.bind();
+		pongUBO.update(stage._ubodata);
+		gl.drawArrays(gl.LINES, 0, 8);
+		// draw the pong screen
+		mainUBO.bind();
+		gl.useProgram(screenprogram);
+		screenobject.uploadT();
+		screenobject.uploadR();
+		screenobject.uploadS();
+		mainUBO.update(camera._viewmatrix._matrix, 192);
+		mainUBO.update(camera._projectionmatrix._matrix, 256);
+		gl.uniform1f(glitchUniform, ratio * ratio * 0.2);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.viewport(0, 0, canvas.width, canvas.height);
+		// camera.move(0, 0, -2, camera.pitch, camera.yaw);
+		// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		screenVAO.bind();
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+		// draw the models
+		gl.useProgram(modelprogram);
+		gl.enable(gl.DEPTH_TEST);
+		tvmodel.draw(mainUBO);
+		legmodel.draw(mainUBO);
+		sandalmodel.draw(mainUBO);
+		boxmodel.draw(mainUBO);
+		break;
+	case 4:
+		if(camera.fov != camera.targetfov)
+		{
+			camera.fov += (camera.targetfov - camera.fov) * 0.001 * dt;
+			if(Math.abs(camera.fov - camera.targetfov) < 0.001)
+				camera.fov = camera.targetfov;
+			camera.proj(camera.fov, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
+			camera.uploadP();
+		}
+		if(camera.z != camera.targetz)
+		{
+			camera.z += (camera.targetz - camera.z) * 0.001 * dt;
+			if(Math.abs(camera.z - camera.targetz) < 0.001)
+				camera.z = camera.targetz;
+		}
+		if(inputs[0] == 1)
+		{
+			camera.pitch += 0.001 * dt;
+			if(camera.pitch > Math.PI * 0.5)
+				camera.pitch = Math.PI * 0.5;
+		}
+		if(inputs[1] == 1)
+		{
+			camera.pitch -= 0.001 * dt;
+			if(camera.pitch < -Math.PI * 0.5)
+				camera.pitch = -Math.PI * 0.5;
+		}
+		if(inputs[2] == 1)
+		{
+			camera.yaw -= 0.001 * dt;
+			if(camera.yaw < -Math.PI * 0.75)
+				camera.yaw = -Math.PI * 0.75;
+		}
+		if(inputs[3] == 1)
+		{
+			camera.yaw += 0.001 * dt;
+			if(camera.yaw > -Math.PI * 0.25)
+				camera.yaw = -Math.PI * 0.25;
+		}
+		camera.move(camera.x, camera.y, camera.z, camera.pitch, camera.yaw);
+		gl.activeTexture(gl.TEXTURE0);
+		fb.bindTexture();
+		mainUBO.bind();
+		gl.useProgram(screenprogram);
+		screenobject.uploadT();
+		screenobject.uploadR();
+		screenobject.uploadS();
+		mainUBO.update(camera._viewmatrix._matrix, 192);
+		mainUBO.update(camera._projectionmatrix._matrix, 256);
+		gl.uniform1f(glitchUniform, Math.random() * 0.03 + 0.05);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.viewport(0, 0, canvas.width, canvas.height);
+		screenVAO.bind();
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+		gl.useProgram(modelprogram);
+		gl.enable(gl.DEPTH_TEST);
+		tvmodel.draw(mainUBO);
+		legmodel.draw(mainUBO);
+		sandalmodel.draw(mainUBO);
+		boxmodel.draw(mainUBO);
+		break;
 	}
-	pongUBO.update(ball._ubodata);
-	gl.drawArrays(gl.TRIANGLES, 0, 6);
-	stagelineVAO.bind();
-	pongUBO.update(stage._ubodata);
-	gl.drawArrays(gl.LINES, 0, 8);
-	// draw the pong screen
-	mainUBO.bind();
-	gl.useProgram(screenprogram);
-	screenobject.uploadT();
-	screenobject.uploadR();
-	screenobject.uploadS();
-	mainUBO.update(camera._viewmatrix._matrix, 192);
-	mainUBO.update(camera._projectionmatrix._matrix, 256);
-	gl.uniform1f(glitchUniform, ratio * ratio * 0.2);
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	gl.viewport(0, 0, canvas.width, canvas.height);
-	// camera.move(0, 0, -2, camera.pitch, camera.yaw);
-	// gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	screenVAO.bind();
-	gl.drawArrays(gl.TRIANGLES, 0, 6);
-	// draw the models
-	gl.useProgram(modelprogram);
-	gl.enable(gl.DEPTH_TEST);
-	tvmodel.draw(mainUBO);
-	legmodel.draw(mainUBO);
-	sandalmodel.draw(mainUBO);
 
 	requestAnimationFrame(draw);
 }
@@ -746,9 +873,10 @@ function miss() {
 
 function start()
 {
+	console.log('Starting pong');
 	stopgame = 0;
-	canvas = document.getElementById('webgl-canvas');
-	if(gl == null && !setup())
+	// canvas = document.getElementById('webgl-canvas');
+	if(!setup())
 	{
 		console.error('Failed to set up pong');
 		return;
@@ -759,8 +887,7 @@ function start()
 function stop()
 {
 	ambientSound.pause();
-	if (ws && ws.readyState &&
-		(ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
+	if (ws && (ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
 		ws.close();
 	}
 	stopgame = 1;

@@ -44,7 +44,7 @@ function setSearchingMatch({
 function cancelSearchingMatch() {
     notifications.matchMaking(searchingMatchId, true);
     setSearchingMatch({searching: false});
-    router.route("/");
+    // router.route("/");
 }
 
 // -- receive invite ----
@@ -135,6 +135,9 @@ function clearInvites() {
 // -- start ----
 function start(data) {
     // if not in /pong/, go to /pong/
+    // if(router.getCurrentRoute() != "/pong/") {
+    //     router.route("/pong/");
+    // }
     chat.start(`pong_${data.room}`);
     pong.connect(data.room);
 }

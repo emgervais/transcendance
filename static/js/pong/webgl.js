@@ -339,10 +339,10 @@ function newModel(objurl, textureurl)
 		}
 	}
 	// console.log("Model loaded: " + objurl);
-	// console.log(vertices);
-	// console.log(normals);
-	// console.log(uvs);
-	// console.log(faces);
+	// console.log("Vertices: " + vertices.length);
+	// console.log("Normals: " + normals.length);
+	// console.log("UVs: " + uvs.length);
+	// console.log("Faces: " + indices.length / 3);
 
 	const vertbuf = new Float32Array(map.size * 3);
 	const normbuf = new Float32Array(map.size * 3);
@@ -404,7 +404,7 @@ function newModel(objurl, textureurl)
 
 function initGL(canvas)
 {
-	gl = canvas.getContext("webgl2");
+	gl = canvas.getContext("webgl2", {antialias: false});
 	if(!gl)
 	{
 		console.error("WebGL not supported");
