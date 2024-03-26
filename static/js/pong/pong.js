@@ -25,6 +25,7 @@ var tvmodel;
 var legmodel;
 var sandalmodel;
 var boxmodel;
+var traymodel;
 
 const wsmovementbuffer = new ArrayBuffer(5);
 const wsmovementdv = new DataView(wsmovementbuffer);
@@ -350,16 +351,19 @@ function setup()
 	legmodel = newModel('/obj/leg.obj', '/img/leg.png');
 	sandalmodel = newModel('/obj/sandal.obj', '/img/sandal.png');
 	boxmodel = newModel('/obj/box.obj', '/img/co.png');
+	traymodel = newModel('/obj/tray.obj', '/img/tray.png');
 
 	tvmodel.move(0, 0, 0.0);
 	legmodel.move(0, 0, 0.0);
 	sandalmodel.move(0, 0, 0.0);
 	boxmodel.move(0, 0, 0.0);
+	traymodel.move(0, 0, 0.0);
 	let modelscales = 2.15;
 	tvmodel.scale(modelscales, modelscales + 0.2, modelscales);
 	legmodel.scale(modelscales, modelscales + 0.2, modelscales);
 	sandalmodel.scale(modelscales, modelscales + 0.2, modelscales);
 	boxmodel.scale(modelscales, modelscales + 0.2, modelscales);
+	traymodel.scale(modelscales, modelscales + 0.2, modelscales);
 
 	camera._viewmatrix = newViewMatrix(0, 0, 2, 0, Math.PI*2);
 	camera._projectionmatrix = newProjectionMatrix(camera.fov, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
@@ -788,10 +792,13 @@ function draw()
 		// draw the models
 		gl.useProgram(modelprogram);
 		gl.enable(gl.DEPTH_TEST);
+		// gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		// gl.clear(gl.COLOR_BUFFER_BIT);
 		tvmodel.draw(mainUBO);
 		legmodel.draw(mainUBO);
 		sandalmodel.draw(mainUBO);
 		boxmodel.draw(mainUBO);
+		traymodel.draw(mainUBO);
 		break;
 	case 4:
 		if(camera.fov != camera.targetfov)
@@ -853,6 +860,7 @@ function draw()
 		legmodel.draw(mainUBO);
 		sandalmodel.draw(mainUBO);
 		boxmodel.draw(mainUBO);
+		traymodel.draw(mainUBO);
 		break;
 	}
 
@@ -881,6 +889,15 @@ function start()
 		console.error('Failed to set up pong');
 		return;
 	}
+	camera.targetfov = Math.PI / 2;
+	camera.targetz = 1.5;
+	camera.targetpitch = 0;
+	camera.targetyaw = -Math.PI/2;
+	camera.fov = camera.targetfov;
+	camera.z = camera.targetz;
+	camera.pitch = camera.targetpitch;
+	camera.yaw = camera.targetyaw;
+	camera.proj(camera.fov, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
 	requestAnimationFrame(draw);
 }
 
@@ -891,7 +908,7 @@ function stop()
 		ws.close();
 	}
 	stopgame = 1;
-	state = 0
+	state = 0;
 }
 
 export {start, stop, stopgame, connect};

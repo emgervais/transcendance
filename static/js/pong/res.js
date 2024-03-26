@@ -157,10 +157,13 @@ out float shade;
 vec3 lightdir = normalize(vec3(0.0, 1.0, 0.0));
 void main()
 {
-	vec4 gp = modelT * modelR * modelS * vec4(position, 1.0);
-	gl_Position = projection * view * gp;
+	vec4 wp = modelT * modelR * modelS * vec4(position, 1.0);
+	gl_Position = projection * view * wp;
 	fraguv = uv;
-	shade = max(dot(normal, lightdir), 0.0) * 0.5 + 1.0 - min(distance(gp.xyz, vec3(0.0, 0.0, 1.36)) * 0.07, 1.3);
+	// shade = max(dot(normal, lightdir), 0.0) * 0.5 + 1.0 - min(distance(wp.xyz, vec3(0.0, 0.0, 1.36)) * 0.07, 1.3);
+	float dist = distance(wp.xyz, vec3(0.0, 0.0, 0.0)) * 0.1;
+	shade = max((dot(normal, normalize(-wp.xyz)) + 1.0) * 0.4 + 0.7 - dist * dist, 0.0);
+	// shade = (shade * shade);
 }
 `;
 const modelFragShader = `\
@@ -176,7 +179,7 @@ void main()
 {
 	// color = vec4(texture(tex, fraguv).xyz * shade, 1.0);
 	vec3 c = texture(tex, fraguv).xyz;
-	color = vec4(floor(c.x * shade * posterize) / posterize, floor(c.y * shade * posterize) / posterize, floor(c.z * shade * posterize) / posterize, 1.0);
+	color = vec4(floor(c.x * shade * posterize) / posterize, floor(c.y * shade * posterize) / posterize, floor(c.z * shade * posterize) / posterize, 1.0) * vec4(0.89, 0.89, 1.0, 1.0);
 }
 `;
 
