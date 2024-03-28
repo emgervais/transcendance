@@ -79,7 +79,6 @@ function pongNotifications(data) {
 			util.showAlert({text: "Opponent is offline."});
 			break;
 		case "matchFound":
-			chatMessages.deleteMessages(chat.matchRoomId);
 			match.setSearchingMatch({searching: false});
 			match.start(data);
 			break;

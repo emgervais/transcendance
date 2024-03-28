@@ -1,6 +1,5 @@
-can't play pong twice (green screen)
 
-game chat: click game
+game chat: game tab is not actually selected
 
 stats:
     won against (count)
