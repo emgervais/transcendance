@@ -4,11 +4,15 @@ import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVe
 // import * as router from "/js/router/router.js";
 // import * as util from "/js/util.js";
 import { cancelSearchingMatch } from "/js/pong/match.js";
+
 import * as chatMessages from "/js/chat/messages.js";
 import * as chat from "/js/chat/chat.js";
+import * as util from "/js/util.js";
 
 var ws = null;
 var canvas;
+
+var showmatchbuttons = true;
 
 var pongUBO;
 var textUBO;
@@ -424,6 +428,8 @@ function setup()
 			if(state != 4)
 			{
 				// game select state
+				showmatchbuttons = false;
+				util.displayState();
 				state = 4;
 				if(ws)
 					ws.close();
@@ -431,9 +437,12 @@ function setup()
 				camera.targetfov = Math.PI * 0.4;
 				camera.targetz = 3;
 				playerid = 0;
+				player = 0;
 			}
 			else
 			{
+				showmatchbuttons = true;
+				util.displayState();
 				state = 0;
 				camera.targetfov = Math.PI / 2;
 				camera.targetz = 1.5;
@@ -488,6 +497,8 @@ function setup()
 
 function connect(id)
 {
+	showmatchbuttons = false;
+	util.displayState();
 	if(ws)
 		ws.close();
 	console.log("Connecting to websocket ID " + id);
@@ -589,6 +600,8 @@ function connect(id)
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
+					showmatchbuttons = true;
+					util.displayState();
 					state = dv.getUint8(offset + 1) + 1;
 					console.log("Game ended, Winner: P" + (state - 1));
 					offset += 1;
@@ -608,7 +621,9 @@ function connect(id)
 						state = 1;
 				}
 				else
-					state = 0;
+				{
+					disconnect();
+				}
 				offset += 1;
 				break;
 			default:
@@ -964,8 +979,15 @@ function stop()
 function disconnect()
 {
 	if(ws)
+	{
 		ws.close();
+		ws = 0;
+	}
 	state = 0;
+	playerid = 0;
+	player = 0;
+	showmatchbuttons = true;
+	util.displayState();
 }
 
-export {start, stop, stopgame, connect, disconnect};
+export {start, stop, stopgame, connect, disconnect, showmatchbuttons};
