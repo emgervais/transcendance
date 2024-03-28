@@ -46,7 +46,7 @@ function setConnected(connected) {
 async function login(user, redirect=true) {
     setCurrUser(user);
     if (redirect) {
-        await router.route("/pong/");
+        await router.route("/");
     }
     setConnected(true);
     displayCurrUser();
