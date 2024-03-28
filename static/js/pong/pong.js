@@ -4,6 +4,9 @@ import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVe
 // import * as router from "/js/router/router.js";
 // import * as util from "/js/util.js";
 import { cancelSearchingMatch } from "/js/pong/match.js";
+import * as chatMessages from "/js/chat/messages.js";
+import * as chat from "/js/chat/chat.js";
+
 var ws = null;
 var canvas;
 
@@ -925,6 +928,7 @@ function miss() {
 
 function start()
 {
+	chatMessages.deleteMessages(chat.matchRoomId);
 	console.log('Starting pong');
 	stopgame = 0;
 	countdown = 0;
