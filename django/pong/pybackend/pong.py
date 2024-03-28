@@ -1,3 +1,6 @@
+import time
+import math
+
 endieness = 'little'
 
 ballprecision = 1000.0
@@ -11,6 +14,7 @@ class Filths:
 	P2Score = 3
 	Ball = 4
 	PWin = 5
+	Count = 6
 
 class Events:
 	player_movement = 1
@@ -36,7 +40,9 @@ class Player:
 
 class Pong:
 	def __init__(self):
-		self.filthmap = [0,0,0,0,0,0]
+		self.starttime = 0
+		self.countdown = 0
+		self.filthmap = [0,0,0,0,0,0,0]
 		self.pbplayers = []
 		self.player1 = 0
 		self.player2 = 0
@@ -56,7 +62,6 @@ class Pong:
 		self.ball.x = 39
 		self.ball.y = 26.5
 		self.ball.vx = -0.03
-
 		self.ball.vy = 0
 		self.filthmap[Filths.Ball] = 1
 		self.player1.score = 0
@@ -66,6 +71,9 @@ class Pong:
 		self.filthmap[Filths.P2Score] = 1
 		self.filthmap[Filths.P1Y] = 0
 		self.filthmap[Filths.P2Y] = 0
+		self.countdown = 3
+		self.starttime = time.time()
+		self.filthmap[Filths.Count] = 1
 
 	def new_player(self, send) -> Player:
 		player = Player()
@@ -134,6 +142,15 @@ class Pong:
 		if(len(self.pbplayers) < 2):
 			return b''
 		bytestr = b''
+		if(self.countdown > 0):
+			timediff = math.ceil(3 - (time.time() - self.starttime) * 0.8)
+			if(timediff != self.countdown):
+				if(timediff < 0):
+					self.countdown = 0
+				self.countdown = timediff
+				bytestr += b'\x08\x05' + self.countdown.to_bytes(1, endieness)
+				self.filthmap[Filths.Count] = 1
+
 		if(self.filthmap[Filths.P1Y] == 1):
 			bytestr += b'\x01' + self.player1.y.to_bytes(4, endieness)
 			self.filthmap[Filths.P1Y] = 0
@@ -146,6 +163,9 @@ class Pong:
 		if(self.filthmap[Filths.P2Score] == 1):
 			bytestr += b'\x04' + self.player2.score.to_bytes(4, endieness)
 			self.filthmap[Filths.P2Score] = 0
+		if(self.filthmap[Filths.Count] == 1):
+			bytestr += b'\x08\x05' + self.countdown.to_bytes(1, endieness)
+			self.filthmap[Filths.Count] = 0
 		try:
 			if(self.filthmap[Filths.Ball] == 1):
 				bytestr += b'\x05' + self.ball.lasthit.to_bytes(1, endieness, signed=True)\
