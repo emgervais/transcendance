@@ -38,12 +38,13 @@ function setSearchingMatch({
     searchingMatchId = roomId;
     searchingMatch = searching;
     util.displayState();
+    if (searching && router.getCurrentLocation() != "/")
+        router.route("/");
 }
 
 function cancelSearchingMatch() {
     notifications.matchMaking(searchingMatchId, true);
     setSearchingMatch({searching: false});
-    // router.route("/");
 }
 
 // -- receive invite ----

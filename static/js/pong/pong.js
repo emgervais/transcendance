@@ -943,7 +943,6 @@ function miss() {
 
 function start()
 {
-	chatMessages.deleteMessages(chat.matchRoomId);
 	console.log('Starting pong');
 	stopgame = 0;
 	countdown = 0;

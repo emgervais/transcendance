@@ -1,5 +1,6 @@
 import * as chat from "/js/chat/chat.js";
 import * as chatFriends from "/js/chat/friends.js";
+import * as chatMessages from "/js/chat/messages.js";
 import * as friends from "/js/account/friends.js";
 import * as match from "/js/pong/match.js";
 import * as nav from "/js/nav.js";
@@ -78,6 +79,7 @@ function pongNotifications(data) {
 			util.showAlert({text: "Opponent is offline."});
 			break;
 		case "matchFound":
+			chatMessages.deleteMessages(chat.matchRoomId);
 			match.setSearchingMatch({searching: false});
 			match.start(data);
 			break;

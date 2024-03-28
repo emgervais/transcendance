@@ -1,5 +1,7 @@
 can't play pong twice (green screen)
 
+game chat: click game
+
 stats:
     won against (count)
         Games Model: (when am I updating it? 2 PongInstances for 1 game. Pick one of the pong instances?)

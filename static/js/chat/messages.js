@@ -50,6 +50,8 @@ async function saveMessage(roomId, msg, isCurrUser, img, userId) {
 }
 
 async function deleteMessages(roomId) {
+	if (!roomId)
+		return;
 	var messages = JSON.parse(sessionStorage.getItem('messages')) || [];
 	var filteredMessages = messages.filter(function(message) {
 	  return message.roomId !== roomId;
