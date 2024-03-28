@@ -1,6 +1,9 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light" id="dynamic_nav">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/">ft_transcendence</a>
+    <a class="navbar-brand" href="/pong/">ft_transcendence</a>
+    <button class="start-match connected not-searching-match hidden">Play with anyone</button>
+    <button class="start-tournament connected not-searching-match hidden">Play in a tournament</button>
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -22,7 +25,9 @@
           <span>Searching match</span>
           <button id="cancel-searching-match">Cancel search</button>
         </div>
-        <a class="connected hidden d-flex align-items-center" href="/account/friends/" id="online-friends-count">
+        <button class="connected hidden">
+          <a class="connected hidden d-flex align-items-center" href="/account/friends/" id="online-friends-count">
+        </button>
         </a>
         <a class="connected hidden d-flex align-items-center" href="/account/friends/" id="friend-request-count">
           <span id="friend-request-counter"></span>

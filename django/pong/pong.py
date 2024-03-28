@@ -10,11 +10,11 @@ class PongInstance:
 	games = {}
 
 	def __init__(self, id, user):
-		if(not (id in self.games)):
-			self.games[id] = pong.Pong()
+		if(not (id in PongInstance.games)):
+			PongInstance.games[id] = pong.Pong()
 		self.user = user
 		self.id = id
-		self.game = self.games[id]
+		self.game = PongInstance.games[id]
 		self.player = None
 		self.send = None
 
@@ -72,7 +72,7 @@ class PongInstance:
 				self.game.task = None
 			self.game.end_game()
 		if(self.game.player_count() == 0):
-			self.games.pop(self.id)
+			PongInstance.games.pop(self.id)
 
 	# def receive(self, bytes_data):
 	# 	print('receive')
