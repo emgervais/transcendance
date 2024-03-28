@@ -1,5 +1,5 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from users.models import UserChannelGroup
+from users.models import UserChannelGroup, User
 from channels.layers import get_channel_layer
 import time, threading, redis, json
 from django.conf import settings
@@ -11,6 +11,7 @@ TOURNAMENT_NB_PLAYERS = 4
 matchmaking_redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
 matchmaking_lock = threading.Lock()
 
+# remove from queue if user disconnects
 def matchmaker(room):
     min_players = TOURNAMENT_NB_PLAYERS if room == 'tournament' else 2
     while True:
@@ -18,6 +19,9 @@ def matchmaker(room):
         if matchmaking_redis.zcard(room) >= min_players:
             print('Match found')
             users = matchmaking_redis.zrange(room, 0, min_players - 1)
+            if not User.objects.filter(id=users[0], status='online').exists():
+                matchmaking_redis.zremrangebyrank(room, 0, 0)
+                continue
             channel_layer = get_channel_layer()
             for i in range(0, min_players, 2):
                 room_name = '_'.join(sorted([users[i].decode('utf-8'), users[i+1].decode('utf-8')]))
