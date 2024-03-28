@@ -1,3 +1,4 @@
+MATCH HISTORY
 
 stats:
     won against (count)

@@ -132,6 +132,7 @@ function clearInvites() {
 function start(data) {
     if (router.getCurrentLocation() != "/")
         router.route("/");
+    chat.stop(chat.matchRoomId);
     chatMessages.deleteMessages(chat.matchRoomId);
     chat.start(`pong_${data.room}`);
     chatDisplay.openChatBox();

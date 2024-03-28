@@ -5,7 +5,7 @@ endieness = 'little'
 
 ballprecision = 1000.0
 
-winpoints = 2
+winpoints = 10
 
 class Filths:
 	P1Y = 0
