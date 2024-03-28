@@ -149,9 +149,26 @@ var score = {
 	}
 }
 
+var countdowntext = {
+	_ubodata: new Uint32Array([
+		0, 0, // position
+		0, // char count in string
+		0, // number of chars in texture
+		0, 0, 0, 0 // string data
+	]),
+	setpos: function(x, y) {this._ubodata[0] = x; this._ubodata[1] = y;},
+	setstrlen: function(len) {this._ubodata[2] = len;},
+	settexlen: function(len) {this._ubodata[3] = len;},
+	setdata: function(data) {
+		for(var i = 0; i < data.length; i++)
+			this._ubodata[4 + i] = data[i];
+	}
+}
+
 var player = 0;
 var state = 0; // states: 0=pong waiting to start, 1=pong playing, 2=pong player 1 win, 3=pong player 2 win
-// 4=game select
+// 4=game select 5=countdown
+var countdown = 0;
 
 const player1 = {
 	_ubodata: new Float32Array([0.0, 0.0, paddle.width, paddle.height]),
@@ -243,12 +260,18 @@ function setup()
 	score.ubo1.setstrlen(2);
 	score.ubo1.settexlen(10);
 	score.ubo1.setdata([0]);
-	textUBO.update(score.ubo1._ubodata);
+	// textUBO.update(score.ubo1._ubodata);
 	score.ubo2.setpos(pongrenderwidth / 2 + 6, stage.bottom - 9);
 	score.ubo2.setstrlen(2);
 	score.ubo2.settexlen(10);
 	score.ubo2.setdata([0]);
-	textUBO.update(score.ubo2._ubodata);
+	// textUBO.update(score.ubo2._ubodata);
+	countdowntext.setpos(pongrenderwidth / 2 - 4, pongrenderheight / 2 - 13);
+	countdowntext.setstrlen(1);
+	countdowntext.settexlen(10);
+	countdowntext.setdata([3]);
+	// textUBO.update(countdowntext._ubodata);
+
 
 	digitsTexture = createTexture('/img/digits.png', gl.R8, gl.RED, 2);
 	winTexture = createTexture('/img/win.png', gl.R8, gl.RED, 3);
@@ -404,6 +427,7 @@ function setup()
 				cancelSearchingMatch();
 				camera.targetfov = Math.PI * 0.4;
 				camera.targetz = 3;
+				playerid = 0;
 			}
 			else
 			{
@@ -454,7 +478,7 @@ function setup()
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-	connect('0');
+	// connect('0');
 
 	return true;
 }
@@ -553,7 +577,8 @@ function connect(id)
 						ws.send(wsmovementbuffer);
 				}
 				else if(dv.getUint8(offset) == 3) {
-					state = 1;
+					state = 5; // start countdown
+					countdown = 3;
 					console.log("Game started.");
 					wsmovementdv.setUint32(1, player.gety(), true);
 					if(ws.readyState == ws.OPEN)
@@ -568,6 +593,16 @@ function connect(id)
 					ball.sety(pongrenderheight/2.0 - ball.height/2.0);
 					ball.xspeed = 0;
 					ball.yspeed = 0;
+				}
+				else if(dv.getUint8(offset) == 5)
+				{
+					console.log("state " + state);
+					countdown = dv.getUint8(offset + 1);
+					offset += 1;
+					countdowntext.setdata([countdown]);
+					console.log("Countdown:" + countdown);
+					if(countdown == 0)
+						state = 1;
 				}
 				else
 					state = 0;
@@ -613,70 +648,74 @@ function draw()
 	case 1:
 	case 2:
 	case 3:
-		ball.setx(ball.getx() + ball.xspeed * dt);
-		ball.sety(ball.gety() + ball.yspeed * dt);
-
-		if((playerid == 1 && (ball.xspeed < 0.0) && (ball.getx() <= stage.left + paddle.width)) || (playerid == 2 && (ball.xspeed > 0.0) && (ball.getx() > stage.right-ball.width-paddle.width)))
+	case 5:
+		if(countdown <= 0)
 		{
-			if(collisionCheck(player, ball))
-			{ // ball bounce
-				ball.setx((playerid == 1) ? stage.left + paddle.width : stage.right-ball.width-paddle.width);
-				ball.xspeed *= -1.05;
-				ball.yspeed = (ball.gety()+ball.height/2 - (player.gety() + paddle.height/2))*0.5 * Math.abs(ball.xspeed);
-				bounceSound.currentTime = 0;
-				bounceSound.play();
-				wsballdv.setUint32(1, ball.getx() * ballprecision, true);
-				wsballdv.setUint32(5, ball.gety() * ballprecision, true);
-				wsballdv.setUint32(9, ball.xspeed * ballprecision, true);
-				wsballdv.setUint32(13, ball.yspeed * ballprecision, true);
-				ws.send(wsballbuffer);
-			}
-			else if(playerid == 1 && ball.getx() < stage.left)
-			{ // ouch owie
-				ball.setx(stage.left + 0.1);
-				ball.yspeed = (0.03 / -ball.xspeed) * ball.yspeed;
-				ball.xspeed = 0.03;
-				score.points[1] += 1;
-				score.ubo2.setdata([
-					score.points[1] % 10 << 8 | score.points[1] / 10 << 0
-				]);
-				miss();
-			}
-			else if(playerid == 2 && ball.getx() > stage.right-ball.width)
+			ball.setx(ball.getx() + ball.xspeed * dt);
+			ball.sety(ball.gety() + ball.yspeed * dt);
+	
+			if((playerid == 1 && (ball.xspeed < 0.0) && (ball.getx() <= stage.left + paddle.width)) || (playerid == 2 && (ball.xspeed > 0.0) && (ball.getx() > stage.right-ball.width-paddle.width)))
 			{
-				ball.setx(stage.right-ball.width - 0.1);
-				ball.yspeed = (0.03 / ball.xspeed) * ball.yspeed;
-				ball.xspeed = -0.03;
-				score.points[0] += 1;
-				score.ubo1.setdata([
-					score.points[0] % 10 << 8 | score.points[0] / 10 << 0
-				]);
-				miss();
+				if(collisionCheck(player, ball))
+				{ // ball bounce
+					ball.setx((playerid == 1) ? stage.left + paddle.width : stage.right-ball.width-paddle.width);
+					ball.xspeed *= -1.05;
+					ball.yspeed = (ball.gety()+ball.height/2 - (player.gety() + paddle.height/2))*0.5 * Math.abs(ball.xspeed);
+					bounceSound.currentTime = 0;
+					bounceSound.play();
+					wsballdv.setUint32(1, ball.getx() * ballprecision, true);
+					wsballdv.setUint32(5, ball.gety() * ballprecision, true);
+					wsballdv.setUint32(9, ball.xspeed * ballprecision, true);
+					wsballdv.setUint32(13, ball.yspeed * ballprecision, true);
+					ws.send(wsballbuffer);
+				}
+				else if(playerid == 1 && ball.getx() < stage.left)
+				{ // ouch owie
+					ball.setx(stage.left + 0.1);
+					ball.yspeed = (0.03 / -ball.xspeed) * ball.yspeed;
+					ball.xspeed = 0.03;
+					score.points[1] += 1;
+					score.ubo2.setdata([
+						score.points[1] % 10 << 8 | score.points[1] / 10 << 0
+					]);
+					miss();
+				}
+				else if(playerid == 2 && ball.getx() > stage.right-ball.width)
+				{
+					ball.setx(stage.right-ball.width - 0.1);
+					ball.yspeed = (0.03 / ball.xspeed) * ball.yspeed;
+					ball.xspeed = -0.03;
+					score.points[0] += 1;
+					score.ubo1.setdata([
+						score.points[0] % 10 << 8 | score.points[0] / 10 << 0
+					]);
+					miss();
+				}
 			}
-		}
-
-		if(ball.gety() <= stage.top)
-		{
-			ball.sety(stage.top + 0.1);
-			ball.yspeed *= -1;
-		}
-		else if(ball.gety() > stage.bottom-ball.height)
-		{
-			ball.sety(stage.bottom-ball.height);
-			ball.yspeed *= -1;
-		}
-		if(redtimer > 0)
-		{
-			redtimer -= dt;
-			if(redtimer < 0)
+	
+			if(ball.gety() <= stage.top)
 			{
-				gl.clearColor(0.1, 0.1, 0.14, 1.0);
-				ratio = 0.0;
+				ball.sety(stage.top + 0.1);
+				ball.yspeed *= -1;
 			}
-			else
+			else if(ball.gety() > stage.bottom-ball.height)
 			{
-				ratio = redtimer/200;
-				gl.clearColor(0.8 * ratio + 0.1 * (1.0 - ratio), 0.1, 0.14, 1.0);
+				ball.sety(stage.bottom-ball.height);
+				ball.yspeed *= -1;
+			}
+			if(redtimer > 0)
+			{
+				redtimer -= dt;
+				if(redtimer < 0)
+				{
+					gl.clearColor(0.1, 0.1, 0.14, 1.0);
+					ratio = 0.0;
+				}
+				else
+				{
+					ratio = redtimer/200;
+					gl.clearColor(0.8 * ratio + 0.1 * (1.0 - ratio), 0.1, 0.14, 1.0);
+				}
 			}
 		}
 	case 0:
@@ -740,7 +779,7 @@ function draw()
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		gl.viewport(0, 0, pongrenderwidth, pongrenderheight);
 
-		// draw the scores
+		// draw the scores and countdown
 		// drawText('press space', x, y);
 		digitsTexture.bind();
 		pongVAO.bind();
@@ -749,6 +788,11 @@ function draw()
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
 		textUBO.update(score.ubo2._ubodata);
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
+		if(state == 5)
+		{
+			textUBO.update(countdowntext._ubodata);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+		}
 		if((state == 2 || state == 3) && lastTime % 1000 < 800)
 		{
 			wintext.ubo.setwinnder(state - 1);
@@ -883,6 +927,8 @@ function start()
 {
 	console.log('Starting pong');
 	stopgame = 0;
+	countdown = 0;
+	playerid = 0;
 	// canvas = document.getElementById('webgl-canvas');
 	if(!setup())
 	{
@@ -911,4 +957,11 @@ function stop()
 	state = 0;
 }
 
-export {start, stop, stopgame, connect};
+function disconnect()
+{
+	if(ws)
+		ws.close();
+	state = 0;
+}
+
+export {start, stop, stopgame, connect, disconnect};
