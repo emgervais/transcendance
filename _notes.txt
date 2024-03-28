@@ -1,6 +1,4 @@
 
-game chat: game tab is not actually selected
-
 stats:
     won against (count)
         Games Model: (when am I updating it? 2 PongInstances for 1 game. Pick one of the pong instances?)
@@ -16,7 +14,6 @@ webgl.js:
 
 tournament:
 backend: logout when already logged out
-
 
 ----------------------------------------------------
 

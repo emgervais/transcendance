@@ -971,6 +971,8 @@ function stop()
 	if (ws && (ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
 		ws.close();
 	}
+	showmatchbuttons = true;
+	util.displayState();
 	stopgame = 1;
 	state = 0;
 }
