@@ -39,7 +39,7 @@ function setSearchingMatch({
     searchingMatch = searching;
     util.displayState();
     if (searching)
-        router.route("/pong/");
+        router.route("/");
 }
 
 function cancelSearchingMatch() {
@@ -137,7 +137,7 @@ function clearInvites() {
 function start(data) {
     // if not in /pong/, go to /pong/
     // if(router.getCurrentRoute() != "/pong/") {
-    //     router.route("/pong/");
+    //     router.route("/");
     // }
     chat.start(`pong_${data.room}`);
     pong.connect(data.room);
