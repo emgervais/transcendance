@@ -66,8 +66,8 @@ class LogoutView(generics.GenericAPIView):
             user = User.objects.get(pk=request.user.id)
             channel_name = UserChannelGroup.objects.get(user=user).main
             send_to_websocket(get_channel_layer(), channel_name, {'type': 'websocket.close'})
-        except UserChannelGroup.DoesNotExist:
-            print('User channel group not found')
+        except Exception:
+            print('User not found')
         return response
 
         
