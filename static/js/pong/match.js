@@ -36,8 +36,6 @@ function setSearchingMatch({
     searchingMatchId = roomId;
     searchingMatch = searching;
     util.displayState();
-    if (searching && router.getCurrentLocation() != "/")
-        router.route("/");
 }
 
 function cancelSearchingMatch() {
@@ -132,6 +130,8 @@ function clearInvites() {
 
 // -- start ----
 function start(data) {
+    if (router.getCurrentLocation() != "/")
+        router.route("/");
     chatMessages.deleteMessages(chat.matchRoomId);
     chat.start(`pong_${data.room}`);
     chatDisplay.openChatBox();
