@@ -8,6 +8,7 @@ async function load() {
     api.fetchRoute({
         route: `/api/stats/${userId}/`,
         dataManager: async stats => {
+            console.log("stats:", stats);
             const user = await getUser(userId);
             const container = document.getElementById("api-stats");
             // const userStats = {
@@ -23,13 +24,12 @@ async function load() {
             stats.win_loss = Math.round((stats.win_count == 0 ? 0 : stats.win_count / stats.gamesCount) * 100);
             stats.distance = (stats.ball_travel_length * 0.127).toFixed(2);
             const statsText = {
-                distance: `<h5>Distance traveled (units relative to canvas) (translated to first pong arcade size, *historic fact!* )</h5>`,
+                distance: `<h5>Horizontal distance traveled <br>(The original pong arcade screen measured 5.375 inches)</h5>`,
                 longest_exchange: `<h5>Longest exchange</h5>`,
                 win_loss: `<h5>Win / Loss ratio</h5>`,
                 gamesCount: `<h5>Number of games</h5>`,
-                easy_win: `<h5>Most dominated opponent (and vice versa)</h5>`,
-                least_chat: `<h5>Friend with least chat exchanges: [fix your relationship (chat with random automatic message)]</h5>`,
-                swear_count: `<h5>Number of swear words said (your number, highest number among all users [button to insult that motherfucker])</h5>`,
+                // easy_win: `<h5>Most dominated opponent (and vice versa)</h5>`,
+                swear_count: `<h5>Number of swear words said</h5>`,
             };
             // container.innerHTML += `Ball hit count: ${stats.ball_hit_count}`;
 
@@ -43,8 +43,7 @@ async function load() {
                 longest_exchange: ' bounces',
                 win_loss: '%',
                 gamesCount:    ' games',
-                easy_win: '',
-                least_chat: '',
+                // easy_win: '',
                 swear_count:  ' swear words!',
             }
             if(userId !== getCurrUser().id) {
@@ -64,8 +63,28 @@ async function load() {
                 statsGrid.appendChild(div);
             }
             container.appendChild(statsGrid);
+            displayMatchHistory(stats.games);
         },
     })
+}
+
+function displayMatchHistory(games) {
+    const matchHistoryElement = document.getElementById('match-history');
+    games.forEach(game => {
+        displayMatch(matchHistoryElement, game);
+    });
+}
+
+function displayMatch(matchHistoryElement, game) {
+    matchHistoryElement.innerHTML += `<div class="match-history-game">
+        <h5 style="display: inline-block;">Winner: <img style="width:40px;" src=${game.winner.image}></img></h5>
+        <h5 style="display: inline-block;width: 120px;">${game.winner.username}</h5>
+        <div style="display: inline-block;width:40px;"></div>
+        <div style="display: inline-block;">${game.winner_score} - ${game.loser_score}</div>
+        <div style="display: inline-block;width:40px;"></div>
+        <h5 style="display: inline-block;">Loser: <img style="width:40px;" src=${game.loser.image}></img></h5>
+        <h5 style="display: inline-block;">${game.loser.username}</h5>
+    </div>`;
 }
 
 export { load };

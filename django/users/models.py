@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
-from pong.models import Game
 
 SEARCH_FILTERS = {
     'is-friend': 'friends__friend',
@@ -28,7 +27,7 @@ class User(AbstractUser):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='profile_pics', default='default/default.webp')
     status = models.CharField(max_length=10, default='offline')
-    games = models.ManyToManyField(Game, related_name='players', blank=True)
+    games = models.ManyToManyField('Game', blank=True)
 
     swear_count = models.IntegerField(default=0)
     ball_hit_count = models.IntegerField(default=0)
@@ -94,22 +93,30 @@ class UserChannelGroup(models.Model):
     class Meta:
         db_table = 'user_channel_groups'    
 
-class PongMatch(models.Model):
-    p1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='matches_as_p1')
-    p2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='matches_as_p2')
-    score = ArrayField(models.IntegerField(), size=2, default=list)
-    created_at = models.DateTimeField(auto_now_add=True)
-    winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='won_matches', null=True, blank=True)
+# class PongMatch(models.Model):
+#     p1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='matches_as_p1')
+#     p2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='matches_as_p2')
+#     score = ArrayField(models.IntegerField(), size=2, default=list)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='won_matches', null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        # Determine the winner based on a score of 11
-        if self.score[0] == 11:
-            self.winner = self.p1
-        elif self.score[1] == 11:
-            self.winner = self.p2
+#     def save(self, *args, **kwargs):
+#         # Determine the winner based on a score of 11
+#         if self.score[0] == 11:
+#             self.winner = self.p1
+#         elif self.score[1] == 11:
+#             self.winner = self.p2
 
-        super().save(*args, **kwargs)
+#         super().save(*args, **kwargs)
+
+#     def __str__(self):
+#         return f'{self.p1} vs {self.p2} ({self.score[0]}-{self.score[1]})'
+
+class Game(models.Model):
+    winner = models.ForeignKey(User, related_name='game_winner', on_delete=models.CASCADE)
+    winner_score = models.IntegerField(default=0)
+    loser = models.ForeignKey(User, related_name='game_loser', on_delete=models.CASCADE)
+    loser_score = models.IntegerField(default=0)
 
     def __str__(self):
-        return f'{self.p1} vs {self.p2} ({self.score[0]}-{self.score[1]})'
-    
+        return f'{self.winner} vs {self.loser} ({self.winner_score}-{self.loser_score})'

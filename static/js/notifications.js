@@ -55,7 +55,6 @@ function start() {
 
 	ws.onclose = (_) => {
 		console.log("Notifications socket closed.");
-		stop();
 	};
 }
 
@@ -94,7 +93,6 @@ function stop() {
 		console.log("notifications.stop: notifications websocket already closed.");
 		return;
 	}
-	console.log('Notifications websocket closed.');
 	ws.close();
 }
 

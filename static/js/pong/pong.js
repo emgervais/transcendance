@@ -12,6 +12,8 @@ import * as util from "/js/util.js";
 var ws = null;
 var canvas;
 
+var soundspeed = 1.0;
+
 var showmatchbuttons = true;
 
 var pongUBO;
@@ -438,9 +440,12 @@ function setup()
 				camera.targetz = 3;
 				playerid = 0;
 				player = 0;
+				ambientSound.preservesPitch = false;
+				soundspeed = 0.8;
 			}
 			else
 			{
+				soundspeed = 1.0;
 				showmatchbuttons = true;
 				util.displayState();
 				state = 0;
@@ -861,6 +866,12 @@ function draw()
 		sandalmodel.draw(mainUBO);
 		boxmodel.draw(mainUBO);
 		traymodel.draw(mainUBO);
+		if(ambientSound.playbackRate != soundspeed)
+		{
+			ambientSound.playbackRate += (soundspeed - ambientSound.playbackRate) * 0.001 * dt;
+			if(Math.abs(ambientSound.playbackRate - soundspeed) < 0.001)
+				ambientSound.playbackRate = soundspeed;
+		}
 		break;
 	case 4:
 		if(camera.fov != camera.targetfov)
@@ -923,6 +934,12 @@ function draw()
 		sandalmodel.draw(mainUBO);
 		boxmodel.draw(mainUBO);
 		traymodel.draw(mainUBO);
+		if(ambientSound.playbackRate != soundspeed)
+		{
+			ambientSound.playbackRate += (soundspeed - ambientSound.playbackRate) * 0.001 * dt;
+			if(Math.abs(ambientSound.playbackRate - soundspeed) < 0.001)
+				ambientSound.playbackRate = soundspeed;
+		}
 		break;
 	}
 
