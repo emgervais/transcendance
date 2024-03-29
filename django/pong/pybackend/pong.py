@@ -7,6 +7,13 @@ ballprecision = 1000.0
 
 winpoints = 2
 
+class Stats:
+	def __init__(self):
+		self.winner = 0
+		self.winnerpoints = 0
+		self.loser = 0
+		self.loserpoints = 0
+
 class Filths:
 	P1Y = 0
 	P2Y = 1
@@ -30,7 +37,8 @@ class Ball:
 		self.lasthit = 0
 
 class Player:
-	def __init__(self):
+	def __init__(self, userid):
+		self.userid = userid
 		self.score = 0
 		self.y = 0
 		self.pongid = 0
@@ -75,8 +83,8 @@ class Pong:
 		self.starttime = time.time()
 		self.filthmap[Filths.Count] = 1
 
-	def new_player(self, send) -> Player:
-		player = Player()
+	def new_player(self, send, id) -> Player:
+		player = Player(id)
 		self.pbplayers.append(player)
 		self.websockets.append(send)
 		if(self.player1 == 0):
@@ -86,6 +94,27 @@ class Pong:
 			self.player2 = player
 			player.pongid = 2
 		return player
+
+	def is_match_end(self):
+		if(self.player1.score >= winpoints):
+			return 1
+		elif(self.player2.score >= winpoints):
+			return 2
+		return 0
+
+	def get_match_stats(self):
+		stats = Stats()
+		if(self.player1.score > self.player2.score):
+			stats.winner = self.player1.userid
+			stats.winnerpoints = self.player1.score
+			stats.loser = self.player2.userid
+			stats.loserpoints = self.player2.score
+		else:
+			stats.winner = self.player2.userid
+			stats.winnerpoints = self.player2.score
+			stats.loser = self.player1.userid
+			stats.loserpoints = self.player1.score
+		return stats
 
 	def receive(self, bytestr: bytes, player):
 		global endieness

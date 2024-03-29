@@ -21,7 +21,7 @@ class PongInstance:
 	async def connect(self, send):
 		print('connect')
 		if self.game.player_count() < 2:
-			self.player = self.game.new_player(send)
+			self.player = self.game.new_player(send, self.user.id)
 			self.send = send
 			print('player count: ' + str(self.game.player_count()))
 			await send({
@@ -57,10 +57,7 @@ class PongInstance:
 	async def disconnect(self):
 		print('disconnect')
 		if(self.player != None):
-			self.game.remove_player(self.player, self.send)
 			await update_stats(self.user, self.player, self.game)
-			self.player = None
-			self.send = None
 		if self.game.player_count() < 2:
 			for ws in self.game.websockets:
 				await ws({
@@ -88,16 +85,24 @@ class PongInstance:
 			})
 		self.game.start_game()
 		message = {'type': 'websocket.send', 'bytes': ''}
+		gameended = False
 		while self.game.player_count() >= 2:
 			data = self.game.update()
 			if len(data) == 0:
 				await asyncio.sleep(0.01)
 				continue
+			winner = self.game.is_match_end()
+			if(winner != 0):
+				gameended = True
+				stats = self.game.get_match_stats()
+
 			# send to and await all websockets
 			message['bytes'] = data
 			for ws in self.game.websockets:
 				await ws(message)
 			await asyncio.sleep(0.01)
+		stats = self.game.get_match_stats()
+
 		print('end game')
 
 async def wsapp(scope, receive, send):
