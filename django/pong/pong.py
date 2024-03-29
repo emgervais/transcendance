@@ -3,6 +3,7 @@ from channels.db import database_sync_to_async
 from .pybackend import pong
 from notification.utils_db import change_status
 from users.models import User
+from pong.models import Game
 
 import asyncio
 

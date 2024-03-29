@@ -1,4 +1,4 @@
-can't play pong twice (green screen)
+MATCH HISTORY
 
 stats:
     won against (count)
@@ -15,7 +15,6 @@ webgl.js:
 
 tournament:
 backend: logout when already logged out
-
 
 ----------------------------------------------------
 
