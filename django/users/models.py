@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
+from pong.models import Game
 
 SEARCH_FILTERS = {
     'is-friend': 'friends__friend',
@@ -27,12 +28,15 @@ class User(AbstractUser):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='profile_pics', default='default/default.webp')
     status = models.CharField(max_length=10, default='offline')
+    games = models.ManyToManyField(Game, related_name='players', blank=True)
+
     swear_count = models.IntegerField(default=0)
     ball_hit_count = models.IntegerField(default=0)
     longest_exchange = models.IntegerField(default=0)
     win_count = models.IntegerField(default=0)
     loss_count = models.IntegerField(default=0)
     ball_travel_length = models.IntegerField(default=0)
+    
     
     objects = UserManager()
         
@@ -108,3 +112,4 @@ class PongMatch(models.Model):
 
     def __str__(self):
         return f'{self.p1} vs {self.p2} ({self.score[0]}-{self.score[1]})'
+    
