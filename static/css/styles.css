@@ -20,6 +20,7 @@ button {
   border-radius: 10px;
   background: linear-gradient(to right, #9181F4, #5038ED);
   background-clip: padding-box;
+  margin: 2px;
 }
 
 button:hover {

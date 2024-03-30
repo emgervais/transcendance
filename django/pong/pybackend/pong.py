@@ -1,8 +1,22 @@
+import time
+import math
+
 endieness = 'little'
 
 ballprecision = 1000.0
 
 winpoints = 2
+
+class Stats:
+	def __init__(self):
+		self.winner = None
+		self.winnerpoints = 0
+		self.loser = None
+		self.loserpoints = 0
+		self.wballhits = 0
+		self.lballhits = 0
+		self.longest_exchange = 0
+		self.ball_travel_length = 0
 
 class Filths:
 	P1Y = 0
@@ -11,6 +25,7 @@ class Filths:
 	P2Score = 3
 	Ball = 4
 	PWin = 5
+	Count = 6
 
 class Events:
 	player_movement = 1
@@ -26,17 +41,21 @@ class Ball:
 		self.lasthit = 0
 
 class Player:
-	def __init__(self):
+	def __init__(self, userid):
+		self.userid = userid
 		self.score = 0
 		self.y = 0
 		self.pongid = 0
 		self.ball_hit_count = 0
 		self.win_count = 0
 		self.loss_count = 0
+		self.disconnected = False
 
 class Pong:
 	def __init__(self):
-		self.filthmap = [0,0,0,0,0,0]
+		self.starttime = 0
+		self.countdown = 0
+		self.filthmap = [0,0,0,0,0,0,0]
 		self.pbplayers = []
 		self.player1 = 0
 		self.player2 = 0
@@ -56,7 +75,6 @@ class Pong:
 		self.ball.x = 39
 		self.ball.y = 26.5
 		self.ball.vx = -0.03
-
 		self.ball.vy = 0
 		self.filthmap[Filths.Ball] = 1
 		self.player1.score = 0
@@ -66,9 +84,12 @@ class Pong:
 		self.filthmap[Filths.P2Score] = 1
 		self.filthmap[Filths.P1Y] = 0
 		self.filthmap[Filths.P2Y] = 0
+		self.countdown = 3
+		self.starttime = time.time()
+		self.filthmap[Filths.Count] = 1
 
-	def new_player(self, send) -> Player:
-		player = Player()
+	def new_player(self, send, id) -> Player:
+		player = Player(id)
 		self.pbplayers.append(player)
 		self.websockets.append(send)
 		if(self.player1 == 0):
@@ -78,6 +99,33 @@ class Pong:
 			self.player2 = player
 			player.pongid = 2
 		return player
+
+	def is_match_end(self):
+		if(self.player1.score >= winpoints):
+			return 1
+		elif(self.player2.score >= winpoints):
+			return 2
+		return 0
+
+	def get_match_stats(self):
+		stats = Stats()
+		if(self.player1.score > self.player2.score and not self.player1.disconnected):
+			stats.winner = self.player1.userid
+			stats.winnerpoints = self.player1.score
+			stats.loser = self.player2.userid
+			stats.loserpoints = self.player2.score
+			stats.wballhits = self.player1.ball_hit_count
+			stats.lballhits = self.player2.ball_hit_count
+		else:
+			stats.winner = self.player2.userid
+			stats.winnerpoints = self.player2.score
+			stats.loser = self.player1.userid
+			stats.loserpoints = self.player1.score
+			stats.wballhits = self.player2.ball_hit_count
+			stats.lballhits = self.player1.ball_hit_count
+		stats.longest_exchange = self.longest_exchange
+		stats.ball_travel_length = max(0, self.ball_travel_length)
+		return stats
 
 	def receive(self, bytestr: bytes, player):
 		global endieness
@@ -117,8 +165,7 @@ class Pong:
 				self.ball.lasthit = player.pongid
 				player.ball_hit_count += 1
 				self.curr_exchange_length += 1
-				if self.curr_exchange_length > self.longest_exchange:
-					self.longest_exchange = self.curr_exchange_length
+				self.longest_exchange = max(self.longest_exchange, self.curr_exchange_length)
 				self.ball.x = int.from_bytes(bytestr[offset:(offset + 4)], endieness, signed=True) / ballprecision
 				self.ball.y = int.from_bytes(bytestr[(offset + 4):(offset + 8)], endieness, signed=True) / ballprecision
 				self.ball.vx = int.from_bytes(bytestr[(offset + 8):(offset + 12)], endieness, signed=True) / ballprecision
@@ -134,6 +181,15 @@ class Pong:
 		if(len(self.pbplayers) < 2):
 			return b''
 		bytestr = b''
+		if(self.countdown > 0):
+			timediff = math.ceil(3 - (time.time() - self.starttime) * 0.8)
+			if(timediff != self.countdown):
+				if(timediff < 0):
+					self.countdown = 0
+				self.countdown = timediff
+				bytestr += b'\x08\x05' + self.countdown.to_bytes(1, endieness)
+				self.filthmap[Filths.Count] = 1
+
 		if(self.filthmap[Filths.P1Y] == 1):
 			bytestr += b'\x01' + self.player1.y.to_bytes(4, endieness)
 			self.filthmap[Filths.P1Y] = 0
@@ -146,6 +202,9 @@ class Pong:
 		if(self.filthmap[Filths.P2Score] == 1):
 			bytestr += b'\x04' + self.player2.score.to_bytes(4, endieness)
 			self.filthmap[Filths.P2Score] = 0
+		if(self.filthmap[Filths.Count] == 1):
+			bytestr += b'\x08\x05' + self.countdown.to_bytes(1, endieness)
+			self.filthmap[Filths.Count] = 0
 		try:
 			if(self.filthmap[Filths.Ball] == 1):
 				bytestr += b'\x05' + self.ball.lasthit.to_bytes(1, endieness, signed=True)\
@@ -174,6 +233,10 @@ class Pong:
 		self.ball.vx = 0
 		self.ball.vy = 0
 		self.filthmap[Filths.Ball] = 1
+		self.pbplayers = []
+		self.websockets = []
+		self.player1 = 0
+		self.player2 = 0
 		return
 
 	def remove_player(self, player, send):

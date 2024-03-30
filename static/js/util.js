@@ -1,5 +1,6 @@
 import * as auth from "/js/auth.js";
 import * as match from "/js/pong/match.js";
+import * as pong from "/js/pong/pong.js";
 import * as util from "/js/util.js";
 
 // -- display ----
@@ -47,7 +48,8 @@ function displayState(cherryPick=undefined) {
   let classes = {
     'connected': auth.isConnected(),
     'searching-match': match.searchingMatch,
-    'has-invites': !!match.invites.length
+    'has-invites': !!match.invites.length,
+    'match-button': pong.showmatchbuttons,
   };
   if (cherryPick) {
     classes = { [cherryPick]: classes[cherryPick] };

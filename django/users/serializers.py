@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from users.models import User
+from users.models import User, Game
 from friend.models import Friend
 from django.conf import settings
 import re
@@ -102,11 +102,38 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
             ret['password'] = 'Password updated'
         return ret
 
+class GameSerializer(serializers.ModelSerializer):
+    winner = UserSerializer()
+    loser = UserSerializer()
+    class Meta:
+        model = Game
+        fields = [
+            'winner',
+            'loser',
+            'winner_score',
+            'loser_score',
+        ]
+
 class StatsSerializer(serializers.ModelSerializer):
+    games = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['username', 'swear_count', 'ball_hit_count', 'longest_exchange', 'win_count', 'loss_count', 'ball_travel_length']
-    
+        fields = [
+            'username',
+            'swear_count',
+            'ball_hit_count',
+            'longest_exchange',
+            'win_count',
+            'loss_count',
+            'ball_travel_length',
+            'games',
+        ]
+
+    def get_games(self, obj):
+        serialized_games = GameSerializer(obj.games.all(), many=True).data
+        return serialized_games
+
     # def to_representation(self, instance):
     #     ret = super().to_representation(instance)
     #     ret['image'] = instance.image.url

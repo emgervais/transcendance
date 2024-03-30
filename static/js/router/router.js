@@ -11,10 +11,6 @@ const routes = upgradeParamRoutes({
         title: "404",
         description: "Page not found",
     },
-    "/": {
-        template: "/templates/home.html",
-        unprotected: true,
-    },
     "/register/": {
         onLoad: nav.displayRegister,
         onQuit: nav.hideAuthContainer,
@@ -27,10 +23,11 @@ const routes = upgradeParamRoutes({
         authContainer: true,
         unprotected: true,
     },
-    "/pong/": {
+    "/": {
         template: "/templates/pong.html",
         onLoad: pong.start,
         onQuit: pong.stop,
+        unprotected: true,
     },
     "/account/": {
         template: "/templates/account.html",
@@ -84,12 +81,17 @@ async function fetchHTMLWithCache(template) {
 }
 // --
 
-var prevRoute;
-function getCurrentRoute() {
+function getCurrentLocation() {
     const location = window.location.pathname;
     if (location.length == 0) {
         location = "/";
     }
+    return location;
+}
+
+var prevRoute;
+function getCurrentRoute() {
+    const location = getCurrentLocation();
     clearParams();
     if (location in routes) {
         return routes[location];
@@ -129,4 +131,4 @@ const locationHandler = async () => {
 window.onpopstate = locationHandler;
 window.route = route;
 
-export { route, locationHandler, getCurrentRoute };
+export { route, locationHandler, getCurrentLocation, getCurrentRoute };
