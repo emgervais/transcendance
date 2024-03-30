@@ -3,31 +3,6 @@ import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js";
 import { getParams } from "/js/router/params.js";
 
-
-// Data structure
-// stats = {
-//     'swear_words': user.swear_count,
-//     'games': 0,
-//     'totals': {
-//         'wins': 0,
-//         'losses': 0,
-//         'time_played': 0,
-//         'longest_exchange': 0,
-//         'total_exchanges': 0
-//     },
-//     'averages': {
-//         'longest_exchange': 0,
-//         'total_exchanges': 0,
-//         'duration': 0
-//     },
-//     'win_rate': 0,
-//     'most_played_opponent': {
-//         'opponent': None,
-//         'games': 0
-//     },
-// }
-
-
 async function load() {
     const userId = getParams().userId || getCurrUser().id;
     api.fetchRoute({
@@ -36,15 +11,6 @@ async function load() {
             console.log("stats:", stats);
             const user = await getUser(userId);
             const container = document.getElementById("api-stats");
-            // const userStats = {
-            //     distance: 132,
-            //     longest_exchange: 654,
-            //     win_loss: 32,
-            //     gamesCount:    43,
-            //     easy_win: 'francoma',
-            //     least_chat: 'eboyce',
-            //     swear_count:  3212,
-            // };//replace by stats
             stats.distance = (stats.totals.total_exchanges * 0.127).toFixed(2);
             stats.longest_exchange = stats.totals.longest_exchange;
             stats.winRate = stats.win_rate;
@@ -101,28 +67,57 @@ async function load() {
                 statsGrid.appendChild(div);
             }
             container.appendChild(statsGrid);
-            displayMatchHistory(stats.games);
         },
-    })
-}
-
-function displayMatchHistory(games) {
-    const matchHistoryElement = document.getElementById('match-history');
-    games.forEach(game => {
-        displayMatch(matchHistoryElement, game);
     });
-}
+    api.fetchRoute({
+        route: `/api/match-history/${userId}/`,
+        dataManager: async games => {
+            console.log("games:", games);
+            const matchHistoryElement = document.getElementById('match-history');
+            games.forEach(async game => {
+                const winner = await getUser(game.winner);
+                const loser = await getUser(game.loser);
+                
+                matchHistoryElement.innerHTML += `<div class="match-history-game">
+                    <h5 style="display: inline-block;">Winner: <img style="width:40px;" src=${winner.image}></img></h5>
+                    <h5 style="display: inline-block;width: 120px;">${winner.username}</h5>
+                    <div style="display: inline-block;width:40px;"></div>
+                    <div style="display: inline-block;">${game.score[0]} - ${game.score[1]}</div>
+                    <div style="display: inline-block;">${new Date(game.date).toLocaleString()}</div>
+                    <div style="display: inline-block;width:40px;"></div>
+                    <h5 style="display: inline-block;">Loser: <img style="width:40px;" src=${loser.image}></img></h5>
+                    <h5 style="display: inline-block;">${loser.username}</h5>
+                </div>`;
+            });
+        }
+    });
+    // Detailed game stats Example : 
+    // Available Stats: winner, loser, score, date, duration, longest_exchange, total_exchanges
+    const gameId = 1;
+    api.fetchRoute({
+        route: `/api/game/${gameId}/`,
+        dataManager: async game => {
+            console.log("game:", game);
+            const gameElement = document.getElementById('specific-game');
+            const winner = await getUser(game.winner);
+            const loser = await getUser(game.loser);
 
-function displayMatch(matchHistoryElement, game) {
-    matchHistoryElement.innerHTML += `<div class="match-history-game">
-        <h5 style="display: inline-block;">Winner: <img style="width:40px;" src=${game.winner.image}></img></h5>
-        <h5 style="display: inline-block;width: 120px;">${game.winner.username}</h5>
-        <div style="display: inline-block;width:40px;"></div>
-        <div style="display: inline-block;">${game.winner_score} - ${game.loser_score}</div>
-        <div style="display: inline-block;width:40px;"></div>
-        <h5 style="display: inline-block;">Loser: <img style="width:40px;" src=${game.loser.image}></img></h5>
-        <h5 style="display: inline-block;">${game.loser.username}</h5>
-    </div>`;
+            gameElement.innerHTML += `<div class="specific-game">
+                <h5 style="display: inline-block;">Winner: <img style="width:40px;" src=${winner.image}></img></h5>
+                <h5 style="display: inline-block;width: 120px;">${winner.username}</h5>
+                <div style="display: inline-block;width:40px;"></div>
+                <div style="display: inline-block;">${game.score[0]} - ${game.score[1]}</div>
+                <div style="display: inline-block;">${new Date(game.date).toLocaleString()}</div>
+                <div style="display: inline-block;width:40px;"></div>
+                <h5 style="display: inline-block;">Loser: <img style="width:40px;" src=${loser.image}></img></h5>
+                <h5 style="display: inline-block;">${loser.username}</h5>
+                <div style="display: inline-block;width:40px;"></div>
+                <h5 style="display: inline-block;">Duration: ${game.duration} seconds</h5>
+                <h5 style="display: inline-block;">Longest exchange: ${game.longest_exchange} bounces</h5>
+                <h5 style="display: inline-block;">Total exchanges: ${game.total_exchanges} bounces</h5>
+            </div>`;
+        }
+    });
 }
 
 export { load };

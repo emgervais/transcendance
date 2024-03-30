@@ -100,7 +100,6 @@ class Pong:
 
 	@database_sync_to_async
 	def save_game(self):
-		print('-----SAVING GAME-----')
 		self.duration = time.time() - self.starttime
 		game = Game()
 		game.winner = self.player1.userid if self.player1.score > self.player2.score else self.player2.userid

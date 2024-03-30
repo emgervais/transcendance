@@ -30,7 +30,7 @@ class MatchHistoryView(APIView):
             user = User.objects.get(pk=pk)
             games = Game.objects.get_games(user)
             serializer = SimpleGameSerializer(games, many=True)
-            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
@@ -40,7 +40,7 @@ class WinsView(APIView):
             user = User.objects.get(pk=pk)
             games = Game.objects.get_wins(user)
             serializer = SimpleGameSerializer(games, many=True)
-            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
@@ -50,6 +50,6 @@ class LossesView(APIView):
             user = User.objects.get(pk=pk)
             games = Game.objects.get_losses(user)
             serializer = SimpleGameSerializer(games, many=True)
-            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
