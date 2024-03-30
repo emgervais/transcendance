@@ -1,8 +1,6 @@
-from channels.db import database_sync_to_async
 # from . import pybackend
 from .pybackend import pong
 from notification.utils_db import change_status
-from users.models import Game
 
 import asyncio
 
@@ -76,7 +74,7 @@ class PongInstance:
 				PongInstance.games.pop(self.id)
 			# if(self.game.player1.disconnected and self.game.player2.disconnected):
 		except Exception as e:
-			print(e)
+			print({'error': str(e)})
 
 	# def receive(self, bytes_data):
 	# 	print('receive')
@@ -102,11 +100,7 @@ class PongInstance:
 				winner = self.game.is_match_end()
 				if(winner != 0):
 					gameended = True
-					stats = self.game.get_match_stats()
-					try:
-						await update_stats(stats)
-					except Exception as e:
-						print(e)
+					await self.game.save_game()
 			# send to and await all websockets
 			message['bytes'] = data
 			for ws in self.game.websockets:
@@ -139,34 +133,3 @@ async def wsapp(scope, receive, send):
 				'type': 'websocket.close',
 			})
 			break
-
-@database_sync_to_async
-def update_stats(stats):
-	game = None
-	try:
-		game = Game.objects.create(
-			winner=stats.winner,
-			winner_score=stats.winnerpoints,
-			loser=stats.loser,
-			loser_score=stats.loserpoints,
-		)
-		game.save()
-	except Exception as e:
-		print("update_stats:", e)
-	stats.winner.ball_hit_count += stats.wballhits
-	stats.loser.ball_hit_count += stats.lballhits
-	
-	stats.winner.longest_exchange = max(stats.winner.longest_exchange, stats.longest_exchange)
-	stats.loser.longest_exchange = max(stats.loser.longest_exchange, stats.longest_exchange)
-	
-	stats.winner.win_count += 1
-	stats.loser.loss_count += 1
-
-	stats.winner.ball_travel_length += stats.ball_travel_length
-	stats.loser.ball_travel_length += stats.ball_travel_length
-	
-	stats.winner.games.add(game)
-	stats.loser.games.add(game)
-
-	stats.winner.save()
-	stats.loser.save()

@@ -3,6 +3,31 @@ import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js";
 import { getParams } from "/js/router/params.js";
 
+
+// Data structure
+// stats = {
+//     'swear_words': user.swear_count,
+//     'games': 0,
+//     'totals': {
+//         'wins': 0,
+//         'losses': 0,
+//         'time_played': 0,
+//         'longest_exchange': 0,
+//         'total_exchanges': 0
+//     },
+//     'averages': {
+//         'longest_exchange': 0,
+//         'total_exchanges': 0,
+//         'duration': 0
+//     },
+//     'win_rate': 0,
+//     'most_played_opponent': {
+//         'opponent': None,
+//         'games': 0
+//     },
+// }
+
+
 async function load() {
     const userId = getParams().userId || getCurrUser().id;
     api.fetchRoute({
@@ -20,16 +45,25 @@ async function load() {
             //     least_chat: 'eboyce',
             //     swear_count:  3212,
             // };//replace by stats
-            stats.gamesCount = stats.win_count + stats.loss_count;
-            stats.win_loss = Math.round((stats.win_count == 0 ? 0 : stats.win_count / stats.gamesCount) * 100);
-            stats.distance = (stats.ball_travel_length * 0.127).toFixed(2);
+            stats.distance = (stats.totals.total_exchanges * 0.127).toFixed(2);
+            stats.longest_exchange = stats.totals.longest_exchange;
+            stats.winRate = stats.win_rate;
+            stats.gamesCount = stats.games
+            stats.swearCount = stats.swear_count;
+            stats.winCount = stats.totals.wins;
+            stats.lossCount = stats.totals.losses;
+            stats.timePlayed = new Date(1000 * stats.totals.time_played).toISOString().substr(11, 8)
+            stats.most_played_opponent = stats.most_played_opponent.opponent + '\n' + stats.most_played_opponent.games;
             const statsText = {
                 distance: `<h5>Horizontal distance traveled <br>(The original pong arcade screen measured 5.375 inches)</h5>`,
                 longest_exchange: `<h5>Longest exchange</h5>`,
-                win_loss: `<h5>Win / Loss ratio</h5>`,
+                winRate: `<h5>Win / Loss ratio</h5>`,
                 gamesCount: `<h5>Number of games</h5>`,
-                // easy_win: `<h5>Most dominated opponent (and vice versa)</h5>`,
-                swear_count: `<h5>Number of swear words said</h5>`,
+                swearCount: `<h5>Number of swear words said</h5>`,
+                winCount: `<h5>Wins</h5>`,
+                lossCount: `<h5>Losses</h5>`,
+                timePlayed: `<h5>Time played</h5>`,
+                most_played_opponent: `<h5>Most played opponent</h5>`,
             };
             // container.innerHTML += `Ball hit count: ${stats.ball_hit_count}`;
 
@@ -41,10 +75,14 @@ async function load() {
             const statsUnit = {
                 distance: ' meters',
                 longest_exchange: ' bounces',
-                win_loss: '%',
+                winRate: '%',
                 gamesCount:    ' games',
                 // easy_win: '',
-                swear_count:  ' swear words!',
+                swearCount:  ' swear words!',
+                winCount: ' wins',
+                lossCount: ' losses',
+                timePlayed: '',
+                most_played_opponent: ' games',
             }
             if(userId !== getCurrUser().id) {
                 container.innerHTML = `<h2>${user.username}</h2>`;

@@ -28,6 +28,8 @@ def user_disconnect(user_id):
         print('User channel group not found')
 
 def close_recipient_channel(user_id, group, channel_layer):
+    if group.startswith('pong_'):
+        group = group[5:]
     users = group.split('_')
     recipient_id = users[0] if users[0] != str(user_id) else users[1]
     

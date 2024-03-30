@@ -17,4 +17,4 @@ class Command(BaseCommand):
                 user.save()
                 self.stdout.write(self.style.SUCCESS('Successfully changed status of user "%s"' % user.username))
         else:
-            raise CommandError('No users found')
+            print('No users found')

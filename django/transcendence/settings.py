@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'users',
     'friend',
     'chat',
+    'pong',
     'notification',
 ]
 

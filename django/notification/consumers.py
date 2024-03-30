@@ -11,7 +11,6 @@ TOURNAMENT_NB_PLAYERS = 4
 matchmaking_redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
 matchmaking_lock = threading.Lock()
 
-# remove from queue if user disconnects
 def matchmaker(room):
     min_players = TOURNAMENT_NB_PLAYERS if room == 'tournament' else 2
     while True:

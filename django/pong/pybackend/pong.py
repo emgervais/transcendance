@@ -1,22 +1,13 @@
 import time
 import math
+from channels.db import database_sync_to_async
+from pong.models import Game
 
 endieness = 'little'
 
 ballprecision = 1000.0
 
 winpoints = 2
-
-class Stats:
-	def __init__(self):
-		self.winner = None
-		self.winnerpoints = 0
-		self.loser = None
-		self.loserpoints = 0
-		self.wballhits = 0
-		self.lballhits = 0
-		self.longest_exchange = 0
-		self.ball_travel_length = 0
 
 class Filths:
 	P1Y = 0
@@ -54,6 +45,7 @@ class Player:
 class Pong:
 	def __init__(self):
 		self.starttime = 0
+		self.duration = 0
 		self.countdown = 0
 		self.filthmap = [0,0,0,0,0,0,0]
 		self.pbplayers = []
@@ -61,7 +53,6 @@ class Pong:
 		self.player2 = 0
 		self.longest_exchange = 0
 		self.curr_exchange_length = 0
-		self.ball_travel_length = -.5
 		self.ball = Ball()
 		self.websockets = []
 		self.task = None
@@ -107,26 +98,19 @@ class Pong:
 			return 2
 		return 0
 
-	def get_match_stats(self):
-		stats = Stats()
-		if(self.player1.score > self.player2.score and not self.player1.disconnected):
-			stats.winner = self.player1.userid
-			stats.winnerpoints = self.player1.score
-			stats.loser = self.player2.userid
-			stats.loserpoints = self.player2.score
-			stats.wballhits = self.player1.ball_hit_count
-			stats.lballhits = self.player2.ball_hit_count
-		else:
-			stats.winner = self.player2.userid
-			stats.winnerpoints = self.player2.score
-			stats.loser = self.player1.userid
-			stats.loserpoints = self.player1.score
-			stats.wballhits = self.player2.ball_hit_count
-			stats.lballhits = self.player1.ball_hit_count
-		stats.longest_exchange = self.longest_exchange
-		stats.ball_travel_length = max(0, self.ball_travel_length)
-		return stats
-
+	@database_sync_to_async
+	def save_game(self):
+		print('-----SAVING GAME-----')
+		self.duration = time.time() - self.starttime
+		game = Game()
+		game.winner = self.player1.userid if self.player1.score > self.player2.score else self.player2.userid
+		game.loser = self.player1.userid if self.player1.score < self.player2.score else self.player2.userid
+		game.score = [self.player1.score, self.player2.score] if self.player1.score > self.player2.score else [self.player2.score, self.player1.score]
+		game.duration = self.duration
+		game.longest_exchange = self.longest_exchange
+		game.total_exchanges = self.player1.ball_hit_count + self.player2.ball_hit_count
+		game.save()
+		
 	def receive(self, bytestr: bytes, player):
 		global endieness
 		global ballprecision
@@ -142,7 +126,6 @@ class Pong:
 				self.filthmap[player.pongid - 1] = 1
 				offset += 4
 			elif(type == Events.player_score):
-				self.ball_travel_length += 1
 				self.curr_exchange_length = 0
 				pplayer = 0
 				if(player.pongid == 1):
@@ -161,7 +144,6 @@ class Pong:
 				if(pplayer.score >= winpoints and not self.filthmap[Filths.PWin]):
 					self.filthmap[Filths.PWin] = pplayer.pongid
 			elif(type == Events.ball_hit):
-				self.ball_travel_length += 1
 				self.ball.lasthit = player.pongid
 				player.ball_hit_count += 1
 				self.curr_exchange_length += 1
