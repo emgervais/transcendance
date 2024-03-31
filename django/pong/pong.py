@@ -1,7 +1,6 @@
 # from . import pybackend
 from .pybackend import pong
 from notification.utils_db import change_status
-
 import asyncio
 
 class PongInstance:
@@ -45,7 +44,7 @@ class PongInstance:
 				self.game.task = asyncio.create_task(self.gameloop())
 				# self.game.task = threading.Thread(target=self.gameloop)
 				# self.game.task.start()
-				self.game.filthmap[4] = 1
+				self.game.filter |= 16
 				# print(self.game.update())
 		else:
 			print('game full')
@@ -76,12 +75,6 @@ class PongInstance:
 		except Exception as e:
 			print({'error': str(e)})
 
-	# def receive(self, bytes_data):
-	# 	print('receive')
-	# 	print(bytes_data)
-	# 	self.player.receive(bytes_data)
-	# 	# self.send(bytes_data)
-
 	async def gameloop(self):
 		for ws in self.game.websockets:
 			await ws({
@@ -90,23 +83,22 @@ class PongInstance:
 			})
 		self.game.start_game()
 		message = {'type': 'websocket.send', 'bytes': ''}
-		gameended = False
-		while self.game.player_count() >= 2:
+		game_over = False
+		while self.game.player_count() >= 2 and not game_over:
 			data = self.game.update()
 			if len(data) == 0:
 				await asyncio.sleep(0.01)
 				continue
-			if(not gameended):
-				winner = self.game.is_match_end()
-				if(winner != 0):
-					gameended = True
-					await self.game.save_game()
+			if self.game.filter & 32:
+				await self.game.save_game()
+				game_over = True
 			# send to and await all websockets
 			message['bytes'] = data
 			for ws in self.game.websockets:
 				await ws(message)
 			await asyncio.sleep(0.01)
-			
+
+
 async def wsapp(scope, receive, send):
 	user = scope['user']
 	if(not user.is_authenticated):
@@ -121,7 +113,7 @@ async def wsapp(scope, receive, send):
 	while True:
 		event = await receive()
 		e = pong.get_event(event, pi.player, pi.game)
-		print(e, event)
+		# print(e, event)
 		if e == 0:
 			continue
 		if e == 1:

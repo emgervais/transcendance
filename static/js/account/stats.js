@@ -82,11 +82,11 @@ async function load() {
                     <h5 style="display: inline-block;">Winner: <img style="width:40px;" src=${winner.image}></img></h5>
                     <h5 style="display: inline-block;width: 120px;">${winner.username}</h5>
                     <div style="display: inline-block;width:40px;"></div>
-                    <div style="display: inline-block;">${game.score[0]} - ${game.score[1]}</div>
-                    <div style="display: inline-block;">${new Date(game.date).toLocaleString()}</div>
                     <div style="display: inline-block;width:40px;"></div>
                     <h5 style="display: inline-block;">Loser: <img style="width:40px;" src=${loser.image}></img></h5>
                     <h5 style="display: inline-block;">${loser.username}</h5>
+                    <div>Score: ${game.score[0]} - ${game.score[1]}</div>
+                    <div>Date: ${new Date(game.date).toLocaleString()}</div>
                 </div>`;
             });
         }
@@ -111,10 +111,9 @@ async function load() {
                 <div style="display: inline-block;width:40px;"></div>
                 <h5 style="display: inline-block;">Loser: <img style="width:40px;" src=${loser.image}></img></h5>
                 <h5 style="display: inline-block;">${loser.username}</h5>
-                <div style="display: inline-block;width:40px;"></div>
-                <h5 style="display: inline-block;">Duration: ${game.duration} seconds</h5>
-                <h5 style="display: inline-block;">Longest exchange: ${game.longest_exchange} bounces</h5>
-                <h5 style="display: inline-block;">Total exchanges: ${game.total_exchanges} bounces</h5>
+                <h5>Duration: ${game.duration} seconds</h5>
+                <h5>Longest exchange: ${game.longest_exchange} bounces</h5>
+                <h5>Total exchanges: ${game.total_exchanges} bounces</h5>
             </div>`;
         }
     });

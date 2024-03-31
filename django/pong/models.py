@@ -81,6 +81,8 @@ class Game(models.Model):
     duration = models.IntegerField(default=0)
     longest_exchange = models.IntegerField(default=0)
     total_exchanges = models.IntegerField(default=0)
+    total_distance = models.IntegerField(default=0)
+    total_hits = models.IntegerField(default=0)
     objects = GameManager()
 
     def __str__(self):
