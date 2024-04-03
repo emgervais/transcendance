@@ -42,10 +42,7 @@ class PongInstance:
 			if self.game.player_count() == 2:
 				print('start game')
 				self.game.task = asyncio.create_task(self.gameloop())
-				# self.game.task = threading.Thread(target=self.gameloop)
-				# self.game.task.start()
 				self.game.filter |= 16
-				# print(self.game.update())
 		else:
 			print('game full')
 			await send({
