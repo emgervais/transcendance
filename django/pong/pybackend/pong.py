@@ -99,6 +99,7 @@ class Pong:
 		game.longest_exchange = self.longest_exchange
 		game.total_exchanges = self.player1.score + self.player2.score
 		game.total_distance = self.total_distance
+		game.total_hits = self.player1.ball_hit_count + self.player2.ball_hit_count
 		game.save()
 
 	def calculate_distance(self):

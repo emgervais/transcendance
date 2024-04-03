@@ -18,11 +18,15 @@ class StatsSerializer(serializers.Serializer):
                 'losses': instance['totals']['losses'],
                 'time_played': instance['totals']['time_played'],
                 'longest_exchange': instance['totals']['longest_exchange'],
-                'total_exchanges': instance['totals']['total_exchanges']
+                'total_exchanges': instance['totals']['total_exchanges'],
+                'total_distance': instance['totals']['total_distance'],
+                'total_hits': instance['totals']['total_hits']
             },
             'averages': {
                 'longest_exchange': instance['averages']['longest_exchange'],
                 'total_exchanges': instance['averages']['total_exchanges'],
+                'distance': instance['averages']['distance'],
+                'hits': instance['averages']['hits'],
                 'duration': instance['averages']['duration']
             },
             'win_rate': instance['win_rate'],

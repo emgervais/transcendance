@@ -25,11 +25,15 @@ class GameManager(models.Manager):
                 'losses': 0,
                 'time_played': 0,
                 'longest_exchange': 0,
-                'total_exchanges': 0
+                'total_exchanges': 0,
+                'total_distance': 0,
+                'total_hits': 0,
             },
             'averages': {
                 'longest_exchange': 0,
                 'total_exchanges': 0,
+                'distance': 0,
+                'hits': 0,
                 'duration': 0
             },
             'win_rate': 0,
@@ -56,6 +60,8 @@ class GameManager(models.Manager):
                     opponents[game.winner] += 1
             stats['totals']['time_played'] += game.duration
             stats['totals']['total_exchanges'] += game.total_exchanges
+            stats['totals']['total_distance'] += game.total_distance
+            stats['totals']['total_hits'] += game.total_hits
             if game.longest_exchange > stats['totals']['longest_exchange']:
                 stats['totals']['longest_exchange'] = game.longest_exchange
             
@@ -63,6 +69,8 @@ class GameManager(models.Manager):
             stats['averages']['total_exchanges'] = round(stats['totals']['total_exchanges'] / games.count())
             stats['averages']['duration'] = round(stats['totals']['time_played'] / games.count())
             stats['averages']['longest_exchange'] = round(stats['totals']['longest_exchange'] / games.count())
+            stats['averages']['hits'] = round(stats['totals']['total_hits'] / games.count())
+            stats['averages']['distance'] = round(stats['totals']['total_distance'] / games.count())
             stats['win_rate'] = round(stats['totals']['wins'] / games.count() * 100)
         # get opponent username with most games
         stats['most_played_opponent']['opponent'] = max(opponents, key=opponents.get)
