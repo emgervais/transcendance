@@ -49,7 +49,7 @@ function displayState(cherryPick=undefined) {
     'connected': auth.isConnected(),
     'searching-match': match.searchingMatch,
     'has-invites': !!match.invites.length,
-    'match-button': pong.showmatchbuttons,
+    'match-button': pong.inGame,
   };
   if (cherryPick) {
     classes = { [cherryPick]: classes[cherryPick] };
