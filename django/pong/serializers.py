@@ -36,13 +36,8 @@ class StatsSerializer(serializers.Serializer):
             }
         }
 
-class SimpleGameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Game
-        fields = ['id', 'winner', 'loser', 'score', 'date']
-
 class DetailedGameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ['id', 'winner', 'loser', 'score', 'date', 'duration', 'longest_exchange', 'total_exchanges']
+        fields = ['id', 'winner', 'loser', 'score', 'date', 'duration', 'longest_exchange', 'total_exchanges', 'total_distance', 'total_hits']
 
