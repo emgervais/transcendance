@@ -705,3 +705,7 @@ font-style: italic;
 .unread-message {
   background-color: blue;
 }
+
+#opponent-username {
+  color: white;
+}

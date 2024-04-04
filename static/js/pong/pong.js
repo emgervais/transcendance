@@ -8,13 +8,14 @@ import { cancelSearchingMatch } from "/js/pong/match.js";
 import * as chatMessages from "/js/chat/messages.js";
 import * as chat from "/js/chat/chat.js";
 import * as util from "/js/util.js";
+import * as notifications from "/js/notifications.js";
 
 var ws = null;
 var canvas;
 
 var soundspeed = 1.0;
 
-var showmatchbuttons = true;
+var inGame = true;
 
 var pongUBO;
 var textUBO;
@@ -430,7 +431,7 @@ function setup()
 			if(state != 4)
 			{
 				// game select state
-				showmatchbuttons = false;
+				inGame = false;
 				util.displayState();
 				state = 4;
 				if(ws)
@@ -446,7 +447,7 @@ function setup()
 			else
 			{
 				soundspeed = 1.0;
-				showmatchbuttons = true;
+				inGame = true;
 				util.displayState();
 				state = 0;
 				camera.targetfov = Math.PI / 2;
@@ -502,7 +503,7 @@ function setup()
 
 function connect(id, tournamentId)
 {
-	showmatchbuttons = false;
+	inGame = false;
 	util.displayState();
 	if(ws)
 		ws.close();
@@ -605,7 +606,7 @@ function connect(id, tournamentId)
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
-					showmatchbuttons = true;
+					inGame = true;
 					util.displayState();
 					state = dv.getUint8(offset + 1) + 1;
 					console.log("Game ended, Winner: P" + (state - 1));
@@ -614,6 +615,7 @@ function connect(id, tournamentId)
 					ball.sety(pongrenderheight/2.0 - ball.height/2.0);
 					ball.xspeed = 0;
 					ball.yspeed = 0;
+					notifications.nextGame(tournamentId);
 				}
 				else if(dv.getUint8(offset) == 5)
 				{
@@ -988,7 +990,7 @@ function stop()
 	if (ws && (ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
 		ws.close();
 	}
-	showmatchbuttons = true;
+	inGame = true;
 	util.displayState();
 	stopgame = 1;
 	state = 0;
@@ -1004,8 +1006,8 @@ function disconnect()
 	state = 0;
 	playerid = 0;
 	player = 0;
-	showmatchbuttons = true;
+	inGame = true;
 	util.displayState();
 }
 
-export {start, stop, stopgame, connect, disconnect, showmatchbuttons};
+export {start, stop, stopgame, connect, disconnect, inGame};

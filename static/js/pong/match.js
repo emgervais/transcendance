@@ -6,6 +6,7 @@ import * as pong from "/js/pong/pong.js";
 import * as router from "/js/router/router.js";
 import * as user from "/js/user/user.js";
 import * as util from "/js/util.js";
+import { getCurrUser } from "/js/user/currUser.js";
 
 // -- elements ----
 const invitesContainer = document.getElementById("game-invites");
@@ -138,6 +139,26 @@ function start(data) {
     chatDisplay.openChatBox();
     chatDisplay.activateMatchTab();
     pong.connect(data.room, data.tournamentId);
+    displayOpponentName(data.room);
+}
+
+async function displayOpponentName(room) {
+    const element = document.getElementById("opponent-username");
+    const oppenentName = await getOpponentName(room);
+        console.log("oppenentName:", oppenentName);
+        element.innerHTML = oppenentName ? `Opponent: ${oppenentName}` : "";
+}
+
+async function getOpponentName(room) {
+    console.log("room:", room);
+    let ids = room.split('_');
+    for (let i = 0; i < ids.length; i++) {
+        let id = ids[i];
+        console.log("id:", id);
+        if (id != getCurrUser().id) {
+            return (await user.getUser(id)).username;
+        }
+    }    
 }
 
 export { invite, receiveInvite, displayInvite, respondInvite, invites, clearInvites };
