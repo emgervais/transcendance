@@ -11,9 +11,6 @@ async function load() {
     api.fetchRoute({
         route: `/api/stats/${userId}/`,
         dataManager: async stats => {
-            console.log("stats:", stats);
-            const user = await getUser(userId);
-            const container = document.getElementById("api-stats");
             stats.distance = stats.totals.total_distance;
             stats.longest_exchange = stats.totals.longest_exchange;
             stats.winRate = stats.win_rate;
@@ -21,10 +18,10 @@ async function load() {
             stats.swearCount = stats.swear_count;
             stats.winCount = stats.totals.wins;
             stats.lossCount = stats.totals.losses;
-            stats.timePlayed = new Date(1000 * stats.totals.time_played).toISOString().substr(11, 8)
+            stats.timePlayed = new Date(1000 * stats.totals.time_played).toISOString().substr(11, 8);
             stats.most_played_opponent = stats.most_played_opponent.opponent + '\n' + stats.most_played_opponent.games;
             const statsText = {
-                distance: `<h5>Horizontal distance traveled <br>(The original pong arcade screen measured 5.375 inches)</h5>`,
+                distance: `<h5>Horizontal distance traveled</h5><div class="tooltipp"> <i class="fa-solid fa-circle-info"></i> <p class="tooltiptextt">The original pong arcade screen measured 5.375 inches</p></div>`,
                 longest_exchange: `<h5>Longest exchange</h5>`,
                 winRate: `<h5>Win / Loss ratio</h5>`,
                 gamesCount: `<h5>Number of games</h5>`,
@@ -34,31 +31,18 @@ async function load() {
                 timePlayed: `<h5>Time played</h5>`,
                 most_played_opponent: `<h5>Most played opponent</h5>`,
             };
-            // container.innerHTML += `Ball hit count: ${stats.ball_hit_count}`;
-
-            // const gamesCount = stats.win_count + stats.loss_count;
-            // const winLossRatio = stats.win_count == 0 ? 0 : stats.win_count / gamesCount;
-            // container.innerHTML += `Win/Loss ratio: ${Math.round(winLossRatio * 100)}%`;
-            
-            // players hits + players points (premier est moitié) * 
             const statsUnit = {
-                distance: ' meters',
+                distance: ' cm',
                 longest_exchange: ' bounces',
                 winRate: '%',
                 gamesCount:    ' games',
-                // easy_win: '',
                 swearCount:  ' swear words!',
                 winCount: ' wins',
                 lossCount: ' losses',
                 timePlayed: '',
                 most_played_opponent: ' games',
             }
-            if(userId !== getCurrUser().id) {
-                container.innerHTML = `<h2>${user.username}</h2>`;
-                container.innerHTML += `<div class="stats-img-container"><img src="${user.image}" class="img-fluid rounded-circle small-image"></div>`;
-            }
-            const statsGrid = document.createElement('div');
-            statsGrid.classList.add('stats-grid');
+            const statsGrid = document.querySelector('.stats-grid');
             for(const key in statsText) {
                 const div = document.createElement('div');
                 div.classList.add('stats-grid-element');
@@ -69,31 +53,30 @@ async function load() {
                 div.appendChild(stat);
                 statsGrid.appendChild(div);
             }
-            container.appendChild(statsGrid);
         },
     });
     api.fetchRoute({
         route: `/api/match-history/${userId}/`,
         dataManager: async games => {
-            console.log("games:", games);
             const matchHistoryElement = document.getElementById('match-history');
+            console.log(games);
+            games.sort(sortDates);
+            console.log(games);
             games.forEach(async game => {
                 const winner = await getUser(game.winner);
                 const loser = await getUser(game.loser);
                 
                 matchHistoryElement.innerHTML += `<div class="match-history-game">
-                    <h5 style="display: inline-block;">Winner: <img style="width:40px;" src=${winner.image}></img></h5>
-                    <h5 style="display: inline-block;width: 120px;">${winner.username}</h5>
-                    <div style="display: inline-block;width:40px;"></div>
-                    <div style="display: inline-block;width:40px;"></div>
-                    <h5 style="display: inline-block;">Loser: <img style="width:40px;" src=${loser.image}></img></h5>
-                    <h5 style="display: inline-block;">${loser.username}</h5>
-                    <div>Score: ${game.score[0]} - ${game.score[1]}</div>
-                    <div>Date: ${new Date(game.date).toLocaleString()}</div>
+                    <h5>Winner: <img src=${winner.image}></img> ${winner.username}</h5>
+                    <h5>Loser: <img src=${loser.image}></img> ${loser.username}</h5>
+                    <p>Score: ${game.score[0]} - ${game.score[1]}</p>
+                    <p>Date: ${new Date(game.date).toLocaleString()}</p>
                 </div>`;
             });
         }
     });
 }
-
+function sortDates(a, b) {
+    return new Date(a.date) - new Date(b.date);
+}
 export { load };
