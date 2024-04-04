@@ -500,7 +500,7 @@ function setup()
 	return true;
 }
 
-function connect(id)
+function connect(id, tournamentId)
 {
 	showmatchbuttons = false;
 	util.displayState();

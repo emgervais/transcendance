@@ -90,6 +90,7 @@ class Game(models.Model):
     total_exchanges = models.IntegerField(default=0)
     total_distance = models.IntegerField(default=0)
     total_hits = models.IntegerField(default=0)
+    in_tournament = models.BooleanField(default=False)
     objects = GameManager()
 
     def __str__(self):
