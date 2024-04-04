@@ -54,7 +54,6 @@ def next_round(tournament_id):
             
 def matchmaker(room):
     min_players = TOURNAMENT_NB_PLAYERS if room == 'tournament' else 2
-    tournament_id = None
     while True:
         print('In Queue...')
         if matchmaking_redis.zcard(room) >= min_players:
@@ -69,10 +68,12 @@ def matchmaker(room):
             for i in range(0, min_players, 2):
                 room_name = '_'.join(sorted([users[i].decode('utf-8'), users[i+1].decode('utf-8')]))
                 try:
-                    for user in users[i:i+2]:
-                        send_to_websocket(channel_layer, UserChannelGroup.objects.get(user_id=user).main, {
-                            'type': 'send.notification', 'notification': 'pong', 'description': 'matchFound', 'room': room_name, 'tournamentId': tournament_id
-                        })
+                    send_to_websocket(channel_layer, UserChannelGroup.objects.get(user_id=users[i]).main, {
+                        'type': 'send.notification', 'notification': 'pong', 'description': 'matchFound', 'room': room_name, 'tournamentId': tournament_id
+                    })
+                    send_to_websocket(channel_layer, UserChannelGroup.objects.get(user_id=users[i+1]).main, {
+                        'type': 'send.notification', 'notification': 'pong', 'description': 'matchFound', 'room': room_name, 'tournamentId': tournament_id
+                    })
                 except UserChannelGroup.DoesNotExist:
                     break
             matchmaking_redis.zremrangebyrank(room, 0, min_players - 1)

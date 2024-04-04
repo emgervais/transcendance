@@ -501,7 +501,7 @@ function setup()
 	return true;
 }
 
-function connect(id, tournamentId)
+function connect(id)
 {
 	inGame = false;
 	util.displayState();
