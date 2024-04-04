@@ -11,12 +11,10 @@ SEARCH_FILTERS = {
     'friend-request-received': 'sent_requests__to_user',
 }
 
-class Status(models.TextChoices):
-    ONLINE = 'online', _('online')
-    OFFLINE = 'offline', _('offline')
-    IN_GAME = 'in-game', _('in-game')
-    IN_QUEUE = 'in-queue', _('in-queue')
-    
+class Status:
+    OFFLINE = 'offline'
+    ONLINE = 'online'
+    IN_GAME = 'in-game'
 
 class UserManager(UserManager):
     def search(self, query, filters, user_id):
@@ -31,7 +29,7 @@ class UserManager(UserManager):
 class User(AbstractUser):
     oauth = models.BooleanField(default=False)
     image = models.ImageField(upload_to='profile_pics', default='default/default.webp')
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.OFFLINE)
+    status = models.CharField(max_length=20, default=Status.OFFLINE)
     swear_count = models.IntegerField(default=0)
     objects = UserManager()
         

@@ -3,7 +3,6 @@ from users.models import User
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 
-
 class GameManager(models.Manager):
     def get_games(self, user):
         return self.filter(models.Q(winner=user) | models.Q(loser=user))
@@ -73,8 +72,8 @@ class GameManager(models.Manager):
             stats['averages']['distance'] = round(stats['totals']['total_distance'] / games.count())
             stats['win_rate'] = round(stats['totals']['wins'] / games.count() * 100)
         # get opponent username with most games
-        stats['most_played_opponent']['opponent'] = max(opponents, key=opponents.get)
-        stats['most_played_opponent']['games'] = opponents[stats['most_played_opponent']['opponent']]
+        stats['most_played_opponent']['opponent'] = max(opponents, key=opponents.get).username
+        stats['most_played_opponent']['games'] = opponents[max(opponents, key=opponents.get)]
         stats['games'] = games.count()
         print(stats)
         return stats

@@ -80,15 +80,14 @@ class PongInstance:
 			})
 		self.game.start_game()
 		message = {'type': 'websocket.send', 'bytes': ''}
-		game_over = False
-		while self.game.player_count() >= 2 and not game_over:
+		while self.game.player_count() >= 2:
 			data = self.game.update()
 			if len(data) == 0:
 				await asyncio.sleep(0.01)
 				continue
 			if self.game.filter & 32:
 				await self.game.save_game()
-				game_over = True
+				self.game.filter &= ~32
 			# send to and await all websockets
 			message['bytes'] = data
 			for ws in self.game.websockets:

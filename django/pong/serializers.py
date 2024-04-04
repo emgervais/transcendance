@@ -31,7 +31,7 @@ class StatsSerializer(serializers.Serializer):
             },
             'win_rate': instance['win_rate'],
             'most_played_opponent': {
-                'opponent': instance['most_played_opponent']['opponent'].username,
+                'opponent': instance['most_played_opponent']['opponent'],
                 'games': instance['most_played_opponent']['games']
             }
         }
