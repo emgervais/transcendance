@@ -1,19 +1,16 @@
-MATCH HISTORY
+tournament:
+.4 players click play tournament.
+.2 games
+.end 1st game: notification "waiting for opponent" / start next game
+    (show opponent's name)
+.end 2nd game: display rankings
+.if anyone quits: pong.stop()
 
-stats:
-    won against (count)
-        Games Model: (when am I updating it? 2 PongInstances for 1 game. Pick one of the pong instances?)
-    pourquoi on reste sur pong quand l'autre quitte? On conserve la même instance de game.
-    plusieurs instances possibles? pong.pong.update_stats: gérer plusieurs games?
-    chat count with (users) (au pire on s'en calisse)
+
+
 
 start game: (key press, allow sounds)
 
-webgl.js:
-    use of deprecated function XMLHttpRequest
-
-
-tournament:
 backend: logout when already logged out
 
 ----------------------------------------------------
