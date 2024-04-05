@@ -68,13 +68,16 @@ async function displayUser({
         div1.classList.add('user-infos');
         div2.classList.add('user-buttons');
 
+
         const img = document.createElement("img");
         img.src = user.image;
         img.className = "img-fluid rounded-circle small-image";
-        const imgdiv = document.createElement("div");
-        imgdiv.classList.add('user-img-container');
-        imgdiv.appendChild(img);
-        div1.appendChild(imgdiv);
+        
+        const imgAnchor = document.createElement("a");
+        imgAnchor.setAttribute("href", `/account/stats/${userId}/`);
+        imgAnchor.classList.add('user-img-container');
+        imgAnchor.appendChild(img);
+        div1.appendChild(imgAnchor);
 
         const username = document.createElement("p");
         username.textContent = user.username;
