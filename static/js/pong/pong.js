@@ -37,6 +37,7 @@ var legmodel;
 var sandalmodel;
 var boxmodel;
 var traymodel;
+var cassettemodel;
 
 const wsmovementbuffer = new ArrayBuffer(5);
 const wsmovementdv = new DataView(wsmovementbuffer);
@@ -398,18 +399,22 @@ function setup()
 	sandalmodel = newModel('/obj/sandal.obj', '/img/sandal.png');
 	boxmodel = newModel('/obj/box.obj', '/img/co.png');
 	traymodel = newModel('/obj/tray.obj', '/img/tray.png');
+	cassettemodel = newModel('/obj/CPONG.obj', '/img/PONG.png');
 
 	tvmodel.move(0, 0, 0.0);
 	legmodel.move(0, 0, 0.0);
 	sandalmodel.move(0, 0, 0.0);
 	boxmodel.move(0, 0, 0.0);
 	traymodel.move(0, 0, 0.0);
+	cassettemodel.move(2.60782, -2.22583, 1.64862);
+	cassettemodel.rotate(0, 0.5, 0);
 	let modelscales = 2.15;
 	tvmodel.scale(modelscales, modelscales + 0.2, modelscales);
 	legmodel.scale(modelscales, modelscales + 0.2, modelscales);
 	sandalmodel.scale(modelscales, modelscales + 0.2, modelscales);
 	boxmodel.scale(modelscales, modelscales + 0.2, modelscales);
 	traymodel.scale(modelscales, modelscales + 0.2, modelscales);
+	cassettemodel.scale(modelscales, modelscales + 0.2, modelscales);
 
 	camera._viewmatrix = newViewMatrix(0, 0, 2, 0, Math.PI*2);
 	camera._projectionmatrix = newProjectionMatrix(camera.fov, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
@@ -420,6 +425,17 @@ function setup()
 
 	// gl.useProgram(program);
 	// stagelinebuffer = createStaticBuffer(stagelines);
+
+	window.onmousemove = function(e)
+	{
+		if(state == 4)
+		{
+			let x = Math.min(Math.max(((e.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1, -0.9), 0.9);
+			let y = Math.min(Math.max(((e.clientY - canvas.offsetTop) / canvas.clientHeight) * -2 + 1, -0.75), 0.75);
+			camera.targetyaw = -Math.PI/2 + (x * Math.PI / 2);
+			camera.targetpitch = y * Math.PI / 2;
+		}
+	}
 
 	window.onkeydown = function(e)
 	{
@@ -441,34 +457,8 @@ function setup()
 			inputs[7] = 1;
 		else if(e.key == ' ' && state != 1)
 		{
-			if(state != 4)
-			{
-				// game select state
-				inGame = false;
-				match.clearPongText();
-				util.displayState();
-				state = 4;
-				if(ws)
-					ws.close();
-				cancelSearchingMatch();
-				camera.targetfov = Math.PI * 0.4;
-				camera.targetz = 3;
-				playerid = 0;
-				player = 0;
-				ambientSound.preservesPitch = false;
-				soundspeed = 0.8;
-			}
-			else
-			{
-				soundspeed = 1.0;
-				inGame = true;
-				util.displayState();
-				state = 0;
-				camera.targetfov = Math.PI / 2;
-				camera.targetz = 1.5;
-				camera.targetpitch = 0;
-				camera.targetyaw = -Math.PI/2;
-			}
+			state = (state == 4) ? 0 : 4;
+			setViewState();
 		}
 			
 	}
@@ -515,9 +505,48 @@ function setup()
 	return true;
 }
 
+function setViewState()
+{
+	if(state == 4)
+	{
+		// game select state
+		inGame = false;
+		match.clearPongText();
+		util.displayState();
+		if(ws)
+			ws.close();
+		cancelSearchingMatch();
+		camera.targetfov = Math.PI * 0.4;
+		camera.targetz = 3;
+		playerid = 0;
+		player = 0;
+		ambientSound.preservesPitch = false;
+		soundspeed = 0.8;
+	}
+	else
+	{
+		soundspeed = 1.0;
+		inGame = true;
+		util.displayState();
+		camera.targetfov = Math.PI / 2;
+		camera.targetz = 1.5;
+		camera.targetpitch = 0;
+		camera.targetyaw = -Math.PI/2;
+	}
+}
+
+var tourney = 0;
 function connect(id, tournamentId)
 {
-	inGame = false;
+	if(state == 4)
+	{
+		state = 0;
+		setViewState();
+	}
+	inGame = (tournamentId == null);
+	tourney = tournamentId != null;
+	if(tournamentId.split('_').length == 5)
+		tourney = 0;
 	util.displayState();
 	if(ws)
 		ws.close();
@@ -620,7 +649,7 @@ function connect(id, tournamentId)
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
-					inGame = true;
+					inGame = true && !tourney;
 					util.displayState();
 					state = dv.getUint8(offset + 1) + 1;
 					wintext.ubo.setwinnder(state - 1);
@@ -655,6 +684,54 @@ function connect(id, tournamentId)
 			}
 		}
 	}
+}
+
+function drawpong()
+{
+	gl.activeTexture(gl.TEXTURE0);
+	fb.bind();
+	fb.bindTexture();
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.viewport(0, 0, pongrenderwidth, pongrenderheight);
+
+	// draw the scores and countdown
+	// drawText('press space', x, y);
+	digitsTexture.bind();
+	pongVAO.bind();
+	gl.useProgram(textprogram);
+	textUBO.update(score.ubo1._ubodata);
+	gl.drawArrays(gl.TRIANGLES, 0, 6);
+	textUBO.update(score.ubo2._ubodata);
+	gl.drawArrays(gl.TRIANGLES, 0, 6);
+	if(state == 5)
+	{
+		textUBO.update(countdowntext._ubodata);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+	}
+	if((state == 2 || state == 3) && lastTime % 1000 < 800)
+	{
+		textUBO.update(wintext.ubo._ubodata);
+		gl.uniform1i(digitstexuniform, 3);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+		gl.uniform1i(digitstexuniform, 2);
+	}
+	// draw the pong game
+	gl.useProgram(program);
+	if(state || playerid == 1 || lastTime % 1000 < 500)
+	{
+		pongUBO.update(player1._ubodata);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+	}
+	if(state || playerid == 2 || lastTime % 1000 < 500)
+	{
+		pongUBO.update(player2._ubodata);
+		gl.drawArrays(gl.TRIANGLES, 0, 6);
+	}
+	pongUBO.update(ball._ubodata);
+	gl.drawArrays(gl.TRIANGLES, 0, 6);
+	stagelineVAO.bind();
+	pongUBO.update(stage._ubodata);
+	gl.drawArrays(gl.LINES, 0, 8);
 }
 
 function collisionCheck(player, ball)
@@ -811,53 +888,8 @@ function draw()
 			senddata(sendbytes);
 			sendtimer = 0;
 		}
-		// draw the paddles
-		// gl.disable(gl.DEPTH_TEST);
 		unbindVAO();
-		gl.activeTexture(gl.TEXTURE0);
-		fb.bind();
-		fb.bindTexture();
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-		gl.viewport(0, 0, pongrenderwidth, pongrenderheight);
-
-		// draw the scores and countdown
-		// drawText('press space', x, y);
-		digitsTexture.bind();
-		pongVAO.bind();
-		gl.useProgram(textprogram);
-		textUBO.update(score.ubo1._ubodata);
-		gl.drawArrays(gl.TRIANGLES, 0, 6);
-		textUBO.update(score.ubo2._ubodata);
-		gl.drawArrays(gl.TRIANGLES, 0, 6);
-		if(state == 5)
-		{
-			textUBO.update(countdowntext._ubodata);
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-		}
-		if((state == 2 || state == 3) && lastTime % 1000 < 800)
-		{
-			textUBO.update(wintext.ubo._ubodata);
-			gl.uniform1i(digitstexuniform, 3);
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-			gl.uniform1i(digitstexuniform, 2);
-		}
-		// draw the pong game
-		gl.useProgram(program);
-		if(state || playerid == 1 || lastTime % 1000 < 500)
-		{
-			pongUBO.update(player1._ubodata);
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-		}
-		if(state || playerid == 2 || lastTime % 1000 < 500)
-		{
-			pongUBO.update(player2._ubodata);
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-		}
-		pongUBO.update(ball._ubodata);
-		gl.drawArrays(gl.TRIANGLES, 0, 6);
-		stagelineVAO.bind();
-		pongUBO.update(stage._ubodata);
-		gl.drawArrays(gl.LINES, 0, 8);
+		drawpong();
 		// draw the pong screen
 		mainUBO.bind();
 		gl.useProgram(screenprogram);
@@ -891,6 +923,18 @@ function draw()
 		}
 		break;
 	case 4:
+		if(camera.pitch != camera.targetpitch)
+		{
+			camera.pitch += (camera.targetpitch - camera.pitch) * 0.004 * dt;
+			if(Math.abs(camera.pitch - camera.targetpitch) < 0.003)
+				camera.pitch = camera.targetpitch;
+		}
+		if(camera.yaw != camera.targetyaw)
+		{
+			camera.yaw += (camera.targetyaw - camera.yaw) * 0.004 * dt;
+			if(Math.abs(camera.yaw - camera.targetyaw) < 0.003)
+				camera.yaw = camera.targetyaw;
+		}
 		if(camera.fov != camera.targetfov)
 		{
 			camera.fov += (camera.targetfov - camera.fov) * 0.001 * dt;
@@ -951,6 +995,7 @@ function draw()
 		sandalmodel.draw(mainUBO);
 		boxmodel.draw(mainUBO);
 		traymodel.draw(mainUBO);
+		cassettemodel.draw(mainUBO);
 		if(ambientSound.playbackRate != soundspeed)
 		{
 			ambientSound.playbackRate += (soundspeed - ambientSound.playbackRate) * 0.001 * dt;
@@ -987,8 +1032,10 @@ function start()
 		console.error('Failed to set up pong');
 		return;
 	}
-	camera.targetfov = Math.PI / 2;
-	camera.targetz = 1.5;
+	drawpong();
+	state = 4;
+	camera.targetfov = Math.PI * 0.4;
+	camera.targetz = 3;
 	camera.targetpitch = 0;
 	camera.targetyaw = -Math.PI/2;
 	camera.fov = camera.targetfov;

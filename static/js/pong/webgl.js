@@ -300,72 +300,79 @@ function createFramebuffer(width, height)
 
 }
 
-function newModel(objurl, textureurl)
+function newModel(objurl, textureurl, objsr)
 {
 	// parse obj file
 	const xhr = new XMLHttpRequest();
-	xhr.open("GET", objurl, false);
-	xhr.send();
-	const obj = xhr.responseText.split("\n");
-	const vertices = [];
-	const normals = [];
-	const uvs = [];
-	const faces = [];
-	const map = new Map();
-	const indices = [];
-	for(let i = 0; i < obj.length; i++)
-	{
-		const line = obj[i].split(" ");
-		if(line[0] == "v")
-			vertices.push([parseFloat(line[1]), parseFloat(line[2]), parseFloat(line[3])]);
-		else if(line[0] == "vn")
-			normals.push([parseFloat(line[1]), parseFloat(line[2]), parseFloat(line[3])]);
-		else if(line[0] == "vt")
-			uvs.push([parseFloat(line[1]), parseFloat(line[2])]);
-		else if(line[0] == "f")
+	xhr.open("GET", objurl, true);
+	xhr.onload = (e) => {
+		if(xhr.readyState != 4 || xhr.status != 200)
+			return;
+		const obj = xhr.responseText.split("\n");
+		const vertices = [];
+		const normals = [];
+		const uvs = [];
+		const map = new Map();
+		const indices = [];
+		for(let i = 0; i < obj.length; i++)
 		{
-			for(let j = 1; j < 4; j++)
+			const line = obj[i].split(" ");
+			if(line[0] == "v")
+				vertices.push([parseFloat(line[1]), parseFloat(line[2]), parseFloat(line[3])]);
+			else if(line[0] == "vn")
+				normals.push([parseFloat(line[1]), parseFloat(line[2]), parseFloat(line[3])]);
+			else if(line[0] == "vt")
+				uvs.push([parseFloat(line[1]), parseFloat(line[2])]);
+			else if(line[0] == "f")
 			{
-				const index = line[j].split("/");
-				const key = [parseInt(index[0]) - 1, parseInt(index[1]) - 1, parseInt(index[2]) - 1];
-				if(!map.has(key))
+				for(let j = 1; j < 4; j++)
 				{
-					indices.push(map.size);
-					map.set(key, map.size);
+					const index = line[j].split("/");
+					const key = [parseInt(index[0]) - 1, parseInt(index[1]) - 1, parseInt(index[2]) - 1];
+					if(!map.has(key))
+					{
+						indices.push(map.size);
+						map.set(key, map.size);
+					}
+					else
+						indices.push(map.get(key));
 				}
-				else
-					indices.push(map.get(key));
 			}
 		}
+		// console.log("Model loaded: " + objurl);
+		// console.log("Vertices: " + vertices.length);
+		// console.log("Normals: " + normals.length);
+		// console.log("UVs: " + uvs.length);
+		// console.log("Faces: " + indices.length / 3);
+		const vertbuf = new Float32Array(map.size * 3);
+		const normbuf = new Float32Array(map.size * 3);
+		const uvbuf = new Float32Array(map.size * 2);
+		const indexbuf = new Uint32Array(indices);
+		map.forEach((value, key) => {
+			vertbuf[value * 3] = vertices[key[0]][0];
+			vertbuf[value * 3 + 1] = vertices[key[0]][1];
+			vertbuf[value * 3 + 2] = vertices[key[0]][2];
+			normbuf[value * 3] = normals[key[2]][0];
+			normbuf[value * 3 + 1] = normals[key[2]][1];
+			normbuf[value * 3 + 2] = normals[key[2]][2];
+			uvbuf[value * 2] = uvs[key[1]][0];
+			uvbuf[value * 2 + 1] = uvs[key[1]][1];
+		});
+
+		model._numIndices = indices.length;
+
+		model._vao.addBuffer(createStaticBuffer(vertbuf), 0, 3, gl.FLOAT, false, 0, 0);
+		model._vao.addBuffer(createStaticBuffer(uvbuf), 1, 2, gl.FLOAT, false, 0, 0);
+		model._vao.addBuffer(createStaticBuffer(normbuf), 2, 3, gl.FLOAT, false, 0, 0);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model._indices);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexbuf, gl.STATIC_DRAW);
 	}
-	// console.log("Model loaded: " + objurl);
-	// console.log("Vertices: " + vertices.length);
-	// console.log("Normals: " + normals.length);
-	// console.log("UVs: " + uvs.length);
-	// console.log("Faces: " + indices.length / 3);
-
-	const vertbuf = new Float32Array(map.size * 3);
-	const normbuf = new Float32Array(map.size * 3);
-	const uvbuf = new Float32Array(map.size * 2);
-	const indexbuf = new Uint32Array(indices);
-	map.forEach((value, key) => {
-		vertbuf[value * 3] = vertices[key[0]][0];
-		vertbuf[value * 3 + 1] = vertices[key[0]][1];
-		vertbuf[value * 3 + 2] = vertices[key[0]][2];
-		normbuf[value * 3] = normals[key[2]][0];
-		normbuf[value * 3 + 1] = normals[key[2]][1];
-		normbuf[value * 3 + 2] = normals[key[2]][2];
-		uvbuf[value * 2] = uvs[key[1]][0];
-		uvbuf[value * 2 + 1] = uvs[key[1]][1];
-	});
-
-	// load texture
 	const texture = createTexture(textureurl, gl.RGBA, gl.RGBA, 0);
 
 	const model = {
 		_vao: createVAO(),
 		_indices: gl.createBuffer(),
-		_numIndices: indices.length,
+		_numIndices: 0,
 		_texture: texture,
 		_uboT: newTranslationMatrix(0, 0, 0),
 		_uboR: newRotationMatrix(0, 0, 0),
@@ -393,12 +400,8 @@ function newModel(objurl, textureurl)
 		}
 	};
 
-	model._vao.addBuffer(createStaticBuffer(vertbuf), 0, 3, gl.FLOAT, false, 0, 0);
-	model._vao.addBuffer(createStaticBuffer(uvbuf), 1, 2, gl.FLOAT, false, 0, 0);
-	model._vao.addBuffer(createStaticBuffer(normbuf), 2, 3, gl.FLOAT, false, 0, 0);
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model._indices);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexbuf, gl.STATIC_DRAW);
-
+	xhr.send();
+	
 	return model;
 }
 
