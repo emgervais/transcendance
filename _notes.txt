@@ -4,6 +4,8 @@ match-history:
 
 tournament:
     .si quelqu'un quitte, on annule tout
+     
+    (quitter match: clearPongText)
 
 
 

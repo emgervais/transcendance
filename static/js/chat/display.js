@@ -144,7 +144,7 @@ function updateMenu(id) {
 	let i = 0;
 	menu.innerHTML = '';
 	for(var option in menuOptions) {
-		if (!pong.inGame && option == 'invite')
+		if (!pong.notInGame && option == 'invite')
 			continue;
 		var li = document.createElement('li');
 		li.style = '--i:' + i++ + ';'
