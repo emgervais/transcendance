@@ -25,7 +25,12 @@ function startEventListeners() {
         const route = router.getCurrentRoute();
         if (route.onQuit)
             route.onQuit();
-    });    
+    });
+    onwheel = () => {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+            console.log("scroll");
+        }
+    };
 }
 
 export { startEventListeners };

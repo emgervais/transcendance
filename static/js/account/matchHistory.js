@@ -11,7 +11,6 @@ async function load() {
             const matchHistoryElement = document.getElementById('match-history');
             console.log("matchHistoryElement:", matchHistoryElement);
             games.sort(sortDates);
-            // games.forEach(async game => {
             for (const game of games) {
                 const winner = await getUser(game.winner);
                 const loser = await getUser(game.loser);
@@ -23,13 +22,11 @@ async function load() {
                     <p>Date: ${new Date(game.date).toLocaleString()}</p>
                 </div>`;
             }
-            // });
         }
     });
 }
 
 function sortDates(a, b) {
-    console.log("a.date:", a.date, "new Date(a.date):", new Date(a.date));
     return new Date(a.date) - new Date(b.date);
 }
 

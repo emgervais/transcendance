@@ -1,16 +1,9 @@
+match-history:
+    on scroll bottom: receive new matches
+    triggers, onwheel
+
 tournament:
-    .2e next_round: envoyer le résultat
     .si quelqu'un quitte, on annule tout
-    .Pourquoi ça bloque en rouge ? (le loser?)
-
-
-        old tournament:
-        .4 players click play tournament.
-        .2 games
-        .end 1st game: notification "waiting for opponent" / start next game
-            (show opponent's name)
-        .end 2nd game: display rankings
-        .if anyone quits: pong.stop()
 
 
 
