@@ -118,8 +118,20 @@ var wintext = {
 				this._ubodata[4 + i] = data[i];
 		},
 		setwinnder: function(winner) {
-			let w = 1 + 5 * (winner - 1);
-			this._ubodata[4] = 0 | w << 8 | 2 << 16 | 3 << 24;
+			if(winner == 1)
+			{
+				this.setdata([
+					8 << 0 | 6 << 8 | 0 << 16 | 1 << 24, 
+					2 << 0 | 3 << 8 | 4 << 16 | 5 << 24
+				]);
+			}
+			else
+			{
+				this.setdata([
+					0 << 0 | 1 << 8 | 2 << 16 | 3 << 24,
+					4 << 0 | 5 << 8 | 6 << 16 | 7 << 24
+				]);
+			}
 		}
 	}
 }
@@ -287,13 +299,13 @@ function setup()
 	digitstexuniform = gl.getUniformLocation(textprogram, 'tex');
 	gl.uniform1i(digitstexuniform, 2);
 
-	wintext.ubo.setpos(pongrenderwidth / 2 - 21, pongrenderheight / 2 - 10);
-	wintext.ubo.setstrlen(6);
-	wintext.ubo.settexlen(7);
-	wintext.ubo.setdata([
-		0 | 1 << 8 | 2 << 16 | 3 << 24,
-		4 | 5 << 8
-	]);
+	wintext.ubo.setpos(pongrenderwidth / 2 - 28, pongrenderheight / 2 - 10);
+	wintext.ubo.setstrlen(8);
+	wintext.ubo.settexlen(9);
+	// wintext.ubo.setdata([
+	// 	0 | 1 << 8 | 2 << 16 | 3 << 24,
+	// 	4 | 5 << 8
+	// ]);
 
 	fb.bindTexture();
 
@@ -608,6 +620,7 @@ function connect(id)
 					inGame = true;
 					util.displayState();
 					state = dv.getUint8(offset + 1) + 1;
+					wintext.ubo.setwinnder(state - 1);
 					console.log("Game ended, Winner: P" + (state - 1));
 					offset += 1;
 					ball.setx(pongrenderwidth/2.0 - ball.width/2.0);
@@ -818,7 +831,6 @@ function draw()
 		}
 		if((state == 2 || state == 3) && lastTime % 1000 < 800)
 		{
-			wintext.ubo.setwinnder(state - 1);
 			textUBO.update(wintext.ubo._ubodata);
 			gl.uniform1i(digitstexuniform, 3);
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
