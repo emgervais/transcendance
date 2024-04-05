@@ -13,6 +13,9 @@ class GameManager(models.Manager):
     def get_losses(self, user):
         return self.filter(loser=user)
     
+    def get_last_game(self, user_id):
+        return self.filter(models.Q(winner=user_id) | models.Q(loser=user_id)).latest('date')
+
     def get_stats(self, user):
         games = self.filter(models.Q(winner=user) | models.Q(loser=user))
         opponents = {}

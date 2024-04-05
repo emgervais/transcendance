@@ -138,7 +138,7 @@ function start(data) {
     chat.start(`pong_${data.room}`);
     chatDisplay.openChatBox();
     chatDisplay.activateMatchTab();
-    pong.connect(data.room);
+    pong.connect(data.room, data.tournamentId);
     displayOpponentName(data.room);
 }
 

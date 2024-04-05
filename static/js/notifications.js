@@ -107,4 +107,15 @@ function matchMaking(roomId, cancel=false) {
 	}));
 }
 
-export { start, stop, matchMaking };
+async function nextGame(tournamentId) {
+	if (!tournamentId || !ws || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED)  {
+		return;
+	}
+	console.log("tournamentId:", tournamentId);
+	ws.send(JSON.stringify({
+		type: "nextGame",
+		tournamentId: tournamentId,
+	}));	
+}
+
+export { start, stop, matchMaking, nextGame };

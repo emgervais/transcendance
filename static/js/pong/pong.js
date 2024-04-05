@@ -8,6 +8,7 @@ import { cancelSearchingMatch } from "/js/pong/match.js";
 import * as chatMessages from "/js/chat/messages.js";
 import * as chat from "/js/chat/chat.js";
 import * as util from "/js/util.js";
+import * as notifications from "/js/notifications.js";
 
 var ws = null;
 var canvas;
@@ -614,6 +615,7 @@ function connect(id)
 					ball.sety(pongrenderheight/2.0 - ball.height/2.0);
 					ball.xspeed = 0;
 					ball.yspeed = 0;
+					notifications.nextGame(tournamentId);
 				}
 				else if(dv.getUint8(offset) == 5)
 				{
