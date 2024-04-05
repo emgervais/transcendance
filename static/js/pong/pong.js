@@ -16,7 +16,7 @@ var canvas;
 
 var soundspeed = 1.0;
 
-var inGame = true;
+var notInGame = true;
 
 var pongUBO;
 var textUBO;
@@ -432,7 +432,7 @@ function setup()
 			if(state != 4)
 			{
 				// game select state
-				inGame = false;
+				notInGame = false;
 				match.clearPongText();
 				util.displayState();
 				state = 4;
@@ -449,7 +449,7 @@ function setup()
 			else
 			{
 				soundspeed = 1.0;
-				inGame = true;
+				notInGame = true;
 				util.displayState();
 				state = 0;
 				camera.targetfov = Math.PI / 2;
@@ -505,7 +505,7 @@ function setup()
 
 function connect(id, tournamentId)
 {
-	inGame = false;
+	notInGame = false;
 	util.displayState();
 	if(ws)
 		ws.close();
@@ -608,7 +608,7 @@ function connect(id, tournamentId)
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
-					inGame = true;
+					notInGame = true;
 					util.displayState();
 					state = dv.getUint8(offset + 1) + 1;
 					console.log("Game ended, Winner: P" + (state - 1));
@@ -993,8 +993,9 @@ function stop()
 	if (ws && (ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
 		ws.close();
 	}
-	inGame = true;
+	notInGame = true;
 	util.displayState();
+	match.clearPongText();
 	stopgame = 1;
 	state = 0;
 }
@@ -1009,8 +1010,8 @@ function disconnect()
 	state = 0;
 	playerid = 0;
 	player = 0;
-	inGame = true;
+	notInGame = true;
 	util.displayState();
 }
 
-export {start, stop, stopgame, connect, disconnect, inGame};
+export {start, stop, stopgame, connect, disconnect, notInGame};
