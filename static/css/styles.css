@@ -755,6 +755,6 @@ font-style: italic;
   background-color: blue;
 }
 
-#opponent-username {
+.pong-text {
   color: white;
 }

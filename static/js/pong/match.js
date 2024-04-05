@@ -1,3 +1,4 @@
+import * as api from "/js/api.js";
 import * as chat from "/js/chat/chat.js";
 import * as chatDisplay from "/js/chat/display.js";
 import * as chatMessages from "/js/chat/messages.js";
@@ -145,8 +146,7 @@ function start(data) {
 async function displayOpponentName(room) {
     const element = document.getElementById("opponent-username");
     const oppenentName = await getOpponentName(room);
-        console.log("oppenentName:", oppenentName);
-        element.innerHTML = oppenentName ? `Opponent: ${oppenentName}` : "";
+    element.innerHTML = oppenentName ? `Opponent: ${oppenentName}` : "";
 }
 
 async function getOpponentName(room) {
@@ -154,13 +154,28 @@ async function getOpponentName(room) {
     let ids = room.split('_');
     for (let i = 0; i < ids.length; i++) {
         let id = ids[i];
-        console.log("id:", id);
         if (id != getCurrUser().id) {
             return (await user.getUser(id)).username;
         }
     }    
 }
 
+async function tournamentSummary(data) {
+    const element = document.getElementById("tournament-summary");
+    element.innerHTML = "TOURNAMENT SUMMARY:<br>";
+    for (var key in data) {
+        element.innerHTML += `${key}: ${data[key]}<br>`;
+    }    
+    console.log("tournamentSummary:", data);
+}
+
+function clearPongText() {
+    const elements = document.querySelectorAll(".pong-text");
+    for (const element of elements) {
+        element.innerHTML = "";
+    }
+}
+
 export { invite, receiveInvite, displayInvite, respondInvite, invites, clearInvites };
 export { searchingMatch, setSearchingMatch, cancelSearchingMatch };
-export { start };
+export { start, tournamentSummary, clearPongText };
