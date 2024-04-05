@@ -138,6 +138,10 @@ input {
 }
 /* account page-------------- */
 
+#account-dynamic-section {
+  overflow-y: auto;
+  height: 100%;
+}
 .square-img-container {
     display: flex;
     justify-content: center;
@@ -182,7 +186,7 @@ input {
 
 .stats-grid{
   display:grid;
-  width: 60%;
+  width: 80%;
   grid-gap: 10px;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
@@ -200,7 +204,52 @@ input {
   justify-content: space-between;
   flex-direction: column;
   text-align: center;
-  min-height: 300px;
+  min-height: 250px;
+}
+
+.tooltiptextt {
+  visibility: hidden;
+  width: 320px;
+  font-size: large;
+  background-color: #0000007f;
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px;
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltipp:hover .tooltiptextt {
+  visibility: visible;
+  opacity: 1;
+}
+
+#match-history {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.match-history-game {
+  padding:25px;
+  display: grid;
+  max-width: 50%;
+  min-width: 500px;
+  margin: 10px;
+  border-radius: 10px;
+  border:black 3px solid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.match-history-game h5 {
+
+}
+
+.match-history-game img {
+  width: 40px;
+  border-radius: 50%;
 }
 /*-----------------------chat-------------------*/
 
@@ -706,6 +755,6 @@ font-style: italic;
   background-color: blue;
 }
 
-#opponent-username {
+.pong-text {
   color: white;
 }

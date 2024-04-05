@@ -14,6 +14,15 @@ class StatsView(APIView):
             return JsonResponse(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+class GameView(APIView):
+    def get(self, request: HttpRequest, pk: int) -> JsonResponse:
+        try:
+            game = Game.objects.get(pk=pk)
+            serializer = DetailedGameSerializer(game)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        except Game.DoesNotExist:
+            return JsonResponse({'error': 'Game not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class MatchHistoryView(APIView):
     def get(self, request: HttpRequest, pk: int) -> JsonResponse:

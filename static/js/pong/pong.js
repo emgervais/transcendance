@@ -8,6 +8,8 @@ import { cancelSearchingMatch } from "/js/pong/match.js";
 import * as chatMessages from "/js/chat/messages.js";
 import * as chat from "/js/chat/chat.js";
 import * as util from "/js/util.js";
+import * as match from "/js/pong/match.js";
+import * as notifications from "/js/notifications.js";
 
 var ws = null;
 var canvas;
@@ -443,6 +445,7 @@ function setup()
 			{
 				// game select state
 				inGame = false;
+				match.clearPongText();
 				util.displayState();
 				state = 4;
 				if(ws)
@@ -512,13 +515,13 @@ function setup()
 	return true;
 }
 
-function connect(id)
+function connect(id, tournamentId)
 {
 	inGame = false;
 	util.displayState();
 	if(ws)
 		ws.close();
-	console.log("Connecting to websocket ID " + id);
+	// console.log("Connecting to websocket ID " + id);
 	ws = new WebSocket("wss://" + window.location.host + "/ws/pong/" + id + "/");
 	if(!ws)
 	{
@@ -532,7 +535,7 @@ function connect(id)
 	ws.onmessage = function (event) {
 		let dv = new DataView(event.data);
 		let offset = 0;
-		console.log("Received data: " + dv.getUint8(0));
+		// console.log("Received data: " + dv.getUint8(0));
 		while(offset < dv.byteLength) {
 			let type = dv.getUint8(offset);
 			offset += 1;
@@ -594,7 +597,7 @@ function connect(id)
 				if(dv.getUint8(offset) == 1) {
 					playerid = 1;
 					player = player1;
-					console.log("You are player 1.");
+					// console.log("You are player 1.");
 					wsmovementdv.setUint32(1, player.gety(), true);
 					if(ws.readyState == ws.OPEN)
 						ws.send(wsmovementbuffer);
@@ -602,7 +605,7 @@ function connect(id)
 				else if(dv.getUint8(offset) == 2){
 					playerid = 2;
 					player = player2;
-					console.log("You are player 2.");
+					// console.log("You are player 2.");
 					wsmovementdv.setUint32(1, player.gety(), true);
 					if(ws.readyState == ws.OPEN)
 						ws.send(wsmovementbuffer);
@@ -610,7 +613,7 @@ function connect(id)
 				else if(dv.getUint8(offset) == 3) {
 					state = 5; // start countdown
 					countdown = 3;
-					console.log("Game started.");
+					// console.log("Game started.");
 					wsmovementdv.setUint32(1, player.gety(), true);
 					if(ws.readyState == ws.OPEN)
 						ws.send(wsmovementbuffer);
@@ -627,14 +630,16 @@ function connect(id)
 					ball.sety(pongrenderheight/2.0 - ball.height/2.0);
 					ball.xspeed = 0;
 					ball.yspeed = 0;
+					if (tournamentId && (state - 1) == playerid)
+						notifications.nextGame(tournamentId);
 				}
 				else if(dv.getUint8(offset) == 5)
 				{
-					console.log("state " + state);
+					// console.log("state " + state);
 					countdown = dv.getUint8(offset + 1);
 					offset += 1;
 					countdowntext.setdata([countdown]);
-					console.log("Countdown:" + countdown);
+					// console.log("Countdown:" + countdown);
 					if(countdown == 0)
 						state = 1;
 				}

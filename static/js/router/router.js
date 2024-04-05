@@ -50,6 +50,10 @@ const routes = upgradeParamRoutes({
         template: "/templates/account.html",
         onLoad: account.displayStatsPage,
     },
+    "/account/match-history/": {
+        template: "/templates/account.html",
+        onLoad: account.displayMatchHistoryPage,
+    },
 });
 
 const routeQuitFunctions = [

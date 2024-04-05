@@ -1,6 +1,7 @@
 import * as util from "/js/util.js";
 import * as friends from "/js/account/friends.js";
 import * as stats from "/js/account/stats.js";
+import * as matchHistory from "/js/account/matchHistory.js";
 import { getCurrUser } from "/js/user/currUser.js";
 
 // -- display ----
@@ -39,10 +40,22 @@ function hideStatsPage() {
     util.display(statsPage, false);
 }
 
+function displayMatchHistoryPage() {
+    matchHistory.load();
+    const matchHistoryPage = document.getElementById("match-history-page");
+    util.display(matchHistoryPage);    
+}
+
+function hideMatchHistoryPage() {
+    const matchHistoryPage = document.getElementById("match-history-page");
+    util.display(matchHistoryPage, false);    
+}
+
 function hideAll() {
     hideFriendsPage();
     hideInfoPage();
     hideStatsPage();
+    hideMatchHistoryPage();
 }
 
-export { displayFriendsPage, displayInfoPage, displayStatsPage, hideAll };
+export { displayFriendsPage, displayInfoPage, displayStatsPage, displayMatchHistoryPage, hideAll };

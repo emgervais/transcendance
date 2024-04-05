@@ -81,6 +81,10 @@ function pongNotifications(data) {
 			match.setSearchingMatch({searching: false});
 			match.start(data);
 			break;
+		case "tournamentSummary":
+			console.log("data.positions:", data.positions);
+			match.tournamentSummary(data.positions);
+			break;
 		default:
 			console.log("Unknown notification:", data);
 			break;			
@@ -107,4 +111,15 @@ function matchMaking(roomId, cancel=false) {
 	}));
 }
 
-export { start, stop, matchMaking };
+async function nextGame(tournamentId) {
+	if (!tournamentId || !ws || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED)  {
+		return;
+	}
+	await util.sleep(2000);
+	ws.send(JSON.stringify({
+		type: "nextGame",
+		tournamentId: tournamentId,
+	}));	
+}
+
+export { start, stop, matchMaking, nextGame };

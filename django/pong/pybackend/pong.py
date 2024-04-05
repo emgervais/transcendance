@@ -6,7 +6,7 @@ from pong.models import Game
 SCREEN_LENGTH = 13.65
 ENDIENESS = 'little'
 BALL_PRECISION = 1000.0
-POINTS_TO_WIN = 1
+POINTS_TO_WIN = 2
 
 # P1Y = 1, P2Y = 2, P1Score = 4, P2Score = 8, Ball = 16, PWin = 32, Count = 64
 # 00000001, 00000010, 00000100, 00001000, 00010000, 00100000, 01000000
@@ -48,7 +48,6 @@ class Player:
 class Pong:
 	def __init__(self):
 		self.starttime = 0
-		self.duration = 0
 		self.countdown = 0
 		self.filter: bytes = FILT_CLEAR
 		self.pbplayers = []
@@ -90,18 +89,15 @@ class Pong:
 
 	@database_sync_to_async
 	def save_game(self):
-		print('save game')
-		self.duration = time.time() - self.starttime
 		game = Game()
 		game.winner = self.player1.userid if self.player1.score > self.player2.score else self.player2.userid
 		game.loser = self.player1.userid if self.player1.score < self.player2.score else self.player2.userid
 		game.score = [self.player1.score, self.player2.score] if self.player1.score > self.player2.score else [self.player2.score, self.player1.score]
-		game.duration = self.duration
+		game.duration = time.time() - self.starttime
 		game.longest_exchange = self.longest_exchange
 		game.total_exchanges = self.player1.score + self.player2.score
 		game.total_distance = self.total_distance
 		game.total_hits = self.player1.ball_hit_count + self.player2.ball_hit_count
-		print('game:', game)
 		game.save()
 
 	def calculate_distance(self):
@@ -183,6 +179,12 @@ class Pong:
 			bytestr += b'\x08\x04' + (self.player1.pongid if self.player1.score >= POINTS_TO_WIN else self.player2.pongid).to_bytes(1, ENDIENESS)
 		self.filter &= Filths.PWin
 		return bytestr
+
+	def reset_position(self):
+		self.ball.x = 39
+		self.ball.y = 26.5
+		self.ball.vx = -0.03
+		self.ball.vy = 0
 
 	def end_game(self):
 		self.ball.x = 0
