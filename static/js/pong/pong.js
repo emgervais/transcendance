@@ -545,7 +545,7 @@ function connect(id, tournamentId)
 	}
 	notInGame = (tournamentId == null);
 	tourney = tournamentId != null;
-	if(tournamentId.split('_').length == 5)
+	if(tournamentId != null && tournamentId.split('_').length == 5)
 		tourney = 0;
 	util.displayState();
 	if(ws)

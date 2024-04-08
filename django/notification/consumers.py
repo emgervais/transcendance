@@ -166,8 +166,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await self.handle_matchmaking(data)
         elif type == 'nextGame':
             tournament_id = data.get('tournamentId')
-            print('tournament_id:', tournament_id)
-            
             if tournament_id:
                 await self.next_game(tournament_id)
         

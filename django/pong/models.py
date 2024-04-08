@@ -4,8 +4,8 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import ArrayField
 
 class GameManager(models.Manager):
-    def get_games(self, user, from_game_id=None, size=10):
-        if from_game_id:
+    def get_games(self, user, from_game_id=0, size=10):
+        if from_game_id > 0:
             return self.filter(models.Q(winner=user) | models.Q(loser=user), id__lt=from_game_id).order_by('-date')[:size]
         return self.filter(models.Q(winner=user) | models.Q(loser=user)).order_by('-date')[:size]
 
