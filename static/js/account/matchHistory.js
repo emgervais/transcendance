@@ -1,6 +1,7 @@
 import * as api from "/js/api.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js";
+import { getCurrentLocation } from "/js/router/router.js";
 
 let lastLoadedGameId = 0;
 
@@ -31,7 +32,7 @@ async function renderGames(games) {
     for (const game of games) {
         const winner = await getUser(game.winner);
         const loser = await getUser(game.loser);
-        
+
         matchHistoryElement.innerHTML += `<div class="match-history-game">
             <h5>Winner: <img src=${winner.image}></img> ${winner.username}</h5>
             <h5>Loser: <img src=${loser.image}></img> ${loser.username}</h5>
@@ -58,7 +59,7 @@ async function loadMoreGames() {
 
 // Event listener for scroll event
 window.addEventListener("scroll", async () => {
-    if (atBottom()) {
+    if (getCurrentLocation().endsWith("match-history/") && atBottom()) {
         await loadMoreGames();
     }
 });

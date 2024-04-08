@@ -97,3 +97,9 @@ def send_to_websocket(channel_layer, channel_name, event):
             async_to_sync(channel_layer.send)(channel_name, event)
     else:
         print('Channel name not found')
+        
+async def async_send_to_websocket(channel_layer, channel_name, event):
+    if channel_name:
+        await channel_layer.send(channel_name, event)
+    else:
+        print('Channel name not found')
