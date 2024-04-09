@@ -4,6 +4,7 @@ import * as chatMessages from "/js/chat/messages.js";
 import * as friends from "/js/account/friends.js";
 import * as match from "/js/pong/match.js";
 import * as nav from "/js/nav.js";
+import * as pong from "/js/pong/pong.js";
 import * as util from "/js/util.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { setUserStatus, getUser } from "/js/user/user.js";
@@ -54,12 +55,11 @@ function start() {
     }
 
 	ws.onclose = (_) => {
-		console.log("Notifications socket closed.");
+		// console.log("Notifications socket closed.");
 	};
 }
 
 function pongNotifications(data) {
-	console.log("pong notifications:", data);
 	switch (data.description) {
 		case "searchingMatch":
 			match.setSearchingMatch({roomId: data.room});
@@ -84,6 +84,18 @@ function pongNotifications(data) {
 		case "tournamentSummary":
 			console.log("data.positions:", data.positions);
 			match.tournamentSummary(data.positions);
+			break;
+		case "gameStopped":
+			util.showAlert({ text: "Game stopped.", timeout: null, closeButton: true });
+			if (pong.notInGame)
+				break;
+			pong.disconnect();
+			break;
+		case "tournamentStopped":
+			util.showAlert({ text: "Tournament stopped.", timeout: null, closeButton: true });
+			if (pong.notInGame)
+				break;
+			pong.disconnect();
 			break;
 		default:
 			console.log("Unknown notification:", data);

@@ -2,6 +2,24 @@
 from .pybackend import pong
 from notification.utils_db import change_status
 import asyncio
+from notification.utils import async_send_to_websocket
+from notification.utils_db import get_main_channel
+from channels.layers import get_channel_layer
+from pong.matchmaking import matchmaking_redis
+
+async def game_stopped_notification(user_ids, description):
+	channel_layer = get_channel_layer()
+	tournament_id = '_'.join(user_ids) + '_1'
+	if matchmaking_redis.exists(tournament_id):
+		matchmaking_redis.delete(tournament_id)
+	for user_id in user_ids:
+		try:
+			channel_name = await get_main_channel(user_id, id=True)
+			await async_send_to_websocket(channel_layer, channel_name, {
+				'type': 'send.notification', 'notification': 'pong', 'description': description
+			})
+		except Exception as e:
+			print({'error': str(e)})
 
 class PongInstance:
 	games = {}
@@ -50,6 +68,15 @@ class PongInstance:
 			})
 
 	async def disconnect(self):
+		print("_______disconnect")
+		if not self.game.ended and not self.game.notification_sent:
+			self.game.notification_sent = True
+			user_ids = self.id.split('_')
+			description = 'gameStopped'
+			if self.game.tournament_user_ids:
+				user_ids = self.game.tournament_user_ids
+				description = 'tournamentStopped'
+			await game_stopped_notification(user_ids, description)
 		try:
 			if(self.player):
 				self.player.disconnected = True
@@ -93,7 +120,6 @@ class PongInstance:
 			for ws in self.game.websockets:
 				await ws(message)
 			await asyncio.sleep(0.01)
-
 
 async def wsapp(scope, receive, send):
 	user = scope['user']

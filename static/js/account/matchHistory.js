@@ -2,21 +2,19 @@ import * as api from "/js/api.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { getUser } from "/js/user/user.js";
 import { getCurrentLocation } from "/js/router/router.js";
+import { getParams } from "/js/router/params.js";
 import { sleep } from "/js/util.js";
 
 let lastLoadedGameId = 0;
 let stopLoading = false;
 
 function atBottom() {
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 1)
-        return true;
-    return false;
+    return (window.scrollY + window.innerHeight >= document.body.scrollHeight - 1);
 }
 
 async function fetchMatchHistory(fromGameId, size) {
-    const userId = getCurrUser().id;
+    const userId = getParams().userId || getCurrUser().id
     const route = `/api/match-history/${userId}/?from-game-id=${fromGameId}&size=${size}`;
-    
     let games = [];
     await api.fetchRoute({
         route: route,
@@ -37,10 +35,10 @@ async function renderGames(games) {
     for (const game of games) {
         const winner = await getUser(game.winner);
         const loser = await getUser(game.loser);
-
-        matchHistoryElement.innerHTML += `<div class="match-history-game">
-            <h5>Winner: <img src=${winner.image}></img> ${winner.username}</h5>
-            <h5>Loser: <img src=${loser.image}></img> ${loser.username}</h5>
+        const cssClass = game.winner === getCurrUser().id ? "win" : "loss";
+        matchHistoryElement.innerHTML += `<div class="match-history-game ${cssClass}">
+            <h5>Winner: <img src=${winner.image} onerror="this.src='/media/default/default.webp';"></img> ${winner.username}</h5>
+            <h5>Loser: <img src=${loser.image} onerror="this.src='/media/default/default.webp';"></img> ${loser.username}</h5>
             <p>Score: ${game.score[0]} - ${game.score[1]}</p>
             <p>Date: ${new Date(game.date).toLocaleString()}</p>
             <p>Duration: ${game.duration} seconds</p>
@@ -61,23 +59,24 @@ async function loadMoreGames() {
     }
 }
 
-// Event listener for scroll event
-window.addEventListener("scroll", async () => {
-    if (getCurrentLocation().endsWith("match-history/") && atBottom() && !stopLoading) {
-        await loadMoreGames();
-        await sleep(500);
-    }
+// // Event listener for resize and scroll
+["resize", "scroll"].forEach(event => {
+    window.addEventListener(event, async () => {
+        if (getCurrentLocation().endsWith("match-history/") && atBottom() && !stopLoading) {
+            await loadMoreGames();
+            await sleep(500);
+        }
+    });
 });
 
 // Initial load of match history
 async function load() {
     lastLoadedGameId = 0;
-    let count = 0;
+    let maxPreload = 5;
+    stopLoading = false;
     do {
         await loadMoreGames();
-        await sleep(500);
-        count++;
-    } while (atBottom() && !stopLoading && count < 10);
+    } while (atBottom() && !stopLoading && maxPreload-- > 0);
 }
 
 export { load };

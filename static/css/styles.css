@@ -223,9 +223,9 @@ input {
 
 #match-history {
   display: flex;
+  flex-direction: column;
   width: 100%;
-  flex-wrap: wrap;
-  justify-content: center;
+  align-items: center;
 }
 
 .match-history-game {
@@ -237,6 +237,19 @@ input {
   border-radius: 10px;
   border:black 3px solid;
   grid-template-columns: repeat(2, 1fr);
+  grid-gap: 10px;
+}
+
+.match-history-game.win {
+  border:darkblue 3px solid;
+}
+
+.match-history-game.loss {
+  border:darkred 3px solid;
+}
+
+.match-history-game.none {
+  border:black 3px solid;
 }
 
 .match-history-game h5 {

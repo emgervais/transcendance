@@ -53,7 +53,7 @@ class ChangeInfoView(APIView):
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
+        
 class ObtainInfoView(APIView):
     serializer_class = UserSerializer
     

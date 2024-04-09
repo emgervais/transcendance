@@ -22,7 +22,7 @@ async function generateMessage(msg, isCurrUser, img, userId) {
 	var str = "";
 	str += `<div class="chat-msg ${isCurrUser ? "self" : "other"}">`;
 	str += `          <span class="msg-avatar">`;
-	str += `            <img src="${img}" class="profile-picture-chat" data-id="${userId}">`;
+	str += `            <img src="${img}" class="profile-picture-chat" data-id="${userId}" onerror="this.src='/media/default/default.webp';">`;
 	str += `          </span>`;
 	str += `          <div class="cm-msg-text">`;
 	str += msg;
@@ -36,7 +36,6 @@ async function generateMessage(msg, isCurrUser, img, userId) {
 }
 
 async function saveMessage(roomId, msg, isCurrUser, img, userId) {
-	console.log("saveMessage:", roomId, msg);
 	let messages = JSON.parse(sessionStorage.getItem("messages")) || [];
 	const newMessage = {
 		roomId: roomId,
@@ -62,10 +61,16 @@ async function deleteMessages(roomId) {
 	}
 }
 
+function deleteAllMessages() {
+	sessionStorage.removeItem('messages');
+	const chatLogs = document.querySelector('.chat-logs');
+	chatLogs.innerHTML = "";
+}
+
 function clearLogs() {
 	document.querySelector('.chat-logs').innerHTML = '';
 }
 
 export { SELF, OTHER };
-export { loadMessages, generateMessage, saveMessage, deleteMessages };
+export { loadMessages, generateMessage, saveMessage, deleteMessages, deleteAllMessages };
 export { clearLogs };

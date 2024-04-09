@@ -150,7 +150,6 @@ async function displayOpponentName(room) {
 }
 
 async function getOpponentName(room) {
-    console.log("room:", room);
     let ids = room.split('_');
     for (let i = 0; i < ids.length; i++) {
         let id = ids[i];

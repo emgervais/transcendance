@@ -188,7 +188,6 @@ async function receiveFriendRequest(data) {
     nav.incrFriendRequestCount();
     if (router.getCurrentRoute().name == "friends") {
         const container = document.getElementById("friends-requests-container");
-        console.log("data:", data);
         displayFriendRequest(container, {
             from_user: data.userId,
             id: data.id

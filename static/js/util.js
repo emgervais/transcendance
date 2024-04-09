@@ -3,6 +3,8 @@ import * as match from "/js/pong/match.js";
 import * as pong from "/js/pong/pong.js";
 import * as util from "/js/util.js";
 
+const defaultImage = '/media/default/default.webp';
+
 // -- display ----
 function display(element, display=true) {
     if (display)
@@ -122,6 +124,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export { defaultImage };
 export { isDisplayed, display, toggleDisplay, toggleClass, setClass };
 export { clearFloatingBoxes, displayState };
 export { showAlert, hideAlert };

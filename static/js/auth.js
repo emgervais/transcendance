@@ -1,5 +1,6 @@
 import * as api from "/js/api.js";
 import * as match from "/js/pong/match.js";
+import * as messages from "/js/chat/messages.js";
 import * as notifications from "/js/notifications.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
@@ -59,6 +60,7 @@ function reConnect() {
     if (reconnecting) {
         return;
     }
+    messages.deleteAllMessages();
     reconnecting = true;
     setConnected(false);
     displayCurrUser();
@@ -68,7 +70,6 @@ function reConnect() {
 }
 
 function confirmLogin() {
-    console.log("isConnected():", isConnected());
     if (!isConnected()) {
         if (!router.getCurrentRoute().unprotected) {
             reConnect();
@@ -97,6 +98,7 @@ function logout() {
             await router.route("/");
         }
     });
+    messages.deleteAllMessages();
 }
 
 function oauthRedirected() {

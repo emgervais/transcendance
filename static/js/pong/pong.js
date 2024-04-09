@@ -51,6 +51,10 @@ const wsballbuffer = new ArrayBuffer(17);
 const wsballdv = new DataView(wsballbuffer);
 wsballdv.setUint8(0, 3);
 
+const wstournementbuffer = new ArrayBuffer(17);
+const wstournementdv = new DataView(wstournementbuffer);
+wstournementdv.setUint8(0, 4);
+
 const ballprecision = 1000.0;
 
 const paddle = {
@@ -550,7 +554,6 @@ function connect(id, tournamentId)
 	util.displayState();
 	if(ws)
 		ws.close();
-	// console.log("Connecting to websocket ID " + id);
 	ws = new WebSocket("wss://" + window.location.host + "/ws/pong/" + id + "/");
 	if(!ws)
 	{
@@ -559,12 +562,17 @@ function connect(id, tournamentId)
 	}
 	ws.binaryType = "arraybuffer";
 	ws.onopen = function (event) {
-		console.log("Websocket connection opened.");
+		if(tournamentId)
+		{
+			var userIds = tournamentId.split('_');
+			for (let i = 0; i < 4; i++)
+				wstournementdv.setUint32(i * 4 + 1, parseInt(userIds[i]), true);
+			ws.send(wstournementbuffer);
+		}
 	}
 	ws.onmessage = function (event) {
 		let dv = new DataView(event.data);
 		let offset = 0;
-		// console.log("Received data: " + dv.getUint8(0));
 		while(offset < dv.byteLength) {
 			let type = dv.getUint8(offset);
 			offset += 1;
@@ -649,11 +657,10 @@ function connect(id, tournamentId)
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
-					notInGame = true && !tourney;
+					notInGame = true && !tourney; //// really?
 					util.displayState();
 					state = dv.getUint8(offset + 1) + 1;
 					wintext.ubo.setwinnder(state - 1);
-					console.log("Game ended, Winner: P" + (state - 1));
 					offset += 1;
 					ball.setx(pongrenderwidth/2.0 - ball.width/2.0);
 					ball.sety(pongrenderheight/2.0 - ball.height/2.0);
@@ -1022,7 +1029,6 @@ function miss() {
 
 function start()
 {
-	console.log('Starting pong');
 	stopgame = 0;
 	countdown = 0;
 	playerid = 0;
