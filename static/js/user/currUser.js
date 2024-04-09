@@ -79,6 +79,7 @@ function updateConfirmation(data) {
                 break;
         }
     }
+    util.showAlert({ text: msg, timeout: 5});
 }
 
 export { getCurrUser, setCurrUser, updateCurrUser, removeCurrUser };
