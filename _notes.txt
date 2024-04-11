@@ -1,10 +1,13 @@
-.boutons pendant play with anyone
+.X boutons pendant play with anyone
 .plus d'une alert à la fois (error)
 
-.Demande d'ami acceptée: liste d'amis pas mise à jour
+.X Demande d'ami acceptée: liste d'amis pas mise à jour
+.X Liste amis: enlever play si "in-game"
 
 .from user search, block: UserChannelGroup matching query does not exist
 .friend request counter: make a button
+    : remove when answered friend request
+.unfriended: friend stays in friend list
 
 
 .mode release
@@ -18,14 +21,14 @@
 
 .tester input fields            ele / emi
 .token date d'expiration
-.utilisateur "en partie"
+.X utilisateur "en partie"
 
 
 .X historique d'un autre joueur   franco
 
 
 .oauth redirection avec token   marc-andré
-.chat empecher nouveaux messages d'utilisateur bloqué
+.X chat empecher nouveaux messages d'utilisateur bloqué
 
 
 

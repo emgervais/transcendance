@@ -73,7 +73,7 @@ function displayState(cherryPick=undefined) {
 
 // -- alert ----
 const alertContainer = document.getElementById("alert-container");
-let bsAlert;
+let bsAlerts = [];
 
 async function showAlert({
   text,
@@ -106,15 +106,18 @@ async function showAlert({
   alertContainer.innerHTML = "";
   alertContainer.appendChild(alert);
   if (timeout) {
-    bsAlert = new bootstrap.Alert(alert)
+    bsAlerts.push(new bootstrap.Alert(alert));
     await sleep(timeout * 1000);
     hideAlert();
   }
 }
 
 function hideAlert() {
-  if (bsAlert) {
-    bsAlert.close();
+  try {
+    bsAlerts.forEach(bsAlert => bsAlert.close());
+
+  } catch(e) {
+    console.log("error:", e);
   }
   alertContainer.innerHTML = "";
 }

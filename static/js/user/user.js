@@ -1,5 +1,6 @@
 import * as api from "/js/api.js";
 import * as friends from "/js/account/friends.js";
+import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
 
 var users = {};
@@ -32,6 +33,8 @@ function setUserStatus(id, status) {
         updateStatusElements(id, status);
         const friendsContainer = document.getElementById("friends-container");
         sortUsers(friendsContainer);
+        if (router.getCurrentLocation() == "/account/friends/")
+            friends.refresh();
     }
 }
 
@@ -51,7 +54,7 @@ function updateStatusElements(id, status) {
             userContainer.setAttribute("data-status", status);
             const gameButton = userContainer.querySelector(".start-match");
             if (gameButton) {
-                util.display(gameButton, status);
+                util.display(gameButton, status == "online");
             }
         }
     }
@@ -67,10 +70,9 @@ async function alertStatus(id, prevStatus, status) {
         text += "just disconnected.";
     else
         text += "just connected.";
-    console.log("prevStatus:", prevStatus, "status:", status);
     util.showAlert({
         text: text,
-        timeout: 2,
+        // timeout: 2,
     });
 }
 
@@ -127,7 +129,7 @@ async function displayUser({
         }
         if (includeGameButton) {
             const gameButton = makeGameButton(userId);
-            if (!user.status) {
+            if (user.status != "online") {
                 util.display(gameButton, false);
             }
             div2.append(gameButton);
