@@ -27,8 +27,10 @@ class GameView(APIView):
 class MatchHistoryView(APIView):
     def get(self, request: HttpRequest, pk: int) -> JsonResponse:
         try:
+            from_game_id = int(request.GET.get('from-game-id', 0))
+            size = int(request.GET.get('size', 10))
             user = User.objects.get(pk=pk)
-            games = Game.objects.get_games(user)
+            games = Game.objects.get_games(user, from_game_id, size)
             serializer = DetailedGameSerializer(games, many=True)
             return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
         except User.DoesNotExist:

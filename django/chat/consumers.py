@@ -25,7 +25,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await add_channel_group(self.user, self.channel_name, self.group_name)
             if self.group_name != 'global' and not self.group_name.startswith('pong_'):
                 await self.private_room(self.user)
-            self.blocked_ids = await get_all_blocked_user_ids(self.user)
             await self.accept()
             
     
@@ -53,6 +52,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'closing': closing
             }
         )
+
     # <img src="invalid" onerror="alert('XSS Attack!')">
     async def update_blocked_ids(self, event):
         self.blocked_ids = await get_all_blocked_user_ids(self.user)
@@ -65,8 +65,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if sender == self.user:
             await update_swear_count(sender, swear_count)
         closing = event.get('closing', False)
-        print(type(sender_id), type(self.blocked_ids))
-        if sender_id not in self.blocked_ids:
+
+        if not await is_blocked(self.user, sender):
             await self.send(text_data=json.dumps({
                 'message': message,
                 'senderId': sender_id
@@ -100,7 +100,6 @@ def close_blocked_user_chat(user, recipient):
     channel_layer = get_channel_layer()
     close_chat(user, recipient, group_name, channel_layer)
     close_chat(recipient, user, group_name, channel_layer)
-    async_to_sync(channel_layer.send)(UserChannelGroup.objects.get(user=user).main, {'type': 'update.blocked.ids'})
         
 def close_chat(user, recipient, room, channel_layer):
     notify_online(user, recipient, False, channel_layer)

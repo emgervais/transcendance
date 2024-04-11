@@ -26,11 +26,6 @@ function startEventListeners() {
         if (route.onQuit)
             route.onQuit();
     });
-    onwheel = () => {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-            console.log("scroll");
-        }
-    };
 }
 
 export { startEventListeners };

@@ -40,7 +40,7 @@ function start(roomId=GLOBAL_ROOM_ID) {
 	chatSockets[roomId] = ws;
 
 	ws.onmessage = async (event) => {
-		console.log("onmessage roomId:", roomId);
+		// console.log("onmessage roomId:", roomId);
 		const data = JSON.parse(event.data);
 		const sender = await getUser(data.senderId);
 		const isCurrUser = data.senderId === getCurrUser().id;
@@ -58,7 +58,7 @@ function start(roomId=GLOBAL_ROOM_ID) {
 	};
 
 	ws.onclose = (_) => {
-		console.log(`Chat websocket "${roomId}" closed.`);
+		// console.log(`Chat websocket "${roomId}" closed.`);
 		delete chatSockets[roomId];
 		if (roomId == currRoomId) {
 			chatDisplay.activateGlobalTab();

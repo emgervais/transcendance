@@ -19,7 +19,7 @@ def user_disconnect(user_id):
             if friends:
                 channel_layer = get_channel_layer()
                 for friend in friends:
-                    notify_online(user, friend, False, channel_layer)
+                    notify_online(user, friend, 'offline', channel_layer)
             clear_user_channels(user)
             print('User disconnected')
     except User.DoesNotExist:
@@ -77,16 +77,16 @@ def friend_request_notify(user_id, friend, friend_request_id):
 def accept_friend_request_notify(user, friend):
     channel_layer = get_channel_layer()
     if friend.status == 'online':
-        notify_online(user, friend, True, channel_layer)
+        notify_online(user, friend, 'online', channel_layer)
     if user.status == 'online':
-        notify_online(friend, user, True, channel_layer)
+        notify_online(friend, user, 'online', channel_layer)
         
-def notify_online(user, friend, connected, channel_layer):
+def notify_online(user, friend, status, channel_layer):
     try:
         send_to_websocket(channel_layer, UserChannelGroup.objects.get(user=friend).main, {
             'type': 'send.notification',
             'notification': 'connection',
-            'connected': connected,
+            'status': status,
             'userId': user.id
         })
     except Exception as e:
@@ -95,5 +95,11 @@ def notify_online(user, friend, connected, channel_layer):
 def send_to_websocket(channel_layer, channel_name, event):
     if channel_name:
             async_to_sync(channel_layer.send)(channel_name, event)
+    else:
+        print('Channel name not found')
+        
+async def async_send_to_websocket(channel_layer, channel_name, event):
+    if channel_name:
+        await channel_layer.send(channel_name, event)
     else:
         print('Channel name not found')

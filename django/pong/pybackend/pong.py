@@ -18,6 +18,7 @@ class Events:
 	player_movement = 1
 	player_score = 2
 	ball_hit = 3
+	tournament_id = 4
  
 class Filths:
 	P1Y = 1 << 0
@@ -59,6 +60,9 @@ class Pong:
 		self.ball = Ball()
 		self.websockets = []
 		self.task = None
+		self.tournament_user_ids = []
+		self.ended = False
+		self.notification_sent = False
 
 	def player_count(self) -> int:
 		return len(self.pbplayers)
@@ -89,6 +93,7 @@ class Pong:
 
 	@database_sync_to_async
 	def save_game(self):
+		self.ended = True
 		game = Game()
 		game.winner = self.player1.userid if self.player1.score > self.player2.score else self.player2.userid
 		game.loser = self.player1.userid if self.player1.score < self.player2.score else self.player2.userid
@@ -122,7 +127,12 @@ class Pong:
 		while(offset < len(bytestr)):
 			type = bytestr[offset] 
 			offset += 1
-			if(type == Events.player_movement):
+			if(type == Events.tournament_id and self.tournament_user_ids == []):
+				for _ in range(4):
+					self.tournament_user_ids.append(int.from_bytes(bytestr[offset:(offset + 4)], ENDIENESS))
+					offset += 4
+				print("tournament_user_ids: ", self.tournament_user_ids)
+			elif(type == Events.player_movement):
 				player.y = int.from_bytes(bytestr[offset:(offset + 4)], ENDIENESS)
 				self.filter |= 1 << (player.pongid - 1)
 				offset += 4

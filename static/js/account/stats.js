@@ -4,14 +4,13 @@ import { getUser } from "/js/user/user.js";
 import { getParams } from "/js/router/params.js";
 
 
-// Python code for reference django/pong/serializers.py
-
 async function load() {
     const userId = getParams().userId || getCurrUser().id;
     const title = document.getElementById("stats-title");
     title.innerHTML = `${(await getUser(userId)).username}'s stats`;
     const img = document.getElementById("stats-image");
     img.setAttribute("src", (await getUser(userId)).image);
+    img.setAttribute("onerror", "this.src='/media/default/default.webp';");
     api.fetchRoute({
         route: `/api/stats/${userId}/`,
         dataManager: async stats => {
@@ -22,7 +21,7 @@ async function load() {
             stats.swearCount = stats.swear_count;
             stats.winCount = stats.totals.wins;
             stats.lossCount = stats.totals.losses;
-            stats.timePlayed = new Date(1000 * stats.totals.time_played).toISOString().substr(11, 8);
+            stats.timePlayed = new Date(stats.totals.time_played * 1000).toISOString().substr(11, 8);
             stats.most_played_opponent = stats.most_played_opponent.opponent + '\n' + stats.most_played_opponent.games;
             const statsText = {
                 distance: `<h5>Horizontal distance traveled</h5><div class="tooltipp"> <i class="fa-solid fa-circle-info"></i> <p class="tooltiptextt">The original pong arcade screen measured 5.375 inches</p></div>`,

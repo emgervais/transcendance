@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from users.models import User
 from friend.models import Friend
-from django.conf import settings
 import re
 
 class UserSerializer(serializers.ModelSerializer):
@@ -10,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'image', 'status', 'oauth']
         read_only_fields = ['id', 'status', 'oauth']
-    
+        
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['image'] = instance.image.url
@@ -64,7 +63,8 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'password1': 'Passwords do not match'})
             validate_password(password1, self.instance)
         elif oldPassword is not None or password1 is not None or password2 is not None:
-            raise serializers.ValidationError({'password1': 'All password fields are required'})
+            if oldPassword is None or password1 is None or password2 is None:
+                raise serializers.ValidationError({'password1': 'All password fields are required'})
         
         if username is not None and User.objects.filter(username=username).exists():
             raise serializers.ValidationError({'username': 'Username already exists'})
@@ -74,6 +74,11 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'image': 'Image file too large'})
         if image is not None and re.match(r'^.*\.(jpg|jpeg|png|gif)$', image.name) is None:
             raise serializers.ValidationError({'image': 'Invalid image file type'})
+        
+        if username is not None and not re.match(r'^[a-zA-Z0-9_.]*$', username):
+            raise serializers.ValidationError({'username': 'Username can only contain letters, numbers, and underscores'})
+        if email is not None and not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
+            raise serializers.ValidationError({'email': 'Invalid email address'})
         return data
         
     def update(self, instance, validated_data):

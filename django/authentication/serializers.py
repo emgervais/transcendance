@@ -101,7 +101,7 @@ class OAuth42LoginSerializer(UserSerializer):
             if user_data['image'] is not None:
                 response = requests.get(user_data['image'])
                 user.image.save(f'{user.username}.jpg', ContentFile(response.content), save=False)
-        
+                
         user.oauth = True
         user.save()
         return user
