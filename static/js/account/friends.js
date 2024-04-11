@@ -103,7 +103,14 @@ function setOnlineFriendsCount(count) {
     element.innerHTML = `${count} connected friend${count > 1 ? "s" : ""}`;
 }
 
-function incrOnlineFriendsCount(incr=1) {
+function incrOnlineFriendsCount(connected, disconnected) {
+    let incr = 0;
+    if (connected)
+        incr = 1;
+    else if (disconnected)
+        incr = -1;
+    else
+        return;
     setOnlineFriendsCount(onlineFriendsCount + incr);
 }
 // --

@@ -29,21 +29,47 @@ function setUser(id, user) {
 function setUserStatus(id, status) {
     if (users[id]) {
         users[id].status = status;
-        const statusElements = document.querySelectorAll(".online-status");
-        for (const statusElement of statusElements) {
-            if (statusElement.getAttribute("data-user-id") == id) {
-                status ? statusElement.style.backgroundColor = 'green' : statusElement.style.backgroundColor = 'transparent';
-                const userContainer = statusElement.closest(".user");
-                userContainer.setAttribute("data-status", status);
-                const gameButton = userContainer.querySelector(".start-match");
-                if (gameButton) {
-                    util.display(gameButton, status);
-                }
-            }
-        }
+        updateStatusElements(id, status);
         const friendsContainer = document.getElementById("friends-container");
         sortUsers(friendsContainer);
+        alertStatus(id, status);
     }
+}
+
+function updateStatusElements(id, status) {
+    const statusElements = document.querySelectorAll(".online-status");
+    const colors = {
+        "online": "green",
+        "in-game": "blue",
+        "offline": "transparent",
+    }
+    for (const statusElement of statusElements) {
+        if (statusElement.getAttribute("data-user-id") == id) {
+            statusElement.style.backgroundColor = colors[status];
+            const userContainer = statusElement.closest(".user");
+            userContainer.setAttribute("data-status", status);
+            const gameButton = userContainer.querySelector(".start-match");
+            if (gameButton) {
+                util.display(gameButton, status);
+            }
+        }
+    }
+}
+
+async function alertStatus(id, prevStatus, status) {
+    let text = `${(await getUser(id)).username} `;
+    if (prevStatus == "offline" && data.status == "online")
+        text += "just connected.";
+    else if (prevStatus != "offline" && data.status == "offline")
+        text += "just disconnected.";
+    else if (status == "in-game")
+        text += "is playing.";
+    else if (prevStatus == "in-game" && status == "online")
+        text += "is done playing.";
+    util.showAlert({
+        text: text,
+        timeout: 2,
+    });
 }
 
 function removeUser(id) {
@@ -196,10 +222,13 @@ function sortUsers(container) {
         return;
     }
     const userDivs = Array.from(container.querySelectorAll('.user'));
+    const statusOrder = {
+        "online": 0,
+        "ingame": 1,
+        "offline": 2
+    };
     userDivs.sort((a, b) => {
-        const statusA = a.getAttribute("data-status") === "true";
-        const statusB = b.getAttribute("data-status") === "true";
-        return statusB - statusA;
+        return statusOrder[b.getAttribute("data-status")] - statusOrder[a.getAttribute("data-status")];
     });
     container.innerHTML = "";
     userDivs.forEach(div => {
@@ -207,6 +236,6 @@ function sortUsers(container) {
     });
 }
 
-export { getUser, setUser, setUserStatus, removeUser, unfriend, displayUser };
+export { getUser, setUser, setUserStatus, removeUser, unfriend, displayUser, alertStatus };
 export { block };
 export { sortUsers };

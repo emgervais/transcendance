@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from users.models import User
 from pong.models import Game
 from pong.pybackend.pong import POINTS_TO_WIN, SCREEN_LENGTH
-import datetime, random, threading
+import datetime, random, threading, time
 
 USERNAME = 'user'
 PASSWORD = 'password'
@@ -88,8 +88,14 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Email: %s or %s' % (user1.email, user2.email)))
             self.stdout.write(self.style.SUCCESS('Password: %s' % PASSWORD))
             self.stdout.write(self.style.WARNING('\nBoth users and games will be deleted in 10 minutes'))
-            threading.Timer(600, self.delete_users, args=[user1, user2]).start()
+            # threading.Thread(target=self.delete_users, args=[user1, user2], daemon=True).start()
+            threading.Thread(target=self.basic, daemon=True).start()
             
+    def basic(self):
+        from pathlib import Path
+        time.sleep(2)
+        Path('/usr/src/app/file.txt').touch()
+
     def delete_users(self, user1, user2):
         user1.delete()
         user2.delete()

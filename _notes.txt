@@ -1,3 +1,38 @@
+.mode release
+
+.X menu drop down                 emi
+.friend count style
+.form fields autocomplete
+.X empêcher de bloquer un user bloqué
+
+
+.tester input fields            ele / emi
+.token date d'expiration
+.utilisateur "en partie"
+
+
+.X historique d'un autre joueur   franco
+
+
+.oauth redirection avec token   marc-andré
+.chat empecher nouveaux messages d'utilisateur bloqué
+
+
+
+.Module majeur : Utiliser un Framework en backend.
+.Module mineur : Utiliser un framework ou toolkit en frontend.
+.Module mineur : Utiliser une base de données pour le backend -et plus
+.Module majeur : Joueurs à distance
+.Module majeur : Implémentation de techniques 3D avancées
+
+.Module majeur : Gestion d’utilisateurs standard, authentification et utilisateurs en tournois.
+.Module majeur : Implémenter une authentification à distance
+.Module majeur : Clavardage en direct
+
+.Module mineur : Étendre la compatibilité des navigateurs web.
+
+--------------------------------
+
 match-history:
     on scroll bottom: receive new matches
     triggers, onwheel

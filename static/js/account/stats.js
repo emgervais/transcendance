@@ -11,6 +11,9 @@ async function load() {
     const img = document.getElementById("stats-image");
     img.setAttribute("src", (await getUser(userId)).image);
     img.setAttribute("onerror", "this.src='/media/default/default.webp';");
+    const matchHistoryBtn = document.querySelector("#stats-match-history-button a");
+    matchHistoryBtn.setAttribute("href", `/account/match-history/${userId}/`);
+    
     api.fetchRoute({
         route: `/api/stats/${userId}/`,
         dataManager: async stats => {
