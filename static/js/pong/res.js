@@ -190,5 +190,6 @@ const hurtSound = new Audio('/audio/hurt.ogg');
 hurtSound.volume = 0.2;
 const bounceSound = new Audio('/audio/beep.ogg');
 bounceSound.volume = 0.62;
+const buttonSound = new Audio('/audio/bozo.ogg');
 
-export {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, hurtSound, bounceSound}
+export {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, hurtSound, bounceSound, buttonSound}
