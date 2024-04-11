@@ -1,5 +1,5 @@
-from notification.utils_db import get_user, get_all_blocked_user_ids, in_group, add_channel_group, remove_channel_group, get_main_channel, is_blocked, update_swear_count, get_channel_name
-from notification.utils import notify_online, send_to_websocket
+from notification.utils_db import get_user, in_group, add_channel_group, remove_channel_group, get_main_channel, is_blocked, update_swear_count, get_channel_name
+from notification.utils import notify_online, send_to_websocket, escape_html
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -39,9 +39,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.close()
         
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        closing = text_data_json.get('closing', False)
-        message = text_data_json.get('message', '')
+        text_data = escape_html(text_data)
+        text_data = json.loads(text_data)
+        
+        closing = text_data.get('closing', False)
+        message = text_data.get('message', '')
 
         await self.channel_layer.group_send(
             self.group_name,

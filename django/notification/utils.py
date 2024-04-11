@@ -3,7 +3,7 @@ from asgiref.sync import async_to_sync
 from users.models import UserChannelGroup
 from friend.models import Friend
 from users.models import User
-import time
+import time, re
 
 # Helper functions
 def user_disconnect(user_id):
@@ -34,7 +34,7 @@ def close_recipient_channel(user_id, group, channel_layer):
     recipient_id = users[0] if users[0] != str(user_id) else users[1]
     
     try:
-        send_to_websocket(channel_layer,  UserChannelGroup.objects.get(user__id=recipient_id).get_channel_name(group), {
+        send_to_websocket(channel_layer, UserChannelGroup.objects.get(user__id=recipient_id).get_channel_name(group), {
             'type': 'chat.message',
             'message': 'User is offline',
             'senderId': user_id,
@@ -103,3 +103,6 @@ async def async_send_to_websocket(channel_layer, channel_name, event):
         await channel_layer.send(channel_name, event)
     else:
         print('Channel name not found')
+        
+def escape_html(text):
+    return re.sub(r'[?&/<> ]', lambda x: '&#' + str(ord(x.group())) + ';', text)

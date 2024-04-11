@@ -70,15 +70,6 @@ def is_blocked(user, recipient):
         return False
 
 @database_sync_to_async
-def get_all_blocked_user_ids(user):
-    try:
-        blocked_ids = Block.objects.blocked_ids(user)
-        blocked_ids = [user_id for user_id in blocked_ids]
-        return blocked_ids
-    except Block.DoesNotExist:
-        return []
-
-@database_sync_to_async
 def add_channel_group(user, channel_name, group_name):
     try:
         user_channel_group = UserChannelGroup.objects.get(user=user)
