@@ -77,7 +77,6 @@ Afficher notifications:
     .Réception messages (chat icon avec un nombre)
     .Demandes d'amis (nav)
 
-
 ----
 Stop Pong JS quand quitte
 Login:

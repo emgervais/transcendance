@@ -1,32 +1,17 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light" id="dynamic_nav">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/">ft_transcendence</a>
-    <button class="start-match connected not-searching-match not-game hidden match-button">Play with anyone</button>
-    <button class="start-tournament connected not-searching-match not-game hidden match-button">Play in a tournament</button>
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <!-- <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Games
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="nav-link" href="/pong/">Pong</a></li>
-            <li><a class="nav-link" href="/another-game/">Another Game</a></li>
-          </ul>
-        </li> -->
-      </ul>
-      <ul class="navbar-nav">
-
+    <div class="flex align-items-center justify-center">
+      <a class="navbar-brand" href="/">ft_transcendence</a>
+      <button class="start-match connected not-searching-match not-game hidden match-button">Play with anyone</button>
+      <button class="start-tournament connected not-searching-match not-game hidden match-button">Play in a tournament</button>
+    </div>
+      <ul class="navbar-nav align-items-center">
         <div class="connected searching-match hidden d-flex align-items-center">
           <span>Searching match</span>
           <button id="cancel-searching-match">Cancel search</button>
         </div>
-        <button class="connected hidden">
-          <a class="connected hidden d-flex align-items-center" href="/account/friends/" id="online-friends-count">
+        <button class="connected hidden" styles="height:50%;">
+          <a class="connected hidden d-flex align-items-center text-white" href="/account/friends/" id="online-friends-count">
         </button>
         </a>
         
@@ -53,7 +38,6 @@
             </ul>
         </li>
       </ul>
-    </div>
   </div>
 </nav>
 <a class="overlay hidden" href="/" id="shadow"></a></div>

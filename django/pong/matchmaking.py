@@ -85,7 +85,16 @@ def next_round(tournament_id):
 
         tournament_notification(tournament_id, winners, losers, new_game)
         matchmaking_redis.delete(tournament_id)
-        
+
+def are_users_online(users, room):
+    ret = True
+    for user in users:
+        user = User.objects.get(id=user)
+        print(user.status)
+        if user.status != 'online':
+            matchmaking_redis.zrem(room, user.id)
+            ret = False
+    return ret
             
 def matchmaker(room):
     min_players = TOURNAMENT_NB_PLAYERS if room == 'tournament' else 2
@@ -93,11 +102,10 @@ def matchmaker(room):
     while True:
         print('In Queue...')
         if matchmaking_redis.zcard(room) >= min_players:
-            print('Match found')
             users = matchmaking_redis.zrange(room, 0, min_players - 1)
-            if not User.objects.filter(id=users[0], status='online').exists():
-                matchmaking_redis.zremrangebyrank(room, 0, 0)
+            if not are_users_online(users, room):
                 continue
+            print('Match found')
             channel_layer = get_channel_layer()
             if room == 'tournament':
                 tournament_id = '_'.join(sorted([str(user.decode('utf-8')) for user in users]))

@@ -87,6 +87,8 @@ class PongInstance:
 				user_ids = self.game.tournament_user_ids
 				description = 'tournamentStopped'
 			await game_stopped_notification(user_ids, description)
+		await change_status(self.user, 'online')
+		await notify_status_to_friends(self.user, 'online')
 		try:
 			if(self.player):
 				self.player.disconnected = True
@@ -124,6 +126,10 @@ class PongInstance:
 				continue
 			if self.game.filter & 32:
 				await self.game.save_game()
+				await change_status(self.game.pbplayers[0].userid, 'online')
+				await change_status(self.game.pbplayers[1].userid, 'online')
+				await notify_status_to_friends(self.game.pbplayers[0].userid, 'online')
+				await notify_status_to_friends(self.game.pbplayers[1].userid, 'online')
 				self.game.filter &= ~32
 			# send to and await all websockets
 			message['bytes'] = data
@@ -152,8 +158,6 @@ async def wsapp(scope, receive, send):
 		if e == 1:
 			await pi.connect(send)
 		elif e == 2:
-			await change_status(user, 'online')
-			await notify_status_to_friends(user, 'online')
 			await pi.disconnect()
 			await send({
 				'type': 'websocket.close',

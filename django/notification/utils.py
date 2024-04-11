@@ -104,5 +104,6 @@ async def async_send_to_websocket(channel_layer, channel_name, event):
     else:
         print('Channel name not found')
         
+# Convert special characters such as ?, &, /, <, > and spaces to their respective HTML or URL encoded equivalents.
 def escape_html(text):
     return re.sub(r'[?&/<> ]', lambda x: '&#' + str(ord(x.group())) + ';', text)

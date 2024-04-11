@@ -2,7 +2,6 @@ from notification.utils_db import get_user, in_group, add_channel_group, remove_
 from notification.utils import notify_online, send_to_websocket, escape_html
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 from users.models import UserChannelGroup
 from chat.censor import censor
 import json
