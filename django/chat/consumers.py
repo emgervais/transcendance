@@ -62,7 +62,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender_id = event['senderId']
         sender = await get_user(sender_id)
         message, swear_count = censor(event['message'])
-        message = message.replace('>',' ').replace('<',' ').replace('"',' ').replace("'",' ').replace('&',' ');
         if sender == self.user:
             await update_swear_count(sender, swear_count)
         closing = event.get('closing', False)
