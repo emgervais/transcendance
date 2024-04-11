@@ -1,5 +1,5 @@
 import {newModel, createProgram, newProjectionMatrix, newViewMatrix, newTranslationMatrix, newRotationMatrix, newScaleMatrix, createStaticBuffer, createVAO, unbindVAO, createUBO, createTexture, createFramebuffer, initGL, gl} from "/js/pong/webgl.js";
-import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, bounceSound, hurtSound} from "/js/pong/res.js";
+import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVertShader, textFragShader, screenVertShader, screenFragShader, ambientSound, bounceSound, hurtSound, buttonSound} from "/js/pong/res.js";
 // import * as params from "/js/router/params.js";
 // import * as router from "/js/router/router.js";
 // import * as util from "/js/util.js";
@@ -13,8 +13,6 @@ import * as notifications from "/js/notifications.js";
 
 var ws = null;
 var canvas;
-
-var soundspeed = 1.0;
 
 var notInGame = true;
 
@@ -236,6 +234,11 @@ const stage = {
 
 function setup()
 {
+	let button = document.getElementById('ping-button');
+	button.onclick = function() {
+		buttonSound.currentTime = 0;
+		buttonSound.play();
+	}
 	canvas = document.getElementById('webgl-canvas');
 	if(!initGL(canvas))
 		return false;
@@ -430,8 +433,8 @@ function setup()
 	{
 		if(state == 4)
 		{
-			let x = Math.min(Math.max(((e.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1, -0.9), 0.9);
-			let y = Math.min(Math.max(((e.clientY - canvas.offsetTop) / canvas.clientHeight) * -2 + 1, -0.75), 0.75);
+			let x = Math.min(Math.max(((e.clientX - canvas.offsetLeft) / canvas.clientWidth) * 1.5 - 0.75, -0.5), 0.9);
+			let y = Math.min(Math.max(((e.clientY - canvas.offsetTop) / canvas.clientHeight) * -1.5 + 0.75, -0.5), 0.4);
 			camera.targetyaw = -Math.PI/2 + (x * Math.PI / 2);
 			camera.targetpitch = y * Math.PI / 2;
 		}
@@ -455,10 +458,20 @@ function setup()
 			inputs[6] = 1;
 		else if(e.key == 'ArrowRight')
 			inputs[7] = 1;
-		else if(e.key == ' ' && state != 1)
+		else if(e.key == 'Escape' && state != 1)
 		{
 			state = (state == 4) ? 0 : 4;
 			setViewState();
+			if(state != 4)
+			{
+				cassettemodel.move(0.41882097721099854, -1.3558310270309448, 0.8896202921867371);
+				cassettemodel.rotate(0, 0, 0);
+			}
+			else
+			{
+				cassettemodel.move(2.60782, -2.22583, 1.64862);
+				cassettemodel.rotate(0, 0.5, 0);
+			}
 		}
 			
 	}
@@ -495,7 +508,7 @@ function setup()
 	player1.sety(pongrenderheight/2-paddle.height/2);
 	player2.sety(pongrenderheight/2-paddle.height/2);
 
-	ambientSound.play();
+	// ambientSound.play();
 
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -520,18 +533,18 @@ function setViewState()
 		camera.targetz = 3;
 		playerid = 0;
 		player = 0;
-		ambientSound.preservesPitch = false;
-		soundspeed = 0.8;
+		ambientSound.pause();
+		ambientSound.currentTime = 0;
 	}
 	else
 	{
-		soundspeed = 1.0;
 		notInGame = true;
 		util.displayState();
 		camera.targetfov = Math.PI / 2;
 		camera.targetz = 1.5;
 		camera.targetpitch = 0;
 		camera.targetyaw = -Math.PI/2;
+		ambientSound.play();
 	}
 }
 
@@ -880,6 +893,8 @@ function draw()
 			if(Math.abs(camera.yaw - camera.targetyaw) < 0.003)
 				camera.yaw = camera.targetyaw;
 		}
+		if(cassettemodel._uboT._matrix[14] > 0.0)
+			cassettemodel.translatez(-0.001 * (cassettemodel._uboT._matrix[14] * 2.0 + 0.1) * dt);
 		camera.move(camera.x, camera.y, camera.z, camera.pitch, camera.yaw);
 		camera.uploadV();
 		sendtimer += dt;
@@ -915,12 +930,7 @@ function draw()
 		sandalmodel.draw(mainUBO);
 		boxmodel.draw(mainUBO);
 		traymodel.draw(mainUBO);
-		if(ambientSound.playbackRate != soundspeed)
-		{
-			ambientSound.playbackRate += (soundspeed - ambientSound.playbackRate) * 0.001 * dt;
-			if(Math.abs(ambientSound.playbackRate - soundspeed) < 0.001)
-				ambientSound.playbackRate = soundspeed;
-		}
+		cassettemodel.draw(mainUBO);
 		break;
 	case 4:
 		if(camera.pitch != camera.targetpitch)
@@ -949,30 +959,6 @@ function draw()
 			if(Math.abs(camera.z - camera.targetz) < 0.001)
 				camera.z = camera.targetz;
 		}
-		if(inputs[0] == 1)
-		{
-			camera.pitch += 0.001 * dt;
-			if(camera.pitch > Math.PI * 0.5)
-				camera.pitch = Math.PI * 0.5;
-		}
-		if(inputs[1] == 1)
-		{
-			camera.pitch -= 0.001 * dt;
-			if(camera.pitch < -Math.PI * 0.5)
-				camera.pitch = -Math.PI * 0.5;
-		}
-		if(inputs[2] == 1)
-		{
-			camera.yaw -= 0.001 * dt;
-			if(camera.yaw < -Math.PI * 0.75)
-				camera.yaw = -Math.PI * 0.75;
-		}
-		if(inputs[3] == 1)
-		{
-			camera.yaw += 0.001 * dt;
-			if(camera.yaw > -Math.PI * 0.25)
-				camera.yaw = -Math.PI * 0.25;
-		}
 		camera.move(camera.x, camera.y, camera.z, camera.pitch, camera.yaw);
 		gl.activeTexture(gl.TEXTURE0);
 		fb.bindTexture();
@@ -996,12 +982,6 @@ function draw()
 		boxmodel.draw(mainUBO);
 		traymodel.draw(mainUBO);
 		cassettemodel.draw(mainUBO);
-		if(ambientSound.playbackRate != soundspeed)
-		{
-			ambientSound.playbackRate += (soundspeed - ambientSound.playbackRate) * 0.001 * dt;
-			if(Math.abs(ambientSound.playbackRate - soundspeed) < 0.001)
-				ambientSound.playbackRate = soundspeed;
-		}
 		break;
 	}
 
