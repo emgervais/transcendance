@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import time, threading, json
-from notification.utils import get_opponent_id, user_disconnect, async_send_to_websocket
+from notification.utils import get_opponent_id, user_disconnect, async_send_to_websocket, escape_html
 from notification.utils_db import change_status, set_main_channel, get_group_list, get_main_channel, get_online_friends, friend_request_count, get_user, is_recipient_online, remove_channel_group
 from pong.matchmaking import matchmaker, next_round, matchmaking_redis
 
@@ -37,6 +37,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             self.disconnect_thread.start()
 
     async def receive(self, text_data):
+        text_data = escape_html(text_data)
         data = json.loads(text_data)
         type = data['type']
 
