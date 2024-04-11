@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from users.models import User
 from pong.models import Game
 from pong.pybackend.pong import POINTS_TO_WIN, SCREEN_LENGTH
-import datetime, random, threading
+import datetime, random, threading, time
 
 USERNAME = 'user'
 PASSWORD = 'password'

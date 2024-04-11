@@ -7,14 +7,11 @@ import { sleep } from "/js/util.js";
 
 let lastLoadedGameId = 0;
 let stopLoading = false;
+let USER_ID;
 
-function atBottom() {
-    return (window.scrollY + window.innerHeight >= document.body.scrollHeight - 1);
-}
 
 async function fetchMatchHistory(fromGameId, size) {
-    const userId = getParams().userId || getCurrUser().id
-    const route = `/api/match-history/${userId}/?from-game-id=${fromGameId}&size=${size}`;
+    const route = `/api/match-history/${USER_ID}/?from-game-id=${fromGameId}&size=${size}`;
     let games = [];
     await api.fetchRoute({
         route: route,
@@ -35,7 +32,7 @@ async function renderGames(games) {
     for (const game of games) {
         const winner = await getUser(game.winner);
         const loser = await getUser(game.loser);
-        const cssClass = game.winner === getCurrUser().id ? "win" : "loss";
+        const cssClass = game.winner == USER_ID ? "win" : "loss";
         matchHistoryElement.innerHTML += `<div class="match-history-game ${cssClass}">
             <h5>Winner: <img src=${winner.image} onerror="this.src='/media/default/default.webp';"></img> ${winner.username}</h5>
             <h5>Loser: <img src=${loser.image} onerror="this.src='/media/default/default.webp';"></img> ${loser.username}</h5>
@@ -57,6 +54,7 @@ async function loadMoreGames() {
         lastLoadedGameId = moreGames[moreGames.length - 1].id;
         await renderGames(moreGames);
     }
+    return moreGames.length;
 }
 
 // // Event listener for resize and scroll
@@ -69,8 +67,16 @@ async function loadMoreGames() {
     });
 });
 
+function atBottom() {
+    return (window.scrollY + window.innerHeight >= document.body.scrollHeight - 1);
+}
+
 // Initial load of match history
 async function load() {
+    USER_ID = getParams().userId || getCurrUser().id;
+    const title = document.querySelector("#match-history-page h1");
+    title.innerHTML = `${(await getUser(USER_ID)).username}'s match history`;
+
     lastLoadedGameId = 0;
     let maxPreload = 5;
     stopLoading = false;

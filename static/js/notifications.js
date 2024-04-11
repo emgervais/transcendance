@@ -7,7 +7,7 @@ import * as nav from "/js/nav.js";
 import * as pong from "/js/pong/pong.js";
 import * as util from "/js/util.js";
 import { getCurrUser } from "/js/user/currUser.js";
-import { setUserStatus, getUser } from "/js/user/user.js";
+import { setUserStatus, getUser, alertStatus } from "/js/user/user.js";
 
 var ws;
 
@@ -27,13 +27,13 @@ function start() {
 				chat.start(data.room);
 				break;
 			case "connection":
-				friends.incrOnlineFriendsCount(data.connected ? 1 : -1);
-				chatFriends.update(data.userId, data.connected);
-				setUserStatus(data.userId, data.connected);
-				util.showAlert({
-					text: `${(await getUser(data.userId)).username} just ${data.connected ? "": "dis"}connected.`,
-					timeout: 2,
-				});
+				const prevStatus = (await getUser(data.userId)).status;
+				const connected = prevStatus == "offline" && data.status != "offline";
+				const disconnected =  prevStatus != "offline" && data.status == "offline";
+				chatFriends.update(data.userId, connected, disconnected);
+				friends.incrOnlineFriendsCount(connected, disconnected);
+				setUserStatus(data.userId, data.status);
+				alertStatus(data.userId, prevStatus, data.status);
 				break;
 			case "onlineFriends":
 				chatFriends.set(data.userIds);

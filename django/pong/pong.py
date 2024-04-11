@@ -45,11 +45,11 @@ class PongInstance:
 		self.send = None
 
 	async def connect(self, send):
-		print('connect')
+		# print('connect')
 		if self.game.player_count() < 2:
 			self.player = self.game.new_player(send, self.user)
 			self.send = send
-			print('player count: ' + str(self.game.player_count()))
+			# print('player count: ' + str(self.game.player_count()))
 			await send({
 					'type': 'websocket.accept',
 				})
@@ -69,11 +69,11 @@ class PongInstance:
 					'bytes': b'\x08\x00'
 				})
 			if self.game.player_count() == 2:
-				print('start game')
+				# print('start game')
 				self.game.task = asyncio.create_task(self.gameloop())
 				self.game.filter |= 16
 		else:
-			print('game full')
+			# print('game full')
 			await send({
 				'type': 'websocket.close',
 			})
@@ -87,12 +87,14 @@ class PongInstance:
 				user_ids = self.game.tournament_user_ids
 				description = 'tournamentStopped'
 			await game_stopped_notification(user_ids, description)
+		await change_status(self.user, 'online')
+		await notify_status_to_friends(self.user, 'online')
 		try:
 			if(self.player):
 				self.player.disconnected = True
-			print('disconnect')
+			# print('disconnect')
 			if(self.game.task != None):
-				print('cancel task')
+				# print('cancel task')
 				for ws in self.game.websockets:
 					await ws({
 						'type': 'websocket.send',
@@ -124,6 +126,10 @@ class PongInstance:
 				continue
 			if self.game.filter & 32:
 				await self.game.save_game()
+				await change_status(self.game.pbplayers[0].userid, 'online')
+				await change_status(self.game.pbplayers[1].userid, 'online')
+				await notify_status_to_friends(self.game.pbplayers[0].userid, 'online')
+				await notify_status_to_friends(self.game.pbplayers[1].userid, 'online')
 				self.game.filter &= ~32
 			# send to and await all websockets
 			message['bytes'] = data
@@ -138,8 +144,8 @@ async def wsapp(scope, receive, send):
 			'type': 'websocket.close',
 		})
 		return
-	change_status(user, 'in-game')
-	notify_status_to_friends(user, 'in-game')
+	await change_status(user, 'in-game')
+	await notify_status_to_friends(user, 'in-game')
 	gameid = scope['url_route']['kwargs']['gameid']
 
 	pi = PongInstance(gameid, user)
@@ -152,8 +158,6 @@ async def wsapp(scope, receive, send):
 		if e == 1:
 			await pi.connect(send)
 		elif e == 2:
-			change_status(user, 'online')
-			notify_status_to_friends(user, 'online')
 			await pi.disconnect()
 			await send({
 				'type': 'websocket.close',

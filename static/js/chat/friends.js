@@ -4,10 +4,10 @@ import { getUser } from "/js/user/user.js"
 
 var connectedFriends = [];
 
-function update(id, connected) {
+function update(id, connected, disconnected) {
     if (connected) {
         addConnectedFriend(id);
-    } else {
+    } else if (disconnected) {
         removeConnectedFriend(id);
     }
 }

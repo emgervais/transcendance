@@ -1,3 +1,51 @@
+.X boutons pendant play with anyone
+.plus d'une alert à la fois (error)
+
+.X Demande d'ami acceptée: liste d'amis pas mise à jour
+.X Liste amis: enlever play si "in-game"
+
+.from user search, block: UserChannelGroup matching query does not exist
+.friend request counter: make a button
+    : remove when answered friend request
+.unfriended: friend stays in friend list
+
+
+.mode release
+
+
+.X menu drop down                 emi
+.friend count style
+.form fields autocomplete
+.X empêcher de bloquer un user bloqué
+
+
+.tester input fields            ele / emi
+.token date d'expiration
+.X utilisateur "en partie"
+
+
+.X historique d'un autre joueur   franco
+
+
+.oauth redirection avec token   marc-andré
+.X chat empecher nouveaux messages d'utilisateur bloqué
+
+
+
+.Module majeur : Utiliser un Framework en backend.
+.Module mineur : Utiliser un framework ou toolkit en frontend.
+.Module mineur : Utiliser une base de données pour le backend -et plus
+.Module majeur : Joueurs à distance
+.Module majeur : Implémentation de techniques 3D avancées
+
+.Module majeur : Gestion d’utilisateurs standard, authentification et utilisateurs en tournois.
+.Module majeur : Implémenter une authentification à distance
+.Module majeur : Clavardage en direct
+
+.Module mineur : Étendre la compatibilité des navigateurs web.
+
+--------------------------------
+
 match-history:
     on scroll bottom: receive new matches
     triggers, onwheel
@@ -32,7 +80,6 @@ stats.load()
 Afficher notifications:
     .Réception messages (chat icon avec un nombre)
     .Demandes d'amis (nav)
-
 
 ----
 Stop Pong JS quand quitte
