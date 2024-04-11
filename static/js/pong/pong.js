@@ -556,9 +556,9 @@ function connect(id, tournamentId)
 		state = 0;
 		setViewState();
 	}
-	notInGame = (tournamentId == null);
+	notInGame = false;
 	tourney = tournamentId != null;
-	if(tournamentId.split('_').length == 5)
+	if(tournamentId && tournamentId.split('_').length == 5)
 		tourney = 0;
 	util.displayState();
 	if(ws)

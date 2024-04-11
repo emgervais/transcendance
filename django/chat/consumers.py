@@ -53,7 +53,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'closing': closing
             }
         )
-    
+    # <img src="invalid" onerror="alert('XSS Attack!')">
     async def update_blocked_ids(self, event):
         self.blocked_ids = await get_all_blocked_user_ids(self.user)
 
@@ -61,6 +61,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender_id = event['senderId']
         sender = await get_user(sender_id)
         message, swear_count = censor(event['message'])
+        message = message.replace('>',' ').replace('<',' ').replace('"',' ').replace("'",' ').replace('&',' ');
         if sender == self.user:
             await update_swear_count(sender, swear_count)
         closing = event.get('closing', False)
