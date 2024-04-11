@@ -168,6 +168,7 @@ function answerRequest(target) {
             refresh();
         }
     });
+    nav.incrFriendRequestCount(-1);
 }
 
 function makeRequest(target) {

@@ -54,9 +54,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'closing': closing
             }
         )
-    # <img src="invalid" onerror="alert('XSS Attack!')">
-    async def update_blocked_ids(self, event):
-        self.blocked_ids = await get_all_blocked_user_ids(self.user)
 
     async def chat_message(self, event):
         sender_id = event['senderId']

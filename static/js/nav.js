@@ -5,6 +5,8 @@ let friendRequestCount = 0;
 
 function updateFriendRequestCount(count) {
     const countElement = friendRequestCountElement.querySelector("#friend-request-counter");
+    const button = countElement.closest("button");
+    util.display(button, count != 0);
     if (count) {
         countElement.textContent = count + ' friend request' + (count > 1 ? 's' : '');
     } else {

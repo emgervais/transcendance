@@ -1,33 +1,29 @@
-.X boutons pendant play with anyone
+.unfriended: friend stays in friend list
+.Pong: displayOpponentName, match, 149: null (setting 'innerHTML')
+.from user search, block: UserChannelGroup matching query does not exist
 .plus d'une alert à la fois (error)
 
+.X boutons pendant play with anyone
 .X Demande d'ami acceptée: liste d'amis pas mise à jour
 .X Liste amis: enlever play si "in-game"
-
-.from user search, block: UserChannelGroup matching query does not exist
-.friend request counter: make a button
+.X friend request counter: make a button
     : remove when answered friend request
-.unfriended: friend stays in friend list
 
 
 .mode release
 
 
 .X menu drop down                 emi
-.friend count style
 .form fields autocomplete
 .X empêcher de bloquer un user bloqué
-
 
 .tester input fields            ele / emi
 .token date d'expiration
 .X utilisateur "en partie"
 
-
 .X historique d'un autre joueur   franco
 
-
-.oauth redirection avec token   marc-andré
+.oauth redirection avec token       marc-andré
 .X chat empecher nouveaux messages d'utilisateur bloqué
 
 

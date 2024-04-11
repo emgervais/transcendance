@@ -77,7 +77,7 @@ let bsAlerts = [];
 
 async function showAlert({
   text,
-  timeout=2,
+  timeout=4,
   danger=false,
   closeButton=false,
 }) {
@@ -103,22 +103,22 @@ async function showAlert({
   if (closeButton) {
     addCloseButton();
   }
-  alertContainer.innerHTML = "";
+  // alertContainer.innerHTML = "";
   alertContainer.appendChild(alert);
-  if (timeout) {
-    bsAlerts.push(new bootstrap.Alert(alert));
-    await sleep(timeout * 1000);
-    hideAlert();
-  }
+  console.log("alertContainer:", alertContainer);
+  // if (timeout) {
+  // //   bsAlerts.push(new bootstrap.Alert(alert));
+  //   await sleep(timeout * 1000);
+  //   hideAlert();
+  // }
 }
 
 function hideAlert() {
-  try {
-    bsAlerts.forEach(bsAlert => bsAlert.close());
-
-  } catch(e) {
-    console.log("error:", e);
-  }
+  // try {
+  //   bsAlerts.forEach(bsAlert => bsAlert.close());
+  // } catch(e) {
+  //   console.log("error:", e);
+  // }
   alertContainer.innerHTML = "";
 }
 

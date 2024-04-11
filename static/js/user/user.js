@@ -1,5 +1,6 @@
 import * as api from "/js/api.js";
 import * as friends from "/js/account/friends.js";
+import * as nav from "/js/nav.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
 
@@ -205,6 +206,9 @@ function block(target) {
             friends.refresh();
         }
     });
+    if (target.closest('#friends-requests-container')) {
+        nav.incrFriendRequestCount(-1);
+    }
     const userContainer = target.closest(".user");
     userContainer.remove();
 }

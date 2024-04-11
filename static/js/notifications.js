@@ -1,6 +1,5 @@
 import * as chat from "/js/chat/chat.js";
 import * as chatFriends from "/js/chat/friends.js";
-import * as chatMessages from "/js/chat/messages.js";
 import * as friends from "/js/account/friends.js";
 import * as match from "/js/pong/match.js";
 import * as nav from "/js/nav.js";
