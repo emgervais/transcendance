@@ -20,15 +20,21 @@ function refresh() {
     }
 }
 
+function isValidString(input) {
+    const pattern = /^[a-zA-Z0-9_]+$/;
+    return pattern.test(input);
+}
+
 function searchUser() {
     const formId = "search-user-form";
     const input = document.getElementById("search-user-input");
     const query = input.value;
-    if (!query) {
-        return;
-    }
     const container = document.getElementById("users-container");
     container.innerHTML = "";
+    if (!query || !isValidString(query)) {
+        container.innerText = `Not a valid username bozo`;
+        return;
+    }
     api.removeFormErrors();
     const usersCallback = async users => {
         if (users.length === 0) {

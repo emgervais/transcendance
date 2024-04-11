@@ -2,6 +2,8 @@ import * as api from "/js/api.js";
 import * as friends from "/js/account/friends.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
+import * as chat from "/js/chat/chat.js";
+import * as messages from "/js/chat/messages.js";
 
 var users = {};
 
@@ -203,6 +205,8 @@ function block(target) {
         options: options,
         dataManager: (_) => {
             friends.refresh();
+            chat.deleteMessage(userId);
+            messages.loadMessages(chat.currRoomId);
         }
     });
     const userContainer = target.closest(".user");
