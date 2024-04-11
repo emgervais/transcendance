@@ -96,7 +96,19 @@ function stop(roomId) {
 	}
     delete chatSockets[roomId];
 }
+
+function deleteMessage(id) {
+	const messages = JSON.parse(sessionStorage.getItem("messages"));
+	const newMessages = messages.filter((value) => {
+		return value.userId != id;
+	});
+	console.log(newMessages);
+	if(sessionStorage.getItem("messages"))
+		sessionStorage.removeItem("messages");
+	sessionStorage.setItem("messages", JSON.stringify(newMessages));
+}
+
 // --------------------------------
 
-export { GLOBAL_ROOM_ID, currRoomId, getRoomId, updateRoomId, isMatchRoomId, matchRoomId };
+export { GLOBAL_ROOM_ID, currRoomId, getRoomId, updateRoomId, isMatchRoomId, matchRoomId, deleteMessage };
 export { submit, start, stop, chatSockets };
