@@ -87,10 +87,3 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('\nAccounts credentials to view the matches:'))
             self.stdout.write(self.style.SUCCESS('Email: %s or %s' % (user1.email, user2.email)))
             self.stdout.write(self.style.SUCCESS('Password: %s' % PASSWORD))
-            self.stdout.write(self.style.WARNING('\nBoth users and games will be deleted in 10 minutes'))
-            threading.Timer(600, self.delete_users, args=[user1, user2]).start()
-            
-    def delete_users(self, user1, user2):
-        user1.delete()
-        user2.delete()
-        self.stdout.write(self.style.SUCCESS('\nUsers have been deleted'))

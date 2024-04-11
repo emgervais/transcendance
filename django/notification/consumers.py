@@ -18,7 +18,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         else:
             if self.user.status == 'offline':
                 await change_status(self.user, 'online')
-                await self.notify_online_status_to_friends(True)
+                await self.notify_online_status_to_friends()
             await set_main_channel(self.user, self.channel_name)
             await self.accept()
             await self.send(text_data=json.dumps({
@@ -102,12 +102,12 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                     else:
                         remove_channel_group(self.user, group)
     
-    async def notify_online_status_to_friends(self, connected):
+    async def notify_online_status_to_friends(self, status='online'):
         friends = await get_online_friends(self.user)
         if friends:
             for friend in friends:
                 await async_send_to_websocket(self.channel_layer, await get_main_channel(friend), {
-                    'type': 'send.notification', 'notification': 'connection', 'connected': connected, 'userId': self.user.id
+                    'type': 'send.notification', 'notification': 'connection', 'status': status, 'userId': self.user.id
                 })
 
     async def search_match(self, room):

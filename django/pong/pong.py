@@ -2,10 +2,21 @@
 from .pybackend import pong
 from notification.utils_db import change_status
 import asyncio
-from notification.utils import async_send_to_websocket
+from notification.utils import async_send_to_websocket, notify_online
+from friend.models import Friend
 from notification.utils_db import get_main_channel
 from channels.layers import get_channel_layer
 from pong.matchmaking import matchmaking_redis
+from channels.db import database_sync_to_async
+
+@database_sync_to_async
+def notify_status_to_friends(user, status):
+	friends = Friend.objects.online_friends(user)
+	if friends:
+		channel_layer = get_channel_layer()
+		for friend in friends:
+			if friend.status == 'online':
+				notify_online(user, friend, status, channel_layer)
 
 async def game_stopped_notification(user_ids, description):
 	channel_layer = get_channel_layer()
@@ -68,7 +79,6 @@ class PongInstance:
 			})
 
 	async def disconnect(self):
-		print("_______disconnect")
 		if not self.game.ended and not self.game.notification_sent:
 			self.game.notification_sent = True
 			user_ids = self.id.split('_')
@@ -129,6 +139,7 @@ async def wsapp(scope, receive, send):
 		})
 		return
 	change_status(user, 'in-game')
+	notify_status_to_friends(user, 'in-game')
 	gameid = scope['url_route']['kwargs']['gameid']
 
 	pi = PongInstance(gameid, user)
@@ -142,6 +153,7 @@ async def wsapp(scope, receive, send):
 			await pi.connect(send)
 		elif e == 2:
 			change_status(user, 'online')
+			notify_status_to_friends(user, 'online')
 			await pi.disconnect()
 			await send({
 				'type': 'websocket.close',
