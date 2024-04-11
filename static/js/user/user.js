@@ -22,7 +22,7 @@ function setUser(id, user) {
     users[id] = {
         username: user.username,
         image: user.image,
-        status: user.status == "online",
+        status: user.status,
     };
 }
 
@@ -32,20 +32,21 @@ function setUserStatus(id, status) {
         updateStatusElements(id, status);
         const friendsContainer = document.getElementById("friends-container");
         sortUsers(friendsContainer);
-        alertStatus(id, status);
     }
+}
+
+const statusColors = {
+    "online": "green",
+    "in-game": "blue",
+    "offline": "transparent",
 }
 
 function updateStatusElements(id, status) {
     const statusElements = document.querySelectorAll(".online-status");
-    const colors = {
-        "online": "green",
-        "in-game": "blue",
-        "offline": "transparent",
-    }
     for (const statusElement of statusElements) {
         if (statusElement.getAttribute("data-user-id") == id) {
-            statusElement.style.backgroundColor = colors[status];
+            if (status in statusColors)
+                statusElement.style.backgroundColor = statusColors[status];
             const userContainer = statusElement.closest(".user");
             userContainer.setAttribute("data-status", status);
             const gameButton = userContainer.querySelector(".start-match");
@@ -58,14 +59,15 @@ function updateStatusElements(id, status) {
 
 async function alertStatus(id, prevStatus, status) {
     let text = `${(await getUser(id)).username} `;
-    if (prevStatus == "offline" && data.status == "online")
-        text += "just connected.";
-    else if (prevStatus != "offline" && data.status == "offline")
-        text += "just disconnected.";
-    else if (status == "in-game")
+    if (status == "in-game")
         text += "is playing.";
     else if (prevStatus == "in-game" && status == "online")
         text += "is done playing.";
+    else if (status == "offline")
+        text += "just disconnected.";
+    else
+        text += "just connected.";
+    console.log("prevStatus:", prevStatus, "status:", status);
     util.showAlert({
         text: text,
         timeout: 2,
@@ -134,8 +136,8 @@ async function displayUser({
             const statusElement = document.createElement("div");
             statusElement.classList.add("online-status");
             statusElement.setAttribute("data-user-id", userId);
-            if (user.status) {
-                statusElement.style.backgroundColor = 'green';
+            if (user.status in statusColors) {
+                statusElement.style.backgroundColor = statusColors[user.status];
             }
             div1.appendChild(statusElement);
             div.setAttribute("data-status", user.status);
@@ -201,6 +203,8 @@ function block(target) {
             friends.refresh();
         }
     });
+    const userContainer = target.closest(".user");
+    userContainer.remove();
 }
 
 function unfriend(target) {
@@ -224,11 +228,11 @@ function sortUsers(container) {
     const userDivs = Array.from(container.querySelectorAll('.user'));
     const statusOrder = {
         "online": 0,
-        "ingame": 1,
+        "in-game": 1,
         "offline": 2
     };
     userDivs.sort((a, b) => {
-        return statusOrder[b.getAttribute("data-status")] - statusOrder[a.getAttribute("data-status")];
+        return statusOrder[a.getAttribute("data-status")] - statusOrder[b.getAttribute("data-status")];
     });
     container.innerHTML = "";
     userDivs.forEach(div => {

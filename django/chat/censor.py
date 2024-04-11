@@ -1,6 +1,8 @@
 import re
 
 def censor(message):
+    message.replace("<", "")
+    message.replace(">", "")
     tokens = tokenize(message)
     censored_tokens = []
     swear_count = 0

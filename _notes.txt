@@ -1,4 +1,14 @@
+.boutons pendant play with anyone
+.plus d'une alert à la fois (error)
+
+.Demande d'ami acceptée: liste d'amis pas mise à jour
+
+.from user search, block: UserChannelGroup matching query does not exist
+.friend request counter: make a button
+
+
 .mode release
+
 
 .X menu drop down                 emi
 .friend count style

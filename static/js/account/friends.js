@@ -183,7 +183,9 @@ function makeRequest(target) {
             console.log("successful friend request:", data);
         },
     })
-
+    // get closest of class "user"
+    const userElement = target.closest(".user");
+    userElement.remove();
 }
 
 // -- notifications ----
