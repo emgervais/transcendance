@@ -6,7 +6,7 @@ from rest_framework import serializers
 from friend.models import Friend, FriendRequest, Block
 from friend.serializers import FriendRequestSerializer, FriendSerializer, BlockSerializer
 from users.models import User
-from notification.utils import friend_request_notify, accept_friend_request_notify
+from notification.utils import friend_request_notify, accept_friend_request_notify, unfriend_notify
 from chat.consumers import close_blocked_user_chat
 
 class FriendRequestListView(APIView):
@@ -80,6 +80,7 @@ class FriendDetailView(APIView):
         try:
             friend = Friend.objects.get(pk=pk)
             Friend.objects.remove_friend(request.user, friend.friend)
+            unfriend_notify(friend.friend, request.user)
             return JsonResponse({'message': 'Friend removed successfully'}, status=status.HTTP_200_OK)
         except Friend.DoesNotExist:
             return JsonResponse({'error': 'Friend does not exist'}, status=status.HTTP_400_BAD_REQUEST)

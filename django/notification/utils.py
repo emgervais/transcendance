@@ -74,6 +74,16 @@ def friend_request_notify(user_id, friend, friend_request_id):
     except Exception as e:
         print('Error:', e)
         
+def unfriend_notify(to_user, from_user):
+    try:
+        send_to_websocket(get_channel_layer(), UserChannelGroup.objects.get(user=to_user).main, {
+            'type': 'send.notification',
+            'notification': 'unfriend',
+            'userId': from_user.id
+        })
+    except Exception as e:
+        print('Error:', e)
+        
 def accept_friend_request_notify(user, friend):
     channel_layer = get_channel_layer()
     if friend.status == 'online':

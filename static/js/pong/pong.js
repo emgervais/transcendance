@@ -75,19 +75,6 @@ const pongrenderheight = 55;
 
 var fb;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 const camera = {
 	pitch: 0,
 	yaw: -Math.PI/2,
@@ -263,6 +250,8 @@ function setup()
 
 	canvas.width = 1000; //canvas.clientWidth;
 	canvas.height = 800; //canvas.clientHeight;
+
+	console.log("Aspect ratio: " + canvas.clientWidth / canvas.clientHeight);
 
 	// create framebuffer
 	gl.activeTexture(gl.TEXTURE0);
@@ -1074,5 +1063,13 @@ function disconnect()
 	notInGame = true;
 	util.displayState();
 }
+
+// // update the canvas size on resize
+// window.addEventListener('resize', function() {
+// 	canvas.width = canvas.clientWidth;
+// 	canvas.height = canvas.clientHeight;
+// 	camera.proj(camera.fov, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
+// 	camera.uploadP();
+// });
 
 export {start, stop, stopgame, connect, disconnect, notInGame};

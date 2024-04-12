@@ -26,6 +26,8 @@ class RegisterSerializer(UserSerializer):
         password1 = data.get('password1', None)
         password2 = data.get('password2', None)
         
+        if username is None or email is None or password1 is None or password2 is None:
+            raise serializers.ValidationError({'error': 'All fields are required'})
         if password1 != password2:
             raise serializers.ValidationError({'password1': 'Passwords do not match'})
         validate_password(password1)
@@ -33,7 +35,6 @@ class RegisterSerializer(UserSerializer):
             raise serializers.ValidationError({'username': 'Username already exists'})
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError({'email': 'Email already exists'})
-        
         return data
 
     def create(self, validated_data):
