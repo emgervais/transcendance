@@ -74,6 +74,19 @@ const pongrenderheight = 55;
 
 var fb;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 const camera = {
 	pitch: 0,
 	yaw: -Math.PI/2,

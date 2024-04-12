@@ -14,6 +14,8 @@ RUN chmod 0644 /etc/cron.d/cron
 RUN crontab /etc/cron.d/cron
 RUN touch /var/log/cron.log
 
+ENV TZ=America/New_York
+
 # COPY . .
 COPY init_checks.py .
 COPY entrypoint.sh .

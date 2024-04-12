@@ -606,7 +606,7 @@ input {
     width: 50px;
 }
 
-.alert {
+#alert-container {
   z-index: 1001;
   width: 25%;
   position: fixed;

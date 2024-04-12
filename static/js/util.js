@@ -106,11 +106,12 @@ async function showAlert({
   // alertContainer.innerHTML = "";
   alertContainer.appendChild(alert);
   console.log("alertContainer:", alertContainer);
-  // if (timeout) {
-  // //   bsAlerts.push(new bootstrap.Alert(alert));
-  //   await sleep(timeout * 1000);
-  //   hideAlert();
-  // }
+  if (timeout) {
+    const bsAlert = new bootstrap.Alert(alert);
+    // bsAlerts.push(bsAlert);
+    await sleep(timeout * 1000);
+    bsAlert.close();
+  }
 }
 
 function hideAlert() {
