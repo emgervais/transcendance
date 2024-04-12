@@ -186,8 +186,8 @@ function makeRequest(target) {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({"to_user": userId }), 
         },
-        dataManager: data => {
-            console.log("successful friend request:", data);
+        dataManager: async data => {
+            util.showAlert({text: `Successful friend request to ${(await getUser(data.to_user)).username}`});
         },
     })
     const userElement = target.closest(".user");

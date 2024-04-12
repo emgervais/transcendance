@@ -73,7 +73,6 @@ function displayState(cherryPick=undefined) {
 
 // -- alert ----
 const alertContainer = document.getElementById("alert-container");
-let bsAlerts = [];
 
 async function showAlert({
   text,

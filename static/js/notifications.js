@@ -34,6 +34,9 @@ function start() {
 				setUserStatus(data.userId, data.status);
 				alertStatus(data.userId, prevStatus, data.status);
 				break;
+			case "unfriend":
+				friends.refresh();
+				break;
 			case "onlineFriends":
 				chatFriends.set(data.userIds);
 				friends.setOnlineFriendsCount(data.userIds.length);

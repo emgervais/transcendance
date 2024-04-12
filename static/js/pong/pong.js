@@ -261,8 +261,8 @@ function setup()
 	if(!initGL(canvas))
 		return false;
 
-	canvas.width = canvas.clientWidth;
-	canvas.height = canvas.clientHeight;
+	canvas.width = 1000; //canvas.clientWidth;
+	canvas.height = 800; //canvas.clientHeight;
 
 	// create framebuffer
 	gl.activeTexture(gl.TEXTURE0);

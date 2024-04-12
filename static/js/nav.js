@@ -16,6 +16,7 @@ function updateFriendRequestCount(count) {
 
 function incrFriendRequestCount(incr=1) {
     friendRequestCount += incr;
+    friendRequestCount = friendRequestCount >= 0 ? friendRequestCount : 0;
     updateFriendRequestCount(friendRequestCount);
 }
 

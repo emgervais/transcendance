@@ -1,6 +1,6 @@
 .unfriended: friend stays in friend list
-.from user search, block: UserChannelGroup matching query does not exist
 
+.X from user search, block: UserChannelGroup matching query does not exist
 .X Pong: displayOpponentName, match, 149: null (setting 'innerHTML')
 .X plus d'une alert à la fois (error)
 .X boutons pendant play with anyone
