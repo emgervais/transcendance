@@ -12,6 +12,7 @@
 .form fields autocomplete
 
 .mode release
+.volumes
 .token date d'expiration
 
 .X oauth redirection avec token       marc-andré

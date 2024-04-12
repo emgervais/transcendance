@@ -4,6 +4,7 @@ import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVe
 // import * as router from "/js/router/router.js";
 // import * as util from "/js/util.js";
 import { cancelSearchingMatch } from "/js/pong/match.js";
+import { getCurrentLocation } from "/js/router/router.js";
 
 import * as chatMessages from "/js/chat/messages.js";
 import * as chat from "/js/chat/chat.js";

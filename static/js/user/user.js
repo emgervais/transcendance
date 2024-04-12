@@ -35,7 +35,7 @@ function setUserStatus(id, status) {
         users[id].status = status;
         updateStatusElements(id, status);
         const friendsContainer = document.getElementById("friends-container");
-        sortUsersStatus(friendsContainer);
+        sortUsersByStatus(friendsContainer);
         if (router.getCurrentLocation() == "/account/friends/")
             friends.refresh();
     }
@@ -234,7 +234,7 @@ function unfriend(target) {
 }
 
 // -- 
-function sortUsersStatus(container) {
+function sortUsersByStatus(container) {
     if (!container) {
         return;
     }
@@ -253,13 +253,21 @@ function sortUsersStatus(container) {
     });
 }
 
-function sortUsersName(container) {
+function sortUsersByName(container) {
     if (!container) {
         return;
     }   
     const userDivs = Array.from(container.querySelectorAll('.user'));
     userDivs.sort((a, b) => {
-        // return  ;
+        const nameA = a.querySelector(".username").innerHTML.toLowerCase();
+        const nameB = b.querySelector(".username").innerHTML.toLowerCase();
+        if (nameA < nameB) {
+            return -1;
+        }
+        if (nameA > nameB) {
+            return 1;
+        }
+        return 0;
     });
     container.innerHTML = "";
     userDivs.forEach(div => {
@@ -269,4 +277,4 @@ function sortUsersName(container) {
 
 export { getUser, setUser, setUserStatus, removeUser, unfriend, displayUser, alertStatus };
 export { block };
-export { sortUsersStatus };
+export { sortUsersByStatus, sortUsersByName };

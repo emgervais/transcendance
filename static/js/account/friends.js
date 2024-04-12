@@ -2,7 +2,7 @@ import * as api from "/js/api.js";
 import * as nav from "/js/nav.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
-import { displayUser, getUser, sortUsersStatus } from "/js/user/user.js";
+import { displayUser, getUser, sortUsersByStatus } from "/js/user/user.js";
 
 const QUERY_PARAMS = {
     "is-friend": "false",
@@ -92,7 +92,7 @@ function getFriends() {
                 container.appendChild(div);
             })
         );
-        sortUsersStatus(container);
+        sortUsersByStatus(container);
     };
     api.fetchRoute({
         route: "/api/friends/",
