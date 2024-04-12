@@ -91,7 +91,8 @@ class BlockView(APIView):
     
     def post(self, request: HttpRequest) -> JsonResponse:
         try:
-            blocked = User.objects.get(pk=request.data['user_id'])
+            blocked_id = int(request.data.get('user_id'))
+            blocked = User.objects.get(pk=blocked_id)
             Block.objects.block(request.user, blocked)
             close_blocked_user_chat(request.user, blocked)
             return JsonResponse({'message': 'User blocked successfully'}, status=status.HTTP_201_CREATED)
@@ -104,7 +105,8 @@ class BlockView(APIView):
     
     def delete(self, request: HttpRequest) -> JsonResponse:
         try:
-            blocked = User.objects.get(pk=request.data['user_id'])
+            blocked_id = int(request.data.get('user_id'))
+            blocked = User.objects.get(pk=blocked_id)
             Block.objects.unblock(request.user, blocked)
             return JsonResponse({'message': 'User unblocked successfully'}, status=status.HTTP_200_OK)
         except serializers.ValidationError as e:

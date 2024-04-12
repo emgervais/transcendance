@@ -2,7 +2,7 @@ from notification.utils_db import get_user, in_group, add_channel_group, remove_
 from notification.utils import notify_online, send_to_websocket, escape_html
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.layers import get_channel_layer
-from users.models import UserChannelGroup
+from users.models import UserChannelGroup, User
 from chat.censor import censor
 import json
 
@@ -95,7 +95,11 @@ def close_blocked_user_chat(user, recipient):
     group_name = '_'.join(sorted([str(user.id), str(recipient.id)]))
     channel_layer = get_channel_layer()
     close_chat(user, recipient, group_name, channel_layer)
-    close_chat(recipient, user, group_name, channel_layer)
+    try:
+        if User.objects.get(id=recipient.id).status != 'offline':
+            close_chat(recipient, user, group_name, channel_layer)
+    except Exception:
+        print('User is not online')
         
 def close_chat(user, recipient, room, channel_layer):
     notify_online(user, recipient, False, channel_layer)
