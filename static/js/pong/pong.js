@@ -1074,4 +1074,9 @@ function disconnect()
 	util.displayState();
 }
 
+// update the canvas size on resize
+// window.addEventListener('onresize', 
+
+// });
+
 export {start, stop, stopgame, connect, disconnect, notInGame};

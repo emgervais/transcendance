@@ -94,12 +94,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 def close_blocked_user_chat(user, recipient):
     group_name = '_'.join(sorted([str(user.id), str(recipient.id)]))
     channel_layer = get_channel_layer()
-    close_chat(user, recipient, group_name, channel_layer)
     try:
         if User.objects.get(id=recipient.id).status != 'offline':
+            close_chat(user, recipient, group_name, channel_layer)
             close_chat(recipient, user, group_name, channel_layer)
     except Exception:
-        print('User is not online')
+        pass
         
 def close_chat(user, recipient, room, channel_layer):
     notify_online(user, recipient, False, channel_layer)
