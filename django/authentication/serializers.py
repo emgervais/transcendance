@@ -26,7 +26,7 @@ class RegisterSerializer(UserSerializer):
         password1 = data.get('password1', None)
         password2 = data.get('password2', None)
         
-        if username is None or email is None or password1 is None or password2 is None:
+        if not all([username, email, password1, password2]):
             raise serializers.ValidationError({'error': 'All fields are required'})
         if password1 != password2:
             raise serializers.ValidationError({'password1': 'Passwords do not match'})

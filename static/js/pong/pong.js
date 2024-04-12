@@ -251,8 +251,6 @@ function setup()
 	canvas.width = 1000; //canvas.clientWidth;
 	canvas.height = 800; //canvas.clientHeight;
 
-	console.log("Aspect ratio: " + canvas.clientWidth / canvas.clientHeight);
-
 	// create framebuffer
 	gl.activeTexture(gl.TEXTURE0);
 	fb = createFramebuffer(pongrenderwidth, pongrenderheight);
