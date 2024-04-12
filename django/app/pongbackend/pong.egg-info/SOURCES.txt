@@ -1,9 +1,0 @@
-setup.py
-pong.egg-info/PKG-INFO
-pong.egg-info/SOURCES.txt
-pong.egg-info/dependency_links.txt
-pong.egg-info/top_level.txt
-src/player.cpp
-src/pong.cpp
-src/pongbackend.cpp
-src/pyWrapper.cpp

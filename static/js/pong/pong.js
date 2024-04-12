@@ -793,6 +793,8 @@ function draw()
 		return;
 	const sendbytes = new Uint32Array(1); // 0: player1 movement, rest is sent instantly
 	let dt = (performance.now() - lastTime);
+	if(dt > 1000)
+		dt = 1000;
 	lastTime = performance.now();
 	switch(state)
 	{
@@ -914,7 +916,7 @@ function draw()
 				camera.yaw = camera.targetyaw;
 		}
 		if(cassettemodel._uboT._matrix[14] > 0.0)
-			cassettemodel.translatez(-0.001 * (cassettemodel._uboT._matrix[14] * 2.0 + 0.1) * dt);
+			cassettemodel.translatez(-0.001 * (cassettemodel._uboT._matrix[14] * 2.0 + 0.2) * dt);
 		camera.move(camera.x, camera.y, camera.z, camera.pitch, camera.yaw);
 		camera.uploadV();
 		sendtimer += dt;
