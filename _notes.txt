@@ -9,21 +9,18 @@
 .X friend request counter: make a button
     : remove when answered friend request
 
+.form fields autocomplete
 
 .mode release
+.token date d'expiration
 
+.X oauth redirection avec token       marc-andré
 
 .X menu drop down                 emi
-.form fields autocomplete
 .X empêcher de bloquer un user bloqué
-
-.tester input fields            ele / emi
-.token date d'expiration
+.X tester input fields            ele / emi
 .X utilisateur "en partie"
-
 .X historique d'un autre joueur   franco
-
-.oauth redirection avec token       marc-andré
 .X chat empecher nouveaux messages d'utilisateur bloqué
 
 

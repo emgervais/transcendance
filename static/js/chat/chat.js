@@ -99,10 +99,11 @@ function stop(roomId) {
 
 function deleteMessage(id) {
 	const messages = JSON.parse(sessionStorage.getItem("messages"));
+	if (!messages)
+		return;
 	const newMessages = messages.filter((value) => {
 		return value.userId != id;
 	});
-	console.log(newMessages);
 	if(sessionStorage.getItem("messages"))
 		sessionStorage.removeItem("messages");
 	sessionStorage.setItem("messages", JSON.stringify(newMessages));

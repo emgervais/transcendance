@@ -35,7 +35,7 @@ function setUserStatus(id, status) {
         users[id].status = status;
         updateStatusElements(id, status);
         const friendsContainer = document.getElementById("friends-container");
-        sortUsers(friendsContainer);
+        sortUsersStatus(friendsContainer);
         if (router.getCurrentLocation() == "/account/friends/")
             friends.refresh();
     }
@@ -113,6 +113,7 @@ async function displayUser({
         div1.appendChild(imgAnchor);
 
         const username = document.createElement("p");
+        username.classList.add("username");
         username.textContent = user.username;
         div1.appendChild(username);
         div.appendChild(div1);
@@ -195,12 +196,13 @@ function block(target) {
     const blocking = target.getAttribute("data-block") == "true";
     const method = blocking ? "POST" : "DELETE";
     const userId = target.getAttribute("data-user-id");
-    console.log(blocking ? "" : "un" + "blocking userId:", userId);
+    // console.log(blocking ? "" : "un" + "blocking userId:", userId);
     const options = {
         method: method,
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ user_id: userId }),
     };
+    console.log("route:", "/api/block/", "options:", options);
     api.fetchRoute({
         route: "/api/block/",
         options: options,
@@ -214,7 +216,8 @@ function block(target) {
         nav.incrFriendRequestCount(-1);
     }
     const userContainer = target.closest(".user");
-    userContainer.remove();
+    if (userContainer)
+        userContainer.remove();
 }
 
 function unfriend(target) {
@@ -231,7 +234,7 @@ function unfriend(target) {
 }
 
 // -- 
-function sortUsers(container) {
+function sortUsersStatus(container) {
     if (!container) {
         return;
     }
@@ -250,6 +253,20 @@ function sortUsers(container) {
     });
 }
 
+function sortUsersName(container) {
+    if (!container) {
+        return;
+    }   
+    const userDivs = Array.from(container.querySelectorAll('.user'));
+    userDivs.sort((a, b) => {
+        // return  ;
+    });
+    container.innerHTML = "";
+    userDivs.forEach(div => {
+        container.appendChild(div)
+    });    
+}
+
 export { getUser, setUser, setUserStatus, removeUser, unfriend, displayUser, alertStatus };
 export { block };
-export { sortUsers };
+export { sortUsersStatus };
