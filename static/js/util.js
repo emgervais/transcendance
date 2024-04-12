@@ -103,23 +103,15 @@ async function showAlert({
   if (closeButton) {
     addCloseButton();
   }
-  // alertContainer.innerHTML = "";
   alertContainer.appendChild(alert);
-  console.log("alertContainer:", alertContainer);
   if (timeout) {
     const bsAlert = new bootstrap.Alert(alert);
-    // bsAlerts.push(bsAlert);
     await sleep(timeout * 1000);
     bsAlert.close();
   }
 }
 
 function hideAlert() {
-  // try {
-  //   bsAlerts.forEach(bsAlert => bsAlert.close());
-  // } catch(e) {
-  //   console.log("error:", e);
-  // }
   alertContainer.innerHTML = "";
 }
 

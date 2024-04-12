@@ -1,8 +1,8 @@
 .unfriended: friend stays in friend list
-.Pong: displayOpponentName, match, 149: null (setting 'innerHTML')
 .from user search, block: UserChannelGroup matching query does not exist
-.plus d'une alert à la fois (error)
 
+.X Pong: displayOpponentName, match, 149: null (setting 'innerHTML')
+.X plus d'une alert à la fois (error)
 .X boutons pendant play with anyone
 .X Demande d'ami acceptée: liste d'amis pas mise à jour
 .X Liste amis: enlever play si "in-game"

@@ -131,9 +131,9 @@ function clearInvites() {
 }
 
 // -- start ----
-function start(data) {
+async function start(data) {
     if (router.getCurrentLocation() != "/")
-        router.route("/");
+        await router.route("/");
     chat.stop(chat.matchRoomId);
     chatMessages.deleteMessages(chat.matchRoomId);
     chat.start(`pong_${data.room}`);
@@ -145,8 +145,8 @@ function start(data) {
 
 async function displayOpponentName(room) {
     const element = document.getElementById("opponent-username");
-    const oppenentName = await getOpponentName(room);
-    element.innerHTML = oppenentName ? `Opponent: ${oppenentName}` : "";
+    const opponentName = await getOpponentName(room);
+    element.innerHTML = opponentName ? `Opponent: ${opponentName}` : "";
 }
 
 async function getOpponentName(room) {
