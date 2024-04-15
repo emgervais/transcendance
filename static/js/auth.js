@@ -87,16 +87,18 @@ function confirmLogin() {
 // ----
 
 function logout() {
+    const manager = async () => {
+        sessionStorage.removeItem("messages");
+        setConnected(false);
+        match.cancelSearchingMatch();
+        match.clearInvites();
+        await router.route("/");
+    }
     api.fetchRoute({
         route: "/api/logout/",
         options: { method: "POST" },
-        dataManager: async data => {
-            sessionStorage.removeItem("messages");
-            setConnected(false);
-            match.cancelSearchingMatch();
-            match.clearInvites();
-            await router.route("/");
-        }
+        dataManager: manager,
+        errorManager: manager
     });
     messages.deleteAllMessages();
 }

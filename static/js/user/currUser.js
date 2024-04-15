@@ -17,11 +17,9 @@ function setCurrUser(user) {
 
 function updateCurrUser(data) {
     updateConfirmation(data);
-    console.log("updateCurrUser data:", data);
     const user = getCurrUser();
     for (const key in data) {
         if (key in user) {
-            // console.log(key, ":", data[key]);
             user[key] = data[key];
         }
     }
@@ -79,7 +77,8 @@ function updateConfirmation(data) {
                 break;
         }
     }
-    util.showAlert({ text: msg, timeout: 5});
+    if (msg)
+        util.showAlert({ text: msg, timeout: 5});
 }
 
 export { getCurrUser, setCurrUser, updateCurrUser, removeCurrUser };
