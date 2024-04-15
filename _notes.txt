@@ -1,7 +1,13 @@
+Set server hostname:
+    .env: ALLOWED_HOSTS
+    https://profile.intra.42.fr/oauth/applications/19154/
+
+
 .mode release
 .volumes
 .token date d'expiration
-.enlever route qui reset db?
+.X restart: unless stoped
+.X enlever route qui reset db
 
 .form fields autocomplete
 

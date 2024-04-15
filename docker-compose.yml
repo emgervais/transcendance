@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   postgres:
+    restart: unless-stopped
     image: postgres:16.2-alpine
     container_name: postgres
     env_file:
@@ -14,6 +15,7 @@ services:
       - transcendence_network
 
   web:
+    restart: unless-stopped
     container_name: web
     env_file:
       - .env
@@ -31,6 +33,7 @@ services:
       - transcendence_network
 
   nginx:
+    restart: unless-stopped
     container_name: nginx
     build:
       context: ./nginx/

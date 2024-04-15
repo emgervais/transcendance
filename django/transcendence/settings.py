@@ -53,7 +53,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ROOT_URLCONF = 'transcendence.urls'
 LOGIN_URL = "login/"
 AUTH_USER_MODEL = "users.User"
-CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(" ")
+CSRF_TRUSTED_ORIGINS = [ "https://" + host for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(" ")]
 
 TEMPLATES = [
     {
@@ -82,7 +82,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=60),
     'BLACKLIST_AFTER_ROTATION': True,
 
     'AUTH_COOKIE': 'access_token',
