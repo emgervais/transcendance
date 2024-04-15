@@ -15,7 +15,7 @@ def endpoint(func):
 def reset_db():
     url = "/api/reset/database/"
     method = "delete"
-    response = util.request(url, method)
+    response = {"data": None} # util.request(url, method)
     return response
 
 @endpoint

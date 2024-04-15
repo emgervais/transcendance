@@ -1,3 +1,10 @@
+.mode release
+.volumes
+.token date d'expiration
+.enlever route qui reset db?
+
+.form fields autocomplete
+
 .X unfriended: friend stays in friend list
 .X from user search, block: UserChannelGroup matching query does not exist
 .X Pong: displayOpponentName, match, 149: null (setting 'innerHTML')
@@ -7,12 +14,6 @@
 .X Liste amis: enlever play si "in-game"
 .X friend request counter: make a button
     : remove when answered friend request
-
-.form fields autocomplete
-
-.mode release
-.volumes
-.token date d'expiration
 
 .X oauth redirection avec token       marc-andré
 .X menu drop down                 emi

@@ -19,16 +19,6 @@ def set_cookies(response, user):
     response.set_cookie('refresh_token', str(refresh_token), samesite='Strict', httponly=True, secure=True, expires=refresh_token_exp, path='/api/refresh-token/')
     return response
 
-# For development purposes only
-class ResetDatabaseView(generics.DestroyAPIView):
-    permission_classes = [AllowAny]
-    def delete(self, request: HttpRequest) -> JsonResponse:
-        try:
-            User.objects.all().delete()
-            return JsonResponse({'message': 'Database reset successfully'}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 class RegisterView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
