@@ -21,7 +21,6 @@ from pong.routing import websocket_urlpatterns as pong_websocket_urlpatterns
 from authentication.middleware import JWTAuthMiddlewareStack
 
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transcendence.settings')
 
 application = ProtocolTypeRouter(
 	{
