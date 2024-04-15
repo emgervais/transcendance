@@ -40,7 +40,6 @@ services:
     volumes:
       - ./static/:/var/www/static/
       - ./media/:/var/www/media/
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
       - web
     networks:
