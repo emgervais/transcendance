@@ -19,6 +19,8 @@ async function getUser(id) {
             setUser(id, user);
         },
     });
+    if (!(id in users))
+        return {id: -1, username: "bozo", image: "/media/default/default.webp"};
     return users[id];
 }
 
@@ -202,7 +204,7 @@ function block(target) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ user_id: userId }),
     };
-    console.log("route:", "/api/block/", "options:", options);
+    // console.log("route:", "/api/block/", "options:", options);
     api.fetchRoute({
         route: "/api/block/",
         options: options,

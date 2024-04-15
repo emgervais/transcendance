@@ -10,7 +10,7 @@ import { setUserStatus, getUser, alertStatus } from "/js/user/user.js";
 
 var ws;
 
-function start() {
+async function start() {
 	var userId = getCurrUser().id;
 	ws = new WebSocket(
 		'wss://'

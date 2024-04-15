@@ -1,4 +1,5 @@
 import * as chat from "/js/chat/chat.js";
+import * as user from "/js/user/user.js";
 
 const SELF = "self";
 const OTHER = "other";
@@ -11,14 +12,15 @@ function loadMessages(roomId) {
 		return;
 	messages = messages.filter(room => room.roomId === roomId)
 	messages.forEach(msg => {
-		generateMessage(msg.message, msg.isCurrUser, msg.image, msg.userId);
+		generateMessage(msg.message, msg.isCurrUser, msg.userId);
 	});
 }
 
-async function generateMessage(msg, isCurrUser, img, userId) {
+async function generateMessage(msg, isCurrUser, userId) {
 	const chatInput = document.getElementById('chat-input');
 	const chatLogs = document.querySelector('.chat-logs');
 
+	const img = (await user.getUser(userId)).image;
 	var str = "";
 	str += `<div class="chat-msg ${isCurrUser ? "self" : "other"}">`;
 	str += `          <span class="msg-avatar">`;
@@ -35,13 +37,12 @@ async function generateMessage(msg, isCurrUser, img, userId) {
 	chatLogs.scrollTop = chatLogs.scrollHeight;
 }
 
-async function saveMessage(roomId, msg, isCurrUser, img, userId) {
+async function saveMessage(roomId, msg, isCurrUser, userId) {
 	let messages = JSON.parse(sessionStorage.getItem("messages")) || [];
 	const newMessage = {
 		roomId: roomId,
 		message: msg,
 		isCurrUser,
-		image: img,
 		userId: userId,
 	};
 	messages.push(newMessage);

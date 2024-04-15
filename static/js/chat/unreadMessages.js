@@ -10,7 +10,7 @@ function incr(roomId, incr=1) {
 	}
 	roomCounts[roomId] += incr;
 	display();
-    console.log("incr: roomId:", roomId, "\nmatchRoomId:", matchRoomId);
+    // console.log("incr: roomId:", roomId, "\nmatchRoomId:", matchRoomId);
 	updateTab(roomId, true);
 }
 

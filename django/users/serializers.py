@@ -76,7 +76,7 @@ class ChangeInfoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'image': 'Invalid image file type'})
         
         if username is not None and not re.match(r'^[a-zA-Z0-9_.]*$', username):
-            raise serializers.ValidationError({'username': 'Username can only contain letters, numbers, and underscores'})
+            raise serializers.ValidationError({'username': 'Username can only contain letters, numbers, dot, and underscores'})
         if email is not None and not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
             raise serializers.ValidationError({'email': 'Invalid email address'})
         return data

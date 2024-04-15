@@ -49,12 +49,12 @@ function start(roomId=GLOBAL_ROOM_ID) {
 			message = sender.username + ': ' + message;
 		}
 		if (roomId === currRoomId) {
-			chatMessages.generateMessage(message, isCurrUser, sender.image, data.senderId);
+			chatMessages.generateMessage(message, isCurrUser, data.senderId);
 		}
 		if (!chatDisplay.chatBoxOpened() || roomId != currRoomId) {
 			chatUnreadMessages.incr(roomId);
 		}
-		chatMessages.saveMessage(roomId, message, isCurrUser, sender.image, data.senderId);
+		chatMessages.saveMessage(roomId, message, isCurrUser, data.senderId);
 	};
 
 	ws.onclose = (_) => {

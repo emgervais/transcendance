@@ -69,17 +69,17 @@ function reConnect() {
     router.route("/login/");
 }
 
-function confirmLogin() {
+async function confirmLogin() {
     if (!isConnected()) {
         if (!router.getCurrentRoute().unprotected) {
             reConnect();
         }
         return;
     }
-    api.fetchRoute({
+    await api.fetchRoute({
         route: "/api/user/",
-        dataManager: user => {
-            login(user, false);
+        dataManager: async user => {
+            await login(user, false);
         },
         requireAuthorized: false,
     });
@@ -117,7 +117,7 @@ function oauthRedirected() {
             body: JSON.stringify({ code: code }), 
         },
         dataManager: (data) => {
-            login(data);
+            login(data, false);
             util.hideAlert();
         },
         errorManager: (error) => {

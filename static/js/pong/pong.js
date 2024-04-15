@@ -549,7 +549,10 @@ function setViewState()
 		camera.targetz = 1.5;
 		camera.targetpitch = 0;
 		camera.targetyaw = -Math.PI/2;
-		ambientSound.play();
+		try {
+			ambientSound.play();
+		} catch(e) {
+		}
 	}
 }
 
