@@ -18,7 +18,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(" ")
 # Application definition
 
 INSTALLED_APPS = [
-	'daphne',
+	# 'daphne',
     'channels',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -81,12 +81,15 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'BLACKLIST_AFTER_ROTATION': True,
 
     'AUTH_COOKIE': 'access_token',
 }
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_PORT = os.environ.get("REDIS_PORT")
@@ -100,7 +103,7 @@ CHANNEL_LAYERS = {
     },
 }
 
-ASGI_APPLICATION = 'transcendence.asgi.application'
+# ASGI_APPLICATION = 'transcendence.asgi.application'
 # WSGI_APPLICATION = 'transcendence.wsgi.application'
 
 DATABASES = {
