@@ -27,7 +27,7 @@ async function start() {
 				break;
 			case "connection":
 				const prevStatus = (await getUser(data.userId)).status;
-				const connected = prevStatus == "offline" && data.status != "offline";
+				const connected = (prevStatus == "offline" || !prevStatus) && data.status != "offline";
 				const disconnected =  prevStatus != "offline" && data.status == "offline";
 				chatFriends.update(data.userId, connected, disconnected);
 				friends.incrOnlineFriendsCount(connected, disconnected);
