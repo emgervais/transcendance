@@ -84,7 +84,6 @@ function pongNotifications(data) {
 			match.start(data);
 			break;
 		case "tournamentSummary":
-			console.log("data.positions:", data.positions);
 			match.tournamentSummary(data.positions);
 			break;
 		case "gameStopped":

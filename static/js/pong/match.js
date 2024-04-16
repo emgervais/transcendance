@@ -102,7 +102,6 @@ function removeInvite(room) {
         }
     }
     invites = invites.filter(currRoom => {
-        console.log(`currRoom ${currRoom} !== room ${room}:`, currRoom !== room)
         return currRoom !== room;
     });
 
@@ -165,7 +164,7 @@ async function tournamentSummary(data) {
     for (var key in data) {
         element.innerHTML += `${key}: ${data[key]}<br>`;
     }    
-    console.log("tournamentSummary:", data);
+    // console.log("tournamentSummary:", data);
 }
 
 function clearPongText() {
