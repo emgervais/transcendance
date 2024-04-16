@@ -6,7 +6,7 @@ from pong.models import Game
 SCREEN_LENGTH = 13.65
 ENDIENESS = 'little'
 BALL_PRECISION = 1000.0
-POINTS_TO_WIN = 2
+POINTS_TO_WIN = 5
 
 # P1Y = 1, P2Y = 2, P1Score = 4, P2Score = 8, Ball = 16, PWin = 32, Count = 64
 # 00000001, 00000010, 00000100, 00001000, 00010000, 00100000, 01000000
@@ -131,7 +131,6 @@ class Pong:
 				for _ in range(4):
 					self.tournament_user_ids.append(int.from_bytes(bytestr[offset:(offset + 4)], ENDIENESS))
 					offset += 4
-				print("tournament_user_ids: ", self.tournament_user_ids)
 			elif(type == Events.player_movement):
 				player.y = int.from_bytes(bytestr[offset:(offset + 4)], ENDIENESS)
 				self.filter |= 1 << (player.pongid - 1)
