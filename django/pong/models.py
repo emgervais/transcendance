@@ -85,7 +85,6 @@ class GameManager(models.Manager):
         stats['most_played_opponent']['opponent'] = max(opponents, key=opponents.get).username
         stats['most_played_opponent']['games'] = opponents[max(opponents, key=opponents.get)]
         stats['games'] = games.count()
-        print(stats)
         return stats
                 
     

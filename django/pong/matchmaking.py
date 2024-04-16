@@ -85,7 +85,6 @@ def are_users_online(users, room):
     ret = True
     for user in users:
         user = User.objects.get(id=user)
-        print(user.status)
         if user.status != 'online':
             matchmaking_redis.zrem(room, user.id)
             ret = False
@@ -95,12 +94,10 @@ def matchmaker(room):
     min_players = TOURNAMENT_NB_PLAYERS if room == 'tournament' else 2
     tournament_id = None
     while True:
-        print('In Queue...')
         if matchmaking_redis.zcard(room) >= min_players:
             users = matchmaking_redis.zrange(room, 0, min_players - 1)
             if not are_users_online(users, room):
                 continue
-            print('Match found')
             channel_layer = get_channel_layer()
             if room == 'tournament':
                 tournament_id = '_'.join(sorted([str(user.decode('utf-8')) for user in users]))
@@ -117,7 +114,6 @@ def matchmaker(room):
                     break
             matchmaking_redis.zremrangebyrank(room, 0, min_players - 1)
         else:
-            print('Not enough players')
             break
 
 async def async_send_to_websocket(channel_layer, channel_name, event):

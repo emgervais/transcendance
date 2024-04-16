@@ -85,22 +85,19 @@ class BlockManager(models.Manager):
             raise serializers.ValidationError({'block': 'Users cannot block themselves'})
         
         block, created = Block.objects.get_or_create(blocker=blocker, blocked=blocked)
-        print("after create block")
+        
         if created is False:
             raise serializers.ValidationError({'block': 'User already blocked'})
-        
         
         if Friend.objects.filter(user=blocker, friend=blocked).exists():
             Friend.objects.filter(user=blocker, friend=blocked).delete()
             Friend.objects.filter(user=blocked, friend=blocker).delete()
-        print("after delete friend")
         
         if FriendRequest.objects.filter(from_user=blocker, to_user=blocked).exists():
             FriendRequest.objects.filter(from_user=blocker, to_user=blocked).delete()
 
         if FriendRequest.objects.filter(from_user=blocked, to_user=blocker).exists():
             FriendRequest.objects.filter(from_user=blocked, to_user=blocker).delete()
-        print("after delete friend request")
 
         return block
 

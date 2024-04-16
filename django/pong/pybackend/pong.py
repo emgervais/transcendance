@@ -131,7 +131,6 @@ class Pong:
 				for _ in range(4):
 					self.tournament_user_ids.append(int.from_bytes(bytestr[offset:(offset + 4)], ENDIENESS))
 					offset += 4
-				print("tournament_user_ids: ", self.tournament_user_ids)
 			elif(type == Events.player_movement):
 				player.y = int.from_bytes(bytestr[offset:(offset + 4)], ENDIENESS)
 				self.filter |= 1 << (player.pongid - 1)
