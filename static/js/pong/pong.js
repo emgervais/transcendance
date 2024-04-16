@@ -242,7 +242,8 @@ function setup()
 	let button = document.getElementById('ping-button');
 	button.onclick = function() {
 		buttonSound.currentTime = 0;
-		buttonSound.play();
+		if (interactedWithDocument)
+			buttonSound.play();
 	}
 	canvas = document.getElementById('webgl-canvas');
 	if(!initGL(canvas))
@@ -549,10 +550,8 @@ function setViewState()
 		camera.targetz = 1.5;
 		camera.targetpitch = 0;
 		camera.targetyaw = -Math.PI/2;
-		try {
+		if (interactedWithDocument)
 			ambientSound.play();
-		} catch(e) {
-		}
 	}
 }
 
@@ -612,7 +611,8 @@ function connect(id, tournamentId)
 					redtimer = 200;
 					hurtSound.currentTime = 0;
 					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-					hurtSound.play();
+					if (interactedWithDocument)
+						hurtSound.play();
 				}
 				score.points[0] = dv.getUint32(offset, true);
 				score.ubo1.setdata([
@@ -626,7 +626,8 @@ function connect(id, tournamentId)
 					redtimer = 200;
 					hurtSound.currentTime = 0;
 					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-					hurtSound.play();
+					if (interactedWithDocument)
+						hurtSound.play();
 				}
 				score.points[1] = dv.getUint32(offset, true);
 				score.ubo2.setdata([
@@ -644,7 +645,8 @@ function connect(id, tournamentId)
 				if(pl != playerid)
 				{
 					bounceSound.currentTime = 0;
-					bounceSound.play();
+					if (interactedWithDocument)
+						bounceSound.play();
 				}
 				break;
 			case 8: // gamestate
@@ -806,7 +808,8 @@ function draw()
 					ball.xspeed *= -1.05;
 					ball.yspeed = (ball.gety()+ball.height/2 - (player.gety() + paddle.height/2))*0.5 * Math.abs(ball.xspeed);
 					bounceSound.currentTime = 0;
-					bounceSound.play();
+					if (interactedWithDocument)
+						bounceSound.play();
 					wsballdv.setUint32(1, ball.getx() * ballprecision, true);
 					wsballdv.setUint32(5, ball.gety() * ballprecision, true);
 					wsballdv.setUint32(9, ball.xspeed * ballprecision, true);
@@ -1005,7 +1008,8 @@ function miss() {
 	redtimer = 200;
 	hurtSound.currentTime = 0;
 	hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
-	hurtSound.play();
+	if (interactedWithDocument)
+		hurtSound.play();
 	wsscoredv.setUint32(1, ball.getx() * ballprecision, true);
 	wsscoredv.setUint32(5, ball.gety() * ballprecision, true);
 	wsscoredv.setUint32(9, ball.xspeed * ballprecision, true);
@@ -1072,5 +1076,10 @@ function disconnect()
 // 	camera.proj(camera.fov, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
 // 	camera.uploadP();
 // });
+
+var interactedWithDocument = false;
+document.addEventListener('click', function(event) {
+	interactedWithDocument = true;
+});
 
 export {start, stop, stopgame, connect, disconnect, notInGame};
