@@ -2,12 +2,13 @@ import * as util from "/js/util.js";
 import * as auth from "/js/auth.js";
 
 // -- singletons ----
+var currUser = {};
 function getCurrUser() {
     let key = "user";
     let user = JSON.parse(sessionStorage.getItem(key));
-    if (!user) {
-        auth.confirmLogin();
-        user = {id:-1, username: "bozo"};
+    if (!user && currUser) {
+        user = currUser;
+        setCurrUser(user);
     }
     return user;
 }
@@ -18,6 +19,7 @@ function setCurrUser(user) {
     }
     let key = "user";
     sessionStorage.setItem(key, JSON.stringify(user));
+    currUser = user;
 }
 
 function updateCurrUser(data) {
