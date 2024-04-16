@@ -76,7 +76,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if len(recipient_ids) == 2:
             recipient_id = recipient_ids[0] if recipient_ids[0] != str(user.id) else recipient_ids[1]
             recipient = await get_user(recipient_id)
-            if recipient and recipient.status == 'online' and not await is_blocked(user, recipient):
+            if recipient and recipient.status != 'offline' and not await is_blocked(user, recipient):
                 if not await in_group(recipient, self.group_name):
                     recipient_channel = await get_main_channel(recipient)
                     if recipient_channel:

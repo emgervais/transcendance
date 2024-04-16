@@ -106,7 +106,7 @@ def is_recipient_online(user_id, group):
     users = group.split('_')
     recipient_id = users[0] if users[0] != str(user_id) else users[1]
     try:
-        return User.objects.get(id=recipient_id).status == 'online'
+        return User.objects.get(id=recipient_id).status != 'offline'
     except User.DoesNotExist:
         return False
     

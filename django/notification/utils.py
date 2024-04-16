@@ -19,7 +19,7 @@ def user_disconnect(user_id):
     try:
         user = User.objects.get(id=user_id)
         main = UserChannelGroup.objects.get(user=user).main
-        should_disconnect = main == '' and user.status == 'online'
+        should_disconnect = main == '' and user.status != 'offline'
         if should_disconnect:
             user.status = 'offline'
             user.save()
@@ -92,9 +92,9 @@ def unfriend_notify(to_user, from_user):
         
 def accept_friend_request_notify(user, friend):
     channel_layer = get_channel_layer()
-    if friend.status == 'online':
+    if friend.status != 'offline':
         notify_online(user, friend, 'online', channel_layer)
-    if user.status == 'online':
+    if user.status != 'offline':
         notify_online(friend, user, 'online', channel_layer)
         
 def notify_online(user, friend, status, channel_layer):

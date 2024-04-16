@@ -16,7 +16,7 @@ class FriendShipManager(models.Manager):
         online_friends = []
         
         for friend in friends:
-            if friend.friend.status == 'online':
+            if friend.friend.status != 'offline':
                 if ids_only:
                     online_friends.append(friend.friend.id)
                 else:
