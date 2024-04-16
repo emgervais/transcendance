@@ -11,7 +11,6 @@ matchmaking_lock = threading.Lock()
 
 def remove_from_all_queues(user_id):
     for matchmaking_redis_key in matchmaking_redis.scan_iter(match='*'):
-        print('queue', matchmaking_redis_key)
         matchmaking_redis.zrem(matchmaking_redis_key, user_id)
 
 # Helper functions
@@ -31,7 +30,6 @@ def user_disconnect(user_id):
                     notify_online(user, friend, 'offline', channel_layer)
             remove_from_all_queues(user_id)
             clear_user_channels(user)
-            print('User disconnected')
     except User.DoesNotExist:
         print('User not found')
     except UserChannelGroup.DoesNotExist:
@@ -64,8 +62,6 @@ def clear_user_channels(user):
             send_to_websocket(channel_layer, channel, {'type': 'websocket.close'})
             if group != 'global':
                 close_recipient_channel(user.id, group, channel_layer)
-    except UserChannelGroup.DoesNotExist:
-        print('User channel group not found')
     except Exception as e:
         print('Error:', e)
 

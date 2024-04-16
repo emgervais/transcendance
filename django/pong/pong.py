@@ -45,7 +45,6 @@ class PongInstance:
 		self.send = None
 
 	async def connect(self, send):
-		# print('connect')
 		if self.game.player_count() < 2:
 			self.player = self.game.new_player(send, self.user)
 			self.send = send

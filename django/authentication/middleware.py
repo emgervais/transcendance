@@ -31,7 +31,6 @@ class JWTAuthMiddleware:
             else:
                 scope['user'] = AnonymousUser()
         except (InvalidSignatureError, KeyError, ExpiredSignatureError, DecodeError):
-            print('Invalid token')
             traceback.print_exc()
         except:
             scope['user'] = AnonymousUser()
