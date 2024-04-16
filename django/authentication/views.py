@@ -19,6 +19,12 @@ def set_cookies(response, user):
     response.set_cookie('refresh_token', str(refresh_token), samesite='Strict', httponly=True, secure=True, expires=refresh_token_exp, path='/api/refresh-token/')
     return response
 
+def delete_cookies(response):
+    response.delete_cookie('access_token', path='/')
+    response.delete_cookie('refresh_token', path='/api/refresh-token/')
+    print('Cookies deleted')
+    return response
+
 class RegisterView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
@@ -50,8 +56,7 @@ class LogoutView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         response = JsonResponse({'message': 'Logout successful'}, status=status.HTTP_200_OK)
-        response.delete_cookie('refresh_token')
-        response.delete_cookie('access_token')
+        response = delete_cookies(response)
         try:
             user = User.objects.get(pk=request.user.id)
             channel_name = UserChannelGroup.objects.get(user=user).main

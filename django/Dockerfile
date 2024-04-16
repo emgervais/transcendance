@@ -1,7 +1,7 @@
 FROM python:3.9.18-alpine
 
 # Install the PostgreSQL and Redis client tools
-RUN apk add --no-cache postgresql-client redis
+RUN apk add --no-cache postgresql-client redis supervisor
 
 RUN pip install --upgrade pip
 
@@ -13,6 +13,8 @@ COPY cron /etc/cron.d/cron
 RUN chmod 0644 /etc/cron.d/cron
 RUN crontab /etc/cron.d/cron
 RUN touch /var/log/cron.log
+
+RUN mkdir -p /run/daphne
 
 ENV TZ=America/New_York
 

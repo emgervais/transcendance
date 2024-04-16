@@ -3,7 +3,16 @@ from asgiref.sync import async_to_sync
 from users.models import UserChannelGroup
 from friend.models import Friend
 from users.models import User
-import time, re
+import time, re, redis, threading
+from django.conf import settings
+
+matchmaking_redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
+matchmaking_lock = threading.Lock()
+
+def remove_from_all_queues(user_id):
+    for matchmaking_redis_key in matchmaking_redis.scan_iter(match='*'):
+        print('queue', matchmaking_redis_key)
+        matchmaking_redis.zrem(matchmaking_redis_key, user_id)
 
 # Helper functions
 def user_disconnect(user_id):
@@ -20,6 +29,7 @@ def user_disconnect(user_id):
                 channel_layer = get_channel_layer()
                 for friend in friends:
                     notify_online(user, friend, 'offline', channel_layer)
+            remove_from_all_queues(user_id)
             clear_user_channels(user)
             print('User disconnected')
     except User.DoesNotExist:

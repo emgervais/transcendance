@@ -1,15 +1,10 @@
-from notification.utils import send_to_websocket
-from django.conf import settings
-import redis, threading
+from notification.utils import send_to_websocket, matchmaking_redis
 from users.models import UserChannelGroup, User
 from pong.models import Game
 from rest_framework import serializers
 from channels.layers import get_channel_layer
 
 TOURNAMENT_NB_PLAYERS = 4
-
-matchmaking_redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
-matchmaking_lock = threading.Lock()
 
 class DictPosSerializer(serializers.Serializer):
     def to_representation(self, instance):
