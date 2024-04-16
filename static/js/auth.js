@@ -117,7 +117,7 @@ function oauthRedirected() {
             body: JSON.stringify({ code: code }), 
         },
         dataManager: (data) => {
-            login(data, false);
+            login(data);
             util.hideAlert();
         },
         errorManager: (error) => {
