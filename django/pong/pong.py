@@ -15,7 +15,7 @@ def notify_status_to_friends(user, status):
 	if friends:
 		channel_layer = get_channel_layer()
 		for friend in friends:
-			if friend.status == 'online':
+			if friend.status != 'offline':
 				notify_online(user, friend, status, channel_layer)
 
 async def game_stopped_notification(user_ids, description):
