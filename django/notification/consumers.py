@@ -1,8 +1,8 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import time, threading, json
-from notification.utils import get_opponent_id, user_disconnect, async_send_to_websocket, escape_html
+from notification.utils import get_opponent_id, user_disconnect, async_send_to_websocket, escape_html, matchmaking_redis
 from notification.utils_db import change_status, set_main_channel, get_group_list, get_main_channel, get_online_friends, friend_request_count, get_user, is_recipient_online, remove_channel_group
-from pong.matchmaking import matchmaker, next_round, matchmaking_redis
+from pong.matchmaking import matchmaker, next_round
 
 matchmaking_lock = threading.Lock()
 

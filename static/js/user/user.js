@@ -107,6 +107,7 @@ async function displayUser({
         const img = document.createElement("img");
         img.src = user.image;
         img.className = "img-fluid rounded-circle small-image";
+        img.onerror = function () {this.src='/media/default/default.webp'};
         
         const imgAnchor = document.createElement("a");
         imgAnchor.setAttribute("href", `/account/stats/${userId}/`);

@@ -24,6 +24,7 @@ services:
     volumes:
       - ./django/:/usr/src/app/
       - ./media/:/usr/src/app/media/
+      - daphne_socket:/run/daphne 
     expose:
       - ${DJANGO_PORT}
     depends_on:
@@ -43,6 +44,7 @@ services:
     volumes:
       - ./static/:/var/www/static/
       - ./media/:/var/www/media/
+      - daphne_socket:/run/daphne
     depends_on:
       - web
     networks:
@@ -61,6 +63,7 @@ services:
 volumes:
   static:
   db:
+  daphne_socket:
 
 networks:
   transcendence_network:

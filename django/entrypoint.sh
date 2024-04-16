@@ -29,5 +29,4 @@ crond -L /var/log/cron.log && tail -f /var/log/cron.log &
 python manage.py makemigrations &&
 python manage.py migrate &&
 python manage.py changestatus offline &&
-# python manage.py runserver 0.0.0.0:$DJANGO_PORT
-daphne -b 0.0.0.0 -p $DJANGO_PORT transcendence.asgi:application
+daphne -b 0.0.0.0 -p $DJANGO_PORT -u /run/daphne/daphne.sock transcendence.asgi:application
