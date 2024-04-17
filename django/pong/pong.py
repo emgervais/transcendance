@@ -12,11 +12,9 @@ from channels.db import database_sync_to_async
 @database_sync_to_async
 def notify_status_to_friends(user, status):
 	friends = Friend.objects.online_friends(user)
-	print("friends:", friends)
 	if friends:
 		channel_layer = get_channel_layer()
 		for friend in friends:
-			print("friend:", friend.username)
 			notify_online(user, friend, status, channel_layer)
 
 async def game_stopped_notification(user_ids, description):
