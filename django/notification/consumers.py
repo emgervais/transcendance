@@ -22,10 +22,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await set_main_channel(self.user, self.channel_name)
             await self.accept()
             await self.send(text_data=json.dumps({
-                'type': 'onlineFriends',
-                'userIds': await get_online_friends(self.user, ids_only=True)
-            }))
-            await self.send(text_data=json.dumps({
                 'type': 'friendRequests',
                 'count': await friend_request_count(self.user)
             }))
@@ -79,7 +75,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def send_notification(self, event):
         params = event
         params['type'] = params.pop('notification')
-
+        params['onlineFriendIds'] = await get_online_friends(self.user, ids_only=True)
+        
         await self.send(text_data=json.dumps(params))
         if params['type'] == 'matchFound':
             self.in_queue = False
