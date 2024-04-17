@@ -21,14 +21,9 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 await self.notify_online_status_to_friends()
             await set_main_channel(self.user, self.channel_name)
             await self.accept()
-            await self.send(text_data=json.dumps({
-                'type': 'onlineFriends',
-                'userIds': await get_online_friends(self.user, ids_only=True)
-            }))
-            await self.send(text_data=json.dumps({
-                'type': 'friendRequests',
-                'count': await friend_request_count(self.user)
-            }))
+            await async_send_to_websocket(self.channel_layer, await get_main_channel(self.user), {
+                'type': 'send.notification', 'notification': 'friendRequests', 'count': await friend_request_count(self.user)
+            })
             await self.reconnect_chats()
     
     async def disconnect(self, close_code):
@@ -79,7 +74,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def send_notification(self, event):
         params = event
         params['type'] = params.pop('notification')
-
+        params['onlineFriendIds'] = await get_online_friends(self.user, ids_only=True)
+        
         await self.send(text_data=json.dumps(params))
         if params['type'] == 'matchFound':
             self.in_queue = False
@@ -87,19 +83,17 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             await self.cancel_search()
     
     async def reconnect_chats(self):
-        await self.send(text_data=json.dumps({
-            'type': 'chat',
-            'room': 'global'
-        }))
+        await async_send_to_websocket(self.channel_layer, await get_main_channel(self.user), {
+            'type': 'send.notification', 'notification': 'chat', 'room': 'global'
+        })
         group_list = await get_group_list(self.user)
         if group_list:
             for group in group_list:
                 if group != 'global' and not group.startswith("pong"):
                     if await is_recipient_online(self.user.id, group):
-                        await self.send(text_data=json.dumps({
-                            'type': 'chat',
-                            'room': group
-                        }))
+                        await async_send_to_websocket(self.channel_layer, await get_main_channel(self.user), {
+                            'type': 'send.notification', 'notification': 'chat', 'room': group
+                        })
                     else:
                         remove_channel_group(self.user, group)
     
@@ -115,11 +109,9 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         if room != 'global' and room != 'tournament':
             if not await self.send_match_request(room):
                 return
-        await self.send(text_data=json.dumps({
-            'type': 'pong',
-            'description': 'searchingMatch',
-            'room': room
-        }))
+        await async_send_to_websocket(self.channel_layer, await get_main_channel(self.user), {
+            'type': 'send.notification', 'notification': 'searchingMatch', 'room': room
+        })
         matchmaking_redis.zadd(room, {self.user.id: time.time()})
         self.in_queue = True
         self.current_queue = room
@@ -157,15 +149,11 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                     })
                 return True
             elif opponent.status == 'in-game':
-                await self.send(text_data=json.dumps({
-                    'type': 'pong',
-                    'description': 'opponentInGame',
-                    'userId': opponent_id,
-                }))
+                await async_send_to_websocket(self.channel_layer, await get_main_channel(self.user), {
+                    'type': 'send.notification', 'notification': 'pong', 'description': 'opponentInGame', 'userId': opponent_id,
+                })
             else:
-                await self.send(text_data=json.dumps({
-                    'type': 'pong',
-                    'description': 'opponentOffline',
-                    'userId': opponent_id,
-                }))
+                await async_send_to_websocket(self.channel_layer, await get_main_channel(self.user), {
+                    'type': 'send.notification', 'notification': 'pong', 'description': 'opponentOffline', 'userId': opponent_id,
+                })
         return False
