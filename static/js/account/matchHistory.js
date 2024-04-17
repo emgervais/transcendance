@@ -17,6 +17,10 @@ async function fetchMatchHistory(fromGameId, size) {
         route: route,
         dataManager: async data => {
             games = data;
+        },
+        errorManager: error => {
+            const statsGrid = document.querySelector('#match-history');
+            statsGrid.innerHTML = error.data.error;
         }
     });
     if (games.length < size) {

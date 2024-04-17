@@ -86,13 +86,14 @@ async function confirmLogin() {
 }
 // ----
 
-function logout() {
+function logout(reroute=true) {
     const manager = async () => {
         sessionStorage.removeItem("messages");
         setConnected(false);
         match.cancelSearchingMatch();
         match.clearInvites();
-        await router.route("/");
+        if (reroute)
+            await router.route("/");
     }
     api.fetchRoute({
         route: "/api/logout/",

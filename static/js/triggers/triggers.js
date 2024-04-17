@@ -4,10 +4,10 @@ import { updateCurrUser } from "/js/user/currUser.js";
 import { key } from "/js/triggers/keys.js";
 import { click } from "/js/triggers/clicks.js";
 
-function onChange(event) {
+async function onChange(event) {
     switch (event.target.id) {
         case "user-img-changer":
-            api.formSubmit({
+            await api.formSubmit({
                 formId: "upload-image",
                 callback: updateCurrUser,
                 method: "put"

@@ -1,4 +1,5 @@
 import * as util from "/js/util.js";
+import * as auth from "/js/auth.js";
 
 const friendRequestCountElement = document.querySelector("#friend-request-count");
 let friendRequestCount = 0;
@@ -37,16 +38,17 @@ function hideAuthContainer() {
 }
 
 function displayLogin() {
+    auth.logout(false);
     util.display(login);
     util.display(register, false);
     displayAuthContainer();
 }
 
 function displayRegister() {
+    auth.logout(false);
     util.display(login, false);
     util.display(register);
     displayAuthContainer();
-    displayAuthContainer();  
 }
 
 export { updateFriendRequestCount, incrFriendRequestCount };
