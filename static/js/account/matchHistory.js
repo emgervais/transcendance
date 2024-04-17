@@ -78,7 +78,7 @@ async function load() {
     title.innerHTML = `${(await getUser(USER_ID)).username}'s match history`;
 
     lastLoadedGameId = 0;
-    let maxPreload = 5;
+    let maxPreload = 10;
     stopLoading = false;
     do {
         await loadMoreGames();
