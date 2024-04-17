@@ -2,7 +2,7 @@ import * as util from "/js/util.js";
 import * as auth from "/js/auth.js";
 
 // -- singletons ----
-var currUser = {};
+let currUser = {};
 function getCurrUser() {
     let key = "user";
     let user = JSON.parse(sessionStorage.getItem(key));

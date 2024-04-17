@@ -6,7 +6,7 @@ const OTHER = "other";
 
 function loadMessages(roomId) {
 	clearLogs();
-	var messages = JSON.parse(sessionStorage.getItem("messages"));
+	let messages = JSON.parse(sessionStorage.getItem("messages"));
 
 	if(!messages)
 		return;
@@ -21,7 +21,7 @@ async function generateMessage(msg, isCurrUser, userId) {
 	const chatLogs = document.querySelector('.chat-logs');
 
 	const img = (await user.getUser(userId)).image;
-	var str = "";
+	let str = "";
 	str += `<div class="chat-msg ${isCurrUser ? "self" : "other"}">`;
 	str += `          <span class="msg-avatar">`;
 	str += `            <img src="${img}" class="profile-picture-chat" data-id="${userId}" onerror="this.src='/media/default/default.webp';">`;
@@ -52,8 +52,8 @@ async function saveMessage(roomId, msg, isCurrUser, userId) {
 async function deleteMessages(roomId) {
 	if (!roomId)
 		return;
-	var messages = JSON.parse(sessionStorage.getItem('messages')) || [];
-	var filteredMessages = messages.filter(function(message) {
+	let messages = JSON.parse(sessionStorage.getItem('messages')) || [];
+	let filteredMessages = messages.filter(function(message) {
 	  return message.roomId !== roomId;
 	});
 	sessionStorage.setItem('messages', JSON.stringify(filteredMessages));

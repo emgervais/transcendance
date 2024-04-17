@@ -2,7 +2,7 @@ import * as chatDisplay from "/js/chat/display.js";
 import * as util from "/js/util.js";
 import { GLOBAL_ROOM_ID, matchRoomId } from "/js/chat/chat.js";
 
-var roomCounts = {};
+let roomCounts = {};
 
 function incr(roomId, incr=1) {
 	if (!(roomId in roomCounts)) {

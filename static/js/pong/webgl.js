@@ -1,4 +1,4 @@
-var gl = null;
+let gl = null;
 
 function normalize(v)
 {

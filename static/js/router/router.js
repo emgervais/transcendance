@@ -97,7 +97,7 @@ function getCurrentLocation() {
     return location;
 }
 
-var prevRoute;
+let prevRoute;
 function getCurrentRoute() {
     const location = getCurrentLocation();
     clearParams();
@@ -124,7 +124,7 @@ const locationHandler = async () => {
     prevRoute = route;
     if (route.template) {
         const html = await fetchHTMLWithCache(route.template);
-        var containerId = route.containerId;
+        let containerId = route.containerId;
         if (!containerId) {
             containerId = "dynamic-section"
         }

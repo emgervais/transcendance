@@ -6,8 +6,8 @@ import { getUser } from "/js/user/user.js"
 
 // -- roomId ----
 const GLOBAL_ROOM_ID = "global";
-var currRoomId = GLOBAL_ROOM_ID;
-var matchRoomId;
+let currRoomId = GLOBAL_ROOM_ID;
+let matchRoomId;
 
 function updateRoomId(id) {
 	currRoomId = id;
@@ -24,7 +24,7 @@ function isMatchRoomId(roomId) {
 }
 
 // -- sockets ----
-var chatSockets = {};
+let chatSockets = {};
 
 function start(roomId=GLOBAL_ROOM_ID) {
 	if (roomId in chatSockets) {

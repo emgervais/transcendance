@@ -12,31 +12,31 @@ import * as util from "/js/util.js";
 import * as match from "/js/pong/match.js";
 import * as notifications from "/js/notifications.js";
 
-var ws = null;
-var canvas;
+let ws = null;
+let canvas;
 
-var notInGame = true;
+let notInGame = true;
 
-var pongUBO;
-var textUBO;
-var pongVAO;
-var stagelineVAO;
-var screenVAO;
+let pongUBO;
+let textUBO;
+let pongVAO;
+let stagelineVAO;
+let screenVAO;
 
-var digitsTexture;
-var winTexture;
-var digitstexuniform;
-// var fontTexture;
-var vignetteTexture;
+let digitsTexture;
+let winTexture;
+let digitstexuniform;
+// let fontTexture;
+let vignetteTexture;
 
-var mainUBO;
+let mainUBO;
 
-var tvmodel;
-var legmodel;
-var sandalmodel;
-var boxmodel;
-var traymodel;
-var cassettemodel;
+let tvmodel;
+let legmodel;
+let sandalmodel;
+let boxmodel;
+let traymodel;
+let cassettemodel;
 
 const wsmovementbuffer = new ArrayBuffer(5);
 const wsmovementdv = new DataView(wsmovementbuffer);
@@ -61,19 +61,19 @@ const paddle = {
 	height: 8
 }
 
-var program;
-var textprogram
-var screenprogram;
-var modelprogram;
+let program;
+let textprogram
+let screenprogram;
+let modelprogram;
 
-var playerid = 0;
+let playerid = 0;
 
-var glitchUniform;
+let glitchUniform;
 
 const pongrenderwidth = 80;
 const pongrenderheight = 55;
 
-var fb;
+let fb;
 
 const camera = {
 	pitch: 0,
@@ -108,7 +108,7 @@ const screenobject = {
 
 const inputs = [0, 0, 0, 0, 0, 0, 0, 0];
 
-var wintext = {
+let wintext = {
 	ubo: {
 		_ubodata: new Uint32Array([
 			0, 0, // position
@@ -120,7 +120,7 @@ var wintext = {
 		setstrlen: function(len) {this._ubodata[2] = len;},
 		settexlen: function(len) {this._ubodata[3] = len;},
 		setdata: function(data) {
-			for(var i = 0; i < data.length; i++)
+			for(let i = 0; i < data.length; i++)
 				this._ubodata[4 + i] = data[i];
 		},
 		setwinnder: function(winner) {
@@ -142,7 +142,7 @@ var wintext = {
 	}
 }
 
-var score = {
+let score = {
 	points: [0, 0],
 	ubo1: {
 		_ubodata: new Uint32Array([
@@ -155,7 +155,7 @@ var score = {
 		setstrlen: function(len) {this._ubodata[2] = len;},
 		settexlen: function(len) {this._ubodata[3] = len;},
 		setdata: function(data) {
-			for(var i = 0; i < data.length; i++)
+			for(let i = 0; i < data.length; i++)
 				this._ubodata[4 + i] = data[i];
 		}
 	},
@@ -170,13 +170,13 @@ var score = {
 		setstrlen: function(len) {this._ubodata[2] = len;},
 		settexlen: function(len) {this._ubodata[3] = len;},
 		setdata: function(data) {
-			for(var i = 0; i < data.length; i++)
+			for(let i = 0; i < data.length; i++)
 				this._ubodata[4 + i] = data[i];
 		}
 	}
 }
 
-var countdowntext = {
+let countdowntext = {
 	_ubodata: new Uint32Array([
 		0, 0, // position
 		0, // char count in string
@@ -187,15 +187,15 @@ var countdowntext = {
 	setstrlen: function(len) {this._ubodata[2] = len;},
 	settexlen: function(len) {this._ubodata[3] = len;},
 	setdata: function(data) {
-		for(var i = 0; i < data.length; i++)
+		for(let i = 0; i < data.length; i++)
 			this._ubodata[4 + i] = data[i];
 	}
 }
 
-var player = 0;
-var state = 0; // states: 0=pong waiting to start, 1=pong playing, 2=pong player 1 win, 3=pong player 2 win
+let player = 0;
+let state = 0; // states: 0=pong waiting to start, 1=pong playing, 2=pong player 1 win, 3=pong player 2 win
 // 4=game select 5=countdown
-var countdown = 0;
+let countdown = 0;
 
 const player1 = {
 	_ubodata: new Float32Array([0.0, 0.0, paddle.width, paddle.height]),
@@ -555,7 +555,7 @@ function setViewState()
 	}
 }
 
-var tourney = 0;
+let tourney = 0;
 function connect(id, tournamentId)
 {
 	if(state == 4)
@@ -580,11 +580,14 @@ function connect(id, tournamentId)
 	ws.onopen = function (event) {
 		if(tournamentId)
 		{
-			var userIds = tournamentId.split('_');
+			let userIds = tournamentId.split('_');
 			for (let i = 0; i < 4; i++)
 				wstournementdv.setUint32(i * 4 + 1, parseInt(userIds[i]), true);
 			ws.send(wstournementbuffer);
 		}
+	}
+	ws.onclose = function (event) {
+		match.clearPongText();
 	}
 	ws.onmessage = function (event) {
 		let dv = new DataView(event.data);
@@ -775,11 +778,11 @@ function senddata(sendbytes)
 	}
 }
 
-var lastTime = 0;
-var redtimer = 0;
-var ratio = 0.0;
-var sendtimer = 0.0;
-var stopgame = 0;
+let lastTime = 0;
+let redtimer = 0;
+let ratio = 0.0;
+let sendtimer = 0.0;
+let stopgame = 0;
 function draw()
 {
 	if(stopgame)
@@ -1077,7 +1080,7 @@ function disconnect()
 // 	camera.uploadP();
 // });
 
-var interactedWithDocument = false;
+let interactedWithDocument = false;
 document.addEventListener('click', function(event) {
 	interactedWithDocument = true;
 });

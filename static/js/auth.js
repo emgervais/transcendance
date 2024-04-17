@@ -55,7 +55,7 @@ async function login(user, redirect=true) {
     notifications.start();
 }
 
-var reconnecting = false;
+let reconnecting = false;
 function reConnect() {
     if (reconnecting) {
         return;

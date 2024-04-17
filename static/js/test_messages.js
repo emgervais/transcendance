@@ -1,10 +1,10 @@
 import { GLOBAL_ROOM_ID } from "/js/chat/chat.js";
 
 function setMessages() {
-    var messages = [];
-    var newMessage = {};
+    let messages = [];
+    let newMessage = {};
     for(let i = 0; i < 10; i++) {
-        var type = 'self';
+        let type = 'self';
         if(i % 2 === 0)
             type = 'else';
         newMessage = {
@@ -17,7 +17,7 @@ function setMessages() {
     }
 
     for(let i = 10; i < 20; i++) {
-        var type = 'self';
+        let type = 'self';
         if(i % 2 === 0)
             type = 'else';
         newMessage = {
@@ -30,7 +30,7 @@ function setMessages() {
     }
 
     for(let i = 20; i < 30; i++) {
-        var type = 'self';
+        let type = 'self';
         if(i % 2 === 0)
             type = 'else';
         newMessage = {

@@ -8,10 +8,10 @@ import * as util from "/js/util.js";
 import { getCurrUser } from "/js/user/currUser.js";
 import { setUserStatus, getUser, alertStatus } from "/js/user/user.js";
 
-var ws;
+let ws;
 
 async function start() {
-	var userId = getCurrUser().id;
+	let userId = getCurrUser().id;
 	ws = new WebSocket(
 		'wss://'
 		+ window.location.host
@@ -20,26 +20,24 @@ async function start() {
 	);
 
 	ws.onmessage = async (event) => {
-		const data = JSON.parse(event.data);
+		const data = JSON.parse(event.data);	
+		chatFriends.set(data.onlineFriendIds);
+		friends.setOnlineFriendsCount(data.onlineFriendIds.length);
+
 		switch (data.type) {
 			case "chat":
 				chat.start(data.room);
 				break;
 			case "connection":
 				const prevStatus = (await getUser(data.userId)).status;
-				const connected = (data.status == 'online') && (prevStatus != 'in-game');
-				const disconnected = data.status == "offline";
-				chatFriends.update(data.userId, connected, disconnected);
-				friends.incrOnlineFriendsCount(connected, disconnected);
 				setUserStatus(data.userId, data.status);
 				alertStatus(data.userId, prevStatus, data.status);
 				break;
+			case "blocked":
+
+				break;
 			case "unfriend":
 				friends.refresh();
-				break;
-			case "onlineFriends":
-				chatFriends.set(data.userIds);
-				friends.setOnlineFriendsCount(data.userIds.length);
 				break;
 			case "friendRequests":
 				nav.updateFriendRequestCount(data.count);

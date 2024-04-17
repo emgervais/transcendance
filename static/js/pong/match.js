@@ -161,10 +161,9 @@ async function getOpponentName(room) {
 async function tournamentSummary(data) {
     const element = document.getElementById("tournament-summary");
     element.innerHTML = "TOURNAMENT SUMMARY:<br>";
-    for (var key in data) {
+    for (let key in data) {
         element.innerHTML += `${key}: ${data[key]}<br>`;
     }    
-    // console.log("tournamentSummary:", data);
 }
 
 function clearPongText() {

@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   postgres:
-    # restart: unless-stopped
+    restart: unless-stopped
     image: postgres:16.2-alpine
     container_name: postgres
     env_file:
@@ -15,7 +15,7 @@ services:
       - transcendence_network
 
   web:
-    # restart: unless-stopped
+    restart: unless-stopped
     container_name: web
     env_file:
       - .env
@@ -24,7 +24,6 @@ services:
     volumes:
       - ./django/:/usr/src/app/
       - ./media/:/usr/src/app/media/
-      - daphne_socket:/run/daphne 
     expose:
       - ${DJANGO_PORT}
     depends_on:
@@ -34,7 +33,7 @@ services:
       - transcendence_network
 
   nginx:
-    # restart: unless-stopped
+    restart: unless-stopped
     container_name: nginx
     build:
       context: ./nginx/
@@ -44,14 +43,13 @@ services:
     volumes:
       - ./static/:/var/www/static/
       - ./media/:/var/www/media/
-      - daphne_socket:/run/daphne
     depends_on:
       - web
     networks:
       - transcendence_network
 
   redis:
-    # restart: unless-stopped
+    restart: unless-stopped
     container_name: redis
     image: redis:7.2.4-alpine
     volumes:
@@ -64,7 +62,6 @@ services:
 volumes:
   static:
   db:
-  daphne_socket:
 
 networks:
   transcendence_network:

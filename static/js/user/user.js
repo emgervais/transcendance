@@ -6,7 +6,7 @@ import * as util from "/js/util.js";
 import * as chat from "/js/chat/chat.js";
 import * as messages from "/js/chat/messages.js";
 
-var users = {};
+let users = {};
 
 // -- singletons ----
 async function getUser(id) {

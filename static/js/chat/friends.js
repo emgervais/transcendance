@@ -2,7 +2,7 @@ import * as chat from "/js/chat/chat.js";
 import * as chatUnreadMessages from "/js/chat/unreadMessages.js";
 import { getUser } from "/js/user/user.js"
 
-var connectedFriends = [];
+let connectedFriends = [];
 
 function update(id, connected, disconnected) {
     if (connected) {
@@ -70,4 +70,4 @@ async function generateFriendsListElement(container, userId) {
 	container.appendChild(div);
 }
 
-export { connectedFriends, update, set, generateFriendsList };
+export { update, set, generateFriendsList };

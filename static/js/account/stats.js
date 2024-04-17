@@ -27,7 +27,7 @@ async function load() {
             stats.timePlayed = new Date(stats.totals.time_played * 1000).toISOString().substr(11, 8);
             stats.most_played_opponent = stats.most_played_opponent.opponent + '\n' + stats.most_played_opponent.games;
             const statsText = {
-                distance: `<h5>Horizontal distance traveled</h5><div class="tooltipp"> <i class="fa-solid fa-circle-info"></i> <p class="tooltiptextt">The original pong arcade screen measured 5.375 inches</p></div>`,
+                distance: `<h5>Distance traveled</h5><div class="tooltipp"> <i class="fa-solid fa-circle-info"></i> <p class="tooltiptextt">The original pong arcade screen measured 5.375 inches</p></div>`,
                 longest_exchange: `<h5>Longest exchange</h5>`,
                 winRate: `<h5>Win / Loss ratio</h5>`,
                 gamesCount: `<h5>Number of games</h5>`,

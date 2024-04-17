@@ -20,6 +20,7 @@ frontend:
 	@python3 frontend/auto_compile.py
 
 prune:
+	make clean_migrations
 	docker system prune --all --volumes
 
 web:

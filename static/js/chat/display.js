@@ -15,9 +15,9 @@ const friendsTab = document.getElementById('tab-friends');
 const matchTab = document.getElementById('tab-game');
 
 const friendsList = document.getElementById('friendlist-tab');
-var friendsListShown = false;
+let friendsListShown = false;
 
-var currMenu = 0;
+let currMenu = 0;
 const menu = document.getElementById('chat-menu');
 const logs = document.querySelector('.chat-logs');
 logs.addEventListener('scroll', function() {
@@ -135,7 +135,7 @@ function disableMenu() {
 }
 
 function updateMenu(id) {
-	var menuOptions = {
+	let menuOptions = {
 		'stats' : `<a href="/account/stats/${id}/"> <i class="fa-solid fa-chart-simple"></i></a>`,
 		'block' : `<button class="block-user-button" data-block="true" data-user-id="${id}"> <i class="fa-solid fa-ban"></i></button>`,
 		'invite' : `<button class="start-match" data-user-id="${id}"> <i class="fa-solid fa-gamepad"></i></button>`,
@@ -143,10 +143,10 @@ function updateMenu(id) {
 	};
 	let i = 0;
 	menu.innerHTML = '';
-	for(var option in menuOptions) {
+	for(let option in menuOptions) {
 		if (!pong.notInGame && option == 'invite')
 			continue;
-		var li = document.createElement('li');
+		let li = document.createElement('li');
 		li.style = '--i:' + i++ + ';'
 		li.title = option;
 		li.innerHTML = menuOptions[option];

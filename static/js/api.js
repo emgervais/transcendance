@@ -139,6 +139,7 @@ function addFormErrors(form, data) {
 function addFormError(form, key, value) {
     const div = form.querySelector("." + key);
     if (!div) {
+        util.showAlert({text: });
         return;
     }
     const error = document.createElement('p');
