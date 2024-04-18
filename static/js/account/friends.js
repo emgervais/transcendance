@@ -143,7 +143,8 @@ function getBlockedUsers() {
 // -- display ----
 async function displayFriendRequest(container, request) {
     const div = await displayUser({
-        userId: request.from_user
+        userId: request.from_user,
+        includeStatus: false
     });
     container.appendChild(div);
     

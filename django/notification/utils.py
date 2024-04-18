@@ -22,7 +22,6 @@ def user_disconnect(user_id):
         should_disconnect = main == '' and user.status != 'offline'
         if should_disconnect:
             user.status = 'offline'
-            user.save()
             friends = Friend.objects.online_friends(user)
             if friends:
                 channel_layer = get_channel_layer()
@@ -30,6 +29,7 @@ def user_disconnect(user_id):
                     notify_online(user, friend, 'offline', channel_layer)
             remove_from_all_queues(user_id)
             clear_user_channels(user)
+            user.save()
     except User.DoesNotExist:
         print('User not found')
     except UserChannelGroup.DoesNotExist:
