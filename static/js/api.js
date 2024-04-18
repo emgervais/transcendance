@@ -39,6 +39,9 @@ function fetchResponse(response) {
         return response.json();
     } else if (response.status == 413) {
         util.showAlert({text: "Uploaded content too large", danger: true});
+        return new Promise((resolve, reject) => {
+            resolve({});
+        });
     } else {
         return response.json().then(errorData => {
             throw { status: response.status, data: errorData };
