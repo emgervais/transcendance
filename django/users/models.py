@@ -83,6 +83,9 @@ class UserChannelGroup(models.Model):
             if group == group_name:
                 return channel
         return None
+    
+    def get_global_chat_channel(self):
+        return self.get_channel_name('global')
             
     class Meta:
         db_table = 'user_channel_groups'
