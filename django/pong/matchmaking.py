@@ -26,14 +26,17 @@ def next_round_message(winners, losers):
 
 def announce_tournament(winners, losers):
     channel_layer = get_channel_layer()
-    global_chat = UserChannelGroup.objects.get(user_id=winners[0]).get_global_chat_channel()
-    try:
-        send_to_websocket(channel_layer, global_chat, {
-            'type': 'chat.message', 'message': next_round_message(winners, losers), 'senderId': 0
-        })
-    except Exception as e:
-        print('Error:', e)
-            
+    message = next_round_message(winners, losers)
+    for user in winners + losers:
+        try:
+            user_channels = UserChannelGroup.objects.get(user_id=user)
+            pong_chat = user_channels.get_pong_channel()
+            send_to_websocket(channel_layer, pong_chat, {
+                'type': 'chat.message', 'message': message, 'senderId': 0
+            })
+        except Exception as e:
+            print('Error:', e)
+                
 def tournament_notification(tournament_id, winners, losers, new_game):
     channel_layer = get_channel_layer()
     try:
