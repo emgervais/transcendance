@@ -21,7 +21,6 @@ async function start() {
 
 	ws.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
-		console.log("data.onlineFriendIds:", data.onlineFriendIds);
 		if (data.onlineFriendIds)
 			chatFriends.set(data.onlineFriendIds);
 		friends.setOnlineFriendsCount(data.onlineFriendIds.length);
@@ -116,6 +115,12 @@ function matchMaking(roomId, cancel=false) {
 	if (!ws || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED)  {
 		return;
 	}
+	if (roomId === 'tournament')// testing offline mode with tournament
+	{
+		pong.offlineMode();
+		return;
+	}
+	
 	ws.send(JSON.stringify({
 		type: "matchmaking",
 		room: roomId,
