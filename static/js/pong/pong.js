@@ -651,6 +651,7 @@ function connect(id, tournamentId)
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
+					// game winner
 					// notInGame = true && !tourney; //// really?
 					inGame = false;
 					util.displayState();
@@ -687,7 +688,7 @@ function connect(id, tournamentId)
 		}
 	}
 }
-
+let countdowntimer = 3000;
 function offlineMode()
 {
 	isOffline = true;
@@ -701,7 +702,8 @@ function offlineMode()
 	if(ws)
 		ws.close();
 	state = 5;
-	countdown = 0;
+	countdown = 3;
+	countdowntimer = 3000;
 }
 
 function drawpong()
@@ -781,7 +783,6 @@ function draw()
 	if(dt > 1000)
 		dt = 1000;
 	lastTime = performance.now();
-	
 
 	switch(state)
 	{
@@ -789,6 +790,23 @@ function draw()
 	case 2:
 	case 3:
 	case 5:
+		if(isOffline && countdowntimer > -1)
+		{
+			countdowntimer -= dt;
+			let oc = countdown;
+			countdown = Math.floor(countdowntimer / 1000) + 1;
+			if(oc != countdown)
+			{
+				if(countdown == 0)
+				{
+					state = 1;
+					countdown = 0;
+					countdowntimer = -1;
+				}
+				else
+					countdowntext.setdata([countdown]);
+			}
+		}
 		if(countdown <= 0)
 		{
 			ball.setx(ball.getx() + ball.xspeed * dt);
@@ -844,6 +862,12 @@ function draw()
 				if(score.points[0] >= POINTS_TO_WIN || score.points[1] >= POINTS_TO_WIN)
 				{
 					// game won by some
+					state = (score.points[0] >= POINTS_TO_WIN) ? 2 : 3;
+					wintext.ubo.setwinnder(state - 1);
+					ball.setx(pongrenderwidth/2.0 - ball.width/2.0);
+					ball.sety(pongrenderheight/2.0 - ball.height/2.0);
+					ball.xspeed = 0;
+					ball.yspeed = 0;
 				}
 			}
 			else if((playerid == 1 && (ball.xspeed < 0.0) && (ball.getx() <= stage.left + paddle.width)) || (playerid == 2 && (ball.xspeed > 0.0) && (ball.getx() > stage.right-ball.width-paddle.width)))
