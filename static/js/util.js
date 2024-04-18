@@ -76,7 +76,7 @@ const alertContainer = document.getElementById("alert-container");
 
 async function showAlert({
   text,
-  timeout=4,
+  timeout=5,
   danger=false,
   closeButton=false,
 }) {

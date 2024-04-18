@@ -6,7 +6,13 @@ import * as util from "/js/util.js";
 import * as chat from "/js/chat/chat.js";
 import * as messages from "/js/chat/messages.js";
 
-let users = {};
+let users = {
+    0: {
+        username: "server",
+        image: "/media/default/default.webp",
+        status: "online",
+    },
+};
 
 // -- singletons ----
 async function getUser(id) {
@@ -70,14 +76,13 @@ async function alertStatus(id, prevStatus, status) {
     if (status == "in-game")
         text += "is playing.";
     else if (prevStatus == "in-game" && status == "online")
-        text += "is done playing.";
+        return;
     else if (status == "offline")
         text += "just disconnected.";
     else
         text += "just connected.";
     util.showAlert({
         text: text,
-        // timeout: 2,
     });
 }
 
@@ -99,6 +104,7 @@ async function displayUser({
     const div1 = document.createElement("div");
     const div2 = document.createElement("div");
     const createElements = (user) => {
+        console.log("user:", user);
         div.className = "user";
         div1.classList.add('user-infos');
         div2.classList.add('user-buttons');
