@@ -157,3 +157,4 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                     'type': 'send.notification', 'notification': 'pong', 'description': 'opponentOffline', 'userId': opponent_id,
                 })
         return False
+    

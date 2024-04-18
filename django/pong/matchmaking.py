@@ -26,13 +26,13 @@ def next_round_message(winners, losers):
 
 def announce_tournament(winners, losers):
     channel_layer = get_channel_layer()
-    user = User.objects.get(id=winners[0])
+    global_chat = UserChannelGroup.objects.get(user_id=winners[0]).get_global_chat_channel()
     try:
-        send_to_websocket(channel_layer, UserChannelGroup.objects.get_channel_name(user, 'global'), {
+        send_to_websocket(channel_layer, global_chat, {
             'type': 'chat.message', 'message': next_round_message(winners, losers), 'senderId': 0
         })
-    except UserChannelGroup.DoesNotExist:
-        pass
+    except Exception as e:
+        print('Error:', e)
             
 def tournament_notification(tournament_id, winners, losers, new_game):
     channel_layer = get_channel_layer()
