@@ -134,9 +134,9 @@ async function start(data) {
     if (router.getCurrentLocation() != "/")
         await router.route("/");
     chat.stop(chat.matchRoomId);
-    chatMessages.deleteMessages(chat.matchRoomId);
+    // chatMessages.deleteMessages(chat.matchRoomId);
     chat.start(`pong_${data.room}`);
-    chatDisplay.openChatBox();
+    // chatDisplay.openChatBox();
     chatDisplay.activateMatchTab();
     pong.connect(data.room, data.tournamentId);
     displayOpponentName(data.room);
@@ -163,7 +163,8 @@ async function tournamentSummary(data) {
     element.innerHTML = "TOURNAMENT SUMMARY:<br>";
     for (let key in data) {
         element.innerHTML += `${key}: ${data[key]}<br>`;
-    }    
+    }
+    util.display(element, true);
 }
 
 function clearPongText() {
@@ -171,6 +172,8 @@ function clearPongText() {
     for (const element of elements) {
         element.innerHTML = "";
     }
+    const element = document.getElementById("tournament-summary");
+    util.display(element, false);
 }
 
 export { invite, receiveInvite, displayInvite, respondInvite, invites, clearInvites };

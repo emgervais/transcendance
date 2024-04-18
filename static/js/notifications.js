@@ -21,7 +21,6 @@ async function start() {
 
 	ws.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
-		console.log("data.onlineFriendIds:", data.onlineFriendIds);
 		if (data.onlineFriendIds)
 			chatFriends.set(data.onlineFriendIds);
 		friends.setOnlineFriendsCount(data.onlineFriendIds.length);

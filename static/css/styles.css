@@ -767,6 +767,7 @@ font-style: italic;
 
 .pong-text {
   color: white;
+  filter: drop-shadow(5px 5px 3px #000000);
 }
 
 #chat-box, #chat-icon{
@@ -782,5 +783,6 @@ font-style: italic;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #00000044;
   z-index: 500;
 }
