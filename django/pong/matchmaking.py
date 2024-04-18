@@ -24,18 +24,22 @@ def next_round_message(winners, losers):
         message += f'{User.objects.get(id=losers[i]).username} vs {User.objects.get(id=losers[i+1]).username}\n'
     return message
 
+def send_to_global_chat(message, channel_layer, user):
+    try:
+        user_channels = UserChannelGroup.objects.get(user_id=user)
+        pong_chat = user_channels.get_pong_channel()
+        send_to_websocket(channel_layer, pong_chat, {
+            'type': 'chat.message', 'message': message, 'senderId': 0
+        })
+    except Exception as e:
+        print('Error:', e)
+
 def announce_tournament(winners, losers):
     channel_layer = get_channel_layer()
     message = next_round_message(winners, losers)
     for user in winners + losers:
-        try:
-            user_channels = UserChannelGroup.objects.get(user_id=user)
-            pong_chat = user_channels.get_pong_channel()
-            send_to_websocket(channel_layer, pong_chat, {
-                'type': 'chat.message', 'message': message, 'senderId': 0
-            })
-        except Exception as e:
-            print('Error:', e)
+        send_to_global_chat(message, channel_layer, user)
+        
                 
 def tournament_notification(tournament_id, winners, losers, new_game):
     channel_layer = get_channel_layer()
@@ -125,6 +129,9 @@ def matchmaker(room):
             channel_layer = get_channel_layer()
             if room == 'tournament':
                 tournament_id = '_'.join(sorted([str(user.decode('utf-8')) for user in users]))
+                message = next_round_message(users, [])
+                for user in users:
+                    send_to_global_chat(message, channel_layer, user)
             for i in range(0, min_players, 2):
                 room_name = '_'.join(sorted([users[i].decode('utf-8'), users[i+1].decode('utf-8')]))
                 try:
