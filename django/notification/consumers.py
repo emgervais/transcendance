@@ -110,7 +110,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             if not await self.send_match_request(room):
                 return
         await async_send_to_websocket(self.channel_layer, await get_main_channel(self.user), {
-            'type': 'send.notification', 'notification': 'searchingMatch', 'room': room
+            'type': 'send.notification', 'notification': 'pong', 'description': 'searchingMatch', 'room': room
         })
         matchmaking_redis.zadd(room, {self.user.id: time.time()})
         self.in_queue = True

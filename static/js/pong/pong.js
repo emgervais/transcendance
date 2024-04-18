@@ -15,7 +15,7 @@ import * as notifications from "/js/notifications.js";
 let ws = null;
 let canvas;
 
-let notInGame = true;
+let inGame = false;
 
 let pongUBO;
 let textUBO;
@@ -529,8 +529,8 @@ function setViewState()
 	if(state == 4)
 	{
 		// game select state
-		notInGame = false;
 		match.clearPongText();
+		inGame = true;
 		util.displayState();
 		if(ws)
 			ws.close();
@@ -544,7 +544,7 @@ function setViewState()
 	}
 	else
 	{
-		notInGame = true;
+		inGame = false;
 		util.displayState();
 		camera.targetfov = Math.PI / 2;
 		camera.targetz = 1.5;
@@ -563,7 +563,7 @@ function connect(id, tournamentId)
 		state = 0;
 		setViewState();
 	}
-	notInGame = false;
+	inGame = true;
 	tourney = tournamentId != null;
 	if(tournamentId && tournamentId.split('_').length == 5)
 		tourney = 0;
@@ -679,7 +679,8 @@ function connect(id, tournamentId)
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
-					notInGame = true && !tourney; //// really?
+					// notInGame = true && !tourney; //// really?
+					inGame = false;
 					util.displayState();
 					state = dv.getUint8(offset + 1) + 1;
 					wintext.ubo.setwinnder(state - 1);
@@ -1051,7 +1052,7 @@ function stop()
 	if (ws && (ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
 		ws.close();
 	}
-	notInGame = true;
+	inGame = false;
 	util.displayState();
 	match.clearPongText();
 	stopgame = 1;
@@ -1068,21 +1069,13 @@ function disconnect()
 	state = 0;
 	playerid = 0;
 	player = 0;
-	notInGame = true;
+	inGame = false;
 	util.displayState();
 }
-
-// // update the canvas size on resize
-// window.addEventListener('resize', function() {
-// 	canvas.width = canvas.clientWidth;
-// 	canvas.height = canvas.clientHeight;
-// 	camera.proj(camera.fov, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
-// 	camera.uploadP();
-// });
 
 let interactedWithDocument = false;
 document.addEventListener('click', function(event) {
 	interactedWithDocument = true;
 });
 
-export {start, stop, stopgame, connect, disconnect, notInGame};
+export {start, stop, stopgame, connect, disconnect, inGame };

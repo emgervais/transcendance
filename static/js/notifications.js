@@ -20,10 +20,10 @@ async function start() {
 	);
 
 	ws.onmessage = async (event) => {
-		const data = JSON.parse(event.data);	
-		chatFriends.set(data.onlineFriendIds);
+		const data = JSON.parse(event.data);
+		if (data.onlineFriendIds)
+			chatFriends.set(data.onlineFriendIds);
 		friends.setOnlineFriendsCount(data.onlineFriendIds.length);
-
 		switch (data.type) {
 			case "chat":
 				chat.start(data.room);

@@ -4,22 +4,6 @@ import { getUser } from "/js/user/user.js"
 
 let connectedFriends = [];
 
-function update(id, connected, disconnected) {
-    if (connected) {
-        addConnectedFriend(id);
-    } else if (disconnected) {
-        removeConnectedFriend(id);
-    }
-}
-
-function addConnectedFriend(id) {
-    connectedFriends.push(id);
-}
-
-function removeConnectedFriend(id) {
-    connectedFriends = connectedFriends.filter(item => item !== id);
-}
-
 function set(_connectedFriends) {
 	connectedFriends = _connectedFriends;
 }
@@ -70,4 +54,4 @@ async function generateFriendsListElement(container, userId) {
 	container.appendChild(div);
 }
 
-export { update, set, generateFriendsList };
+export { set, generateFriendsList };
