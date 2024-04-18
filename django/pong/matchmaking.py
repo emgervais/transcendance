@@ -3,6 +3,7 @@ from users.models import UserChannelGroup, User
 from pong.models import Game
 from rest_framework import serializers
 from channels.layers import get_channel_layer
+import time
 
 TOURNAMENT_NB_PLAYERS = 4
 
@@ -14,13 +15,32 @@ class DictPosSerializer(serializers.Serializer):
             '3rd': instance['3rd'],
             '4th': instance['4th']
         }
+        
+def next_round_message(winners, losers):
+    message = 'Next round will start soon!\n'
+    for i in range(0, len(winners), 2):
+        message += f'{User.objects.get(id=winners[i]).username} vs {User.objects.get(id=winners[i+1]).username}\n'
+    for i in range(0, len(losers), 2):
+        message += f'{User.objects.get(id=losers[i]).username} vs {User.objects.get(id=losers[i+1]).username}\n'
+    return message
 
+def announce_tournament(winners, losers):
+    channel_layer = get_channel_layer()
+    try:
+        send_to_websocket(channel_layer, UserChannelGroup.objects.get_channel_name('global'), {
+            'type': 'chat.message', 'message': next_round_message(winners, losers), 'senderId': 0
+        })
+    except UserChannelGroup.DoesNotExist:
+        pass
+            
 def tournament_notification(tournament_id, winners, losers, new_game):
     channel_layer = get_channel_layer()
     try:
         if new_game:
             winner_room = '_'.join(sorted([str(user) for user in winners]))
             loser_room = '_'.join(sorted([str(user) for user in losers]))
+            announce_tournament(winners, losers)
+            time.sleep(5)
             for user in winners:
                 send_to_websocket(channel_layer, UserChannelGroup.objects.get(user_id=user).main, {
                     'type': 'send.notification', 'notification': 'pong', 'description': 'matchFound', 'room': winner_room, 'tournamentId': tournament_id + '_1'
