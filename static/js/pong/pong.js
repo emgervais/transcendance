@@ -672,15 +672,13 @@ function connect(id, tournamentId)
 				else if(dv.getUint8(offset) == 3) {
 					state = 5; // start countdown
 					countdown = 3;
-					// console.log("Game started.");
 					wsmovementdv.setUint32(1, player.gety(), true);
 					if(ws.readyState == ws.OPEN)
 						ws.send(wsmovementbuffer);
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
-					// notInGame = true && !tourney; //// really?
-					inGame = false;
+					inGame = tourney;
 					util.displayState();
 					state = dv.getUint8(offset + 1) + 1;
 					wintext.ubo.setwinnder(state - 1);
