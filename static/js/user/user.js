@@ -4,6 +4,7 @@ import * as nav from "/js/nav.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
 import * as chat from "/js/chat/chat.js";
+import * as chatFriends from "/js/chat/friends.js";
 import * as messages from "/js/chat/messages.js";
 
 let users = {
@@ -79,7 +80,7 @@ async function alertStatus(id, prevStatus, status) {
         return;
     else if (status == "offline")
         text += "just disconnected.";
-    else
+    else if (!(id in chatFriends.connectedFriends))
         text += "just connected.";
     util.showAlert({
         text: text,

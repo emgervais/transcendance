@@ -134,9 +134,9 @@ async function start(data) {
     if (router.getCurrentLocation() != "/")
         await router.route("/");
     chat.stop(chat.matchRoomId);
-    // chatMessages.deleteMessages(chat.matchRoomId);
+    chatMessages.deleteMessages(chat.matchRoomId);
     chat.start(`pong_${data.room}`);
-    // chatDisplay.openChatBox();
+    chatDisplay.openChatBox();
     chatDisplay.activateMatchTab();
     pong.connect(data.room, data.tournamentId);
     displayOpponentName(data.room);

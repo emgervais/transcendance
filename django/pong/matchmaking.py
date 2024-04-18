@@ -30,7 +30,7 @@ def announce_tournament(winners, losers):
     for user in winners + losers:
         try:
             user_channels = UserChannelGroup.objects.get(user_id=user)
-            pong_chat = user_channels.get_pong_channel()
+            pong_chat = user_channels.get_global_chat_channel()
             send_to_websocket(channel_layer, pong_chat, {
                 'type': 'chat.message', 'message': message, 'senderId': 0
             })

@@ -54,4 +54,4 @@ async function generateFriendsListElement(container, userId) {
 	container.appendChild(div);
 }
 
-export { set, generateFriendsList };
+export { connectedFriends, set, generateFriendsList };
