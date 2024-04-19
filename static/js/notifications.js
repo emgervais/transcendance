@@ -119,12 +119,6 @@ function matchMaking(roomId, cancel=false) {
 	if (!ws || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED)  {
 		return;
 	}
-	if (roomId === 'tournament')// testing offline mode with tournament
-	{
-		pong.offlineMode();
-		return;
-	}
-	
 	ws.send(JSON.stringify({
 		type: "matchmaking",
 		room: roomId,
