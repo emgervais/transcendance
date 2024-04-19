@@ -516,8 +516,11 @@ function setViewState()
 		camera.targetz = 3;
 		playerid = 0;
 		player = 0;
-		if (interactedWithDocument)
+		try {
 			ambientSound.pause();
+		} catch (e) {
+	
+		}
 		ambientSound.currentTime = 0;
 	}
 	else
@@ -1151,8 +1154,11 @@ function start()
 
 function stop()
 {
-	if (interactedWithDocument)
+	try {
 		ambientSound.pause();
+	} catch (e) {
+
+	}
 	if (ws && (ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
 		ws.close();
 	}
