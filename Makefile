@@ -26,7 +26,6 @@ prune:
 restart_web:
 	docker-compose stop web
 	docker-compose up -d --build web 
-#docker-compose restart web
 
 
 web:

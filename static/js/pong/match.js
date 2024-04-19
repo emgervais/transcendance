@@ -136,8 +136,8 @@ async function start(data) {
     chat.stop(chat.matchRoomId);
     chatMessages.deleteMessages(chat.matchRoomId);
     chat.start(`pong_${data.room}`);
-    chatDisplay.openChatBox();
-    chatDisplay.activateMatchTab();
+    // chatDisplay.openChatBox();
+    // chatDisplay.activateMatchTab();
     pong.connect(data.room, data.tournamentId);
     displayOpponentName(data.room);
 }
@@ -191,10 +191,15 @@ async function tournamentSummary(data) {
 }
 
 function clearPongText() {
-    document.querySelectorAll(".player").forEach(el => {
-        el.innerHTML = '';
-    });
-    document.getElementById("tournament-summary").style.display = 'none';
+    const playerElements = document.querySelectorAll(".player");
+    if (playerElements) {
+        playerElements.forEach(el => {
+            el.innerHTML = '';
+        });
+    }
+    const el = document.getElementById("tournament-summary");
+    if (el)
+        el.style.display = 'none';
 }
 
 export { invite, receiveInvite, displayInvite, respondInvite, invites, clearInvites };

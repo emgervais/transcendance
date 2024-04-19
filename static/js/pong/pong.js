@@ -8,7 +8,7 @@ import * as util from "/js/util.js";
 import * as match from "/js/pong/match.js";
 import * as notifications from "/js/notifications.js";
 
-const POINTS_TO_WIN = 5;
+const POINTS_TO_WIN = 1;
 
 let ws = null;
 let canvas;
@@ -687,6 +687,10 @@ function connect(id, tournamentId)
 let countdowntimer = 3000;
 function offlineMode()
 {
+	// stop();
+	// disconnect();
+	if(ws)
+		ws.close();
 	isOffline = true;
 	if(state == 4)
 	{
@@ -695,8 +699,6 @@ function offlineMode()
 	}
 	inGame = true;
 	util.displayState();
-	if(ws)
-		ws.close();
 	state = 5;
 	countdown = 3;
 	countdowntimer = 3000;
@@ -864,6 +866,10 @@ function draw()
 					ball.sety(pongrenderheight/2.0 - ball.height/2.0);
 					ball.xspeed = 0;
 					ball.yspeed = 0;
+					score.points[0] = 0;
+					score.points[1] = 0;
+					inGame = false;
+					util.displayState();
 				}
 			}
 			else if((playerid == 1 && (ball.xspeed < 0.0) && (ball.getx() <= stage.left + paddle.width)) || (playerid == 2 && (ball.xspeed > 0.0) && (ball.getx() > stage.right-ball.width-paddle.width)))
