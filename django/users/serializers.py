@@ -12,6 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         ret = super().to_representation(instance)
+        ret.pop('email', None)
         ret['image'] = instance.image.url
         ret['friendRequests'] = Friend.objects.requests(instance).count()
         return ret

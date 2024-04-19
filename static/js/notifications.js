@@ -116,7 +116,7 @@ function stop() {
 }
 
 function matchMaking(roomId, cancel=false) {
-	if (!ws || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED)  {
+	if (!ws || ws.readyState !== WebSocket.OPEN)  {
 		return;
 	}
 	ws.send(JSON.stringify({
@@ -127,7 +127,7 @@ function matchMaking(roomId, cancel=false) {
 }
 
 async function nextGame(tournamentId) {
-	if (!tournamentId || !ws || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED)  {
+	if (!tournamentId || !ws || ws.readyState !== WebSocket.OPEN)  {
 		return;
 	}
 	await util.sleep(2000);

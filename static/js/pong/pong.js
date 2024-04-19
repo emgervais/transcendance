@@ -8,7 +8,7 @@ import * as util from "/js/util.js";
 import * as match from "/js/pong/match.js";
 import * as notifications from "/js/notifications.js";
 
-const POINTS_TO_WIN = 1;
+const POINTS_TO_WIN = 5;
 
 let ws = null;
 let canvas;

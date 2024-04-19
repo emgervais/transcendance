@@ -44,7 +44,7 @@ def tournament_notification(tournament_id, winners, losers, new_game):
             winner_room = '_'.join(sorted([str(user) for user in winners]))
             loser_room = '_'.join(sorted([str(user) for user in losers]))
             announce_tournament(winners, losers)
-            time.sleep(5)
+            time.sleep(2)
             for user in winners:
                 send_to_websocket(channel_layer, UserChannelGroup.objects.get(user_id=user).main, {
                     'type': 'send.notification', 'notification': 'pong', 'description': 'matchFound', 'room': winner_room, 'tournamentId': tournament_id + '_1'

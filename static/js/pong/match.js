@@ -17,6 +17,7 @@ const inviteNotification = document.getElementById("invite-notification");
 const shadow = document.getElementById("shadow");
 // -- send invite ----
 function invite(target) {
+    console.log("invite");
     const userId = target.getAttribute("data-user-id");
     let roomId;
     if (userId) {

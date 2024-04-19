@@ -64,7 +64,7 @@ async function loadMoreGames() {
 // // Event listener for resize and scroll
 ["resize", "scroll"].forEach(event => {
     window.addEventListener(event, async () => {
-        if (getCurrentLocation().endsWith("match-history/") && atBottom() && !stopLoading) {
+        if (getCurrentLocation().startsWith("/account/match-history/") && atBottom() && !stopLoading) {
             await loadMoreGames();
             await sleep(500);
         }
