@@ -37,6 +37,11 @@ async function fetchRoute(params, retrying=false){
 function fetchResponse(response) {
     if (response.ok) {
         return response.json();
+    } else if (response.status == 413) {
+        util.showAlert({text: "Uploaded content too large", danger: true});
+        return new Promise((resolve, reject) => {
+            resolve({});
+        });
     } else {
         return response.json().then(errorData => {
             throw { status: response.status, data: errorData };
@@ -85,7 +90,7 @@ function fetchError(error) {
 // body=true
 // body = body ? new FormData(form): null
 //
-function formSubmit(
+async function formSubmit(
     {
         formId,
         route=undefined,
@@ -121,7 +126,7 @@ function formSubmit(
         }
         fetchError(error);
     };
-    fetchRoute({
+    return await fetchRoute({
         route: route,
         options: options,
         dataManager: dataManager,
@@ -139,7 +144,6 @@ function addFormErrors(form, data) {
 function addFormError(form, key, value) {
     const div = form.querySelector("." + key);
     if (!div) {
-        util.showAlert({text: });
         return;
     }
     const error = document.createElement('p');

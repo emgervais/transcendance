@@ -17,6 +17,10 @@ async function fetchMatchHistory(fromGameId, size) {
         route: route,
         dataManager: async data => {
             games = data;
+        },
+        errorManager: error => {
+            const statsGrid = document.querySelector('#match-history');
+            statsGrid.innerHTML = error.data.error;
         }
     });
     if (games.length < size) {
@@ -60,7 +64,7 @@ async function loadMoreGames() {
 // // Event listener for resize and scroll
 ["resize", "scroll"].forEach(event => {
     window.addEventListener(event, async () => {
-        if (getCurrentLocation().endsWith("match-history/") && atBottom() && !stopLoading) {
+        if (getCurrentLocation().startsWith("/account/match-history/") && atBottom() && !stopLoading) {
             await loadMoreGames();
             await sleep(500);
         }
@@ -78,7 +82,7 @@ async function load() {
     title.innerHTML = `${(await getUser(USER_ID)).username}'s match history`;
 
     lastLoadedGameId = 0;
-    let maxPreload = 5;
+    let maxPreload = 10;
     stopLoading = false;
     do {
         await loadMoreGames();

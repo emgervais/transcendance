@@ -12,12 +12,12 @@ import { getCurrUser } from "/js/user/currUser.js";
 // -- elements ----
 const invitesContainer = document.getElementById("game-invites");
 const invitesHeader = document.getElementById("game-invites-header");
-
+let lastOpponents = [];
 const inviteNotification = document.getElementById("invite-notification");
 const shadow = document.getElementById("shadow");
-
 // -- send invite ----
 function invite(target) {
+    console.log("invite");
     const userId = target.getAttribute("data-user-id");
     let roomId;
     if (userId) {
@@ -43,6 +43,7 @@ function setSearchingMatch({
 function cancelSearchingMatch() {
     notifications.matchMaking(searchingMatchId, true);
     setSearchingMatch({searching: false});
+    // tournamentSummary();
 }
 
 // -- receive invite ----
@@ -136,8 +137,8 @@ async function start(data) {
     chat.stop(chat.matchRoomId);
     chatMessages.deleteMessages(chat.matchRoomId);
     chat.start(`pong_${data.room}`);
-    chatDisplay.openChatBox();
-    chatDisplay.activateMatchTab();
+    // chatDisplay.openChatBox();
+    // chatDisplay.activateMatchTab();
     pong.connect(data.room, data.tournamentId);
     displayOpponentName(data.room);
 }
@@ -146,6 +147,10 @@ async function displayOpponentName(room) {
     const element = document.getElementById("opponent-username");
     const opponentName = await getOpponentName(room);
     element.innerHTML = opponentName ? `Opponent: ${opponentName}` : "";
+    lastOpponents.push(opponentName ? opponentName : "");
+    if (lastOpponents.length > 2) {
+        lastOpponents.shift();
+    }
 }
 
 async function getOpponentName(room) {
@@ -160,17 +165,42 @@ async function getOpponentName(room) {
 
 async function tournamentSummary(data) {
     const element = document.getElementById("tournament-summary");
-    element.innerHTML = "TOURNAMENT SUMMARY:<br>";
     for (let key in data) {
-        element.innerHTML += `${key}: ${data[key]}<br>`;
-    }    
+        if(key == 'first' || key == 'second') {
+            element.querySelectorAll('.' + key).forEach(el => {
+                el.innerHTML = data[key];
+            });
+        }
+        if(data[key] == await (getCurrUser()).username)
+            var place = key;
+        if(data[key] == lastOpponents[0])
+            var opponentPlace = key;
+    }
+    if(place == 'first' || place == 'second') {
+        let el = element.querySelector('.' + place + '.top');
+        let inner = el.nextElementSibling;
+        inner.innerHTML = data[opponentPlace];
+        element.querySelector('div.player:empty').innerHTML = opponentPlace == 'third' ? data['fourth'] : data['third'];
+    }
+    else {
+        let el = element.querySelector('.' + opponentPlace + '.top');
+        let inner = el.nextElementSibling;
+        inner.innerHTML = data[place];
+        element.querySelector('div.player:empty').innerHTML = place == 'third' ? data['fourth'] : data['third'];
+    }
+    element.style.display = 'flex';
 }
 
 function clearPongText() {
-    const elements = document.querySelectorAll(".pong-text");
-    for (const element of elements) {
-        element.innerHTML = "";
+    const playerElements = document.querySelectorAll(".player");
+    if (playerElements) {
+        playerElements.forEach(el => {
+            el.innerHTML = '';
+        });
     }
+    const el = document.getElementById("tournament-summary");
+    if (el)
+        el.style.display = 'none';
 }
 
 export { invite, receiveInvite, displayInvite, respondInvite, invites, clearInvites };

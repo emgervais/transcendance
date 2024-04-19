@@ -8,6 +8,8 @@ function getCurrUser() {
     let user = JSON.parse(sessionStorage.getItem(key));
     if (!user && currUser) {
         user = currUser;
+        // if (user.includes("email"))
+            // delete user["email"];
         setCurrUser(user);
     }
     return user;
@@ -18,6 +20,7 @@ function setCurrUser(user) {
         throw new Error("setCurrUser: Invalid user object provided.");
     }
     let key = "user";
+    
     sessionStorage.setItem(key, JSON.stringify(user));
     currUser = user;
 }

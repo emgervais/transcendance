@@ -19,7 +19,7 @@ def notify_status_to_friends(user, status):
 
 async def game_stopped_notification(user_ids, description):
 	channel_layer = get_channel_layer()
-	tournament_id = '_'.join(user_ids) + '_1'
+	tournament_id = '_'.join([str(id) for id in user_ids]) + '_1'
 	if matchmaking_redis.exists(tournament_id):
 		matchmaking_redis.delete(tournament_id)
 	for user_id in user_ids:

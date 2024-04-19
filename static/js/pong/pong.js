@@ -4,18 +4,19 @@ import {modelVertShader, modelFragShader, pongVertShader, pongFragShader, textVe
 // import * as router from "/js/router/router.js";
 // import * as util from "/js/util.js";
 import { cancelSearchingMatch } from "/js/pong/match.js";
-import { getCurrentLocation } from "/js/router/router.js";
-
-import * as chatMessages from "/js/chat/messages.js";
-import * as chat from "/js/chat/chat.js";
 import * as util from "/js/util.js";
 import * as match from "/js/pong/match.js";
 import * as notifications from "/js/notifications.js";
 
+const POINTS_TO_WIN = 5;
+
 let ws = null;
 let canvas;
 
-let notInGame = true;
+let inGame = false;
+let isOffline = false;
+let tourney = 0;
+let countdowntimer = 3001;
 
 let pongUBO;
 let textUBO;
@@ -106,7 +107,7 @@ const screenobject = {
 	uploadS: function() {mainUBO.update(this._uboS._matrix, 128);}
 }
 
-const inputs = [0, 0, 0, 0, 0, 0, 0, 0];
+const inputs = [0, 0, 0, 0];
 
 let wintext = {
 	ubo: {
@@ -445,61 +446,23 @@ function setup()
 			camera.targetpitch = y * Math.PI / 2;
 		}
 	}
-
-	window.onkeydown = function(e)
-	{
-		if(e.key == 'w')
-			inputs[0] = 1;
-		else if(e.key == 's')
-			inputs[1] = 1;
-		else if(e.key == 'a')
-			inputs[2] = 1;
-		else if(e.key == 'd')
-			inputs[3] = 1;
-		else if(e.key == 'ArrowUp')
-			inputs[4] = 1;
-		else if(e.key == 'ArrowDown')
-			inputs[5] = 1;
-		else if(e.key == 'ArrowLeft')
-			inputs[6] = 1;
-		else if(e.key == 'ArrowRight')
-			inputs[7] = 1;
-		else if(e.key == 'Escape' && state != 1)
-		{
-			state = (state == 4) ? 0 : 4;
-			setViewState();
-			if(state != 4)
-			{
-				cassettemodel.move(0.41882097721099854, -1.3558310270309448, 0.8896202921867371);
-				cassettemodel.rotate(0, 0, 0);
+	
+	const keys = ['w', 's', 'ArrowUp', 'ArrowDown'];
+	
+	['keydown', 'keyup'].forEach((event) => {
+		window.addEventListener(event, (e) => {
+			if (keys.includes(e.key)) {
+				const index = keys.indexOf(e.key);
+				inputs[index] = event === 'keydown' ? 1 : 0;
 			}
-			else
-			{
-				cassettemodel.move(2.60782, -2.22583, 1.64862);
-				cassettemodel.rotate(0, 0.5, 0);
+			else if (event === 'keydown' && e.key === 'Escape') {
+				if (state !== 1)
+					cassetteAnimation();
+				else if (isOffline)
+					cassetteAnimation();
 			}
-		}
-			
-	}
-	window.onkeyup = function(e)
-	{
-		if(e.key == 'w')
-			inputs[0] = 0;
-		else if(e.key == 's')
-			inputs[1] = 0;
-		else if(e.key == 'a')
-			inputs[2] = 0;
-		else if(e.key == 'd')
-			inputs[3] = 0;
-		else if(e.key == 'ArrowUp')
-			inputs[4] = 0;
-		else if(e.key == 'ArrowDown')
-			inputs[5] = 0;
-		else if(e.key == 'ArrowLeft')
-			inputs[6] = 0;
-		else if(e.key == 'ArrowRight')
-			inputs[7] = 0;
-	}
+		});
+	});
 
 	ball.setx(pongrenderwidth/2.0 - ball.width/2.0);
 	ball.sety(pongrenderheight/2.0 - ball.height/2.0);
@@ -524,13 +487,27 @@ function setup()
 	return true;
 }
 
+function cassetteAnimation()
+{
+	state = (state === 4) ? 0 : 4;
+	setViewState();
+	if (state !== 4) {
+		cassettemodel.move(0.41882097721099854, -1.3558310270309448, 0.8896202921867371);
+		cassettemodel.rotate(0, 0, 0);
+	}
+	else {
+		cassettemodel.move(2.60782, -2.22583, 1.64862);
+		cassettemodel.rotate(0, 0.5, 0);
+	}
+}
+
 function setViewState()
 {
 	if(state == 4)
 	{
 		// game select state
-		notInGame = false;
 		match.clearPongText();
+		inGame = true;
 		util.displayState();
 		if(ws)
 			ws.close();
@@ -539,12 +516,13 @@ function setViewState()
 		camera.targetz = 3;
 		playerid = 0;
 		player = 0;
-		ambientSound.pause();
+		if (interactedWithDocument)
+			ambientSound.pause();
 		ambientSound.currentTime = 0;
 	}
 	else
 	{
-		notInGame = true;
+		inGame = false;
 		util.displayState();
 		camera.targetfov = Math.PI / 2;
 		camera.targetz = 1.5;
@@ -555,15 +533,33 @@ function setViewState()
 	}
 }
 
-let tourney = 0;
-function connect(id, tournamentId)
+function offlineMode()
 {
+	reset();
+	isOffline = true;
 	if(state == 4)
 	{
 		state = 0;
 		setViewState();
 	}
-	notInGame = false;
+	inGame = true;
+	util.displayState();
+	if(ws)
+		ws.close();
+	state = 5;
+	countdown = 3;
+	countdowntimer = 3001;
+}
+
+function connect(id, tournamentId)
+{
+	isOffline = false;
+	if(state == 4)
+	{
+		state = 0;
+		setViewState();
+	}
+	inGame = true;
 	tourney = tournamentId != null;
 	if(tournamentId && tournamentId.split('_').length == 5)
 		tourney = 0;
@@ -672,14 +668,13 @@ function connect(id, tournamentId)
 				else if(dv.getUint8(offset) == 3) {
 					state = 5; // start countdown
 					countdown = 3;
-					// console.log("Game started.");
 					wsmovementdv.setUint32(1, player.gety(), true);
 					if(ws.readyState == ws.OPEN)
 						ws.send(wsmovementbuffer);
 				}
 				else if(dv.getUint8(offset) == 4)
 				{
-					notInGame = true && !tourney; //// really?
+					inGame = tourney;
 					util.displayState();
 					state = dv.getUint8(offset + 1) + 1;
 					wintext.ubo.setwinnder(state - 1);
@@ -792,18 +787,98 @@ function draw()
 	if(dt > 1000)
 		dt = 1000;
 	lastTime = performance.now();
+
 	switch(state)
 	{
 	case 1:
 	case 2:
 	case 3:
 	case 5:
+		if(isOffline && countdowntimer > -1)
+		{
+			countdowntimer -= dt;
+			let oc = countdown;
+			countdown = Math.floor(countdowntimer / 1000) + 1;
+			if(oc != countdown)
+			{
+				if(countdown == 0)
+				{
+					state = 1;
+					countdown = 0;
+					countdowntimer = -1;
+				}
+				else
+					countdowntext.setdata([countdown]);
+			}
+		}
 		if(countdown <= 0)
 		{
 			ball.setx(ball.getx() + ball.xspeed * dt);
 			ball.sety(ball.gety() + ball.yspeed * dt);
-	
-			if((playerid == 1 && (ball.xspeed < 0.0) && (ball.getx() <= stage.left + paddle.width)) || (playerid == 2 && (ball.xspeed > 0.0) && (ball.getx() > stage.right-ball.width-paddle.width)))
+			if(isOffline)
+			{
+				if((ball.xspeed < 0.0) && (ball.getx() <= stage.left + paddle.width))
+				{
+					if(collisionCheck(player1, ball))
+					{
+						ball.setx(stage.left + paddle.width);
+						ball.xspeed *= -1.05;
+						ball.yspeed = (ball.gety()+ball.height/2 - (player1.gety() + paddle.height/2))*0.5 * Math.abs(ball.xspeed);
+						bounceSound.currentTime = 0;
+						if (interactedWithDocument)
+							bounceSound.play();
+					}
+					else
+					{
+						ball.setx(stage.left + 0.1);
+						ball.yspeed = (0.03 / -ball.xspeed) * ball.yspeed;
+						ball.xspeed = 0.03;
+						score.points[1] += 1;
+						score.ubo2.setdata([
+							score.points[1] % 10 << 8 | score.points[1] / 10 << 0
+						]);
+						miss();
+					}
+				}
+				else if((ball.xspeed > 0.0) && (ball.getx() > stage.right-ball.width-paddle.width))
+				{
+					if(collisionCheck(player2, ball))
+					{
+						ball.setx(stage.right-ball.width-paddle.width);
+						ball.xspeed *= -1.05;
+						ball.yspeed = (ball.gety()+ball.height/2 - (player2.gety() + paddle.height/2))*0.5 * Math.abs(ball.xspeed);
+						bounceSound.currentTime = 0;
+						if (interactedWithDocument)
+							bounceSound.play();
+					}
+					else
+					{
+						ball.setx(stage.right-ball.width - 0.1);
+						ball.yspeed = (0.03 / ball.xspeed) * ball.yspeed;
+						ball.xspeed = -0.03;
+						score.points[0] += 1;
+						score.ubo1.setdata([
+							score.points[0] % 10 << 8 | score.points[0] / 10 << 0
+						]);
+						miss();
+					}
+				}
+				if(score.points[0] >= POINTS_TO_WIN || score.points[1] >= POINTS_TO_WIN)
+				{
+					// game won by some
+					state = (score.points[0] >= POINTS_TO_WIN) ? 2 : 3;
+					wintext.ubo.setwinnder(state - 1);
+					ball.setx(pongrenderwidth/2.0 - ball.width/2.0);
+					ball.sety(pongrenderheight/2.0 - ball.height/2.0);
+					ball.xspeed = 0;
+					ball.yspeed = 0;
+					score.points[0] = 0;
+					score.points[1] = 0;
+					inGame = false;
+					util.displayState();
+				}
+			}
+			else if((playerid == 1 && (ball.xspeed < 0.0) && (ball.getx() <= stage.left + paddle.width)) || (playerid == 2 && (ball.xspeed > 0.0) && (ball.getx() > stage.right-ball.width-paddle.width)))
 			{
 				if(collisionCheck(player, ball))
 				{ // ball bounce
@@ -869,7 +944,34 @@ function draw()
 			}
 		}
 	case 0:
-		if(player)
+		if(isOffline)
+		{
+			if(inputs[0] == 1)
+			{
+				player1.sety(player1.gety() - 0.04 * dt);
+				if(player1.gety() < stage.top)
+					player1.sety(stage.top);
+			}
+			if(inputs[1] == 1)
+			{
+				player1.sety(player1.gety() + 0.04 * dt);
+				if(player1.gety() > stage.bottom-paddle.height)
+					player1.sety(stage.bottom-paddle.height);
+			}
+			if(inputs[2] == 1)
+			{
+				player2.sety(player2.gety() - 0.04 * dt);
+				if(player2.gety() < stage.top)
+					player2.sety(stage.top);
+			}
+			if(inputs[3] == 1)
+			{
+				player2.sety(player2.gety() + 0.04 * dt);
+				if(player2.gety() > stage.bottom-paddle.height)
+					player2.sety(stage.bottom-paddle.height);
+			}
+		}
+		else if(player)
 		{
 			if(inputs[0] == 1)
 			{
@@ -919,7 +1021,8 @@ function draw()
 		sendtimer += dt;
 		if(sendtimer > 1000/30)
 		{
-			senddata(sendbytes);
+			if(!isOffline)
+				senddata(sendbytes);
 			sendtimer = 0;
 		}
 		unbindVAO();
@@ -1017,7 +1120,8 @@ function miss() {
 	wsscoredv.setUint32(5, ball.gety() * ballprecision, true);
 	wsscoredv.setUint32(9, ball.xspeed * ballprecision, true);
 	wsscoredv.setUint32(13, ball.yspeed * ballprecision, true);
-	ws.send(wsscorebuffer);
+	if(!isOffline)
+		ws.send(wsscorebuffer);
 }
 
 function start()
@@ -1047,15 +1151,38 @@ function start()
 
 function stop()
 {
-	ambientSound.pause();
+	if (interactedWithDocument)
+		ambientSound.pause();
 	if (ws && (ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
 		ws.close();
 	}
-	notInGame = true;
+	inGame = false;
 	util.displayState();
 	match.clearPongText();
 	stopgame = 1;
 	state = 0;
+}
+
+function reset()
+{
+	ball.setx(pongrenderwidth/2.0 - ball.width/2.0);
+	ball.sety(pongrenderheight/2.0 - ball.height/2.0);
+	ball.xspeed = -0.03;
+	ball.yspeed = 0;
+	player1.setsize(paddle.width, paddle.height);
+	player2.setsize(paddle.width, paddle.height);
+	player1.setx(stage.left);
+	player2.setx(stage.right-paddle.width);
+	player1.sety(pongrenderheight/2-paddle.height/2);
+	player2.sety(pongrenderheight/2-paddle.height/2);
+	score.points[0] = 0;
+	score.points[1] = 0;
+	score.ubo1.setdata([
+		score.points[0] % 10 << 8 | score.points[0] / 10 << 0
+	]);
+	score.ubo2.setdata([
+		score.points[1] % 10 << 8 | score.points[1] / 10 << 0
+	]);
 }
 
 function disconnect()
@@ -1068,21 +1195,13 @@ function disconnect()
 	state = 0;
 	playerid = 0;
 	player = 0;
-	notInGame = true;
+	inGame = false;
 	util.displayState();
 }
-
-// // update the canvas size on resize
-// window.addEventListener('resize', function() {
-// 	canvas.width = canvas.clientWidth;
-// 	canvas.height = canvas.clientHeight;
-// 	camera.proj(camera.fov, canvas.clientWidth / canvas.clientHeight, 0.1, 100.0);
-// 	camera.uploadP();
-// });
 
 let interactedWithDocument = false;
 document.addEventListener('click', function(event) {
 	interactedWithDocument = true;
 });
 
-export {start, stop, stopgame, connect, disconnect, notInGame};
+export {start, stop, stopgame, connect, disconnect, inGame, offlineMode };

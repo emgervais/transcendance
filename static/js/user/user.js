@@ -4,9 +4,16 @@ import * as nav from "/js/nav.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
 import * as chat from "/js/chat/chat.js";
+import * as chatFriends from "/js/chat/friends.js";
 import * as messages from "/js/chat/messages.js";
 
-let users = {};
+let users = {
+    0: {
+        username: "server",
+        image: "/media/default/default.webp",
+        status: "online",
+    },
+};
 
 // -- singletons ----
 async function getUser(id) {
@@ -63,22 +70,6 @@ function updateStatusElements(id, status) {
             }
         }
     }
-}
-
-async function alertStatus(id, prevStatus, status) {
-    let text = `${(await getUser(id)).username} `;
-    if (status == "in-game")
-        text += "is playing.";
-    else if (prevStatus == "in-game" && status == "online")
-        text += "is done playing.";
-    else if (status == "offline")
-        text += "just disconnected.";
-    else
-        text += "just connected.";
-    util.showAlert({
-        text: text,
-        // timeout: 2,
-    });
 }
 
 function removeUser(id) {
@@ -278,6 +269,6 @@ function sortUsersByName(container) {
     });    
 }
 
-export { getUser, setUser, setUserStatus, removeUser, unfriend, displayUser, alertStatus };
+export { getUser, setUser, setUserStatus, removeUser, unfriend, displayUser };
 export { block };
 export { sortUsersByStatus, sortUsersByName };

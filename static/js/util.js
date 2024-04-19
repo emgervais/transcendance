@@ -51,7 +51,7 @@ function displayState(cherryPick=undefined) {
     'connected': auth.isConnected(),
     'searching-match': match.searchingMatch,
     'has-invites': !!match.invites.length,
-    'match-button': pong.notInGame,
+    'game': pong.inGame,
   };
   if (cherryPick) {
     classes = { [cherryPick]: classes[cherryPick] };
@@ -76,7 +76,7 @@ const alertContainer = document.getElementById("alert-container");
 
 async function showAlert({
   text,
-  timeout=4,
+  timeout=5,
   danger=false,
   closeButton=false,
 }) {

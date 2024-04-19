@@ -23,6 +23,11 @@ prune:
 	make clean_migrations
 	docker system prune --all --volumes
 
+restart_web:
+	docker-compose stop web
+	docker-compose up -d --build web 
+
+
 web:
 	docker exec -it web sh
 

@@ -60,6 +60,12 @@ async function load() {
                 statsGrid.appendChild(div);
             }
         },
+        errorManager: error => {
+            if (!error)
+                return;
+            const statsGrid = document.querySelector('.stats-grid');
+            statsGrid.innerHTML = error.data.error;
+        }
     });
 }
 

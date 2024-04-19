@@ -136,6 +136,10 @@ input {
 }
 /* account page-------------- */
 
+#dynamic-section {
+  z-index: -4;
+}
+
 #account-dynamic-section {
   height: 100%;
 }
@@ -263,7 +267,7 @@ input {
   position:fixed;
   width: 150px;
   height: 150px;
-  z-index: 2;
+  z-index: 1005;
   overflow: visible;
   display: flex;
   justify-content: center;
@@ -288,7 +292,7 @@ input {
 #chat-menu.active li button{
   background: transparent;
   border: none;
-  z-index: 5;
+  z-index: 1008;
   position: relative;
   transform: rotate(calc(360deg / -4 * var(--i)));
 }
@@ -314,7 +318,7 @@ input {
   position: relative;
   font-size: 1.5rem;
   padding:5px;
-  z-index: 4;
+  z-index: 1007;
   border:1px black solid;
   border-radius: 50%;
   color:black;
@@ -517,7 +521,7 @@ input {
     border-radius:50%;
     float:left;
     width:15%;
-    z-index: 3;
+    z-index: 1006;
   }
 
   .chat-msg.self > .msg-avatar img {
@@ -526,7 +530,7 @@ input {
     border-radius:50%;
     float:right;
     width:15%;
-    z-index: 3;
+    z-index: 1006;
   }
   .cm-msg-text {
     background:white;
@@ -763,16 +767,89 @@ font-style: italic;
 
 .pong-text {
   color: white;
+  filter: drop-shadow(5px 5px 3px #000000);
 }
 
+#chat-box, #chat-icon{
+  z-index: 2000;
+}
+
+/* tournements ---------------------------*/
 #tournament-summary {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
+  top: 50%;
+  left: 50%;
+  display: none;
   justify-content: center;
   align-items: center;
-  z-index: 999; /* Ensures the text is on top of everything */
+  background-color: #00000044;
+  z-index: 500;
+  background-color: #9d9d9d;
+  color: black;
+  padding: 50px;
+  border: 2px solid #5038ED;
+  border-radius: 25px;
+}
+
+.round {
+  float: left;
+}
+
+.bracket-game {
+  max-width: 125px;
+  margin: 10px 0;
+}
+.player {
+  min-width: 100px;
+  min-height: 25px;
+  border: 1px solid black;
+  padding-left: 10px;
+}
+.player.top {
+  border-radius: 3px 3px 0 0;
+}
+.player.bot {
+  border-radius: 0 0 3px 3px;
+}
+.player .score {
+  display: inline;
+  float: right;
+  border-left: 1px solid black;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: #EEE;
+}
+.player.win {
+  background-color: #B8F2B8;
+}
+.player.loss {
+  background-color: #F2B8B8;
+}
+.connectors {
+  float: left;
+  min-width: 35px;
+}
+.connectors.r-of-2 .top-line {
+  position: relative;
+  width: 17px;
+  border: 1px solid black;
+}
+.connectors.r-of-2 .bottom-line {
+  position: relative;
+  top: 59px;
+  width: 17px;
+  border: 1px solid black;
+}
+.connectors.r-of-2 .vert-line {
+  position: relative;
+  left: -16px;
+  height: 55px;
+  border-right: 2px solid black;
+}
+.connectors.r-of-2 .next-line {
+  position: relative;
+  top: -25px;
+  left: 17px;
+  width: 17px;
+  border: 1px solid black;
 }
