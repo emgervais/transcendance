@@ -243,7 +243,8 @@ function setup()
 	let button = document.getElementById('ping-button');
 	button.onclick = function() {
 		buttonSound.currentTime = 0;
-		buttonSound.play();
+		if (interactedWithDocument)
+			buttonSound.play();
 	}
 	canvas = document.getElementById('webgl-canvas');
 	if(!initGL(canvas))
@@ -515,7 +516,8 @@ function setViewState()
 		camera.targetz = 3;
 		playerid = 0;
 		player = 0;
-		ambientSound.pause();
+		if (interactedWithDocument)
+			ambientSound.pause();
 		ambientSound.currentTime = 0;
 	}
 	else
@@ -1149,7 +1151,8 @@ function start()
 
 function stop()
 {
-	ambientSound.pause();
+	if (interactedWithDocument)
+		ambientSound.pause();
 	if (ws && (ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
 		ws.close();
 	}
