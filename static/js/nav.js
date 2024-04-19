@@ -45,7 +45,7 @@ function displayLogin() {
 }
 
 function displayRegister() {
-    auth.logout();
+    auth.logout(false);
     util.display(login, false);
     util.display(register);
     displayAuthContainer();

@@ -244,7 +244,7 @@ function setup()
 	button.onclick = function() {
 		buttonSound.currentTime = 0;
 		if (interactedWithDocument)
-			buttonSound.play();
+			buttonSound.play().catch(e=>{});
 	}
 	canvas = document.getElementById('webgl-canvas');
 	if(!initGL(canvas))
@@ -516,11 +516,7 @@ function setViewState()
 		camera.targetz = 3;
 		playerid = 0;
 		player = 0;
-		try {
-			ambientSound.pause();
-		} catch (e) {
-	
-		}
+		ambientSound.pause();
 		ambientSound.currentTime = 0;
 	}
 	else
@@ -532,7 +528,7 @@ function setViewState()
 		camera.targetpitch = 0;
 		camera.targetyaw = -Math.PI/2;
 		if (interactedWithDocument)
-			ambientSound.play();
+			ambientSound.play().catch(e=>{});
 	}
 }
 
@@ -614,7 +610,7 @@ function connect(id, tournamentId)
 					hurtSound.currentTime = 0;
 					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
 					if (interactedWithDocument)
-						hurtSound.play();
+						hurtSound.play().catch(e=>{});
 				}
 				score.points[0] = dv.getUint32(offset, true);
 				score.ubo1.setdata([
@@ -629,7 +625,7 @@ function connect(id, tournamentId)
 					hurtSound.currentTime = 0;
 					hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
 					if (interactedWithDocument)
-						hurtSound.play();
+						hurtSound.play().catch(e=>{});
 				}
 				score.points[1] = dv.getUint32(offset, true);
 				score.ubo2.setdata([
@@ -648,7 +644,7 @@ function connect(id, tournamentId)
 				{
 					bounceSound.currentTime = 0;
 					if (interactedWithDocument)
-						bounceSound.play();
+						bounceSound.play().catch(e=>{});
 				}
 				break;
 			case 8: // gamestate
@@ -829,7 +825,7 @@ function draw()
 						ball.yspeed = (ball.gety()+ball.height/2 - (player1.gety() + paddle.height/2))*0.5 * Math.abs(ball.xspeed);
 						bounceSound.currentTime = 0;
 						if (interactedWithDocument)
-							bounceSound.play();
+							bounceSound.play().catch(e=>{});
 					}
 					else
 					{
@@ -852,7 +848,7 @@ function draw()
 						ball.yspeed = (ball.gety()+ball.height/2 - (player2.gety() + paddle.height/2))*0.5 * Math.abs(ball.xspeed);
 						bounceSound.currentTime = 0;
 						if (interactedWithDocument)
-							bounceSound.play();
+							bounceSound.play().catch(e=>{});
 					}
 					else
 					{
@@ -890,7 +886,7 @@ function draw()
 					ball.yspeed = (ball.gety()+ball.height/2 - (player.gety() + paddle.height/2))*0.5 * Math.abs(ball.xspeed);
 					bounceSound.currentTime = 0;
 					if (interactedWithDocument)
-						bounceSound.play();
+						bounceSound.play().catch(e=>{});
 					wsballdv.setUint32(1, ball.getx() * ballprecision, true);
 					wsballdv.setUint32(5, ball.gety() * ballprecision, true);
 					wsballdv.setUint32(9, ball.xspeed * ballprecision, true);
@@ -1118,7 +1114,7 @@ function miss() {
 	hurtSound.currentTime = 0;
 	hurtSound.playbackRate = Math.random() * 0.4 + 0.8;
 	if (interactedWithDocument)
-		hurtSound.play();
+		hurtSound.play().catch(e=>{});
 	wsscoredv.setUint32(1, ball.getx() * ballprecision, true);
 	wsscoredv.setUint32(5, ball.gety() * ballprecision, true);
 	wsscoredv.setUint32(9, ball.xspeed * ballprecision, true);
@@ -1154,11 +1150,8 @@ function start()
 
 function stop()
 {
-	try {
-		ambientSound.pause();
-	} catch (e) {
-
-	}
+	ambientSound.pause();
+	
 	if (ws && (ws.readyState !== WebSocket.CLOSING || ws.readyState !== WebSocket.CLOSED)) {
 		ws.close();
 	}
