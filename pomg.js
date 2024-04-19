@@ -15,8 +15,6 @@ let canvas;
 
 let inGame = false;
 let isOffline = false;
-let tourney = 0;
-let countdowntimer = 3001;
 
 let pongUBO;
 let textUBO;
@@ -107,7 +105,12 @@ const screenobject = {
 	uploadS: function() {mainUBO.update(this._uboS._matrix, 128);}
 }
 
-const inputs = [0, 0, 0, 0];
+const controls = {
+	'w': 0,
+	's': 0,
+	'ArrowUp': 0,
+	'ArrowDown': 0
+}
 
 let wintext = {
 	ubo: {
@@ -446,21 +449,14 @@ function setup()
 			camera.targetpitch = y * Math.PI / 2;
 		}
 	}
-	
-	const keys = ['w', 's', 'ArrowUp', 'ArrowDown'];
-	
-	['keydown', 'keyup'].forEach((event) => {
-		window.addEventListener(event, (e) => {
-			if (keys.includes(e.key)) {
-				const index = keys.indexOf(e.key);
-				inputs[index] = event === 'keydown' ? 1 : 0;
-			}
-			else if (event === 'keydown' && e.key === 'Escape') {
-				if (state !== 1)
-					cassetteAnimation();
-				else if (isOffline)
-					cassetteAnimation();
-			}
+
+
+	['keydown', 'keyup'].forEach(function(e) {
+		window.addEventListener(e, function(e) {
+			if (e.key in controls)
+				controls[e.key] = (e.type === 'keydown') ? 1 : 0;
+			else if (e.key === 'Escape' && e.type === 'keydown' && state !== 1)
+				cassetteAnimation();
 		});
 	});
 
@@ -521,6 +517,7 @@ function setViewState()
 	}
 	else
 	{
+		console.log('pong state: ' + state);
 		inGame = false;
 		util.displayState();
 		camera.targetfov = Math.PI / 2;
@@ -532,24 +529,7 @@ function setViewState()
 	}
 }
 
-function offlineMode()
-{
-	reset();
-	isOffline = true;
-	if(state == 4)
-	{
-		state = 0;
-		setViewState();
-	}
-	inGame = true;
-	util.displayState();
-	if(ws)
-		ws.close();
-	state = 5;
-	countdown = 3;
-	countdowntimer = 3001;
-}
-
+let tourney = 0;
 function connect(id, tournamentId)
 {
 	isOffline = false;
@@ -707,6 +687,23 @@ function connect(id, tournamentId)
 			}
 		}
 	}
+}
+let countdowntimer = 3000;
+function offlineMode()
+{
+	isOffline = true;
+	if(state == 4)
+	{
+		state = 0;
+		setViewState();
+	}
+	inGame = true;
+	util.displayState();
+	if(ws)
+		ws.close();
+	state = 5;
+	countdown = 3;
+	countdowntimer = 3000;
 }
 
 function drawpong()
@@ -941,25 +938,25 @@ function draw()
 	case 0:
 		if(isOffline)
 		{
-			if(inputs[0] == 1)
+			if(controls['w'] == 1)
 			{
 				player1.sety(player1.gety() - 0.04 * dt);
 				if(player1.gety() < stage.top)
 					player1.sety(stage.top);
 			}
-			if(inputs[1] == 1)
+			if(controls['s'] == 1)
 			{
 				player1.sety(player1.gety() + 0.04 * dt);
 				if(player1.gety() > stage.bottom-paddle.height)
 					player1.sety(stage.bottom-paddle.height);
 			}
-			if(inputs[2] == 1)
+			if(controls['ArrowUp'] == 1)
 			{
 				player2.sety(player2.gety() - 0.04 * dt);
 				if(player2.gety() < stage.top)
 					player2.sety(stage.top);
 			}
-			if(inputs[3] == 1)
+			if(controls['ArrowDown'] == 1)
 			{
 				player2.sety(player2.gety() + 0.04 * dt);
 				if(player2.gety() > stage.bottom-paddle.height)
@@ -968,14 +965,14 @@ function draw()
 		}
 		else if(player)
 		{
-			if(inputs[0] == 1)
+			if(controls['w'] == 1)
 			{
 				player.sety(player.gety() - 0.04 * dt);
 				if(player.gety() < stage.top)
 					player.sety(stage.top);
 				sendbytes[0] = 1;
 			}
-			if(inputs[1] == 1)
+			if(controls['s'] == 1)
 			{
 				player.sety(player.gety() + 0.04 * dt);
 				if(player.gety() > stage.bottom-paddle.height)
@@ -1155,28 +1152,6 @@ function stop()
 	match.clearPongText();
 	stopgame = 1;
 	state = 0;
-}
-
-function reset()
-{
-	ball.setx(pongrenderwidth/2.0 - ball.width/2.0);
-	ball.sety(pongrenderheight/2.0 - ball.height/2.0);
-	ball.xspeed = -0.03;
-	ball.yspeed = 0;
-	player1.setsize(paddle.width, paddle.height);
-	player2.setsize(paddle.width, paddle.height);
-	player1.setx(stage.left);
-	player2.setx(stage.right-paddle.width);
-	player1.sety(pongrenderheight/2-paddle.height/2);
-	player2.sety(pongrenderheight/2-paddle.height/2);
-	score.points[0] = 0;
-	score.points[1] = 0;
-	score.ubo1.setdata([
-		score.points[0] % 10 << 8 | score.points[0] / 10 << 0
-	]);
-	score.ubo2.setdata([
-		score.points[1] % 10 << 8 | score.points[1] / 10 << 0
-	]);
 }
 
 function disconnect()
