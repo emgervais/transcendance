@@ -9,7 +9,7 @@ function loadMessages(roomId) {
 	let messages = JSON.parse(sessionStorage.getItem("messages"));
 
 	if(!messages)
-		return;
+		messages = [];
 	messages = messages.filter(room => room.roomId === roomId)
 	messages.forEach(msg => {
 		generateMessage(msg.message, msg.isCurrUser, msg.userId);

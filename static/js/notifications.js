@@ -6,7 +6,7 @@ import * as nav from "/js/nav.js";
 import * as pong from "/js/pong/pong.js";
 import * as util from "/js/util.js";
 import { getCurrUser } from "/js/user/currUser.js";
-import { setUserStatus, getUser, alertStatus } from "/js/user/user.js";
+import { setUserStatus, getUser } from "/js/user/user.js";
 
 let ws;
 
@@ -29,9 +29,13 @@ async function start() {
 				chat.start(data.room);
 				break;
 			case "connection":
-				const prevStatus = (await getUser(data.userId)).status;
 				setUserStatus(data.userId, data.status);
-				alertStatus(data.userId, prevStatus, data.status);
+				if (data.status == "in-game") {
+    				let text = `${(await getUser(data.userId)).username} is playing.`;
+					util.showAlert({
+						text: text,
+					});
+				}
 				break;
 			case "blocked":
 

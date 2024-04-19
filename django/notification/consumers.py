@@ -75,6 +75,11 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         params = event
         params['type'] = params.pop('notification')
         params['onlineFriendIds'] = await get_online_friends(self.user, ids_only=True)
+        if params['type'] == 'connection':
+            if params['status'] == 'offline' and params['userId'] in params['onlineFriendIds']:
+                params['onlineFriendIds'].remove(params['userId'])    
+            elif params['status'] == 'online' and params['userId'] not in params['onlineFriendIds']:
+                params['onlineFriendIds'].append(params['userId'])    
         
         await self.send(text_data=json.dumps(params))
         if params['type'] == 'matchFound':

@@ -5,6 +5,7 @@ import * as chatDisplay from "/js/chat/display.js";
 import * as friends from "/js/account/friends.js";
 import * as notifications from "/js/notifications.js";
 import * as match from "/js/pong/match.js";
+import * as pong from "/js/pong/pong.js";
 import * as router from "/js/router/router.js";
 import * as user from "/js/user/user.js";
 
@@ -40,6 +41,7 @@ const classFunctions = {
 
     'profile-picture-chat': chatDisplay.activateMenu,
 
+    'start-local': pong.offlineMode,
     'start-match': match.invite,
     'start-tournament': (_) => {
         notifications.matchMaking("tournament");
