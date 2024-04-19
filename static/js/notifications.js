@@ -118,7 +118,7 @@ function stop() {
 function matchMaking(roomId, cancel=false) {
 	if (!ws || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED)  {
 		return;
-	}
+	}	
 	ws.send(JSON.stringify({
 		type: "matchmaking",
 		room: roomId,

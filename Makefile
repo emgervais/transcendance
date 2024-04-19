@@ -7,6 +7,9 @@ stop:
 	yes | docker network prune
 	yes | docker image prune
 
+restart_web:
+	docker-compose restart web
+
 clean_migrations:
 	find django -path "*/migrations/*.py" -not -name "__init__.py" -delete
 	find django -path "*/migrations/*.pyc"  -delete
