@@ -136,6 +136,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 await async_send_to_websocket(self.channel_layer, await get_main_channel(opponent_id, True), {
                     'type': 'send.notification', 'notification': 'pong', 'description': 'matchRefused', 'room': room
                 })
+                matchmaking_redis.zrem(room, opponent_id)
                 return True
         return False
     
