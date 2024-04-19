@@ -3,6 +3,7 @@ from users.models import UserChannelGroup, User
 from pong.models import Game
 from rest_framework import serializers
 from channels.layers import get_channel_layer
+import time
 
 TOURNAMENT_NB_PLAYERS = 4
 
@@ -14,13 +15,36 @@ class DictPosSerializer(serializers.Serializer):
             'third': instance['3rd'],
             'fourth': instance['4th']
         }
+        
+def next_round_message(winners, losers):
+    message = 'Next round will start soon!\n'
+    for i in range(0, len(winners), 2):
+        message += f'{User.objects.get(id=winners[i]).username} vs {User.objects.get(id=winners[i+1]).username}\n'
+    for i in range(0, len(losers), 2):
+        message += f'{User.objects.get(id=losers[i]).username} vs {User.objects.get(id=losers[i+1]).username}\n'
+    return message
 
+def announce_tournament(winners, losers):
+    channel_layer = get_channel_layer()
+    message = next_round_message(winners, losers)
+    for user in winners + losers:
+        try:
+            user_channels = UserChannelGroup.objects.get(user_id=user)
+            pong_chat = user_channels.get_global_chat_channel()
+            send_to_websocket(channel_layer, pong_chat, {
+                'type': 'chat.message', 'message': message, 'senderId': 0
+            })
+        except Exception as e:
+            print('Error:', e)
+                
 def tournament_notification(tournament_id, winners, losers, new_game):
     channel_layer = get_channel_layer()
     try:
         if new_game:
             winner_room = '_'.join(sorted([str(user) for user in winners]))
             loser_room = '_'.join(sorted([str(user) for user in losers]))
+            announce_tournament(winners, losers)
+            time.sleep(5)
             for user in winners:
                 send_to_websocket(channel_layer, UserChannelGroup.objects.get(user_id=user).main, {
                     'type': 'send.notification', 'notification': 'pong', 'description': 'matchFound', 'room': winner_room, 'tournamentId': tournament_id + '_1'

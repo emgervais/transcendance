@@ -4,7 +4,8 @@
 }
 
 body {
-  background-color: #D1D1D1;
+  /* background-color: #D1D1D1; */
+  background-color: #4e4d4d;
 }
 
 a {
@@ -767,6 +768,7 @@ font-style: italic;
 
 .pong-text {
   color: white;
+  filter: drop-shadow(5px 5px 3px #000000);
 }
 
 #chat-box, #chat-icon{
@@ -781,6 +783,7 @@ font-style: italic;
   display: none;
   justify-content: center;
   align-items: center;
+  background-color: #00000044;
   z-index: 500;
   background-color: #9d9d9d;
   color: black;

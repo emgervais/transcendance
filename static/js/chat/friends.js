@@ -1,10 +1,31 @@
 import * as chat from "/js/chat/chat.js";
 import * as chatUnreadMessages from "/js/chat/unreadMessages.js";
+import * as util from "/js/util.js";
 import { getUser } from "/js/user/user.js"
 
 let connectedFriends = [];
+let firstSetCall = true;
 
 function set(_connectedFriends) {
+	if (!firstSetCall) {
+		connectedFriends.forEach(async id => {
+			if (!_connectedFriends.includes(id)) {
+				let text = `${(await getUser(id)).username} disconnected.`;
+				util.showAlert({
+					text: text,
+				});
+			}
+		});
+		_connectedFriends.forEach(async id => {
+			if (!connectedFriends.includes(id)) {
+				let text = `${(await getUser(id)).username} connected.`;
+				util.showAlert({
+					text: text,
+				});
+			}
+		});
+	}
+	firstSetCall = false;
 	connectedFriends = _connectedFriends;
 }
 
@@ -54,4 +75,4 @@ async function generateFriendsListElement(container, userId) {
 	container.appendChild(div);
 }
 
-export { set, generateFriendsList };
+export { connectedFriends, set, generateFriendsList };

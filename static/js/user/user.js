@@ -4,6 +4,7 @@ import * as nav from "/js/nav.js";
 import * as router from "/js/router/router.js";
 import * as util from "/js/util.js";
 import * as chat from "/js/chat/chat.js";
+import * as chatFriends from "/js/chat/friends.js";
 import * as messages from "/js/chat/messages.js";
 
 let users = {
@@ -71,21 +72,6 @@ function updateStatusElements(id, status) {
     }
 }
 
-async function alertStatus(id, prevStatus, status) {
-    let text = `${(await getUser(id)).username} `;
-    if (status == "in-game")
-        text += "is playing.";
-    else if (prevStatus == "in-game" && status == "online")
-        return;
-    else if (status == "offline")
-        text += "just disconnected.";
-    else
-        text += "just connected.";
-    util.showAlert({
-        text: text,
-    });
-}
-
 function removeUser(id) {
     delete users[id];
 }
@@ -104,7 +90,6 @@ async function displayUser({
     const div1 = document.createElement("div");
     const div2 = document.createElement("div");
     const createElements = (user) => {
-        console.log("user:", user);
         div.className = "user";
         div1.classList.add('user-infos');
         div2.classList.add('user-buttons');
@@ -284,6 +269,6 @@ function sortUsersByName(container) {
     });    
 }
 
-export { getUser, setUser, setUserStatus, removeUser, unfriend, displayUser, alertStatus };
+export { getUser, setUser, setUserStatus, removeUser, unfriend, displayUser };
 export { block };
 export { sortUsersByStatus, sortUsersByName };
