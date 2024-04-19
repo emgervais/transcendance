@@ -9,10 +9,10 @@ TOURNAMENT_NB_PLAYERS = 4
 class DictPosSerializer(serializers.Serializer):
     def to_representation(self, instance):
         return {
-            '1st': instance['1st'],
-            '2nd': instance['2nd'],
-            '3rd': instance['3rd'],
-            '4th': instance['4th']
+            'first': instance['1st'],
+            'second': instance['2nd'],
+            'third': instance['3rd'],
+            'fourth': instance['4th']
         }
 
 def tournament_notification(tournament_id, winners, losers, new_game):

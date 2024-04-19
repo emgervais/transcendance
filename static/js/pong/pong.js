@@ -242,8 +242,7 @@ function setup()
 	let button = document.getElementById('ping-button');
 	button.onclick = function() {
 		buttonSound.currentTime = 0;
-		if (interactedWithDocument)
-			buttonSound.play();
+		buttonSound.play();
 	}
 	canvas = document.getElementById('webgl-canvas');
 	if(!initGL(canvas))
