@@ -32,6 +32,8 @@
   <h2>Security</h2>
   <p>Security measures implemented in the project include:</p>
   <ul>
+    <li>JWT tokens for user authentication. (HTTP Only, Secure, SameSite)</li>
+    <li>Use of HTTPS and WSS connections for secure communication.</li>
     <li>Encryption of passwords stored in the database.</li>
     <li>Protection against SQL/XSS injections.</li>
     <li>Implementation of HTTPS connection for secure communication.</li>
@@ -43,14 +45,23 @@
 
   <h2>Features</h2>
 
+  <h3>Reverse Proxy</h3>
+  <p>A reverse proxy is implemented using NGINX, providing a secure and efficient connection between the frontend and backend.</p>
+  <p>All interactions with the database are done through the REST API and are authenticated using JWT tokens.</p>
+  <p>Each websocket connection must pass through the authentication middleware and authenticate the user using the JWT token.</p>
+
+
   <h3>Backend Framework</h3>
-  <p>Django framework must be used for backend development.</p>
+  <p>Django REST framework as the API and Django Channels for WebSocket communication are used for the backend.</p>
 
   <h3>Frontend Toolkit</h3>
-  <p>Bootstrap toolkit should be utilized for frontend development.</p>
+  <p>Bootstrap toolkit is used for the frontend, providing a responsive and user-friendly interface.</p>
 
   <h3>Database</h3>
   <p>PostgreSQL is the designated database for the project.</p>
+
+  <h3>Redis</h3>
+  <p>Redis is used for caching and storing session data, ensuring fast and efficient data retrieval.</p>
 
   <h3>User Management and Authentication</h3>
   <p>Users can securely register, authenticate, and manage their profiles. User statistics, game history, and friend management are included.</p>
@@ -63,4 +74,10 @@
 
   <h3>Live Chat</h3>
   <p>A chat system is implemented for users, allowing direct messaging, blocking, and game invitations. Tournament notifications and access to user profiles are integrated into the chat interface.</p>
+
+  <h3>Real-Time Updates</h3>
+  <p>Real-time updates are provided for the chat system, game invitations, and tournament notifications. Users are notified of new messages, invitations, and tournament updates without needing to refresh the page.</p>
+
+## Demo
+![ft_transcendence demo](trans.gif)
 
