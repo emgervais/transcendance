@@ -47,13 +47,12 @@
 
   <h3>Reverse Proxy</h3>
   <p>A reverse proxy is implemented using NGINX, providing a secure and efficient connection between the frontend and backend.</p>
-  <p>All interactions with the database are done through the REST API and are authenticated using JWT tokens.</p>
-  <p>Each websocket connection must pass through the authentication middleware and authenticate the user using the JWT token.</p>
-
 
   <h3>Backend Framework</h3>
   <p>Django REST framework as the API and Django Channels for WebSocket communication are used for the backend.</p>
-
+  <p>All interactions with the database are done through the REST API and are authenticated using JWT tokens.</p>
+  <p>Each websocket connection must pass through the authentication middleware and authenticate the user using the JWT token.</p>
+  
   <h3>Frontend Toolkit</h3>
   <p>Bootstrap toolkit is used for the frontend, providing a responsive and user-friendly interface.</p>
 
